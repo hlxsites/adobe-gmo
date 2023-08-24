@@ -1,0 +1,4 @@
+.current-refinements {
+    grid-area: current-refinements;
+    font-size: var(--header-font-size);
+}

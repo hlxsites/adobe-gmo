@@ -1,0 +1,82 @@
+.asset-details-page-header-wrapper {
+  width: 100%;
+}
+
+.asset-details-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: #d5d5d5 0.2px solid;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+button.action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.asset-details-page-header .top-left,
+.asset-details-page-header .top-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.file-type-image {
+    display: flex;
+    align-items: center;
+}
+
+.asset-details-page-header .top-left > .asset-details-page-title,
+.asset-details-page-header .top-right > button,
+.asset-details-page-header .divider {
+    font: normal normal bold 18px/22px Adobe Clean;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+.asset-details-page-header .divider {
+    display: flex;
+    align-items: center;
+}
+
+.asset-details-page-header .action .icon svg {
+    height: 18px;
+}
+
+.asset-details-page-header button.action {
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    padding: 7px;
+}
+
+.asset-details-page-header button.action:hover {
+    background-color: lightgray;
+}
+
+.asset-details-page-header .icon-info {
+    
+}
+
+.asset-details-page-header .action span.icon {
+    display: flex;
+    align-items: center;
+}
+
+main > .section {
+    padding: 0px;
+}
+
+.asset-details-page-header .asset-details-page-zoom-level {
+    display: flex;
+    align-items: center;
+    font: normal normal bold 16px/20px Adobe Clean;
+    letter-spacing: 0px;
+    color: #222222;
+}

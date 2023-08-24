@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96.235" height="96.235" viewBox="0 0 96.235 96.235">
+  <g id="Play_symbol_for_video_thumbnail" data-name="Play symbol for video thumbnail" transform="translate(-856.957 -236.496)">
+    <g id="Rectangle_331427" data-name="Rectangle 331427" transform="translate(889.953 271.494)" fill="#fff" stroke="#707070" stroke-width="1">
+      <rect width="31" height="29" stroke="none"/>
+      <rect x="0.5" y="0.5" width="30" height="28" fill="none"/>
+    </g>
+    <g id="Action_button" data-name="Action button" transform="translate(856.957 236.496)">
+      <rect id="Placement_Area" data-name="Placement Area" width="96.235" height="96.235" transform="translate(0 0)" fill="red" opacity="0"/>
+      <rect id="Background" width="96.235" height="96.235" rx="4" transform="translate(0 0)" fill="rgba(255,0,0,0)"/>
+      <g id="Icon" transform="translate(20.497 24.5)">
+        <rect id="Canvas" width="53.464" height="53.464" transform="translate(0 0)" fill="#747474" opacity="0"/>
+        <path id="Path_883866" data-name="Path 883866" d="M24.652,1A23.652,23.652,0,1,0,48.3,24.652,23.652,23.652,0,0,0,24.652,1Zm12.62,24.924L19.493,36.271a1.479,1.479,0,0,1-.754.207H17.261A1.478,1.478,0,0,1,15.783,35V14.3a1.478,1.478,0,0,1,1.478-1.478h1.478a1.478,1.478,0,0,1,.754.207L37.272,23.381a1.478,1.478,0,0,1,0,2.543Z" transform="translate(2.08 2.08)" fill="#747474"/>
+      </g>
+    </g>
+  </g>
+</svg>

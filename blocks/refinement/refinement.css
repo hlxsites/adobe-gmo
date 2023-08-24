@@ -1,0 +1,128 @@
+:root {
+  --refinements-padding: 1rem;
+}
+
+.refinement-wrapper {
+  grid-area: refinements;
+  padding-right: 0;
+  padding-left: var(--refinements-padding);
+  height: 85vh;
+  overflow-y: auto;
+  padding-top: 13px;
+}
+
+.refinement-wrapper.open {
+  position: sticky;
+  top: 78px;
+  z-index: 1;
+}
+
+.refinement-wrapper #refinements {
+  display: none;
+}
+
+.refinement-wrapper.open #refinements {
+  display: block;
+}
+
+/** set the width of the refinement wrapper on larger screens */
+@media screen and (min-width: 720px) {
+  .refinement-wrapper {
+    width: 250px;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .refinement-wrapper {
+    width: 100%;
+  }
+}
+
+#refinements span.label {
+  font-size: var(--header-font-size);
+  font-weight: bold;
+  padding-left: 21px;
+  cursor: pointer;
+  display: block;
+  margin-top: 27px;
+  margin-bottom: 15px;
+}
+
+#refinements span.label[aria-expanded="true"] {
+  background: url(/icons/chevron-down.svg) no-repeat left center / 15px 15px;
+}
+
+#refinements span.label[aria-expanded="false"] {
+  background: url(/icons/chevron-right.svg) no-repeat left center / 15px 15px;
+}
+
+.refinement-options {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style: none;
+}
+
+.refinement-options input[type="checkbox"] {
+  outline: 2px solid #6d6d6d;
+  border: none !important;
+  border-radius: 0;
+  box-shadow: none;
+  margin-right: 7px;
+  min-width: unset;
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+.refinement-options .ais-RefinementList-item {
+  /** Approximately 25px on 100% zoom */
+  line-height: 1.98rem;
+  padding-left: 10px;
+}
+
+.refinement-options .ais-RefinementList-count {
+  border-radius: 5px;
+  border: none;
+  background-color: rgba(0,0,0,0.06);
+}
+
+.refinement-options .ais-RefinementList-item:hover {
+  background-color: rgba(0,0,0,0.06);
+  border-radius: 5px;
+}
+
+.refinements-toggle {
+  font-size: var(--header-font-size);
+  padding: 0;
+}
+
+.refinement-options mark {
+  background: none;
+  font-weight: bold;
+}
+
+.refinement-options .refinementList-search-hidden {
+  display: none;
+}
+
+.refinement-options .refinementList-search-shown {
+  display: block;
+}
+
+#filterButton {
+  background: none;
+  border: none;
+  font-weight: bold;
+  white-space: nowrap;
+  padding-left: 0;
+  cursor: pointer;
+}
+
+#filterButton .text {
+  font-size: 1rem;
+}
+
+#filterButton .icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  vertical-align: bottom;
+}

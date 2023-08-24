@@ -1,0 +1,20 @@
+.section.asset-details-page-image-panel-container {
+  display: grid;
+  grid-template-columns: 1fr 301px;
+  grid-template-rows: auto 1fr;
+  justify-items: start;
+  align-items: start;
+}
+
+.asset-details-page-image-panel-wrapper {
+  width: 100%;
+}
+
+.asset-details-page-image-panel {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  background-color: #eaeaea;
+}

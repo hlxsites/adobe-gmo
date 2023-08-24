@@ -1,0 +1,93 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" class="circular-loader" viewBox="25 25 50 50">
+    <style>
+          .circular-loader {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            margin: auto;
+          }
+      
+          .loader-bg-path {
+            stroke-width: 0.17em;
+          }
+      
+          .loader-path {
+            stroke-width: 0.17em;
+            stroke-dasharray: 150, 200;
+            stroke-dashoffset: -100;
+            transform-box: fill-box;
+            transform-origin: center;
+          }
+      
+          .loader-path1 {
+            -webkit-animation: loader-rotate1 1.2s linear infinite;
+            animation: loader-rotate1 1.2s linear infinite;
+      
+          }
+      
+          .loader-path2 {
+            -webkit-animation: loader-rotate2 1.2s linear infinite;
+            animation: loader-rotate2 1.2s linear infinite;
+          }
+      
+          .loader-path3 {
+            -webkit-animation: loader-rotate3 1.2s linear infinite;
+            animation: loader-rotate3 1.2s linear infinite;
+          }
+      
+          .loader-path4 {
+            -webkit-animation: loader-rotate4 1.2s linear infinite;
+            animation: loader-rotate4 1.2s linear infinite;
+          }
+      
+          @keyframes loader-rotate1 {
+            100% {
+              -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
+          }
+      
+          @keyframes loader-rotate2 {
+            40% {
+              -webkit-transform: rotate(140deg);
+              transform: rotate(140deg);
+            }
+      
+            100% {
+              -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
+          }
+      
+          @keyframes loader-rotate3 {
+            40% {
+              -webkit-transform: rotate(200deg);
+              transform: rotate(200deg);
+            }
+      
+            100% {
+              -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
+          }
+      
+          @keyframes loader-rotate4 {
+            40% {
+              -webkit-transform: rotate(270deg);
+              transform: rotate(270deg);
+            }
+      
+            100% {
+              -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
+          }
+    </style>
+    <circle class="loader-bg-path" cx="50" cy="50" r="20" fill="none" stroke="#d5d5d5" stroke-width="2" />
+    <circle class="loader-path loader-path1" cx="50" cy="50" r="20" fill="none" stroke="#2a63d4" stroke-width="2" />
+    <circle class="loader-path loader-path2" cx="50" cy="50" r="20" fill="none" stroke="#2a63d4" stroke-width="2" />
+    <circle class="loader-path loader-path3" cx="50" cy="50" r="20" fill="none" stroke="#2a63d4" stroke-width="2" />
+    <circle class="loader-path loader-path4" cx="50" cy="50" r="20" fill="none" stroke="#2a63d4" stroke-width="2" />
+</svg>

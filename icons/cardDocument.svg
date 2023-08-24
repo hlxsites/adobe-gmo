@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="21" height="23" viewBox="0 0 21 23">
+  <g id="Document_-_file_type_icon" data-name="Document - file type icon" transform="translate(-940 -617)">
+    <path id="Path_1013363" data-name="Path 1013363" d="M7,0h5.659c1.612,0,3.389,1.357,5.474,3.569S21,6.595,21,8.849V16a7,7,0,0,1-7,7H7a7,7,0,0,1-7-7V7A7,7,0,0,1,7,0Z" transform="translate(940 617)" fill="#fff"/>
+    <g id="_2" data-name="2" transform="translate(941.763 619.998)">
+      <path id="Path_1013307" data-name="Path 1013307" d="M12,6h4.87a2.97,2.97,0,0,0-.749-1.293L12.293.879A2.973,2.973,0,0,0,11,.13V5A1,1,0,0,0,12,6Z" transform="translate(0.006)" fill="#519b7a"/>
+      <path id="Path_1013308" data-name="Path 1013308" d="M6,17h6a5.007,5.007,0,0,0,5-5V8H12A3,3,0,0,1,9,5V0H6A5.007,5.007,0,0,0,1,5v7A5.007,5.007,0,0,0,6,17Z" fill="#519b7a"/>
+    </g>
+  </g>
+</svg>

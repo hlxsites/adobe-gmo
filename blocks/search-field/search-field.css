@@ -1,0 +1,31 @@
+.search-field {
+    position: relative;
+}
+
+.search-field input {
+    border-radius: 25px;
+    background-color: #EEEEEE;
+    width: 100%;
+    color: #000;
+    /*var(--header-text-color);*/
+    height: 100%;
+    padding: 0.8em 0.8em 0.8em 40px;
+}
+
+.search-field input::placeholder {
+    color: #7d7d7d;
+}
+
+.search-field input::placeholder {
+    color: #7d7d7d;
+}
+
+/** override algolia's background color for search box **/
+.ais-SearchBox-form {
+    background-color: transparent !important;
+}
+
+.ais-SearchBox-form input:focus {
+    border: 0;
+    margin-left: 1px;
+}

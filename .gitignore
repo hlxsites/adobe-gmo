@@ -1,0 +1,11 @@
+/.idea/
+*.orig
+node_modules
+
+.hlx/*
+coverage/*
+logs/*
+node_modules/*
+
+helix-importer-ui
+.DS_Store
