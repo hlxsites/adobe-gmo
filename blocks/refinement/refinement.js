@@ -84,12 +84,20 @@ export default async function decorate(block) {
         },
       ),
     ]);
+    // set facet visibility
+    // Should be hidden when there are no refinements or results from searched facets;
+    // visible otherwise
     const observer = new MutationObserver(() => {
-      // check if ais-RefinementList--noRefinement is present
-      if (options.querySelector('.ais-RefinementList--noRefinement')) {
-        options.parentNode.style.display = 'none';
+      const noRefinementsEl = options.querySelector('.ais-RefinementList--noRefinement');
+      if (noRefinementsEl) {
+        if (noRefinementsEl.querySelector('.ais-RefinementList-searchBox')
+            && noRefinementsEl.querySelector('.ais-RefinementList-noResults')) {
+          refinementDiv.classList.remove('hidden');
+        } else {
+          refinementDiv.classList.add('hidden');
+        }
       } else {
-        options.parentNode.style.display = 'block';
+        refinementDiv.classList.remove('hidden');
       }
     });
     observer.observe(options, {

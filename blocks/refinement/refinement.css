@@ -108,6 +108,10 @@
   display: block;
 }
 
+.refinement .hidden {
+  display: none;
+}
+
 #filterButton {
   background: none;
   border: none;
