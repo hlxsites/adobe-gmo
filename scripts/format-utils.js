@@ -1,5 +1,6 @@
-const defaultDateFormatOptions = { dateStyle: 'short', timeStyle: 'short' };
-const dateFormatter = new Intl.DateTimeFormat(undefined, defaultDateFormatOptions);
+import { fetchSiteConfig } from './site-config.js';
+const config = await fetchSiteConfig('main');
+const dateFormatRaw = config.find((elem) => elem.configProperty === 'dateFormat')?.value;
 
 /**
  * Get a formatted human readable file size string
@@ -51,19 +52,27 @@ export function formatNumber(str) {
 /**
  * Formats a date in the best format for the locale of the user's browser.
  * @param {Date|string} date - The date to format, as a Date object or a string.
- * @param {Object} [options] - An optional object specifying formatting options
- * per the Intl.DateTimeFormat constructor.
  * @returns {string} The formatted date string.
  */
-export function formatDate(date, options) {
+export function formatDate(date) {
   const d = date instanceof Date ? date : new Date(date);
-  let formattedDate;
-  if (options === undefined) {
-    formattedDate = dateFormatter.format(d);
+  const dd = String(d.getDate()).padStart(2, '0');
+  let mm = d.getMonth() + 1;
+  const mmStr = String(mm).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  const dateFormat = dateFormatRaw?.split('e')[0].trim();
+  if (dateFormat === 'DD-MM-YYYY') {
+    return `${dd}-${mmStr}-${yyyy}`;
+  // eslint-disable-next-line no-else-return
+  } else if (dateFormat === 'MM-DD-YYYY') {
+    return `${mmStr}-${dd}-${yyyy}`;
+  } else if (dateFormat === 'YYYY-MM-DD') {
+    return `${yyyy}-${mmStr}-${dd}`;
   } else {
-    formattedDate = new Intl.DateTimeFormat(undefined, options).format(d);
+    mm -= 1;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[mm]} ${dd}, ${yyyy}`;
   }
-  return formattedDate;
 }
 
 /**
