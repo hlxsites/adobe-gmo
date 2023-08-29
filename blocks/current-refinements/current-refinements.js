@@ -1,5 +1,6 @@
 import { fetchSiteConfig } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
+import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 
 // Define algolia search client globals
 /* global instantsearch */
@@ -37,4 +38,14 @@ export default function decorate(block) {
       },
     ),
   ]);
+
+  const obs = new MutationObserver(() => {
+    const currentRefinementItems = block.querySelectorAll('.ais-CurrentRefinements-delete');
+    currentRefinementItems.forEach((currentRefinementItem) => {
+      currentRefinementItem.addEventListener('click', () => {
+        closeAssetDetails();
+      });
+    });
+  });
+  obs.observe(block, { childList: true, subtree: true });
 }

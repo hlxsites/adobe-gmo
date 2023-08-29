@@ -1,6 +1,7 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { fetchSiteConfig } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
+import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 
 // Define algolia search client globals
 /* global instantsearch */
@@ -153,6 +154,14 @@ export default async function decorate(block) {
         searchBoxEl.classList.remove('refinementList-search-hidden');
         searchBoxEl.classList.add('refinementList-search-shown');
       }
+    });
+    const refinementCheckboxs = document.querySelectorAll(
+      '.ais-RefinementList-item'
+    );
+    refinementCheckboxs.forEach((refinementCheckbox) => {
+      refinementCheckbox.addEventListener('click', () => {
+        closeAssetDetails();
+      });
     });
   });
   obs.observe(refinementsEl, { childList: true, subtree: true });

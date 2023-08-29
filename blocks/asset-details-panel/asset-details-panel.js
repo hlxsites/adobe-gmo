@@ -146,6 +146,4 @@ export default async function decorate(block) {
   block.querySelector('#asset-details-next').addEventListener('click', () => {
     selectNextAsset();
   });
-  const assetId = getQueryVariable('assetId') || getAnchorVariable('assetId');
-  if (assetId) openAssetDetails(assetId);
 }

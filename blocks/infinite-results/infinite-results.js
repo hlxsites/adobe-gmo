@@ -160,12 +160,6 @@ function selectAssetCard(asset) {
     assetCard.classList.add('selected');
     assetCard.attributes['aria-selected'] = true;
     currentlySelectedAssetCard = assetCard;
-    // add `#assetId=${assetId}`; to the URL without reloading the page
-    if (!window.location.hash) {
-      window.history.replaceState(window.history.state, '', `#assetId=${assetCard.dataset.assetId}`);
-    } else {
-      window.history.pushState({ assetId: assetCard.dataset.assetId }, '', `#assetId=${assetCard.dataset.assetId}`);
-    }
   }
 }
 
