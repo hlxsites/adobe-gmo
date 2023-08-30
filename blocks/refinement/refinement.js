@@ -6,26 +6,36 @@ import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js
 // Define algolia search client globals
 /* global instantsearch */
 
+const TEXT_HIDE_FILTERS = 'Hide filters';
+const TEXT_SHOW_FILTERS = 'Filters';
+
 function addFilterButton(block) {
   const toggleFilterPanelButton = document.createElement('div');
   toggleFilterPanelButton.classList.add('refinements-toggle');
   toggleFilterPanelButton.innerHTML = `<button id="filterButton">
-  <span class="icon icon-filter"></span>
-  <span class="text">Hide Filters</span>
-</button> `;
+  <span class="icon icon-filter-open"></span>
+  <span class="icon icon-filter-closed hidden"></span>
+  <span class="text">${TEXT_HIDE_FILTERS}</span>
+</button><span class="filter-divider hidden"></span>`;
   toggleFilterPanelButton.onclick = () => {
     const span = toggleFilterPanelButton.querySelector('span.text');
-    if (span.textContent === 'Hide Filters') {
-      span.textContent = 'Show Filters';
+    if (span.textContent === TEXT_HIDE_FILTERS) {
+      span.textContent = TEXT_SHOW_FILTERS;
       document.querySelector('.refinement-wrapper').classList.remove('open');
       document.querySelector('.section.infinite-results-container').classList.add('left-closed');
+      toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-closed').classList.remove('hidden');
+      toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-open').classList.add('hidden');
+      toggleFilterPanelButton.querySelector('.filter-divider').classList.remove('hidden');
     } else {
-      span.textContent = 'Hide Filters';
+      span.textContent = TEXT_HIDE_FILTERS;
       document.querySelector('.refinement-wrapper').classList.add('open');
       document.querySelector('.section.infinite-results-container').classList.remove('left-closed');
+      toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-open').classList.remove('hidden');
+      toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-closed').classList.add('hidden');
+      toggleFilterPanelButton.querySelector('.filter-divider').classList.add('hidden');
     }
   };
-
+  document.createElement('span')
   block.appendChild(toggleFilterPanelButton);
 }
 

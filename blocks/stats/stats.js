@@ -1,5 +1,3 @@
-import { formatNumber } from '../../scripts/format-utils.js';
-
 // Define algolia search client globals
 /* global instantsearch */
 
@@ -17,13 +15,20 @@ export default function decorate(block) {
           text(data, { html }) {
             let count = '';
             if (data.hasManyResults) {
-              count += `${data.nbHits} results`;
+              count += `${data.nbHits}`;
             } else if (data.hasOneResult) {
-              count += '1 result';
+              count += '1';
             } else {
-              count += '0 result';
+              count += '0';
             }
-            return html`<span><strong>${formatNumber(count)}</strong> Assets</span>`;
+            let statsWord = 'Assets';
+            if (!document.querySelector('.current-refinements .ais-CurrentRefinements--noRefinement')) {
+              statsWord = 'Results';
+            }
+            return html`
+              <span class="stats-count-label">${count}</span>
+              <span class="stats-text-label"> ${statsWord}</span>
+            `;
           },
         },
       },

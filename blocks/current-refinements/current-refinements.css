@@ -1,4 +1,5 @@
 .current-refinements {
     grid-area: current-refinements;
     font-size: var(--header-font-size);
+    padding-top: 6px;
 }

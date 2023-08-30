@@ -1,11 +1,6 @@
-:root {
-  --refinements-padding: 1rem;
-}
-
 .refinement-wrapper {
   grid-area: refinements;
   padding-right: 0;
-  padding-left: var(--refinements-padding);
   height: 85vh;
   overflow-y: auto;
   padding-top: 13px;
@@ -49,28 +44,56 @@
 }
 
 #refinements span.label[aria-expanded="true"] {
-  background: url(/icons/chevron-down.svg) no-repeat left center / 15px 15px;
+  background: url(/icons/chevron-down.svg) no-repeat left center / 16px;
 }
 
 #refinements span.label[aria-expanded="false"] {
-  background: url(/icons/chevron-right.svg) no-repeat left center / 15px 15px;
+  background: url(/icons/chevron-right.svg) no-repeat left center / 16px;
 }
 
 .refinement-options {
   margin-top: 0;
   margin-bottom: 0;
   list-style: none;
+  font-family: var(--body-font-family);
 }
 
-.refinement-options input[type="checkbox"] {
-  outline: 2px solid #6d6d6d;
-  border: none !important;
-  border-radius: 0;
+.refinement-options .ais-RefinementList-checkbox {
+  margin-left: 0px;
   box-shadow: none;
-  margin-right: 7px;
+  background: var(--white-background-color) 0% 0% no-repeat padding-box;
+  border: 2px solid var(--border-color);
+  opacity: 1;
+  vertical-align: text-bottom;
   min-width: unset;
-  width: 0.65rem;
-  height: 0.65rem;
+  width: 14px;
+  height: 14px;
+}
+
+.refinement-options input[type="checkbox"].ais-RefinementList-checkbox  {
+  border-radius: 2px;
+}
+
+.ais-RefinementList-item--selected .ais-RefinementList-checkbox,.ais-GeoSearch-input:checked {
+  background-image: unset !important;
+  background-size: unset !important;
+  border-color: unset !important;
+  box-shadow: unset !important;
+  background: url(/icons/checkmark.svg) 0% 0% no-repeat padding-box !important;
+  background-color: var(--checkbox-checked-background-color) !important;
+  opacity: 1 !important;
+}
+
+.refinement-options .ais-RefinementList-labelText {
+  font: var(--refinement-item-font);
+  color: var(--text-color);
+  text-align: left;
+  letter-spacing: 0px;
+  opacity: 1;
+}
+
+.refinement-options .ais-RefinementList-count {
+  font: var(--refinement-item-font);
 }
 
 .refinement-options .ais-RefinementList-item {
@@ -117,16 +140,43 @@
   border: none;
   font-weight: bold;
   white-space: nowrap;
+  margin-left: 0;
+  margin-right: 0;
   padding-left: 0;
+  padding-right: 0;
   cursor: pointer;
 }
 
 #filterButton .text {
-  font-size: 1rem;
+  text-align: left;
+  font: normal normal bold 16px/20px Adobe Clean;
+  letter-spacing: 0px;
+  color: var(--text-color);
+  opacity: 1;
+  margin-left: 0.250em;
 }
 
 #filterButton .icon {
-  height: 1.25rem;
-  width: 1.25rem;
-  vertical-align: bottom;
+  height: 1rem;
+  width: 1rem;
+  vertical-align: text-bottom;
+}
+
+#filterButton > span.icon.hidden {
+  display: none;
+}
+
+.refinements-toggle .filter-divider {
+  width: 1px;
+  height: 17px;
+  background: #FFFFFF 0% 0% no-repeat padding-box;
+  border: 1px solid #6D6D6D;
+  opacity: 0.39;
+  margin-left: 11px;
+  margin-right: 11px;
+  display: inline;
+}
+
+.refinements-toggle .filter-divider.hidden {
+  display: none;
 }

@@ -12,8 +12,6 @@
 }
 
 .section.infinite-results-container {
-    padding-left: 0;
-    padding-right: 0.8em;
     padding-top: 10px;
     display: grid;
     grid-template-columns: min-content max-content auto min-content;
@@ -24,16 +22,17 @@
     align-items: start;
     background-color: var(--assets-browser-background-color);
     border-top: solid #F1F1F1 2px;
+    column-gap: 1em;
 }
 
 .section.infinite-results-container.left-closed {
+    grid-template-columns: 64px max-content auto min-content;
     grid-template-areas:
       "refinements stats current-refinements asset-details"
       "infinite-results infinite-results infinite-results asset-details";
 }
 
 .infinite-results .assets {
-    padding: var(--assets-browser-padding);
     padding-top: 0px;
     flex: 1;
 }

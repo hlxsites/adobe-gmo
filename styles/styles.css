@@ -25,17 +25,16 @@
   --asset-details-image-background-color: #e1e1e1;
   --metadata-label-color: var(--label-color);
   --metadata-tag-background-color: #fff;
+  --checkbox-checked-background-color: #5158E3;
 
   --metadata-tag-text-color: #505050;
+  --stats-label-color: var(--label-color);
 
   /* borders */
+  --border-color: #6d6d6d;
   --assets-browser-selected-border-color: #5258e4;
-  --metadata-tag-border-color: #6d6d6d;
+  --metadata-tag-border-color: var(--border-color);
   --metadata-tag-border: 1px solid var(--metadata-tag-border-color);
-  
-
-  /* spacing */
-  --assets-browser-padding: 1em;
 
   /* buttons */
   --button-hover-color: #e6e6e6;
@@ -58,6 +57,8 @@
   --metadata-font: normal normal normal 14px/17px Adobe Clean;
   --metadata-label-font: var(--metadata-font);
   --metadata-tags-font: normal normal normal 12px/15px Adobe Clean;
+  --refinement-item-font: normal normal normal 14px/17px Adobe Clean;
+  --stats-label-font: normal normal normal 16px/20px Adobe Clean;
 
   /* heading sizes */
   --header-font-size: 14px;
@@ -282,7 +283,7 @@ main .section {
 */
 
 main > .section {
-  padding: 0px 16px 0;
+  padding: 0px 1.5rem 0px;
 }
 
 @media (min-width: 900px) {
