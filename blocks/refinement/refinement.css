@@ -1,15 +1,16 @@
 .refinement-wrapper {
   grid-area: refinements;
   padding-right: 0;
-  height: 85vh;
-  overflow-y: auto;
-  padding-top: 13px;
+  padding-top: 14px;
 }
 
 .refinement-wrapper.open {
   position: sticky;
   top: 78px;
   z-index: 1;
+  overflow-y: auto;
+  height: 80vh;
+  width: 250px;
 }
 
 .refinement-wrapper #refinements {
@@ -18,13 +19,6 @@
 
 .refinement-wrapper.open #refinements {
   display: block;
-}
-
-/** set the width of the refinement wrapper on larger screens */
-@media screen and (min-width: 720px) {
-  .refinement-wrapper {
-    width: 250px;
-  }
 }
 
 @media screen and (max-width: 720px) {
@@ -173,7 +167,6 @@
   border: 1px solid #6D6D6D;
   opacity: 0.39;
   margin-left: 11px;
-  margin-right: 11px;
   display: inline;
 }
 

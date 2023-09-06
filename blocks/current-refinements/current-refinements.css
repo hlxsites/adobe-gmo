@@ -3,3 +3,48 @@
     font-size: var(--header-font-size);
     padding-top: 6px;
 }
+
+.ais-CurrentRefinements .refinement-item {
+    height: 24px;
+    background: var(--tag-background-color) 0% 0% no-repeat padding-box;
+    border: var(--tag-border);
+    border-radius: 4px;
+    opacity: 1;
+    vertical-align: middle;
+    padding: 8px;
+}
+
+.ais-CurrentRefinements .refinement-label,.refinement-category-label {
+    height: 15px;
+    text-align: left;
+    font: var(--current-refinement-font);
+    letter-spacing: 0px;
+    color: var(--tag-text-color);
+    opacity: 1;
+}
+
+.ais-CurrentRefinements .refinement-category-label {
+    margin-right: 3px;
+}
+
+.ais-CurrentRefinements .refinement-category {
+    height: 15px;
+    margin-left: 4px;
+}
+
+.ais-CurrentRefinements .refinement-delete {
+    width: 7px;
+    height: 7px;
+    margin-top: 4.5px;
+    background: transparent url(/icons/refinement-clear.svg) 0% 0% no-repeat padding-box;
+    color: unset;
+    opacity: 1;
+    outline-width: unset;
+}
+
+.ais-CurrentRefinements .refinement-list {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+}

@@ -6,7 +6,6 @@
   top: 79px;
   box-shadow: 0 0 7px rgb(0 0 0 / 10%);
   border-radius: 10px;
-  padding-top: 60px;
   scrollbar-width: none;
   overflow: auto;
 }
@@ -88,9 +87,9 @@
 }
 
 .asset-details-header-container {
-  position: fixed;
+  position: sticky;
   z-index: 900;
-  top: 79px;
+  top: 0;
 }
 
 .asset-details-header {
@@ -155,9 +154,9 @@ button.action-share-asset svg, button.action-download-asset svg, button.action-a
 }
 
 .tag {
-  background: none #fff;
-  border: var(--metadata-tag-border);
-  color: var(--metadata-tag-text-color);
+  background: none var(--tag-background-color);
+  border: var(--tag-border);
+  color: var(--tag-text-color);
   box-shadow: none;
   padding: 4px 9.5px 4px 9.5px;
   border-radius: 4px;

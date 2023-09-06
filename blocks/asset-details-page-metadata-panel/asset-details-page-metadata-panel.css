@@ -40,8 +40,8 @@
 
 .tag {
     background: none #fff;
-    border: var(--metadata-tag-border);
-    color: var(--metadata-tag-text-color);
+    border: var(--tag-border);
+    color: var(--tag-text-color);
     box-shadow: none;
     padding: 4px 9.5px 4px 9.5px;
     border-radius: 4px;

@@ -15,20 +15,21 @@
     padding-top: 10px;
     display: grid;
     grid-template-columns: min-content max-content auto min-content;
-    grid-template-rows: 60px auto;
+    grid-template-rows: auto auto;
     grid-template-areas:
-        "refinements stats current-refinements asset-details"
+        "refinements stats current-refinements current-refinements"
         "refinements infinite-results infinite-results asset-details";
     align-items: start;
     background-color: var(--assets-browser-background-color);
     border-top: solid #F1F1F1 2px;
-    column-gap: 1em;
+    column-gap: 11px;
+    row-gap: 1em;
 }
 
 .section.infinite-results-container.left-closed {
-    grid-template-columns: 64px max-content auto min-content;
+    grid-template-columns: min-content max-content auto min-content;
     grid-template-areas:
-      "refinements stats current-refinements asset-details"
+      "refinements stats current-refinements current-refinements"
       "infinite-results infinite-results infinite-results asset-details";
 }
 
