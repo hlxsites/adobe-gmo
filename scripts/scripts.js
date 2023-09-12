@@ -14,7 +14,7 @@ import {
 } from './lib-franklin.js';
 import { fetchUserDefinedConfig } from './site-config.js';
 // eslint-disable-next-line import/no-cycle
-import { getBearerToken } from './security.js';
+import { getBearerToken, checkUserAccess } from './security.js';
 import {
   getSearchIndex, getBackendApiKey, getDeliveryEnvironment, getDownloadUrl,
 } from './polaris.js';
@@ -138,7 +138,14 @@ async function initSearch() {
  */
 async function loadEager(doc) {
   await getBearerToken();
-  await initSearch();
+  if (!window.location.pathname.includes('/no-access')) {
+    const hasAccess = await checkUserAccess();
+    if (!hasAccess) {
+      window.location.href = '/no-access';
+      return;
+    }
+    await initSearch();
+  }
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
   applySiteBranding();

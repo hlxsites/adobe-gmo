@@ -1,4 +1,4 @@
-const configCache = {};
+import { fetchCached } from './fetch-util.js';
 
 /**
  * Gets base path for config files
@@ -15,42 +15,15 @@ function getBaseConfigPath() {
   return window.hlx.codeBasePath;
 }
 
-async function fetchConfig(filename) {
+async function getConfig(filename) {
   if (!filename) throw new Error('filename is required');
   let jsonResponse;
   try {
-    const json = async (resp) => {
-      if (resp.ok) {
-        return resp.json();
-      }
-      return undefined;
-    };
-    let resp = await fetch(`${getBaseConfigPath()}/${filename}`);
-    jsonResponse = await json(resp);
-    if (jsonResponse === undefined) {
-      resp = await fetch(`${window.hlx.codeBasePath}/${filename}`);
-      jsonResponse = await json(resp);
-      if (jsonResponse === undefined) {
-        throw new Error(`${resp.status}: ${resp.statusText}`);
-      }
-    }
-    if (jsonResponse !== undefined) {
-      return jsonResponse;
-    }
+    jsonResponse = await fetchCached(`${getBaseConfigPath()}/${filename}`, {}, `${window.hlx.codeBasePath}/${filename}`);
+    return jsonResponse;
   } catch (error) {
-    throw new Error(`Error fetching ${filename}: ${error}`);
+    throw new Error(`Error fetching ${filename}: ${error}`, error);
   }
-  return undefined;
-}
-
-async function getConfig(filename, configCacheKey) {
-  if (configCache[configCacheKey] !== undefined) {
-    return configCache[configCacheKey];
-  }
-
-  configCache[configCacheKey] = fetchConfig(filename);
-  configCache[configCacheKey] = await configCache[configCacheKey];
-  return configCache[configCacheKey];
 }
 
 /**
@@ -60,7 +33,7 @@ async function getConfig(filename, configCacheKey) {
  * @returns 
  */
 export async function fetchConfigSheet(fileName, worksheetId) {
-  const config = await getConfig(`${fileName}?sheet=${worksheetId}`, `${fileName}:${worksheetId}`);
+  const config = await getConfig(`${fileName}?sheet=${worksheetId}`);
   return config.data;
 }
 
@@ -68,7 +41,7 @@ export async function fetchConfigSheet(fileName, worksheetId) {
  * Gets site config object from /site-config.json
  */
 export async function fetchSiteConfig(worksheetId) {
-  const config = await getConfig('site-config.json', 'globalSiteConfig');
+  const config = await getConfig('site-config.json');
   return config[worksheetId]?.data;
 }
 
@@ -77,6 +50,6 @@ export async function fetchSiteConfig(worksheetId) {
  * @returns {object} Window site configurations object
  */
 export async function fetchUserDefinedConfig() {
-  const configs = await getConfig('configurations.json', 'userDefinedSiteConfigs');
+  const configs = await getConfig('configurations.json');
   return configs.data[0];
 }

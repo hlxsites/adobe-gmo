@@ -1,16 +1,26 @@
 import { loadScript } from './lib-franklin.js';
+import { fetchCached } from './fetch-util.js';
 import { fetchSiteConfig } from './site-config.js';
 
 let isIMSInitialized = false;
 const config = await fetchSiteConfig('main');
-const environment = config.find((elem) => elem.configProperty === 'environment')?.value === 'stage' ? 'stg1' : 'prod';
+const environment = config.find((elem) => elem.configProperty === 'imsEnvironment')?.value === 'stage' ? 'stg1' : 'prod';
+const imsOrgID = config.find((elem) => elem.configProperty === 'imsOrg')?.value;
+let imsUserGroup = config.find((elem) => elem.configProperty === 'imsUserGroup')?.value;
+if (!imsUserGroup) {
+  imsUserGroup = 'assets-distribution-portal-users';
+}
 
 const IMS_CONFIG = {
   xApiKey: 'assets-distribution-portal',
-  scope: 'openid,AdobeID,additional_info.projectedProductContext',
+  scope: 'openid,AdobeID,additional_info.projectedProductContext,read_organizations',
   urls: {
     stg1: 'https://auth-stg1.services.adobe.com/imslib/imslib.js',
     prod: 'https://auth.services.adobe.com/imslib/imslib.min.js',
+    ims: {
+      stg1: 'https://ims-na1-stg1.adobelogin.com',
+      prod: 'https://ims-na1.adobelogin.com',
+    },
   },
 };
 
@@ -79,4 +89,38 @@ export async function getBearerToken() {
 export async function getUserProfile() {
   const userProfile = await window.adobeIMS.getProfile();
   return userProfile;
+}
+
+async function getIMSOrgData() {
+  const bearerToken = await getBearerToken();
+  const imsData = await fetchCached(
+    `${IMS_CONFIG.urls.ims[environment]}/ims/organizations/v6?client_id=${IMS_CONFIG.xApiKey}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: bearerToken,
+      },
+    },
+  );
+  return imsData;
+}
+
+async function getSecurityGroupMemberships() {
+  let imsOrgData = await getIMSOrgData();
+  if (imsOrgData && Array.isArray(imsOrgData) && imsOrgData.length > 0) {
+    imsOrgData = imsOrgData.find((elem) => elem.orgRef.ident === imsOrgID.replace('@AdobeOrg', ''));
+    if (imsOrgData && imsOrgData.groups) {
+      return imsOrgData.groups;
+    }
+  }
+  return [];
+}
+
+async function isUserInSecurityGroup(securityGroup) {
+  const securityGroupMemberships = await getSecurityGroupMemberships();
+  return securityGroupMemberships.find((elem) => elem.groupName === securityGroup) !== undefined;
+}
+
+export async function checkUserAccess() {
+  return isUserInSecurityGroup(imsUserGroup);
 }
