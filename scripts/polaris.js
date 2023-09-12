@@ -42,7 +42,7 @@ export function getSearchIndex() {
  * @param {*} assetName the SEO friendly name for the asset
  * @returns the base URL to the image delivery service for the asset
  */
-function getBaseDeliveryUrl(assetId, assetName) {
+export function getBaseDeliveryUrl(assetId, assetName) {
   return `${getDeliveryEnvironment()}/adobe/dynamicmedia/deliver/${assetId}/${assetName}`;
 }
 

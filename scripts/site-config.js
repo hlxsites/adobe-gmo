@@ -54,6 +54,17 @@ async function getConfig(filename, configCacheKey) {
 }
 
 /**
+ * Get configuration by file name and worksheet ID.
+ * @param {*} fileName Name of the configuration file (JSON)
+ * @param {*} worksheetId Worksheet ID
+ * @returns 
+ */
+export async function fetchConfigSheet(fileName, worksheetId) {
+  const config = await getConfig(`${fileName}?sheet=${worksheetId}`, `${fileName}:${worksheetId}`);
+  return config.data;
+}
+
+/**
  * Gets site config object from /site-config.json
  */
 export async function fetchSiteConfig(worksheetId) {
