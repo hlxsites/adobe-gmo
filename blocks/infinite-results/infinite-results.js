@@ -344,6 +344,13 @@ function createCardElement(hit) {
   return card;
 }
 
+export async function scrollToSearchResults() {
+  window.scrollTo({
+    top: document.getElementById('assets').offsetTop,
+    behavior: 'smooth',
+  });
+}
+
 export default async function decorate(block) {
   const hits = document.createElement('div');
   hits.id = 'assets';

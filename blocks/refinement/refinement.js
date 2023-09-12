@@ -2,6 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { fetchSiteConfig } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
 import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
+import { scrollToSearchResults } from '../infinite-results/infinite-results.js';
 
 // Define algolia search client globals
 /* global instantsearch */
@@ -166,11 +167,12 @@ export default async function decorate(block) {
       }
     });
     const refinementCheckboxs = document.querySelectorAll(
-      '.ais-RefinementList-item'
+      '.ais-RefinementList-item',
     );
     refinementCheckboxs.forEach((refinementCheckbox) => {
       refinementCheckbox.addEventListener('click', () => {
         closeAssetDetails();
+        scrollToSearchResults();
       });
     });
   });
