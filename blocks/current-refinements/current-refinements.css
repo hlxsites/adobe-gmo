@@ -1,50 +1,69 @@
+.current-refinements-wrapper {
+    grid-column: span 2;
+}
+
 .current-refinements {
     grid-area: current-refinements;
     font-size: var(--header-font-size);
     padding-top: 6px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start;
 }
 
-.ais-CurrentRefinements .refinement-item {
+.current-refinement-item {
     height: 24px;
     background: var(--tag-background-color) 0% 0% no-repeat padding-box;
     border: var(--tag-border);
     border-radius: 4px;
     opacity: 1;
     vertical-align: middle;
-    padding: 8px;
+    padding: 0px 2px 0px 6px;
+    display: inline-block;
+    margin-right: 8px;
+    margin-bottom: 8px;
 }
 
-.ais-CurrentRefinements .refinement-label,.refinement-category-label {
+.current-refinement-label {
     height: 15px;
-    text-align: left;
     font: var(--current-refinement-font);
-    letter-spacing: 0px;
     color: var(--tag-text-color);
     opacity: 1;
+    overflow: hidden;
+    line-height: 24px;
 }
 
-.ais-CurrentRefinements .refinement-category-label {
-    margin-right: 3px;
-}
-
-.ais-CurrentRefinements .refinement-category {
-    height: 15px;
-    margin-left: 4px;
-}
-
-.ais-CurrentRefinements .refinement-delete {
+.current-refinement-delete {
     width: 7px;
     height: 7px;
-    margin-top: 4.5px;
     background: transparent url(/icons/refinement-clear.svg) 0% 0% no-repeat padding-box;
-    color: unset;
     opacity: 1;
-    outline-width: unset;
+	border: none;
+    vertical-align: middle;
+    margin-left: 0.125em;
 }
 
-.ais-CurrentRefinements .refinement-list {
-    display: flex;
-    gap: 0.5rem;
-    flex-direction: row;
-    flex-wrap: wrap;
+#clear-refinements button:disabled {
+    display: none;
+}
+
+#clear-refinements {
+    padding-top: 4px;
+}
+
+#clear-refinements .clear-all-button {
+    border: none;
+    border-radius: unset;
+    padding: 0;
+    background: transparent;
+    height: 0rem;
+    white-space: nowrap;
+    cursor: pointer;
+    text-align: left;
+    font: normal normal bold 12px/15px var(--body-font-family);
+    letter-spacing: 0px;
+    color: #222222;
+    opacity: 1;
 }

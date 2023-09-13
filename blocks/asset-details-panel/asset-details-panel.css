@@ -137,7 +137,7 @@ button.action-share-asset svg, button.action-download-asset svg, button.action-a
 }
 
 .asset-details-panel-wrapper .asset-details-panel .metadata-filename {
-  font: normal normal bold 28px/35px Adobe Clean;
+  font: normal normal bold 28px/35px var(--body-font-family);
 }
 
 .asset-details-panel #asset-details-metadata-container {

@@ -12,30 +12,48 @@ for (const item of refinementList) {
   refinementsByProperty[item.property] = item;
 }
 
+const TEXT_CLEAR_REFINEMENTS = 'clear-refinements';
+
 export default function decorate(block) {
   const currentRefinements = document.createElement('div');
   currentRefinements.id = 'current-refinements';
   currentRefinements.classList.add('current-refinements');
   block.appendChild(currentRefinements);
 
-  const renderCurrentRefinements = (renderOptions, isFirstRender) => {
+  const clearRefinements = document.createElement('div');
+  clearRefinements.id = 'clear-refinements';
+  clearRefinements.classList.add('clear-refinements', 'hidden');
+  currentRefinements.appendChild(clearRefinements);
+
+  window.search.addWidgets([
+    instantsearch.widgets.clearRefinements(
+      {
+        container: `#${TEXT_CLEAR_REFINEMENTS}`,
+        cssClasses: {
+          root: 'clear-all',
+          button: 'clear-all-button',
+        },
+        templates: {
+          resetLabel({ hasRefinements }, { html }) {
+            if (hasRefinements) {
+              clearRefinements.classList.remove('hidden');
+            } else {
+              clearRefinements.classList.add('hidden');
+            }
+            return html`${hasRefinements ? 'Clear all' : ''}`;
+          },
+        },
+      },
+    ),
+  ]);
+
+  const renderCurrentRefinements = (renderOptions) => {
     const {
       items, widgetParams, refine,
     } = renderOptions;
 
-    if (isFirstRender) {
-      const currRefinementsDivEl = document.createElement('div');
-      currRefinementsDivEl.classList.add('ais-CurrentRefinements');
-
-      const currrefinementListEl = document.createElement('ul');
-      currrefinementListEl.classList.add('ais-CurrentRefinements-list', 'refinement-list');
-
-      currRefinementsDivEl.appendChild(currrefinementListEl);
-      widgetParams.container.appendChild(currRefinementsDivEl);
-      return;
-    }
-
-    const refinementsEl = widgetParams.container.querySelector('.ais-CurrentRefinements-list');
+    const refinementsEl = widgetParams.container;
+    const clearRefinementEl = refinementsEl.querySelector('#clear-refinements');
     refinementsEl.innerHTML = '';
 
     const createRefinementDataAttribtues = (refinement) => Object.keys(refinement)
@@ -52,22 +70,20 @@ export default function decorate(block) {
         if (refinementConfig && refinementConfig['data-type']) {
           facetValue = formatAssetMetadata(refinementConfig.attribute, refinement.label, refinementConfig['data-type']);
         }
-        const li = document.createElement('li');
-        li.classList.add('ais-CurrentRefinements-item', 'refinement-item');
-        li.innerHTML = `
-          <span class="ais-CurrentRefinements-label refinement-label">${facetType} -</span>
-          <span class="ais-CurrentRefinements-category refinement-category">
-            <span class="ais-CurrentRefinements-categoryLabel refinement-category-label">${facetValue}</span>
-            <button class="ais-CurrentRefinements-delete refinement-delete" ${createRefinementDataAttribtues(refinement)}></button>
-          </span>
+        const refinementItemEl = document.createElement('div');
+        refinementItemEl.classList.add('current-refinement-item');
+        refinementItemEl.innerHTML = `
+          <span class="current-refinement-label">${facetType} - ${facetValue}</span>
+          <button class="current-refinement-delete" ${createRefinementDataAttribtues(refinement)}></button>
         `;
-        li.querySelector('button').addEventListener('click', () => {
+        refinementItemEl.querySelector('button').addEventListener('click', () => {
           refine(refinement);
           closeAssetDetails();
         });
-        refinementsEl.appendChild(li);
+        refinementsEl.appendChild(refinementItemEl);
       });
     });
+    refinementsEl.appendChild(clearRefinementEl);
   };
 
   const customCurrentRefinements = instantsearch.connectors.connectCurrentRefinements(

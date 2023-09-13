@@ -35,7 +35,7 @@ button.action {
 .asset-details-page-header .top-left > .asset-details-page-title,
 .asset-details-page-header .top-right > button,
 .asset-details-page-header .divider {
-    font: normal normal bold 18px/22px Adobe Clean;
+    font: normal normal bold 18px/22px var(--body-font-family);
     margin-left: 6px;
     margin-right: 6px;
 }
@@ -76,7 +76,7 @@ main > .section {
 .asset-details-page-header .asset-details-page-zoom-level {
     display: flex;
     align-items: center;
-    font: normal normal bold 16px/20px Adobe Clean;
+    font: normal normal bold 16px/20px var(--body-font-family);
     letter-spacing: 0px;
     color: #222222;
 }

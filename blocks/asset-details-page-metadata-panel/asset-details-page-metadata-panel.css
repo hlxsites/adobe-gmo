@@ -18,11 +18,11 @@
 }
 
 .asset-details-page-metadata-panel .panel-heading {
-    font: normal normal bold 16px/20px Adobe Clean;
+    font: normal normal bold 16px/20px var(--body-font-family);
 }
 
 .asset-details-page-metadata-panel .metadata-filename {
-    font: normal normal bold 28px/35px Adobe Clean;
+    font: normal normal bold 28px/35px var(--body-font-family);
   }
 
 .asset-details-page-metadata-panel .metadata-fields .label {

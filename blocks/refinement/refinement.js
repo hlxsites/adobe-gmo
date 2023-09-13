@@ -117,18 +117,6 @@ export default async function decorate(block) {
       attributes: true,
     });
   });
-  // clear refinements
-  const clearRefinements = document.createElement('div');
-  clearRefinements.id = 'clear-refinements';
-  clearRefinements.classList.add('clear-refinements');
-  refinements.appendChild(clearRefinements);
-  window.search.addWidgets([
-    instantsearch.widgets.clearRefinements(
-      {
-        container: '#clear-refinements',
-      },
-    ),
-  ]);
 
   await decorateIcons(block);
 
