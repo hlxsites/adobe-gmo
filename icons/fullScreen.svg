@@ -1,11 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-  <g id="_Full_screen_icon_-_on_details_panel" data-name="&apos;Full screen&apos; icon - on details panel" transform="translate(-1440 -154)">
-    <g id="SX_Fullscreen_18_N" transform="translate(1440 154)">
-      <path id="Path_1013371" data-name="Path 1013371" d="M17,0H14a1,1,0,0,0,0,2h2V4.026a1,1,0,0,0,2,0V1A1,1,0,0,0,17,0Z" fill="#444"/>
-      <path id="Path_1013372" data-name="Path 1013372" d="M4,16H2V14a1,1,0,0,0-2,0v3a1,1,0,0,0,1,1H4a1,1,0,0,0,0-2Z" fill="#444"/>
-      <path id="Path_1013373" data-name="Path 1013373" d="M17,13a1,1,0,0,0-1,1v2H13.974a1,1,0,0,0,0,2H17a1,1,0,0,0,1-1V14A1,1,0,0,0,17,13Z" fill="#444"/>
-      <path id="Path_1013374" data-name="Path 1013374" d="M1,5A1,1,0,0,0,2,4V2H4A1,1,0,0,0,4,0H1A1,1,0,0,0,0,1V4A1,1,0,0,0,1,5Z" fill="#444"/>
-      <rect id="Rectangle_331623" data-name="Rectangle 331623" width="10" height="10" rx="1" transform="translate(4 4)" fill="#444"/>
-    </g>
-  </g>
+<svg id="_Expand_icon_-_details_rail" data-name="&apos;Expand&apos; icon - details rail" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+  <path id="Path_1013412" data-name="Path 1013412" d="M1,6A1,1,0,0,0,2,5V3.477L5.3,6.714A1,1,0,1,0,6.7,5.286L3.35,2H5A1,1,0,0,0,5,0H1A1,1,0,0,0,0,1V5A1,1,0,0,0,1,6Z" fill="#444"/>
+  <path id="Path_1013413" data-name="Path 1013413" d="M17,0H13a1,1,0,0,0,0,2h1.554L11.289,5.3A1,1,0,0,0,12.711,6.7L16,3.384V5a1,1,0,0,0,2,0V1a1,1,0,0,0-1-1Z" fill="#444"/>
+  <path id="Path_1013414" data-name="Path 1013414" d="M17,12a1,1,0,0,0-1,1v1.523l-3.3-3.237a1,1,0,0,0-1.4,1.428L14.65,16H13a1,1,0,0,0,0,2h4a1,1,0,0,0,1-1V13A1,1,0,0,0,17,12Z" fill="#444"/>
+  <path id="Path_1013415" data-name="Path 1013415" d="M5.289,11.3,2,14.616V13a1,1,0,0,0-2,0v4a1,1,0,0,0,1,1H5a1,1,0,0,0,0-2H3.446l3.265-3.3A1,1,0,0,0,5.289,11.3Z" fill="#444"/>
 </svg>

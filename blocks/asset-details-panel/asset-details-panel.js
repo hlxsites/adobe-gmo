@@ -2,7 +2,7 @@ import {
   decorateIcons,
 } from '../../scripts/lib-franklin.js';
 import {
-  getQueryVariable, getAnchorVariable, addDownloadHandlers,
+  addDownloadHandlers,
 } from '../../scripts/scripts.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import {
@@ -16,6 +16,8 @@ import {
 } from '../../scripts/polaris.js';
 // eslint-disable-next-line import/no-cycle
 import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../infinite-results/infinite-results.js';
+// eslint-disable-next-line import/no-cycle
+import { openModal } from '../asset-details-modal/asset-details-modal.js';
 
 /**
  * Close the asset details panel and deselect the asset card
@@ -48,19 +50,21 @@ function getImageElement(id, name, title, type) {
   return imgElem;
 }
 
-function disableButtons(assetDetailsPanel) {
+export function disableButtons(block) {
   const selectedAsset = document.querySelector('#assets .asset-card.selected');
   if (!selectedAsset) return;
   // reset the buttons first
-  assetDetailsPanel.querySelector('#asset-details-previous').classList.remove('disabled');
-  assetDetailsPanel.querySelector('#asset-details-next').classList.remove('disabled');
+  const preButton = block.querySelector('.action-previous-asset');
+  const nextButton = block.querySelector('.action-next-asset');
+  preButton.classList.remove('disabled');
+  nextButton.classList.remove('disabled');
   const previousAssetCard = selectedAsset.previousElementSibling;
   const nextAssetCard = selectedAsset.nextElementSibling;
   if (!previousAssetCard || !previousAssetCard.getAttribute('data-asset-id')) {
-    assetDetailsPanel.querySelector('#asset-details-previous').classList.add('disabled');
+    preButton.classList.add('disabled');
   }
   if (!nextAssetCard || !nextAssetCard.getAttribute('data-asset-id')) {
-    assetDetailsPanel.querySelector('#asset-details-next').classList.add('disabled');
+    nextButton.classList.add('disabled');
   }
 }
 
@@ -145,5 +149,8 @@ export default async function decorate(block) {
   });
   block.querySelector('#asset-details-next').addEventListener('click', () => {
     selectNextAsset();
+  });
+  block.querySelector('#asset-details-fullscreen').addEventListener('click', async () => {
+    await openModal();
   });
 }
