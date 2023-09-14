@@ -1,5 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { getAnchorVariable } from '../../scripts/scripts.js';
+import { getAnchorVariable, addDownloadHandlers } from '../../scripts/scripts.js';
 import { getAssetMetadata, getOptimizedDeliveryUrl } from '../../scripts/polaris.js';
 import { getMetadataValue } from '../../scripts/metadata.js';
 // eslint-disable-next-line import/no-cycle
@@ -75,10 +75,11 @@ async function createMetadataPanel(modal, assetJSON) {
   modalMetadata.appendChild(metadataElem);
 }
 
-function createHeaderPanel(modal, assetJSON) {
+function createHeaderPanel(modal, assetJSON, assetId) {
   // set fileName
   const fileNameDiv = modal.querySelector('.file-name');
-  fileNameDiv.textContent = getMetadataValue('repo:name', assetJSON);
+  const fileName = getMetadataValue('repo:name', assetJSON);
+  fileNameDiv.textContent = fileName;
   // create fileTypeIcon
   const fileTypeIcon = modal.querySelector('.file-type-icon');
   const iconSpan = document.createElement('span');
@@ -90,6 +91,11 @@ function createHeaderPanel(modal, assetJSON) {
   decorateIcons(modal);
   // disable nav buttons if needed
   disableButtons(modal);
+  // clone the download element to remove previous event listener before adding a new one
+  const actionsDownloadA = modal.querySelector('#asset-details-page-download');
+  const clone = actionsDownloadA.cloneNode(true);
+  actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
+  addDownloadHandlers(clone, assetId, fileName);
 }
 
 export async function openModal() {
@@ -118,7 +124,7 @@ export async function openModal() {
 
     createMetadataPanel(modal, assetJSON);
 
-    createHeaderPanel(modal, assetJSON);
+    createHeaderPanel(modal, assetJSON, assetId);
   }
 }
 
