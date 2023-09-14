@@ -110,6 +110,11 @@
   cursor: not-allowed;
 }
 
+.modal-header .modal-header-right .action-previous-asset.hidden,
+.modal-header .modal-header-right .action-next-asset.hidden {
+  display: none;
+}
+
 .modal-header .modal-header-left .file-name {
   font : var(--bold-font-size-m);
 }
@@ -139,4 +144,8 @@
   height: 25px; 
   margin: 0 5px;
   opacity: 0.4;
+}
+
+.modal-header .divider.hidden {
+  display: none;
 }

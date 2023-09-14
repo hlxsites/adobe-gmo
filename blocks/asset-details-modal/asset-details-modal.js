@@ -35,6 +35,9 @@ export function closeModal(block) {
   modalOverlay.classList.remove('open');
   const modal = block.querySelector('.modal-container');
   modal.classList.remove('open');
+  modal.querySelector('#asset-details-next')?.classList.remove('hidden');
+  modal.querySelector('#asset-details-previous')?.classList.remove('hidden');
+  modal.querySelector('.divider.first')?.classList.remove('hidden');
   const currentUrl = window.location.href;
   const assetIdIndex = currentUrl.indexOf('#assetId');
   // eslint-disable-next-line max-len
@@ -134,14 +137,14 @@ export default function decorate(block) {
             <button id="asset-details-page-metadata" class="action action-metadata-asset open" title="Hide or View Toggle" aria-label="Metadata">
               <span class="icon icon-info"></span>
             </button>
-            <div class="divider"></div>
+            <div class="divider first"></div>
             <button id="asset-details-previous" class="action action-previous-asset" title="Previous" aria-label="Previous">
               <span class="icon icon-previous"></span>
             </button>
             <button id="asset-details-next" class="action action-next-asset" title="Next" aria-label="Next">
               <span class="icon icon-next"></span>
             </button>
-            <div class="divider"></div>
+            <div class="divider second"></div>
             <button id="asset-details-page-zoom-in" class="action action-zoom-in" title="Zoom In" aria-label="Zoom In">
               <span class="icon icon-zoomIn"></span>
             </button>
@@ -149,7 +152,7 @@ export default function decorate(block) {
               <span class="icon icon-zoomOut"></span>
             </button>
             <div class="asset-details-page-zoom-level">100%</div>
-            <div class="divider"></div>
+            <div class="divider third"></div>
             <button id="asset-details-close" class="action action-close" aria-label="Close">
               <span class="icon icon-close"></span>
             </button>
@@ -195,4 +198,13 @@ export default function decorate(block) {
       updateZoomLevel(block);
     }
   });
+
+  const assetId = getAnchorVariable('assetId');
+  // open modal if assetId is present in the URL
+  if (assetId) {
+    block.querySelector('#asset-details-next').classList.add('hidden');
+    block.querySelector('#asset-details-previous').classList.add('hidden');
+    block.querySelector('.divider.first').classList.add('hidden');
+    openModal();
+  }
 }
