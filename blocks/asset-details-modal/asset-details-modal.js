@@ -10,7 +10,7 @@ import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
 
 let scale = 1;
 function getImageElement(id, name, title, type) {
-  const url = getOptimizedDeliveryUrl(id, name, 1024);
+  const url = getOptimizedDeliveryUrl(id, name, 1024, type);
   const imgElem = document.createElement('img');
   if (type) {
     imgElem.src = url;
@@ -95,7 +95,7 @@ function createHeaderPanel(modal, assetJSON, assetId) {
   const actionsDownloadA = modal.querySelector('#asset-details-page-download');
   const clone = actionsDownloadA.cloneNode(true);
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
-  addDownloadHandlers(clone, assetId, fileName);
+  addDownloadHandlers(clone, assetId, fileName, dcFormat);
 }
 
 export async function openModal() {

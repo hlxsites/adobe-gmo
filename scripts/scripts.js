@@ -18,6 +18,7 @@ import { getBearerToken, checkUserAccess } from './security.js';
 import {
   getSearchIndex, getBackendApiKey, getDeliveryEnvironment, getDownloadUrl,
 } from './polaris.js';
+import {isPDF} from './filetypes.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -282,7 +283,7 @@ export function safeCSSId(str) {
     .replace(/\.|%[0-9a-z]{2}/gi, '');
 }
 
-function downloadImage(url, name) {
+function downloadAsset(url, name) {
   fetch(url)
     .then((resp) => resp.blob())
     .then((blob) => {
@@ -298,14 +299,29 @@ function downloadImage(url, name) {
     .catch((e) => console.log('Unable to download file', e));
 }
 
+function openPDF(url) {
+  fetch(url)
+    .then((resp) => resp.blob())
+    .then((blob) => {
+      const pdfUrl = window.URL.createObjectURL(blob);
+      window.open(pdfUrl, '_blank');
+      window.URL.revokeObjectURL(pdfUrl);
+    })
+    .catch((e) => console.log('Unable to open pdf file', e));
+}
+
 /**
  * Add download handling code to the download button
  * @param {HTMLElement} downloadElement - download element
  */
-export function addDownloadHandlers(downloadElement, assetId, repoName) {
+export function addDownloadHandlers(downloadElement, assetId, repoName, format) {
   downloadElement.addEventListener('click', (e) => {
     e.preventDefault();
     const href = getDownloadUrl(assetId, repoName);
-    downloadImage(href, repoName);
+    if (isPDF(format)) {
+      openPDF(href);
+    } else {
+      downloadAsset(href, repoName);
+    }
   });
 }

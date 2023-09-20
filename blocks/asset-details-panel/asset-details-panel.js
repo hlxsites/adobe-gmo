@@ -37,7 +37,7 @@ export function closeAssetDetails() {
    * @returns an img element
    */
 function getImageElement(id, name, title, type) {
-  const url = getOptimizedDeliveryUrl(id, name, 1024);
+  const url = getOptimizedDeliveryUrl(id, name, 1024, type);
   const imgElem = document.createElement('img');
   if (type) {
     imgElem.src = url;
@@ -99,7 +99,7 @@ export async function openAssetDetails(assetId) {
   const actionsDownloadA = assetDetailsPanel.querySelector('.action-download-asset');
   const clone = actionsDownloadA.cloneNode(true);
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
-  addDownloadHandlers(clone, assetId, fileName);
+  addDownloadHandlers(clone, assetId, fileName, fileFormat);
 
   // show the asset details panel
   assetDetailsPanel.classList.add('open');

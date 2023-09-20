@@ -339,7 +339,7 @@ function createCardElement(hit) {
   decorateIcons(card);
   handleImageFailures(card);
   const actionsDownloadA = card.querySelector('.actions-download');
-  addDownloadHandlers(actionsDownloadA, assetId, repoName);
+  addDownloadHandlers(actionsDownloadA, assetId, repoName, dcFormat);
 
   return card;
 }

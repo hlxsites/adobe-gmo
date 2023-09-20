@@ -184,6 +184,10 @@ export function isText(mimetype) {
   return mimetype?.includes('text/');
 }
 
+export function isPDF(mimetype) {
+  return mimetype?.includes('application/pdf');
+}
+
 export function getFileType(mimetype) {
   if (!mimetype) return 'asset';
   if (isImage(mimetype)) return 'image';
