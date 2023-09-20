@@ -36,8 +36,8 @@ export function closeAssetDetails() {
    * @param {string} type the file type of the asset (usually dc:format)
    * @returns an img element
    */
-function getImageElement(id, name, title, type) {
-  const url = getOptimizedDeliveryUrl(id, name, 1024, type);
+export function getImageElement(id, name, title, type) {
+  const url = getOptimizedDeliveryUrl(id, name, 1024);
   const imgElem = document.createElement('img');
   if (type) {
     imgElem.src = url;

@@ -1,24 +1,14 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getAnchorVariable, addDownloadHandlers } from '../../scripts/scripts.js';
-import { getAssetMetadata, getOptimizedDeliveryUrl } from '../../scripts/polaris.js';
+import { getAssetMetadata } from '../../scripts/polaris.js';
 import { getMetadataValue } from '../../scripts/metadata.js';
 // eslint-disable-next-line import/no-cycle
-import { closeAssetDetails, disableButtons } from '../asset-details-panel/asset-details-panel.js';
+import { closeAssetDetails, disableButtons, getImageElement } from '../asset-details-panel/asset-details-panel.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import { selectPreviousAsset, selectNextAsset } from '../infinite-results/infinite-results.js';
 import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
 
 let scale = 1;
-function getImageElement(id, name, title, type) {
-  const url = getOptimizedDeliveryUrl(id, name, 1024, type);
-  const imgElem = document.createElement('img');
-  if (type) {
-    imgElem.src = url;
-    const altAttrib = (title) ? title.trim().replace(/"/, '"') : name.trim().replace(/"/, '"');
-    imgElem.alt = altAttrib;
-  }
-  return imgElem;
-}
 
 async function getImage(assetId) {
   const assetJSON = await getAssetMetadata(assetId);
