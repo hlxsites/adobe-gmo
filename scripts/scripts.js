@@ -102,22 +102,22 @@ export async function loadScript(url, attrs) {
   });
 }
 
-function createSearchEndpoint(requests) {
-  if (Array.isArray(requests) && requests.length > 0 && requests[0].type === 'facet') {
-    return `${getDeliveryEnvironment()}/adobe/assets/search/facets/algolia`;
-  }
-  return `${getDeliveryEnvironment()}/adobe/assets/search/algolia`;
+function createSearchEndpoint() {
+  return `${getDeliveryEnvironment()}/adobe/assets/search`;
 }
 
 const backendSearchClient = {
   async search(requests) {
     const token = await getBearerToken();
-    return fetch(createSearchEndpoint(requests), {
+    return fetch(createSearchEndpoint(), {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': getBackendApiKey(),
         Authorization: token,
+        'x-adobe-accept-experimental': 1,
+        'x-adp-request': (Array.isArray(requests) && requests.length > 0
+                          && requests[0].type === 'facet') ? 'facet' : 'search',
       },
       body: JSON.stringify({ requests }),
     })

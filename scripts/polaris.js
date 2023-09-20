@@ -3,6 +3,7 @@ import { fetchSiteConfig } from './site-config.js';
 
 let deliveryEndpointURL = null;
 let backendApiKey = null;
+
 const regex = /p(\d+)-e(\d+)/;
 
 const metadataCache = {};
@@ -26,7 +27,8 @@ export function getBackendApiKey() {
 }
 
 export function getSearchIndex() {
-  const match = deliveryEndpointURL.match(regex);
+  const indexSrcStr = deliveryEndpointURL;
+  const match = indexSrcStr.match(regex);
   let index = '';
   if (match) {
     const program = match[1];
