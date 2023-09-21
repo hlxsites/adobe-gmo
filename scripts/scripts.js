@@ -12,7 +12,7 @@ import {
   loadBlocks,
   loadCSS,
 } from './lib-franklin.js';
-import { fetchUserDefinedConfig } from './site-config.js';
+import { fetchSiteConfig, fetchUserDefinedConfig } from './site-config.js';
 // eslint-disable-next-line import/no-cycle
 import { getBearerToken, checkUserAccess } from './security.js';
 import {
@@ -69,15 +69,24 @@ export function decorateMain(main) {
   decorateBlocks(main);
 }
 
+function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSeparatedList = false) {
+  if (configValue) {
+    const currentFontFamily = getComputedStyle(document.documentElement)
+      .getPropertyValue(cssVariableName);
+    let newValue = configValue;
+    if (shouldPrependToCommaSeparatedList) {
+      newValue = `${configValue}, ${currentFontFamily}`;
+    }
+    document.documentElement.style.setProperty(cssVariableName, newValue);
+  }
+}
+
 async function applySiteBranding() {
-  const root = document.querySelector(':root');
   const config = await fetchUserDefinedConfig();
 
-  if (config.primaryColor) root.style.setProperty('--header-background-color', config.primaryColor);
-
-  if (config.secondaryColor) root.style.setProperty('--header-text-color', config.secondaryColor);
-
-  if (config.fontFamily) root.style.setProperty('--body-font-family', config.fontFamily);
+  setCSSVar('--header-background-color', config.primaryColor);
+  setCSSVar('--header-text-color', config.secondaryColor);
+  setCSSVar('--body-font-family', config.fontFamily, true);
 
   // eslint-disable-next-line no-use-before-define
   addFavIcon(config.favIcon);
@@ -147,9 +156,14 @@ async function loadEager(doc) {
     }
     await initSearch();
   }
+  const siteConfig = await fetchSiteConfig('main');
+  const fontCSSURL = siteConfig.find((elem) => elem.configProperty === 'fontCSSURL')?.value;
+  if (fontCSSURL) {
+    loadCSS(fontCSSURL);
+  }
+  applySiteBranding();
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
-  applySiteBranding();
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);

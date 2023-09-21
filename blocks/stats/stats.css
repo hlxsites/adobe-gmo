@@ -8,18 +8,9 @@
     word-break: keep-all;
 }
 
-.stats .stats-count {
-    text-align: left;
-    font: var(--stats-label-font);
-    font-weight: bold;
-    letter-spacing: 0px;
-    color: var(--stats-label-color);
-}
-
 .stats .stats-count-label {
     text-align: left;
-    font: var(--stats-label-font);
-    font-weight: bold;
+    font: var(--stats-value-font);
     letter-spacing: 0px;
     color: var(--stats-label-color);
 }

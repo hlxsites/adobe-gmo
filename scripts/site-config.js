@@ -30,7 +30,7 @@ async function getConfig(filename) {
  * Get configuration by file name and worksheet ID.
  * @param {*} fileName Name of the configuration file (JSON)
  * @param {*} worksheetId Worksheet ID
- * @returns 
+ * @returns - Configuration object
  */
 export async function fetchConfigSheet(fileName, worksheetId) {
   const config = await getConfig(`${fileName}?sheet=${worksheetId}`);
