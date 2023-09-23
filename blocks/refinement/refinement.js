@@ -27,6 +27,7 @@ function addFilterButton(block) {
       toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-closed').classList.remove('hidden');
       toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-open').classList.add('hidden');
       toggleFilterPanelButton.querySelector('.filter-divider').classList.remove('hidden');
+      toggleFilterPanelButton.classList.add('closed');
     } else {
       span.textContent = TEXT_HIDE_FILTERS;
       document.querySelector('.refinement-wrapper').classList.add('open');
@@ -34,6 +35,8 @@ function addFilterButton(block) {
       toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-open').classList.remove('hidden');
       toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-closed').classList.add('hidden');
       toggleFilterPanelButton.querySelector('.filter-divider').classList.add('hidden');
+      toggleFilterPanelButton.classList.remove('closed');
+
     }
   };
   document.createElement('span')

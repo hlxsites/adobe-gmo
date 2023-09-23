@@ -1,7 +1,6 @@
 .refinement-wrapper {
   grid-area: refinements;
   padding-right: 0;
-  padding-top: 14px;
 }
 
 .refinement-wrapper.open {
@@ -33,7 +32,6 @@
   padding-left: 21px;
   cursor: pointer;
   display: block;
-  margin-top: 27px;
   margin-bottom: 15px;
 }
 
@@ -48,6 +46,7 @@
 .refinement-options {
   margin-top: 0;
   margin-bottom: 0;
+  padding-bottom: 26px;
   list-style: none;
   font-family: var(--body-font-family);
 }
@@ -110,6 +109,20 @@
 .refinements-toggle {
   font-size: var(--header-font-size);
   padding: 0;
+  position: sticky;
+  top: 0.01rem;
+  background: linear-gradient(
+    to bottom,
+    var(--assets-browser-background-color) 0 calc(100% - 2rem),
+    transparent 100%
+  );
+  padding-top: 0.88rem;
+  padding-bottom: 1.7rem;
+  z-index: 1;
+}
+
+.refinements-toggle.closed{
+  padding-bottom: 0;
 }
 
 .refinement-options mark {
