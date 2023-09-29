@@ -51,11 +51,18 @@ export function formatNumber(str) {
 
 /**
  * Formats a date in the best format for the locale of the user's browser.
- * @param {Date|string} date - The date to format, as a Date object or a string.
+ * @param {Date|string|number} date - The date to format, as a Date object or a string.
+ * @param {boolean} isInSeconds - Set to false if you are passing in a number Epoch in milliseconds.
  * @returns {string} The formatted date string.
  */
-export function formatDate(date) {
-  const d = date instanceof Date ? date : new Date(date);
+export function formatDate(date, isInSeconds = true) {
+  let d;
+  // check if date is a number and is in seconds
+  if (typeof date === 'number' && isInSeconds) {
+    d = new Date(date * 1000);
+  } else {
+    d = date instanceof Date ? date : new Date(date);
+  }
   const dd = String(d.getDate()).padStart(2, '0');
   let mm = d.getMonth() + 1;
   const mmStr = String(mm).padStart(2, '0');

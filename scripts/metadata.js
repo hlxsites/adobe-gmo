@@ -162,6 +162,26 @@ const PREDEFINED_METADATA_FIELDS = {
     // eslint-disable-next-line no-use-before-define
     format: (value) => formatFileSize(value),
   },
+  'xmp-CreateDate': {
+    label: 'Created',
+    format: (value) => formatDate(value),
+  },
+  'xmp-ModifyDate': {
+    label: 'Last Modified',
+    format: (value) => formatDate(value),
+  },
+  'xmp-MetadataDate': {
+    label: 'Metadata Modified',
+    format: (value) => formatDate(value),
+  },
+  'repo-createDate': {
+    label: 'Uploaded',
+    format: (value) => formatDate(value),
+  },
+  'repo-modifyDate': {
+    label: 'Asset Modified',
+    format: (value) => formatDate(value),
+  },
 };
 
 /**
@@ -315,7 +335,8 @@ export function addMetadataFields(metadataConfig, assetJSON, addMetadataFieldCal
     let metadataPropSubstitutedValue;
 
     if (!metadataPropDataType) {
-      if (PREDEFINED_METADATA_FIELDS[metadataProp]) {
+      if (PREDEFINED_METADATA_FIELDS[metadataProp]
+        && PREDEFINED_METADATA_FIELDS[metadataProp].value !== undefined) {
         metadataPropSubstitutedValue = PREDEFINED_METADATA_FIELDS[metadataProp].value(assetJSON);
       }
     }
