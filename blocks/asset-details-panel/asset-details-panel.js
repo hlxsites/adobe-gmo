@@ -119,7 +119,7 @@ export default async function decorate(block) {
     selectNextAsset();
   });
   block.querySelector('#asset-details-fullscreen').addEventListener('click', async () => {
-    block.querySelector('iframe').remove();
+    block.querySelector('iframe')?.remove();
     await openModal();
   });
 }
