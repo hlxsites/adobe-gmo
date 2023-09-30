@@ -16,9 +16,14 @@ import { fetchSiteConfig, fetchUserDefinedConfig } from './site-config.js';
 // eslint-disable-next-line import/no-cycle
 import { getBearerToken, checkUserAccess } from './security.js';
 import {
-  getSearchIndex, getBackendApiKey, getDeliveryEnvironment, getDownloadUrl,
+  getSearchIndex,
+  getBackendApiKey,
+  getDeliveryEnvironment,
+  getDownloadUrl,
 } from './polaris.js';
-import {isPDF} from './filetypes.js';
+import {
+  isPDF,
+} from './filetypes.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 

@@ -9,15 +9,13 @@ import {
   formatAssetMetadata, getMetadataValue,
 } from '../../scripts/metadata.js';
 import {
-  getFailedPlaceholderImgSrc,
-} from '../../scripts/filetypes.js';
-import {
-  getOptimizedDeliveryUrl, getAssetMetadata,
+  getAssetMetadata,
 } from '../../scripts/polaris.js';
 // eslint-disable-next-line import/no-cycle
 import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../infinite-results/infinite-results.js';
 // eslint-disable-next-line import/no-cycle
 import { openModal } from '../asset-details-modal/asset-details-modal.js';
+import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 
 /**
  * Close the asset details panel and deselect the asset card
@@ -26,28 +24,6 @@ export function closeAssetDetails() {
   document.querySelector('.asset-details-panel').classList.remove('open');
 
   deselectAssetCard();
-}
-
-/**
-   * Create and return an img element for the asset
-   * @param {string} id the asset id (repo:assetId)
-   * @param {string} name the SEO name of the asset (usually repo:name)
-   * @param {string} title the title of the asset (usually dc:title)
-   * @param {string} type the file type of the asset (usually dc:format)
-   * @returns an img element
-   */
-export function getImageElement(id, name, title, type) {
-  const url = getOptimizedDeliveryUrl(id, name, 1024);
-  const imgElem = document.createElement('img');
-  if (type) {
-    imgElem.src = url;
-    const altAttrib = (title) ? title.trim().replace(/"/, '"') : name.trim().replace(/"/, '"');
-    imgElem.alt = altAttrib;
-    imgElem.onerror = function () {
-      this.src = getFailedPlaceholderImgSrc(type);
-    };
-  }
-  return imgElem;
 }
 
 export function disableButtons(block) {
@@ -77,7 +53,6 @@ export async function openAssetDetails(assetId) {
   const fileName = getMetadataValue('repo:name', assetJSON);
   const title = formatAssetMetadata(getMetadataValue('dc:title', assetJSON));
   const fileFormat = getMetadataValue('dc:format', assetJSON);
-  const imgElem = getImageElement(assetId, fileName, title, fileFormat);
   const assetDetailsPanel = document.querySelector('.asset-details-panel');
   const metadataContainer = assetDetailsPanel.querySelector('#asset-details-metadata-container');
   metadataContainer.innerHTML = '';
@@ -85,15 +60,8 @@ export async function openAssetDetails(assetId) {
   metadataContainer.appendChild(metadataFieldsElem);
 
   const imgPanel = document.querySelector('#asset-details-image-panel');
-  if (imgElem) {
-    const oldImg = imgPanel.querySelector('img');
-    if (oldImg) {
-      oldImg.remove();
-      imgPanel.appendChild(imgElem);
-    } else {
-      imgPanel.appendChild(imgElem);
-    }
-  }
+  addAssetToContainer(assetId, fileName, title, fileFormat, imgPanel);
+
   disableButtons(assetDetailsPanel);
   // clone the download element to remove previous event listener before adding a new one
   const actionsDownloadA = assetDetailsPanel.querySelector('.action-download-asset');
@@ -151,6 +119,7 @@ export default async function decorate(block) {
     selectNextAsset();
   });
   block.querySelector('#asset-details-fullscreen').addEventListener('click', async () => {
+    block.querySelector('iframe').remove();
     await openModal();
   });
 }

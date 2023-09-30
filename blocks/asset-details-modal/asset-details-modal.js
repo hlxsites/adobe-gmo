@@ -3,21 +3,13 @@ import { getAnchorVariable, addDownloadHandlers } from '../../scripts/scripts.js
 import { getAssetMetadata } from '../../scripts/polaris.js';
 import { getMetadataValue } from '../../scripts/metadata.js';
 // eslint-disable-next-line import/no-cycle
-import { closeAssetDetails, disableButtons, getImageElement } from '../asset-details-panel/asset-details-panel.js';
+import { closeAssetDetails, disableButtons } from '../asset-details-panel/asset-details-panel.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import { selectPreviousAsset, selectNextAsset } from '../infinite-results/infinite-results.js';
 import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
+import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 
 let scale = 1;
-
-async function getImage(assetId) {
-  const assetJSON = await getAssetMetadata(assetId);
-  const assetName = getMetadataValue('repo:name', assetJSON);
-  const assetTitle = getMetadataValue('title', assetJSON);
-  const format = getMetadataValue('dc:format', assetJSON);
-  const imgElem = getImageElement(assetId, assetName, assetTitle, format);
-  return imgElem;
-}
 
 export function closeModal(block) {
   document.body.classList.remove('no-scroll');
@@ -28,6 +20,7 @@ export function closeModal(block) {
   modal.querySelector('#asset-details-next')?.classList.remove('hidden');
   modal.querySelector('#asset-details-previous')?.classList.remove('hidden');
   modal.querySelector('.divider.first')?.classList.remove('hidden');
+  modal.querySelector('iframe')?.remove();
   const currentUrl = window.location.href;
   const assetIdIndex = currentUrl.indexOf('#assetId');
   // eslint-disable-next-line max-len
@@ -37,17 +30,22 @@ export function closeModal(block) {
 }
 
 function updateZoomLevel(block) {
-  const img = block.querySelector('.modal-image img');
-  img.style.transform = `scale(${scale})`;
+  let asset = block.querySelector('.modal-image img');
+  if (!asset) {
+    asset = block.querySelector('.modal-image iframe');
+  }
+  asset.style.transform = `scale(${scale})`;
   const zoomLevel = block.querySelector('.asset-details-page-zoom-level');
   zoomLevel.textContent = `${Math.round(scale * 100)}%`;
 }
 
 async function createImagePanel(modal, assetId) {
-  const imgElem = await getImage(assetId);
   const imgPanel = modal.querySelector('.modal-image');
-  imgPanel.querySelector('img')?.remove();
-  imgPanel.appendChild(imgElem);
+  const assetJSON = await getAssetMetadata(assetId);
+  const assetName = getMetadataValue('repo:name', assetJSON);
+  const assetTitle = getMetadataValue('title', assetJSON);
+  const format = getMetadataValue('dc:format', assetJSON);
+  addAssetToContainer(assetId, assetName, assetTitle, format, imgPanel);
   updateZoomLevel(modal);
 }
 
@@ -155,7 +153,7 @@ export default function decorate(block) {
           </div>
       </div>
       <div class="modal-body">
-        <div class="modal-image"></div>
+      <div class="modal-image"></div>
         <div class="modal-metadata open">
           <div class="modal-metadata-heading">Details</div>
         </div>

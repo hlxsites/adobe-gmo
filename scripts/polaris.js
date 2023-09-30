@@ -48,6 +48,10 @@ export function getBaseDeliveryUrl(assetId, assetName) {
   return `${getDeliveryEnvironment()}/adobe/dynamicmedia/deliver/${assetId}/${assetName}`;
 }
 
+export function getVideoDeliveryUrl(assetId) {
+  return `${getDeliveryEnvironment()}/adobe/assets/${assetId}/play`;
+}
+
 /**
  * Get a URL for an image rendtion of an asset.
  * @param {*} assetId the asset ID (repo:assetId)
@@ -60,7 +64,13 @@ export function getOptimizedDeliveryUrl(assetId, assetName, width, format) {
   if (!assetName.includes('.') || isVideo(format)) {
     fileName = `${assetName}.jpg`;
   }
-  return `${getBaseDeliveryUrl(assetId, fileName)}?width=${width}&preferwebp=true`.replace(/\.(png)/, '.webp').replace(/\.(mov|m3u8|mp4|mpeg|avi|asf|flv|m4v)/, '.jpg');
+  let path = `${getBaseDeliveryUrl(assetId, fileName)}`;
+  if (!width) {
+    path += '?preferwebp=true';
+  } else {
+    path += `?width=${width}&preferwebp=true`;
+  }
+  return `${path}`.replace(/\.(png)/, '.webp').replace(/\.(mov|m3u8|mp4|mpeg|avi|asf|flv|m4v)/, '.jpg');
 }
 
 export function getOptimizedPreviewUrl(assetId, assetName, width, format) {
