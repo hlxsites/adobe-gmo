@@ -4,8 +4,8 @@ The Assets Distribution Portal allows authors to create custom yet performant se
 It is designed to help users find, download and share assets. Users can browse across assets using our card view and search using facets and filters. The portal is customizable so that companies can configure it with their own branding.
 
 ## Environments
-- Preview: https://main--assets-distribution-portal--adobe.hlx.page/
-- Live: https://main--assets-distribution-portal--adobe.hlx.live/
+- Preview: https://main--adobe-gmo--hlxsites.hlx.page/
+- Live: https://main--adobe-gmo--hlxsites.hlx.live/
 
 ## Installation
 
