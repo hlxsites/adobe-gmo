@@ -17,5 +17,9 @@ module.exports = {
     'import/extensions': ['error', {
       js: 'always',
     }],
+    'no-use-before-define': 'off',
+    'no-return-await': 'off',
+    'no-restricted-syntax': 'off',
+    'max-len': ['warn', { code: 120 }],
   },
 };

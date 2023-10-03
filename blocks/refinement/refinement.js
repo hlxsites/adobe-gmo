@@ -1,5 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { fetchSiteConfig } from '../../scripts/site-config.js';
+import { getFilterConfig } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
 import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 import { scrollToSearchResults } from '../infinite-results/infinite-results.js';
@@ -36,10 +36,9 @@ function addFilterButton(block) {
       toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-closed').classList.add('hidden');
       toggleFilterPanelButton.querySelector('.filter-divider').classList.add('hidden');
       toggleFilterPanelButton.classList.remove('closed');
-
     }
   };
-  document.createElement('span')
+  document.createElement('span');
   block.appendChild(toggleFilterPanelButton);
 }
 
@@ -51,44 +50,40 @@ export default async function decorate(block) {
   refinements.classList.add('refinements');
   addFilterButton(block);
   block.appendChild(refinements);
-  // read in from configuration
-  const refinementList = await fetchSiteConfig('refinements');
-  // add refinements.  will support more types.
-  refinementList.forEach((refinement) => {
-    if (!refinement.property) {
+
+  const filterConfig = await getFilterConfig();
+  Object.values(filterConfig).forEach((refinement) => {
+    if (!refinement.metadataField) {
       return;
     }
     const refinementDiv = document.createElement('div');
     refinementDiv.classList.add('refinement');
     const label = document.createElement('span');
     label.classList.add('label');
-    label.textContent = refinement.name || refinement.property;
+    label.textContent = refinement.label || refinement.metadataField;
     refinementDiv.appendChild(label);
     const options = document.createElement('div');
-    options.id = `${refinement.property}-options`;
+    options.id = `${refinement.metadataField}-options`;
     options.classList.add('refinement-options');
     refinementDiv.appendChild(options);
     refinements.appendChild(refinementDiv);
     window.search.addWidgets([
       instantsearch.widgets.refinementList(
         {
-          container: `#${refinement.property}-options`,
-          attribute: refinement.property,
+          container: `#${refinement.metadataField}-options`,
+          attribute: refinement.metadataField,
           operator: refinement.operator || 'or',
           limit: 10,
           showMore: true,
           searchable: true,
           searchableIsAlwaysActive: false,
           cssClasses: {
-            searchableInput: `${refinement.property}-searchable-input`,
+            searchableInput: `${refinement.metadataField}-searchable-input`,
           },
           templates: {
             item(item, { html }) {
               const { count, value } = item;
-              let updatedLabel = item.label;
-              if (refinement['data-type']) {
-                updatedLabel = formatAssetMetadata(refinement.property, item.label, refinement['data-type']);
-              }
+              const updatedLabel = formatAssetMetadata(refinement.metadataField, item.label);
               return html`
                 <input type="checkbox" class="ais-RefinementList-checkbox" value=${value}/>
                 <span class="ais-RefinementList-labelText">${updatedLabel}</span>

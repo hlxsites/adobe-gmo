@@ -3,7 +3,6 @@ import {
   getQueryVariable,
   isElement,
 } from './scripts.js';
-import { fetchSiteConfig } from './site-config.js';
 import { addMetadataFields, formatAssetMetadata, getMetadataValue } from './metadata.js';
 import { getAssetMetadata } from './polaris.js';
 
@@ -22,19 +21,23 @@ function shouldDisplayMetadataAsRow(metadataInfo, formattedValue) {
 
 /**
  * Add a metadata field to the metadata panel:
+ * ```
  * <div class="item metadata-field metadata-field-<cssClass>">
  *  <div class="label">Title</div>
  * <div class="value">Value</div>
  * </div>
+ * ```
  * @param {HTMLElement} metadataElement - the element to add the metadata field to
- * @param {object} metadataInfo - the metadata info object
+ * @param {object} metadataInfo
+ * @param {string} metadataInfo.field - metadata field name
+ * @param {string} metadataInfo.title - metadata field title
+ * @param {string} metadataInfo.value - metadata field value
+ * @param {string} metadataInfo.cssClass - metadata field css class
  */
 function createHTMLForMetadataField(metadataElement, metadataInfo) {
   const name = metadataInfo.field;
   const label = metadataInfo.title;
-  const {
-    value, dataType, cssClass,
-  } = metadataInfo;
+  const { value, cssClass } = metadataInfo;
 
   const item = document.createElement('div');
   item.classList.add('item', 'metadata-field', `metadata-field-${cssClass}`);
@@ -52,7 +55,7 @@ function createHTMLForMetadataField(metadataElement, metadataInfo) {
     item.appendChild(valueDiv);
     metadataElement.appendChild(item);
   } else {
-    const formattedValue = formatAssetMetadata(name, value, dataType);
+    const formattedValue = formatAssetMetadata(name, value);
     if (isElement(formattedValue)) {
       valueDiv.appendChild(formattedValue);
     } else {
@@ -68,7 +71,7 @@ function createHTMLForMetadataField(metadataElement, metadataInfo) {
 
 /**
  * Create the metadata HTML used in cards and the asset details
- * @param {object} metadataConfig - the metadata config object
+ * @param {Array<MetadataViewConfig>} metadataConfigs - the metadata config object
  * @param {object} assetJSON - the asset JSON object
  * @returns {HTMLElement} the metadata-fields element
  * e.g.
@@ -78,11 +81,11 @@ function createHTMLForMetadataField(metadataElement, metadataInfo) {
  *   <div class="value">Value</div>
  * </div>
  */
-export function createMetadataHTML(metadataConfig, assetJSON) {
+export function createMetadataHTML(metadataConfigs, assetJSON) {
   const metadataTable = document.createElement('div');
   metadataTable.classList.add('metadata-fields');
   addMetadataFields(
-    metadataConfig,
+    metadataConfigs,
     assetJSON,
     (metadataInfo) => {
       createHTMLForMetadataField(metadataTable, metadataInfo);
@@ -93,8 +96,9 @@ export function createMetadataHTML(metadataConfig, assetJSON) {
 
 /**
  * Create the metadata HTML for the asset details panel
- * @param {string} configname - the name of the metadata config to use
+ * @param {Array<MetadataViewConfig>} metadataViewConfig
  * @param {object|string} assetData - the asset data to use
+ * @param includeFileName
  * @returns {HTMLElement} the metadata element
  * e.g.
  *   <div class="metadata-container">
@@ -107,7 +111,7 @@ export function createMetadataHTML(metadataConfig, assetJSON) {
  *    </div>
  *  </div>
  */
-export async function fetchMetadataAndCreateHTML(configName, assetData, includeFileName = true) {
+export async function fetchMetadataAndCreateHTML(metadataViewConfig, assetData, includeFileName = true) {
   let assetJSON;
   if (typeof assetData === 'object') {
     assetJSON = assetData;
@@ -118,7 +122,6 @@ export async function fetchMetadataAndCreateHTML(configName, assetData, includeF
   if (assetData === undefined || assetJSON === undefined) {
     assetJSON = await getAssetMetadata(getAssetIdFromURL());
   }
-  const metadataConfig = await fetchSiteConfig(configName);
 
   const metadataContainer = document.createElement('div');
   metadataContainer.classList.add('metadata-container');
@@ -128,6 +131,6 @@ export async function fetchMetadataAndCreateHTML(configName, assetData, includeF
     fileNameDiv.textContent = getMetadataValue('repo:name', assetJSON);
     metadataContainer.appendChild(fileNameDiv);
   }
-  metadataContainer.appendChild(createMetadataHTML(metadataConfig, assetJSON));
+  metadataContainer.appendChild(createMetadataHTML(metadataViewConfig, assetJSON));
   return metadataContainer;
 }

@@ -1,4 +1,4 @@
-import { fetchSiteConfig } from '../../scripts/site-config.js';
+import { getFilterConfig } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
 import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 
@@ -6,11 +6,7 @@ import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js
 /* global instantsearch */
 
 // read in from configuration
-const refinementList = await fetchSiteConfig('refinements');
-const refinementsByProperty = {};
-for (const item of refinementList) {
-  refinementsByProperty[item.property] = item;
-}
+const filterConfig = await getFilterConfig();
 
 const TEXT_CLEAR_REFINEMENTS = 'clear-refinements';
 
@@ -56,25 +52,22 @@ export default function decorate(block) {
     const clearRefinementEl = refinementsEl.querySelector('#clear-refinements');
     refinementsEl.innerHTML = '';
 
-    const createRefinementDataAttribtues = (refinement) => Object.keys(refinement)
+    const createRefinementDataAttributes = (refinement) => Object.keys(refinement)
       .map((key) => `data-${key}="${refinement[key]}"`)
       .join(' ');
     items.forEach((item) => {
       item.refinements.forEach((refinement) => {
         // decorate facet type
-        const facetType = refinementsByProperty[refinement.attribute]
-          ? refinementsByProperty[refinement.attribute].name : refinement.label;
+        const refinementConfig = filterConfig[refinement.attribute];
+        const facetLabel = refinementConfig?.label || refinement.label;
+
         // decorate facet value
-        let facetValue = refinement.value;
-        const refinementConfig = refinementsByProperty[refinement.attribute];
-        if (refinementConfig && refinementConfig['data-type']) {
-          facetValue = formatAssetMetadata(refinementConfig.attribute, refinement.label, refinementConfig['data-type']);
-        }
+        const facetValue = formatAssetMetadata(refinementConfig.metadataField, refinement.value);
         const refinementItemEl = document.createElement('div');
         refinementItemEl.classList.add('current-refinement-item');
         refinementItemEl.innerHTML = `
-          <span class="current-refinement-label">${facetType} - ${facetValue}</span>
-          <button class="current-refinement-delete" ${createRefinementDataAttribtues(refinement)}></button>
+          <span class="current-refinement-label">${facetLabel} - ${facetValue}</span>
+          <button class="current-refinement-delete" ${createRefinementDataAttributes(refinement)}></button>
         `;
         refinementItemEl.querySelector('button').addEventListener('click', () => {
           refine(refinement);

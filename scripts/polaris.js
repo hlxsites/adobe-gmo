@@ -1,5 +1,5 @@
 import { isVideo } from './filetypes.js';
-import { fetchSiteConfig } from './site-config.js';
+import { getAdminConfig } from './site-config.js';
 
 let deliveryEndpointURL = null;
 let backendApiKey = null;
@@ -11,9 +11,9 @@ const metadataCache = {};
 export async function initDeliveryEnvironment() {
   if (!deliveryEndpointURL) {
     // Pull the delivery environment URL from /site-config.json
-    const config = await fetchSiteConfig('main');
-    deliveryEndpointURL = config.find((elem) => elem.configProperty === 'deliveryEndpoint')?.value;
-    backendApiKey = config.find((elem) => elem.configProperty === 'apiKey')?.value;
+    const adminConfig = await getAdminConfig();
+    deliveryEndpointURL = adminConfig.aemDeliveryEndpoint;
+    backendApiKey = adminConfig.imsEnvironment === 'stage' ? 'polaris-asset-search-api-key' : 'asset_search_service';
   }
   return deliveryEndpointURL;
 }

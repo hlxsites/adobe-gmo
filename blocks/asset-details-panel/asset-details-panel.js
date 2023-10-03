@@ -15,6 +15,7 @@ import {
 import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../infinite-results/infinite-results.js';
 // eslint-disable-next-line import/no-cycle
 import { openModal } from '../asset-details-modal/asset-details-modal.js';
+import { getDetailViewConfig } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 
 /**
@@ -56,7 +57,8 @@ export async function openAssetDetails(assetId) {
   const assetDetailsPanel = document.querySelector('.asset-details-panel');
   const metadataContainer = assetDetailsPanel.querySelector('#asset-details-metadata-container');
   metadataContainer.innerHTML = '';
-  const metadataFieldsElem = await fetchMetadataAndCreateHTML('asset-details', assetJSON);
+  const metadataViewConfig = await getDetailViewConfig();
+  const metadataFieldsElem = await fetchMetadataAndCreateHTML(metadataViewConfig, assetJSON);
   metadataContainer.appendChild(metadataFieldsElem);
 
   const imgPanel = document.querySelector('#asset-details-image-panel');

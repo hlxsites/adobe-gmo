@@ -12,7 +12,7 @@ import {
   loadBlocks,
   loadCSS,
 } from './lib-franklin.js';
-import { fetchSiteConfig, fetchUserDefinedConfig } from './site-config.js';
+import { getBrandingConfig } from './site-config.js';
 // eslint-disable-next-line import/no-cycle
 import { getBearerToken, checkUserAccess } from './security.js';
 import {
@@ -21,9 +21,7 @@ import {
   getDeliveryEnvironment,
   getDownloadUrl,
 } from './polaris.js';
-import {
-  isPDF,
-} from './filetypes.js';
+import { isPDF } from './filetypes.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -87,14 +85,13 @@ function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSeparatedLi
 }
 
 async function applySiteBranding() {
-  const config = await fetchUserDefinedConfig();
+  const brandingConfig = await getBrandingConfig();
 
-  setCSSVar('--header-background-color', config.primaryColor);
-  setCSSVar('--header-text-color', config.secondaryColor);
-  setCSSVar('--body-font-family', config.fontFamily, true);
+  setCSSVar('--header-background-color', brandingConfig.menubarColor);
+  setCSSVar('--header-text-color', brandingConfig.brandTextColor);
+  setCSSVar('--body-font-family', brandingConfig.font, true);
 
-  // eslint-disable-next-line no-use-before-define
-  addFavIcon(config.favIcon);
+  addFavIcon(brandingConfig.favicon);
 }
 
 export async function loadScript(url, attrs) {
@@ -161,10 +158,9 @@ async function loadEager(doc) {
     }
     await initSearch();
   }
-  const siteConfig = await fetchSiteConfig('main');
-  const fontCSSURL = siteConfig.find((elem) => elem.configProperty === 'fontCSSURL')?.value;
-  if (fontCSSURL) {
-    loadCSS(fontCSSURL);
+  const brandingConfig = await getBrandingConfig();
+  if (brandingConfig.fontCssUrl) {
+    loadCSS(brandingConfig.fontCssUrl);
   }
   applySiteBranding();
   document.documentElement.lang = 'en';

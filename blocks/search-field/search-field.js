@@ -1,8 +1,6 @@
-import { fetchSiteConfig } from '../../scripts/site-config.js';
 import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 
-const config = await fetchSiteConfig('main');
-const searchMinChars = config.find((elem) => elem.configProperty === 'searchMinChars')?.value;
+const searchMinChars = 3;
 
 function handleSearch(query, search) {
   if (searchMinChars && query.length < searchMinChars) {

@@ -1,12 +1,13 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { getAnchorVariable, addDownloadHandlers } from '../../scripts/scripts.js';
+import { addDownloadHandlers, getAnchorVariable } from '../../scripts/scripts.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';
 import { getMetadataValue } from '../../scripts/metadata.js';
 // eslint-disable-next-line import/no-cycle
 import { closeAssetDetails, disableButtons } from '../asset-details-panel/asset-details-panel.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
-import { selectPreviousAsset, selectNextAsset } from '../infinite-results/infinite-results.js';
+import { selectNextAsset, selectPreviousAsset } from '../infinite-results/infinite-results.js';
 import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
+import { getQuickViewConfig } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 
 let scale = 1;
@@ -50,7 +51,8 @@ async function createImagePanel(modal, assetId) {
 }
 
 async function createMetadataPanel(modal, assetJSON) {
-  const metadataElem = await fetchMetadataAndCreateHTML('asset-details-page', assetJSON, false);
+  const metadataViewConfig = await getQuickViewConfig();
+  const metadataElem = await fetchMetadataAndCreateHTML(metadataViewConfig, assetJSON, false);
   const modalMetadata = modal.querySelector('.modal-metadata');
   const metadataToggle = modal.querySelector('#asset-details-page-metadata');
   if (!metadataToggle.classList.contains('open')) {

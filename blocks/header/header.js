@@ -1,7 +1,7 @@
 import {
   decorateIcons, buildBlock, decorateBlock, loadBlock,
 } from '../../scripts/lib-franklin.js';
-import { fetchUserDefinedConfig } from '../../scripts/site-config.js';
+import { getBrandingConfig } from '../../scripts/site-config.js';
 import { getUserProfile } from '../../scripts/security.js';
 
 // media query match that indicates mobile/tablet width
@@ -13,11 +13,9 @@ function closeOnEscape(e) {
     const navSections = nav.querySelector('.nav-sections');
     const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
     if (navSectionExpanded && isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
       toggleAllNavSections(navSections);
       navSectionExpanded.focus();
     } else if (!isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
       toggleMenu(nav, navSections);
       nav.querySelector('button').focus();
     }
@@ -29,7 +27,6 @@ function openOnKeydown(e) {
   const isNavDrop = focused.className === 'nav-drop';
   if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
     const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
-    // eslint-disable-next-line no-use-before-define
     toggleAllNavSections(focused.closest('.nav-sections'));
     focused.setAttribute('aria-expanded', dropExpanded ? 'false' : 'true');
   }
@@ -168,12 +165,12 @@ export default async function decorate(block) {
     navTools.append(userProfileDiv);
   }, { once: true });
 
-  const { logo, brandName } = await fetchUserDefinedConfig();
-  if (logo) {
-    nav.querySelector('.nav-brand img').src = logo;
+  const brandingConfig = await getBrandingConfig();
+  if (brandingConfig.logo) {
+    nav.querySelector('.nav-brand img').src = brandingConfig.logo;
   }
-  if (brandName) {
-    nav.querySelector('.nav-brand div').textContent = brandName;
-    document.title = brandName;
+  if (brandingConfig.brandText) {
+    nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+    document.title = brandingConfig.brandText;
   }
 }

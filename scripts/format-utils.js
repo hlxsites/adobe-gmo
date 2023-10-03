@@ -1,9 +1,10 @@
-import { fetchSiteConfig } from './site-config.js';
-const config = await fetchSiteConfig('main');
-const dateFormatRaw = config.find((elem) => elem.configProperty === 'dateFormat')?.value;
+import { getBrandingConfig } from './site-config.js';
+
+const brandingConfig = await getBrandingConfig();
+const dateFormatRaw = brandingConfig.dateFormat;
 
 /**
- * Get a formatted human readable file size string
+ * Get a formatted human-readable file size string
  * scaled to the appropriate unit.
  * @param {number} size file size in bytes
  * @returns {string} formatted file size string
@@ -84,13 +85,12 @@ export function formatDate(date, isInSeconds = true) {
 
 /**
  * Returns second half of mime type, e.g. 'image/jpeg' -> 'jpeg'
- * @param {*} str - mime type string e.e. 'image/jpeg'
- * @returns - file format string
+ * @param {string} str - mime type string e.e. 'image/jpeg'
+ * @returns {string} file format string
  */
 export function formatMimeType(str) {
   if (str && str.includes('/')) {
-    const fileFormat = str.split('/')[1];
-    return fileFormat;
+    return str.split('/')[1];
   }
   return str;
 }

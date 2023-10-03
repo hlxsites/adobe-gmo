@@ -1,15 +1,13 @@
 import { loadScript } from './lib-franklin.js';
 import { fetchCached } from './fetch-util.js';
-import { fetchSiteConfig } from './site-config.js';
+import { getAdminConfig } from './site-config.js';
 
 let isIMSInitialized = false;
-const config = await fetchSiteConfig('main');
-const environment = config.find((elem) => elem.configProperty === 'imsEnvironment')?.value === 'stage' ? 'stg1' : 'prod';
-const imsOrgID = config.find((elem) => elem.configProperty === 'imsOrg')?.value;
-let imsUserGroup = config.find((elem) => elem.configProperty === 'imsUserGroup')?.value;
-if (!imsUserGroup) {
-  imsUserGroup = 'assets-distribution-portal-users';
-}
+const adminConfig = await getAdminConfig();
+const environment = adminConfig.imsEnvironment === 'stage' ? 'stg1' : 'prod';
+const imsOrgID = adminConfig.imsOrg;
+const imsOrgWithoutDomain = imsOrgID?.replace('@AdobeOrg', '');
+const imsUserGroup = adminConfig.imsUserGroup || 'assets-distribution-portal-users';
 
 const IMS_CONFIG = {
   xApiKey: 'assets-distribution-portal',
@@ -70,8 +68,7 @@ function getBearerTokenInLocalStorage() {
 
 /**
  * Get the bearer token from local storage or prompt for it.
- * @param {*} forceReset force the user to re-enter the bearer token
- * @returns the bearer token
+ * @returns {string} the bearer token
  */
 // eslint-disable-next-line import/prefer-default-export
 export async function getBearerToken() {
@@ -87,13 +84,12 @@ export async function getBearerToken() {
 }
 
 export async function getUserProfile() {
-  const userProfile = await window.adobeIMS.getProfile();
-  return userProfile;
+  return await window.adobeIMS.getProfile();
 }
 
 async function getIMSOrgData() {
   const bearerToken = await getBearerToken();
-  const imsData = await fetchCached(
+  return await fetchCached(
     `${IMS_CONFIG.urls.ims[environment]}/ims/organizations/v6?client_id=${IMS_CONFIG.xApiKey}`,
     {
       method: 'GET',
@@ -102,13 +98,12 @@ async function getIMSOrgData() {
       },
     },
   );
-  return imsData;
 }
 
 async function getSecurityGroupMemberships() {
   let imsOrgData = await getIMSOrgData();
   if (imsOrgData && Array.isArray(imsOrgData) && imsOrgData.length > 0) {
-    imsOrgData = imsOrgData.find((elem) => elem.orgRef.ident === imsOrgID.replace('@AdobeOrg', ''));
+    imsOrgData = imsOrgData.find((elem) => elem.orgRef.ident === imsOrgWithoutDomain);
     if (imsOrgData && imsOrgData.groups) {
       return imsOrgData.groups;
     }

@@ -5,7 +5,7 @@ const fetchCache = {};
  * @param {*} url - URL to fetch
  * @param {*} options - fetch options
  * @param {*} failOverURL - URL to fetch if the first one fails
- * @returns - response as JSON or text
+ * @returns {Object|String} response as JSON or text
  */
 async function fetchWithErrorHandling(url, options, failOverURL) {
   if (!url) throw new Error('url is required');
@@ -44,7 +44,7 @@ async function fetchWithErrorHandling(url, options, failOverURL) {
  * @param {*} url - URL to fetch
  * @param {*} options - fetch options
  * @param {*} failOverURL - URL to fetch if the first one fails
- * @returns - response as JSON or text
+ * @returns {Object|String} response as JSON or text
  */
 // eslint-disable-next-line import/prefer-default-export
 export async function fetchCached(url, options, failOverURL) {

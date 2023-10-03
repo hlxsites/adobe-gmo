@@ -1,6 +1,11 @@
 import { safeCSSId } from './scripts.js';
 import {
-  formatConfidence, formatFileSize, formatNumber, formatDate, formatResolution, formatMimeType,
+  formatConfidence,
+  formatDate,
+  formatFileSize,
+  formatMimeType,
+  formatNumber,
+  formatResolution,
   formatTextWithoutNamespace,
 } from './format-utils.js';
 
@@ -36,6 +41,7 @@ const SEARCH_FIELD_TO_POLARIS_API_MAP = {
  *
  * @param {*} obj - the object tree structure to search
  * @param {*} propName - the property name to search for
+ * @param recurse
  * @returns the value of the first matching property found in the object tree.
  *          Found using a breadth-first search.
  */
@@ -73,10 +79,11 @@ function isPolarisJSON(json) {
 
 /**
  * Get the metadata property value from the asset JSON
- * @param {*} key - the key to substitute, e.g. "metadata.assetMetadata.dc:title"
- * @param {*} json - the json object to substitute from,
+ * @param {string} key - the key to substitute, e.g. "metadata.assetMetadata.dc:title"
+ * @param {object} json - the json object to substitute from,
  *                   e.g. {"metadata": {"assetMetadata": {"dc:title": "My title"}}}
- * @returns - the substituted value, e.g. "My title"
+ * @param {boolean} allowRecursiveSearch
+ * @returns {*} the substituted value, e.g. "My title"
  */
 function substituteVariableFromJSON(key, json, allowRecursiveSearch) {
   let out = json;
@@ -98,6 +105,16 @@ function substituteVariableFromJSON(key, json, allowRecursiveSearch) {
   return out;
 }
 
+/**
+ * Predefined metadata fields that have special handling, can have compound values and a
+ * special formatter.
+ *
+ * @type {Object<string,
+ *   {label: string,
+ *    value: function(assetJSON: Object): *,
+ *    format: function(value: *): string
+ *    }>}
+ */
 const PREDEFINED_METADATA_FIELDS = {
   title: {
     label: 'Title',
@@ -114,20 +131,12 @@ const PREDEFINED_METADATA_FIELDS = {
   },
   description: {
     label: 'Description',
-    value: (assetJSON) => {
-      // eslint-disable-next-line no-use-before-define
-      const description = getMetadataValue('dc-description', assetJSON, true);
-      return description;
-    },
+    value: (assetJSON) => getMetadataValue('dc-description', assetJSON, true),
     format: (value) => value,
   },
   creator: {
     label: 'Creator',
-    value: (assetJSON) => {
-      // eslint-disable-next-line no-use-before-define
-      const creator = getMetadataValue('dc-creator', assetJSON, true);
-      return creator;
-    },
+    value: (assetJSON) => getMetadataValue('dc-creator', assetJSON, true),
     format: (value) => value,
   },
   resolution: {
@@ -144,63 +153,31 @@ const PREDEFINED_METADATA_FIELDS = {
   },
   format: {
     label: 'Format',
-    value: (assetJSON) => {
-      // if video asset, return video format
-      // eslint-disable-next-line no-use-before-define
-      const format = getMetadataValue('dc-format', assetJSON, true);
-      return format;
-    },
+    value: (assetJSON) => getMetadataValue('dc-format', assetJSON, true),
     format: (value) => formatMimeType(value),
   },
   size: {
     label: 'Size',
-    value: (assetJSON) => {
-      // eslint-disable-next-line no-use-before-define
-      const size = getMetadataValue('size', assetJSON, true);
-      return size;
-    },
-    // eslint-disable-next-line no-use-before-define
+    value: (assetJSON) => getMetadataValue('size', assetJSON, true),
     format: (value) => formatFileSize(value),
-  },
-  'xmp-CreateDate': {
-    label: 'Created',
-    format: (value) => formatDate(value),
-  },
-  'xmp-ModifyDate': {
-    label: 'Last Modified',
-    format: (value) => formatDate(value),
-  },
-  'xmp-MetadataDate': {
-    label: 'Metadata Modified',
-    format: (value) => formatDate(value),
-  },
-  'repo-createDate': {
-    label: 'Uploaded',
-    format: (value) => formatDate(value),
-  },
-  'repo-modifyDate': {
-    label: 'Asset Modified',
-    format: (value) => formatDate(value),
   },
 };
 
 /**
  * Get the metadata property value from the asset JSON
- * There are multiple JSON formats that can be passed in, Polaris API metadata response
- * and Search API responses (e.g. Algolia).  Algolia property names have
- * '-' instead of ':' in the metadata field names.
  *
- * @param {*} key - the key to substitute, e.g. "assetMetadata.dc:title"
- * @param {*} json - the json object to substitute from,
+ * @param {string} key - the key to substitute, e.g. "assetMetadata.dc:title"
+ * @param {object} json - the json object to substitute from,
  *                  e.g. {"metadata": {"assetMetadata": {"dc:title": "My title"}}}
- * @param {*} dataType - the data type of the metadata field - see DATA_TYPES
- * @param {*} allowRecursiveSearch - whether to allow recursive search for the property name
- * @returns - the substituted value, e.g. ["My title", "My title 2"]
+ * @param {boolean} allowRecursiveSearch - whether to allow recursive search for the property name
+ * @returns {*} the substituted value, e.g. ["My title", "My title 2"]
  */
 export function getMetadataValues(key, json, allowRecursiveSearch = true) {
+  /* There are multiple JSON formats that can be passed in, Polaris API metadata response
+      and Search API responses (e.g. Algolia).  Algolia property names have '-'
+      instead of ':' in the metadata field names. */
   if (isPolarisJSON(json)) {
     if (SEARCH_FIELD_TO_POLARIS_API_MAP[key]) {
-      // eslint-disable-next-line max-len
       return substituteVariableFromJSON(SEARCH_FIELD_TO_POLARIS_API_MAP[key], json, allowRecursiveSearch);
     }
     if (key.includes('-')) {
@@ -215,19 +192,16 @@ export function getMetadataValues(key, json, allowRecursiveSearch = true) {
 }
 
 /**
- * Same as getMetadataValues but returns the first element if the value is an array
- * @param {*} key - the key to substitute, e.g. "assetMetadata.dc:title"
- * @param {*} json - the json object to substitute from,
- *                  e.g. {"metadata": {"assetMetadata": {"dc:title": "My title"}}}
- * @param {*} dataType - the data type of the metadata field - see DATA_TYPES
- * @param {*} allowRecursiveSearch - whether to allow recursive search for the property name
- * @returns - the substituted value, e.g. "My title"
+ * alias for getMetadataValues
  */
 export function getMetadataValue(key, json, allowRecursiveSearch = true) {
-  const out = getMetadataValues(key, json, allowRecursiveSearch);
-  return out;
+  return getMetadataValues(key, json, allowRecursiveSearch);
 }
 
+/**
+ * Predefined metadata field types with a formatter function
+ * @type {Object<string, function(value: *): string|HTMLElement>}
+ */
 export const DATA_TYPES = {
   text: (o) => {
     if (Array.isArray(o)) {
@@ -274,29 +248,33 @@ export const DATA_TYPES = {
 
 /**
  * Format asset metadata - formats dates and arrays
- * @param {*} metadataValue - the metadata value to format
- * @returns the formatted metadata value, array values are joined with a comma
+ * @param {string} propertyName
+ * @param {string} metadataValue - the metadata value to format
+ * @returns {string|HTMLElement} the formatted metadata value, array values are joined with a comma
  * and dates are formatted using toLocaleDateString().
  */
-export function formatAssetMetadata(propertyName, metadataValue, dataType) {
-  // If no dataType is set and it is predefined field then use its format function
-  if (!dataType) {
-    if (PREDEFINED_METADATA_FIELDS[propertyName]
-      && PREDEFINED_METADATA_FIELDS[propertyName].format) {
-      return PREDEFINED_METADATA_FIELDS[propertyName].format(metadataValue);
-    }
+export function formatAssetMetadata(propertyName, metadataValue) {
+  if (PREDEFINED_METADATA_FIELDS[propertyName]?.format) {
+    return PREDEFINED_METADATA_FIELDS[propertyName].format(metadataValue);
   }
 
-  // if dataType is provided, use the corresponding format function
-  if (dataType) {
-    if (DATA_TYPES[dataType]) {
-      return DATA_TYPES[dataType](metadataValue);
-    }
+  // tags
+  if (['xcm-machineKeywords', 'xcm-keywords'].includes(propertyName)) {
+    return DATA_TYPES.tags(metadataValue);
   }
 
-  // if no dataType is provided, try to detect it
+  // file types
+  if (['dc-format'].includes(propertyName)) {
+    return PREDEFINED_METADATA_FIELDS.format.format(metadataValue);
+  }
 
-  // if no dataType is provided, try to detect it
+  // dates
+  if (['xmp-CreateDate', 'xmp-ModifyDate', 'xmp-MetadataDate', 'repo-createDate', 'repo-modifyDate']
+    .includes(propertyName)) {
+    return formatDate(metadataValue);
+  }
+
+  // try to detect the data type
   // eslint-disable-next-line no-restricted-globals
   if (!(isNaN(metadataValue))) {
     return formatNumber(metadataValue);
@@ -312,33 +290,25 @@ export function formatAssetMetadata(propertyName, metadataValue, dataType) {
     return formatDate(metadataValue);
   }
 
-  if (dataType === 'number') {
-    return Number(metadataValue).toLocaleString();
-  }
-
   return metadataValue;
 }
 
 /**
  * Adds custom metadata fields to the asset metadata.
- * @param {Array} metadataConfig - array of metadata config objects
+ * @param {Array<MetadataViewConfig>} metadataConfigs
  * @param {Object} assetJSON - the asset JSON
- * @param {Function} addMetadataFieldCallback - callback function to add metadata field
+ * @param {function(metadataInfo:Object)} addMetadataFieldCallback - callback to add metadata field
  */
-export function addMetadataFields(metadataConfig, assetJSON, addMetadataFieldCallback) {
-  for (let i = 0; i < metadataConfig.length; i += 1) {
-    const fieldTitle = metadataConfig[i].title;
-    const metadataPropDataType = metadataConfig[i]['data-type'];
-    const metadataProp = metadataConfig[i]['metadata-field'];
-    const metadataDisplayFormat = metadataConfig[i].display;
+export function addMetadataFields(metadataConfigs, assetJSON, addMetadataFieldCallback) {
+  for (const metadataInfo of metadataConfigs) {
+    const fieldTitle = metadataInfo.label;
+    const metadataProp = metadataInfo.metadataField;
 
     let metadataPropSubstitutedValue;
 
-    if (!metadataPropDataType) {
-      if (PREDEFINED_METADATA_FIELDS[metadataProp]
-        && PREDEFINED_METADATA_FIELDS[metadataProp].value !== undefined) {
-        metadataPropSubstitutedValue = PREDEFINED_METADATA_FIELDS[metadataProp].value(assetJSON);
-      }
+    if (PREDEFINED_METADATA_FIELDS[metadataProp]
+          && PREDEFINED_METADATA_FIELDS[metadataProp].value !== undefined) {
+      metadataPropSubstitutedValue = PREDEFINED_METADATA_FIELDS[metadataProp].value(assetJSON);
     }
     if (metadataPropSubstitutedValue === undefined) {
       metadataPropSubstitutedValue = getMetadataValue(
@@ -352,9 +322,7 @@ export function addMetadataFields(metadataConfig, assetJSON, addMetadataFieldCal
         field: metadataProp,
         title: fieldTitle,
         value: metadataPropSubstitutedValue,
-        dataType: metadataPropDataType,
         cssClass: safeCSSId(fieldTitle),
-        display: metadataDisplayFormat,
       },
     );
   }
