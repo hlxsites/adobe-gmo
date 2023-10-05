@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Starter project for Adobe Helix",
   "scripts": {
+    "update-dependencies": "webpack --mode production && node build/embedDependencies.js",
     "test": "wtr \"./test/**/*.test.js\" --node-resolve --port=2000 --coverage",
     "test:watch": "npm test -- --watch",
     "lint:js": "eslint .",
@@ -27,16 +28,55 @@
     "@web/test-runner": "0.15.1",
     "@web/test-runner-commands": "0.6.5",
     "chai": "4.3.7",
+    "copy-webpack-plugin": "^11.0.0",
     "eslint": "8.35.0",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-plugin-import": "2.27.5",
+    "fs": "^0.0.1-security",
     "sinon": "15.0.1",
     "stylelint": "15.2.0",
     "stylelint-config-prettier": "9.0.4",
-    "stylelint-config-standard": "30.0.1"
+    "stylelint-config-standard": "30.0.1",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@algolia/autocomplete-js": "^1.11.1",
+    "@algolia/autocomplete-plugin-query-suggestions": "1.11.1",
+    "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
+    "@algolia/autocomplete-theme-classic": "^1.11.1",
     "algoliasearch": "^4.18.0",
     "instantsearch.js": "^4.56.3"
-  }
+  },
+  "copyDependencies": [
+    {
+      "from": "node_modules/algoliasearch/dist/",
+      "to": "scripts/libs/algoliasearch/",
+      "fileInclude": "algoliasearch-lite.umd.js"
+    },
+    {
+      "from": "node_modules/instantsearch.js/dist/",
+      "to": "scripts/libs/instantsearch.js/",
+      "fileInclude": "instantsearch.production.min.js"
+    },
+    {
+      "from": "node_modules/@algolia/autocomplete-js/dist/umd/",
+      "to": "scripts/libs/@algolia/autocomplete-js/",
+      "fileInclude": "index.production.js"
+    },
+    {
+      "from": "node_modules/@algolia/autocomplete-plugin-recent-searches/dist/umd/",
+      "to": "scripts/libs/@algolia/autocomplete-plugin-recent-searches/",
+      "fileInclude": "index.production.js"
+    },
+    {
+      "from": "node_modules/@algolia/autocomplete-plugin-query-suggestions/dist/umd/",
+      "to": "scripts/libs/@algolia/autocomplete-plugin-query-suggestions/",
+      "fileInclude": "index.production.js"
+    },
+    {
+      "from": "node_modules/@algolia/autocomplete-theme-classic/dist/",
+      "to": "scripts/libs/@algolia/autocomplete-theme-classic/",
+      "fileInclude": "theme.min.css"
+    }
+  ]
 }

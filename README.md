@@ -27,6 +27,17 @@ npm test
 1. Start Franklin Proxy: `hlx up` (opens your browser at `http://localhost:3000`)
 1. Open the `{repo}` directory in your favorite IDE and start coding :)
 
+## Updating Dependencies
+To update the dependencies under [scripts/libs](scripts/libs) with newer versions:
+1. Delete [scripts/libs](scripts/libs)
+2. Update the dependencies in [package.json](package.json) under `dependencies` with the desired versions
+3. Update the `copyDependencies` configuration to specify which files from the dependencies to copy.
+   * `from` and `to` - patterns for [copy-webpack-plugin](https://webpack.js.org/plugins/copy-webpack-plugin/) so ti adheres to that format.
+   * `fileInclude` - specifies which file to include as a `script` or `link` tag in [head.html](head.html) 
+4. Run `npm run update-dependencies`, this will update the dependencies under [scripts/libs](scripts/libs) and add them to [head.html](head.html)
+5. Run `hlx up` and test http://localhost:3000 to make sure everything still works with the updated dependency versions.
+6. Run `git add scripts/libs package.json`, `git commit -m "Update dependencies"` to commit the new updated dependencies.
+
 ## Authentication
 By default, users are redirected for IMS authentication. e.g. when you visit the base URL you will be prompted for IMS auth. e.g. https://main--assets-distribution-portal--adobe.hlx.page
 

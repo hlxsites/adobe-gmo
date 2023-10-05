@@ -1,0 +1,1 @@
+/*! @algolia/autocomplete-js 1.11.1 | MIT License | © Algolia, Inc. and contributors | https://github.com/algolia/autocomplete */

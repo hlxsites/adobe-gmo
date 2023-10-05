@@ -193,3 +193,7 @@ async function getConfig(filename) {
     throw new Error(`Error fetching ${filename}: ${error}`, error);
   }
 }
+
+// Pre-emptively load the configs in parallel
+getAdminConfig();
+getBrandingConfig();

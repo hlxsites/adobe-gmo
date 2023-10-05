@@ -1,0 +1,1 @@
+/*! @algolia/autocomplete-plugin-recent-searches 1.11.1 | MIT License | © Algolia, Inc. and contributors | https://github.com/algolia/autocomplete */
