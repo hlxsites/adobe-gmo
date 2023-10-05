@@ -27,6 +27,7 @@ export function addAssetToContainer(
     container.classList.add('video-container');
     const videoUrl = getVideoDeliveryUrl(assetId);
     const videoElem = document.createElement('iframe');
+    videoElem.setAttribute('allow', 'fullscreen');
     videoElem.src = videoUrl;
     videoElem.alt = altAttrib;
     videoElem.frameborder = '0';
