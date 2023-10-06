@@ -62,7 +62,7 @@
     {
       "from": "node_modules/instantsearch.css/themes/",
       "to": "scripts/libs/instantsearch.css/themes/",
-      "fileInclude": ["satellite-min.css", "reset-min.css"]
+      "fileInclude": "satellite-min.css"
     },
     {
       "from": "node_modules/@algolia/autocomplete-js/dist/umd/",
