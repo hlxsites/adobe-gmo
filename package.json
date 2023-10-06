@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Starter project for Adobe Helix",
   "scripts": {
-    "update-dependencies": "webpack --mode production && node build/embedDependencies.js",
+    "update-dependencies": "rm -r scripts/libs && webpack --mode production && node build/embedDependencies.js",
     "test": "wtr \"./test/**/*.test.js\" --node-resolve --port=2000 --coverage",
     "test:watch": "npm test -- --watch",
     "lint:js": "eslint .",
@@ -45,6 +45,7 @@
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
     "@algolia/autocomplete-theme-classic": "^1.11.1",
     "algoliasearch": "^4.18.0",
+    "instantsearch.css": "^8.1.0",
     "instantsearch.js": "^4.56.3"
   },
   "copyDependencies": [
@@ -59,23 +60,28 @@
       "fileInclude": "instantsearch.production.min.js"
     },
     {
+      "from": "node_modules/instantsearch.css/themes/",
+      "to": "scripts/libs/instantsearch.css/themes/",
+      "fileInclude": ["satellite-min.css", "reset-min.css"]
+    },
+    {
       "from": "node_modules/@algolia/autocomplete-js/dist/umd/",
-      "to": "scripts/libs/@algolia/autocomplete-js/",
+      "to": "scripts/libs/algolia/autocomplete-js/",
       "fileInclude": "index.production.js"
     },
     {
       "from": "node_modules/@algolia/autocomplete-plugin-recent-searches/dist/umd/",
-      "to": "scripts/libs/@algolia/autocomplete-plugin-recent-searches/",
+      "to": "scripts/libs/algolia/autocomplete-plugin-recent-searches/",
       "fileInclude": "index.production.js"
     },
     {
       "from": "node_modules/@algolia/autocomplete-plugin-query-suggestions/dist/umd/",
-      "to": "scripts/libs/@algolia/autocomplete-plugin-query-suggestions/",
+      "to": "scripts/libs/algolia/autocomplete-plugin-query-suggestions/",
       "fileInclude": "index.production.js"
     },
     {
       "from": "node_modules/@algolia/autocomplete-theme-classic/dist/",
-      "to": "scripts/libs/@algolia/autocomplete-theme-classic/",
+      "to": "scripts/libs/algolia/autocomplete-theme-classic/",
       "fileInclude": "theme.min.css"
     }
   ]

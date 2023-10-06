@@ -8,12 +8,21 @@ fs.readFile('head.html', 'utf8', (err, data) => {
   }
 
   let tags = '<!-- Generated code -->\n';
+  const addHTML = (destinationPath, filename) => {
+    if (filename.endsWith('.css')) {
+      tags += `<link rel="stylesheet" href="/${destinationPath}${filename}">\n`;
+    } else if (filename.endsWith('.js')) {
+      tags += `<script src="/${destinationPath}${filename}" defer></script>\n`;
+    }
+  };
   packageJson.copyDependencies.forEach((dependency) => {
     const filename = dependency.fileInclude;
-    if (filename.endsWith('.css')) {
-      tags += `<link rel="stylesheet" href="/${dependency.to}${filename}">\n`;
-    } else if (filename.endsWith('.js')) {
-      tags += `<script src="/${dependency.to}${filename}" defer></script>\n`;
+    if (Array.isArray(filename)) {
+      filename.forEach((file) => {
+        addHTML(dependency.to, file);
+      });
+    } else {
+      addHTML(dependency.to, filename);
     }
   });
   tags += '<!-- End of Generated code -->';
