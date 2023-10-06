@@ -25,11 +25,6 @@ import { isPDF } from './filetypes.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
-const algoliaCSS = [
-  { href: '/scripts/libs/instantsearch.js/themes/reset-min.css', integrity: 'sha256-2AeJLzExpZvqLUxMfcs+4DWcMwNfpnjUeAAvEtPr0wU=', crossOrigin: 'anonymous' },
-  { href: '/scripts/libs/instantsearch.js/themes/satellite-min.css', integrity: 'sha256-p/rGN4RGy6EDumyxF9t7LKxWGg6/MZfGhJM/asKkqvA=', crossOrigin: 'anonymous' },
-];
-
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
@@ -191,30 +186,6 @@ export function addFavIcon(href) {
 }
 
 /**
- * Load the Algolia CSS libs.
- *
- * @param {*} callback
- */
-function loadAlgoliaCSS(callback) {
-  algoliaCSS.forEach((cssLib) => {
-    if (!document.querySelector(`head > link[href="${cssLib.href}"]`)) {
-      const link = document.createElement('link');
-      link.setAttribute('rel', 'stylesheet');
-      link.setAttribute('href', cssLib.href);
-      link.setAttribute('integrity', cssLib.integrity);
-      link.setAttribute('crossorigin', cssLib.crossOrigin);
-      if (typeof callback === 'function') {
-        link.onload = (e) => callback(e.type);
-        link.onerror = (e) => callback(e.type);
-      }
-      document.head.appendChild(link);
-    } else if (typeof callback === 'function') {
-      callback('noop');
-    }
-  });
-}
-
-/**
  * Loads everything that doesn't need to be delayed.
  * @param {Element} doc The container element
  */
@@ -228,9 +199,6 @@ async function loadLazy(doc) {
 
   loadHeader(doc.querySelector('header'));
   loadFooter(doc.querySelector('footer'));
-
-  // load algolia styles
-  loadAlgoliaCSS();
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   sampleRUM('lazy');

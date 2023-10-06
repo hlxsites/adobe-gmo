@@ -87,6 +87,17 @@
   }
 }
 
+@font-face {
+    font-family: "adobe clean";
+    src: url("../styles/fonts/AdobeClean/AdobeClean-SemiLight.otf") format("opentype");
+}
+
+@font-face {
+    font-family: "adobe clean";
+    src: url("../styles/fonts/AdobeClean/AdobeClean-Bold.otf") format("opentype");
+    font-weight: bold;
+}
+
 body {
   font-size: var(--body-font-size-m);
   margin: 0;
