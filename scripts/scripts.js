@@ -67,7 +67,7 @@ export function decorateMain(main) {
   decorateBlocks(main);
 }
 
-function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSeparatedList = false) {
+export function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSeparatedList = false) {
   if (configValue) {
     const currentFontFamily = getComputedStyle(document.documentElement)
       .getPropertyValue(cssVariableName);
@@ -131,6 +131,19 @@ const backendSearchClient = {
       .catch((e) => console.error('Unable to fetch results', e));
   },
 };
+
+export function getSearchClient() {
+  return backendSearchClient;
+}
+
+export function getInstantSearchRouting() {
+  if (window.instantSearchRouter) {
+    return window.instantSearchRouter;
+  }
+  const instantSearchRouter = window.instantsearch.routers.history();
+  window.instantSearchRouter = instantSearchRouter;
+  return instantSearchRouter;
+}
 
 async function initSearch() {
   window.search = window.instantsearch({
@@ -307,4 +320,42 @@ export function addDownloadHandlers(downloadElement, assetId, repoName, format) 
       downloadAsset(href, repoName);
     }
   });
+}
+
+export function removeParamFromUrl(url, paramName) {
+  const urlObject = new URL(url);
+  const params = new URLSearchParams(urlObject.search);
+  const hashParams = new URLSearchParams(urlObject.hash.replace('#', ''));
+
+  // Remove paramName from query parameters
+  if (params.has(paramName)) {
+    params.delete(paramName);
+    urlObject.search = params.toString();
+  }
+
+  // Remove paramName from hash parameters
+  if (hashParams.has(paramName)) {
+    hashParams.delete(paramName);
+    urlObject.hash = hashParams.toString();
+  }
+
+  return urlObject.toString();
+}
+
+export function removeParamFromWindowURL(paramName) {
+  const newURL = removeParamFromUrl(window.location.href, paramName);
+  window.history.replaceState({}, '', newURL);
+}
+
+function addParamToHashParams(url, paramName, paramValue) {
+  const urlObject = new URL(url);
+  const params = new URLSearchParams(urlObject.hash.replace('#', ''));
+  params.append(paramName, paramValue);
+  urlObject.hash = params.toString();
+  return urlObject.toString();
+}
+
+export function addHashParamToWindowURL(paramName, paramValue) {
+  const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
+  window.history.replaceState({}, '', newURL);
 }

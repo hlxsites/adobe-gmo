@@ -1,5 +1,7 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { addDownloadHandlers, getAnchorVariable } from '../../scripts/scripts.js';
+import {
+  getAnchorVariable, addDownloadHandlers, removeParamFromWindowURL, addHashParamToWindowURL,
+} from '../../scripts/scripts.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';
 import { getMetadataValue } from '../../scripts/metadata.js';
 // eslint-disable-next-line import/no-cycle
@@ -22,11 +24,7 @@ export function closeModal(block) {
   modal.querySelector('#asset-details-previous')?.classList.remove('hidden');
   modal.querySelector('.divider.first')?.classList.remove('hidden');
   modal.querySelector('iframe')?.remove();
-  const currentUrl = window.location.href;
-  const assetIdIndex = currentUrl.indexOf('#assetId');
-  // eslint-disable-next-line max-len
-  const newUrl = assetIdIndex !== -1 ? currentUrl.substring(0, assetIdIndex) : currentUrl;
-  window.history.pushState({}, '', newUrl);
+  removeParamFromWindowURL('assetId');
   closeAssetDetails();
 }
 
@@ -94,7 +92,7 @@ export async function openModal() {
   if (!assetId) {
     const selectedAsset = document.querySelector('#assets .asset-card.selected');
     assetId = selectedAsset.getAttribute('data-asset-id');
-    window.history.replaceState(window.history.state, '', `#assetId=${assetId}`);
+    addHashParamToWindowURL('assetId', assetId);
   }
   if (assetId) {
     if (!document.body.classList.contains('no-scroll')) {

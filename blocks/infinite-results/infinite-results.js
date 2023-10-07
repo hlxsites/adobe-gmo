@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getQueryVariable, getAnchorVariable, addDownloadHandlers,
+  getQueryVariable, getAnchorVariable, addDownloadHandlers, removeParamFromWindowURL,
 } from '../../scripts/scripts.js';
 import { getCardViewConfig } from '../../scripts/site-config.js';
 import {
@@ -145,12 +145,12 @@ export function deselectAssetCard(asset, removeFromURL = true) {
     assetCard.attributes['aria-selected'] = false;
   }
   if (removeFromURL) {
-    window.history.pushState({}, '', window.location.pathname);
+    removeParamFromWindowURL('assetId');
   }
 }
 
 /**
- * Selects the asset card in the UI and updates the URL with #assetId={assetId}
+ * Selects the asset card in the UI
  * @param {*} asset - asset id {string} or asset card element {HTMLElement}
  */
 function selectAssetCard(asset) {

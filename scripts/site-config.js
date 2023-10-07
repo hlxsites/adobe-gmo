@@ -1,7 +1,14 @@
 import { fetchCached } from './fetch-util.js';
 import { toCamelCase } from './lib-franklin.js';
 
-/* eslint-disable no-use-before-define */
+function parseValue(value) {
+  if (value === 'true' || value === 'false') {
+    return value === 'true';
+  } if (!Number.isNaN(value)) {
+    return Number(value);
+  }
+  return value;
+}
 
 /**
  * @typedef {Object} AdminConfig
@@ -168,6 +175,33 @@ export async function getDownloadRenditionConfig() {
       ...rest,
     });
   });
+}
+
+/**
+ * NOTE: property names are converted from kebab-case in Excel to camelCase here.
+ * e.g. enable-search-suggestions -> enableSearchSuggestions
+ *
+ * @typedef {Object} SearchFieldConfig
+ * @property {boolean} enableSearchSuggestions
+ * @property {number} searchMinChars
+ */
+
+/**
+ * @returns {SearchFieldConfig}
+ */
+export async function getSearchFieldConfig() {
+  const response = await getConfig('site-config.json');
+  const configId = 'search-field';
+  const result = {
+    enableSearchSuggestions: false,
+    searchMinChars: 3,
+  };
+  response[configId]?.data.forEach((row) => {
+    if (row.Value) {
+      result[toCamelCase(row.ID)] = parseValue(row.Value);
+    }
+  });
+  return result;
 }
 
 /**
