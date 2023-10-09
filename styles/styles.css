@@ -339,3 +339,29 @@ main > .section {
 main .section.highlight {
   background-color: var(--highlight-background-color);
 }
+
+
+body {
+  text-transform: capitalize;
+}
+
+.title,
+.metadata-filename,
+.file-name,
+.metadata-field-title {
+  text-transform: initial;
+}
+
+.ais-RefinementList-labelText,
+.ais-RefinementList-count,
+.tag {
+  display: inline-block;
+  vertical-align: middle;
+  text-transform: lowercase
+}
+.ais-RefinementList-labelText::first-letter,
+.tag::first-letter {
+  text-transform: uppercase
+}
+
+
