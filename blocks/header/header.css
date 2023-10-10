@@ -191,9 +191,8 @@ header .nav-search label {
 }
 
 header nav .nav-brand img {
-  height: 26px;
+  min-height: 26px;
   width: auto;
-  max-width: 200px;
   margin: 10px;
 }
 
