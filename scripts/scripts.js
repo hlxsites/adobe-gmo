@@ -164,6 +164,9 @@ async function loadEager(doc) {
       window.location.href = '/no-access';
       return;
     }
+    // This is a dev only service worker that caches the algolia JS SDK
+    // check if we are on localhost
+    await initializeServiceWorkers();
     await initSearch();
   }
   const brandingConfig = await getBrandingConfig();
@@ -178,6 +181,13 @@ async function loadEager(doc) {
     decorateMain(main);
     document.body.classList.add('appear');
     await waitForLCP(LCP_BLOCKS);
+  }
+}
+
+async function initializeServiceWorkers() {
+  if (window.location.hostname.includes('localhost')) {
+    const sw = await navigator.serviceWorker.register('/localdata.js');
+    console.log('ServiceWorker registered', sw);
   }
 }
 
