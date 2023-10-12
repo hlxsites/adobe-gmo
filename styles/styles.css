@@ -59,6 +59,7 @@
   --asset-details-panel-filename-font: normal normal bold 28px/35px var(--body-font-family);
   --metadata-font: normal normal normal 14px/17px var(--body-font-family);
   --metadata-label-font: var(--metadata-font);
+  --bold-font-size-s: normal normal bold 14px/17px var(--body-font-family);
   --bold-font-size-base: normal normal bold 16px/20px var(--body-font-family);
   --bold-font-size-m: normal normal bold 18px/22px var(--body-font-family);
   --metadata-tags-font: normal normal normal 12px/15px var(--body-font-family);
@@ -348,7 +349,9 @@ body {
 .title,
 .metadata-filename,
 .file-name,
-.metadata-field-title {
+.metadata-field-title,
+.file-size,
+.user-email {
   text-transform: initial;
 }
 

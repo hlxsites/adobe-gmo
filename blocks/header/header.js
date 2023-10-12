@@ -3,6 +3,7 @@ import {
 } from '../../scripts/lib-franklin.js';
 import { getBrandingConfig } from '../../scripts/site-config.js';
 import { getUserProfile } from '../../scripts/security.js';
+import { closeDialogEvent } from '../../scripts/scripts.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
@@ -109,8 +110,17 @@ export default async function decorate(block) {
 </div>
 
 <div class="nav-tools">
-      <a class="user-switcher" href=""><span class="icon icon-user"></span></a>
+      <a class="user-switcher" href="">
+      <span class="icon icon-user"></span>
+      </a>
 </div>
+<dialog class="user-profile">
+  <div class="user-container">
+    <div class="user-name"></div>
+    <div class="user-email"></div>
+    <a class="user-signout" href="">Sign Out</a>
+  </div>
+</dialog>
 `;
 
   const navSections = nav.querySelector('.nav-sections');
@@ -157,13 +167,25 @@ export default async function decorate(block) {
 
   // decorate user switcher
   const userSwitcher = nav.querySelector('.user-switcher');
+  const dialog = nav.querySelector('.user-profile');
   userSwitcher.addEventListener('click', async (clickEvent) => {
     clickEvent.preventDefault();
-    const navTools = nav.querySelector('.nav-tools');
-    const userProfileDiv = document.createElement('div');
-    userProfileDiv.innerText = userProfile.displayName;
-    navTools.append(userProfileDiv);
-  }, { once: true });
+    dialog.querySelector('.user-name').textContent = userProfile.displayName;
+    dialog.querySelector('.user-email').textContent = userProfile.email;
+    dialog.showModal();
+  });
+
+  closeDialogEvent(dialog);
+
+  const signout = nav.querySelector('.user-signout');
+  signout.addEventListener('click', async (clickEvent) => {
+    clickEvent.preventDefault();
+    window.adobeIMS?.signOut(
+      {
+        redirect_uri: window.location.origin,
+      },
+    );
+  });
 
   const brandingConfig = await getBrandingConfig();
   if (brandingConfig.logo) {

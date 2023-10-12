@@ -369,3 +369,26 @@ export function addHashParamToWindowURL(paramName, paramValue) {
   const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
   window.history.replaceState({}, '', newURL);
 }
+
+export function createTag(tag, attributes) {
+  const element = document.createElement(tag);
+  if (attributes) {
+    Object.entries(attributes).forEach(([key, val]) => {
+      element.setAttribute(key, val);
+    });
+  }
+  return element;
+}
+
+export function closeDialogEvent(dialog){
+  dialog.addEventListener('click', (event) => {
+    // only react to clicks outside the dialog. https://stackoverflow.com/a/70593278/79461
+    const dialogDimensions = dialog.getBoundingClientRect();
+    if (event.clientX < dialogDimensions.left || event.clientX > dialogDimensions.right
+      || event.clientY < dialogDimensions.top || event.clientY > dialogDimensions.bottom) {
+        dialog.close();
+        document.body.classList.remove('no-scroll');
+    }
+  });
+}
+
