@@ -56,7 +56,7 @@ function onSelect({
 
   setQuery(query);
   setIsOpen(false);
-  setInstantSearchUiState({ query });
+  debouncedSetInstantSearchUiStateNoDelay({ query });
 }
 
 function getItemUrl({ query }) {
@@ -128,11 +128,12 @@ if (enableSearchSuggestions) {
   querySuggestionsPlugin = createQuerySuggestionsPlugin({
     searchClient: getSearchClient(),
     indexName: 'query_suggestions',
-    getSearchParams() {
+    getSearchParams({ state }) {
       // This creates a shared `hitsPerPage` value once the duplicates
       // between recent searches and Query Suggestions are removed.
       return recentSearchesPlugin.data.getAlgoliaSearchParams({
         hitsPerPage: MAX_ITEMS_IN_AUTOCOMPLETE_MENU,
+        query: state.query,
       });
     },
     transformSource({ source }) {
@@ -186,19 +187,25 @@ function getInstantSearchUiState() {
   return (uiState && uiState[INSTANT_SEARCH_INDEX_NAME]) || {};
 }
 
-function debounce(fn, time) {
+function debounce(fn) {
   let timerId;
 
-  return function debounceFn(...args) {
+  const debouncedFn = function debouncedFn(time, ...args) {
     if (timerId) {
       clearTimeout(timerId);
     }
-
-    timerId = setTimeout(() => fn(...args), time);
+    if (time === 0 || time === undefined) {
+      fn(...args);
+    } else {
+      timerId = setTimeout(() => fn(...args), time);
+    }
   };
+  return debouncedFn;
 }
 
-const debouncedSetInstantSearchUiState = debounce(setInstantSearchUiState, 500);
+const debounceSetInstantSearchUiState = debounce(setInstantSearchUiState);
+const debouncedSetInstantSearchUiState = (indexUiState) => debounceSetInstantSearchUiState(500, indexUiState);
+const debouncedSetInstantSearchUiStateNoDelay = (indexUiState) => debounceSetInstantSearchUiState(0, indexUiState);
 
 export default function decorate(block) {
   const { autocomplete } = window['@algolia/autocomplete-js'];
@@ -228,10 +235,10 @@ export default function decorate(block) {
         query: searchPageState.query || '',
       },
       onSubmit({ state }) {
-        setInstantSearchUiState({ query: state.query });
+        debouncedSetInstantSearchUiStateNoDelay({ query: state.query });
       },
       onReset() {
-        setInstantSearchUiState({ query: '' });
+        debouncedSetInstantSearchUiStateNoDelay({ query: '' });
       },
       /**
        * This is the main function that keeps the InstantSearch UI state.
@@ -244,7 +251,7 @@ export default function decorate(block) {
             && state.query.length > 0) {
             return;
           } if (state.query.length === 0) {
-            setInstantSearchUiState({ query: '' });
+            debouncedSetInstantSearchUiStateNoDelay({ query: '' });
           } else {
             // If the query changed then we update the InstantSearch UI state.
             debouncedSetInstantSearchUiState({ query: state.query });
