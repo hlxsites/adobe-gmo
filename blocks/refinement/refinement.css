@@ -83,6 +83,9 @@
   text-align: left;
   letter-spacing: 0px;
   opacity: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
 }
 
 .refinement-options .ais-RefinementList-count {
@@ -93,6 +96,8 @@
   /** Approximately 25px on 100% zoom */
   line-height: 1.98rem;
   padding-left: 10px;
+  width: 100%;
+  align-items: left;
 }
 
 .refinement-options .ais-RefinementList-count {

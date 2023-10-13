@@ -86,7 +86,7 @@ export default async function decorate(block) {
               const updatedLabel = formatAssetMetadata(refinement.metadataField, item.label);
               return html`
                 <input type="checkbox" class="ais-RefinementList-checkbox" value=${value}/>
-                <span class="ais-RefinementList-labelText">${updatedLabel}</span>
+                <span class="ais-RefinementList-labelText" title="${updatedLabel}">${updatedLabel}</span>
                 <span class="ais-RefinementList-count">${count}</span>
               `;
             },
