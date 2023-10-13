@@ -4,6 +4,7 @@
     --aa-search-input-height: 40px;
     --aa-icon-size: 15px;
     --aa-input-icon-size: 15px;
+    --aa-action-icon-size: 15px
 }
 
 .search-field {
@@ -12,9 +13,9 @@
 
 .search-field input {
     border-radius: 25px;
-    background-color: #EEE;
+    background-color: var(--overlay-background-color);
     width: 100%;
-    color: #000;
+    color: var(--text-color);
     padding: 0.8em 0.8em 0.8em 40px;
 }
 
@@ -90,3 +91,30 @@ svg.aa-ClearIcon {
     top: var(--position-autocomplete-panel-top) !important;
     z-index: 1000;
 }
+
+.aa-ItemContent, 
+.aa-ItemContentTitle {
+    color: var(--text-color);
+    font: var(--metadata-font);
+ }
+
+ .aa-ItemLink:hover {
+    color: var(--text-color);
+    text-decoration: none;
+ }
+
+ .aa-Item:hover {
+    background-color: var(--overlay-background-color);
+ }
+
+ .aa-Item {
+    min-height: 32px;
+ }
+
+ .aa-ItemIcon {
+    margin-top: 1px;
+ }
+
+ .aa-ItemContent {
+    column-gap: 5px;
+ }

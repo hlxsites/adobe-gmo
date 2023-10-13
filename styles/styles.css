@@ -20,7 +20,7 @@
   --header-background-color: #EB1000;
   --overlay-background-color: #eee;
   --highlight-background-color: #ccc;
-  --text-color: #000;
+  --text-color: var(--black-background-color);
   --header-text-color: white;
   --label-color: #464646;
   --assets-browser-background-color: #f8f8f8;
@@ -63,7 +63,7 @@
   --bold-font-size-base: normal normal bold 16px/20px var(--body-font-family);
   --bold-font-size-m: normal normal bold 18px/22px var(--body-font-family);
   --metadata-tags-font: normal normal normal 12px/15px var(--body-font-family);
-  --refinement-item-font: normal normal normal 14px/17px var(--body-font-family);
+  --refinement-item-font: var(--metadata-font);
   --stats-label-font: normal normal normal 16px/20px var(--body-font-family);
   --stats-value-font: normal normal bold 16px/20px var(--body-font-family);
   --current-refinement-font: normal normal normal 12px/15px var(--body-font-family);
@@ -351,7 +351,8 @@ body {
 .file-name,
 .metadata-field-title,
 .file-size,
-.user-email {
+.user-email,
+.aa-ItemContentTitle {
   text-transform: initial;
 }
 
