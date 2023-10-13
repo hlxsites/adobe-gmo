@@ -62,7 +62,7 @@ export async function openAssetDetails(assetId) {
   metadataContainer.appendChild(metadataFieldsElem);
 
   const imgPanel = document.querySelector('#asset-details-image-panel');
-  addAssetToContainer(assetId, fileName, title, fileFormat, imgPanel);
+  await addAssetToContainer(assetId, fileName, title, fileFormat, imgPanel);
 
   disableButtons(assetDetailsPanel);
   // clone the download element to remove previous event listener before adding a new one

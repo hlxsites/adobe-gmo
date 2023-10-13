@@ -44,7 +44,7 @@ async function createImagePanel(modal, assetId) {
   const assetName = getMetadataValue('repo:name', assetJSON);
   const assetTitle = getMetadataValue('title', assetJSON);
   const format = getMetadataValue('dc:format', assetJSON);
-  addAssetToContainer(assetId, assetName, assetTitle, format, imgPanel);
+  await addAssetToContainer(assetId, assetName, assetTitle, format, imgPanel);
   updateZoomLevel(modal);
 }
 

@@ -1,5 +1,6 @@
 import { isVideo, getFailedPlaceholderImgSrc } from './filetypes.js';
 import { getOptimizedDeliveryUrl, getVideoDeliveryUrl } from './polaris.js';
+import { getBearerToken } from './security.js';
 
 /**
  * Create a image tag or a video tag and add it to the container
@@ -10,7 +11,7 @@ import { getOptimizedDeliveryUrl, getVideoDeliveryUrl } from './polaris.js';
  * @param {HTMLElement} container
  */
 // eslint-disable-next-line import/prefer-default-export
-export function addAssetToContainer(
+export async function addAssetToContainer(
   assetId,
   assetName,
   assetTitle,
@@ -35,10 +36,17 @@ export function addAssetToContainer(
       this.src = getFailedPlaceholderImgSrc(fileFormat);
     };
     container.appendChild(videoElem);
+    videoElem.addEventListener('load', async function () {
+      const iframeContentWindow = videoElem.contentWindow;
+      iframeContentWindow.postMessage(await getBearerToken(), "*");
+    });
   } else {
     const imgElem = document.createElement('img');
-    const url = getOptimizedDeliveryUrl(assetId, assetName, 1024);
-    imgElem.src = url;
+    imgElem.style.visibility = 'hidden';
+    getOptimizedDeliveryUrl(assetId, assetName, 1024).then((url) => {
+      imgElem.src = url;
+      imgElem.style.visibility = '';
+    });
     imgElem.alt = altAttrib;
     imgElem.onerror = function () {
       this.src = getFailedPlaceholderImgSrc(fileFormat);

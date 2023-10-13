@@ -123,7 +123,7 @@ const backendSearchClient = {
         Authorization: token,
         'x-adobe-accept-experimental': 1,
         'x-adp-request': (Array.isArray(requests) && requests.length > 0
-                          && requests[0].type === 'facet') ? 'facet' : 'search',
+          && requests[0].type === 'facet') ? 'facet' : 'search',
       },
       body: JSON.stringify({ requests }),
     })
@@ -289,8 +289,8 @@ export function safeCSSId(str) {
     .replace(/\.|%[0-9a-z]{2}/gi, '');
 }
 
-function downloadAsset(url, name) {
-  fetch(url)
+function downloadAsset(url, name, options) {
+  fetch(url, options)
     .then((resp) => resp.blob())
     .then((blob) => {
       const imgUrl = window.URL.createObjectURL(blob);
@@ -305,8 +305,8 @@ function downloadAsset(url, name) {
     .catch((e) => console.log('Unable to download file', e));
 }
 
-function openPDF(url) {
-  fetch(url)
+function openPDF(url, options) {
+  fetch(url, options)
     .then((resp) => resp.blob())
     .then((blob) => {
       const pdfUrl = window.URL.createObjectURL(blob);
@@ -320,14 +320,21 @@ function openPDF(url) {
  * Add download handling code to the download button
  * @param {HTMLElement} downloadElement - download element
  */
-export function addDownloadHandlers(downloadElement, assetId, repoName, format) {
-  downloadElement.addEventListener('click', (e) => {
+export async function addDownloadHandlers(downloadElement, assetId, repoName, format) {
+  downloadElement.addEventListener('click', async (e) => {
     e.preventDefault();
-    const href = getDownloadUrl(assetId, repoName);
+    const bearerToken = await getBearerToken();
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: bearerToken,
+      },
+    };
+    const href = await getDownloadUrl(assetId, repoName);
     if (isPDF(format)) {
-      openPDF(href);
+      await openPDF(href, options);
     } else {
-      downloadAsset(href, repoName);
+      await downloadAsset(href, repoName, options);
     }
   });
 }

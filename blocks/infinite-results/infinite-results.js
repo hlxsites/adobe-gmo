@@ -235,7 +235,7 @@ export async function selectPreviousAsset() {
  * @param {*} hit - search result hit
  * @returns {HTMLElement} asset card element
  */
-function createCardElement(hit) {
+async function createCardElement(hit) {
   const { assetId } = hit;
   const dcFormat = hit['dc-format'];
   const dcTitle = hit['dc-title'];
@@ -275,7 +275,11 @@ function createCardElement(hit) {
 
   const img = card.querySelector('img');
   img.dataset.fileformat = dcFormat;
-  img.src = getOptimizedPreviewUrl(assetId, repoName, 350);
+  img.style.visibility = 'hidden';
+  getOptimizedPreviewUrl(assetId, repoName, 350).then((url) => {
+    img.src = url;
+    img.style.visibility = '';
+  });
   img.alt = title;
 
   const span1 = card.querySelector('.preview-overlay span');
@@ -375,8 +379,6 @@ export default async function decorate(block) {
 
     const cards = container.querySelector('.cards');
 
-    const newCards = [];
-
     // if it's a new search then reset the tracking variables
     if (isNewSearch) {
       cards.innerHTML = '';
@@ -389,14 +391,21 @@ export default async function decorate(block) {
       lastPage = renderArgs.results.page;
 
       // add new result cards
-      currentPageHits.forEach((hit) => {
-        const card = createCardElement(hit);
-        newCards.push(card);
-      });
+      async function processHits() {
+        const newCards = [];
 
-      removePlaceholderCards(cards);
-      addPlaceholderCards(cards, newCards);
-      cards.append(...newCards);
+        for (const hit of currentPageHits) {
+          const card = await createCardElement(hit);
+          newCards.push(card);
+        }
+
+        removePlaceholderCards(cards);
+        addPlaceholderCards(cards, newCards);
+        cards.append(...newCards);
+      }
+
+      processHits();
+
       const assetId = getQueryVariable('assetId') || getAnchorVariable('assetId');
       if (isNewSearch && assetId) {
         const assetCard = getAssetCard(assetId);
@@ -409,7 +418,7 @@ export default async function decorate(block) {
   // Note: "configure" doesn't work with infiniteHits.
   // The change doesn't get applied unless we use "customConfigure"
   const customConfigure = window.instantsearch.connectors.connectConfigure(
-    () => {},
+    () => { },
   );
   window.search.addWidgets([
     customConfigure({

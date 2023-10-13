@@ -7,9 +7,10 @@ const imageTransformations = [
 ];
 
 export async function getAvailableRenditions(assetId, assetName, mimeType) {
+  const downloadURL = await getDownloadUrl(assetId, assetName);
   let availableRenditions = [{
     name: 'Original',
-    url: new URL(getDownloadUrl(assetId, assetName)),
+    url: new URL(downloadURL),
   }];
   if (isImage(mimeType)) {
     const additionalRenditions = await getAvailableImageRenditions(assetId, assetName, mimeType);

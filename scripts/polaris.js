@@ -1,5 +1,6 @@
 import { isVideo } from './filetypes.js';
 import { getAdminConfig } from './site-config.js';
+import { getBearerToken } from './security.js';
 
 let deliveryEndpointURL = null;
 let backendApiKey = null;
@@ -59,7 +60,8 @@ export function getVideoDeliveryUrl(assetId) {
  * @param {*} width the width to constrain the image to
  * @returns the URL to the image rendition
  */
-export function getOptimizedDeliveryUrl(assetId, assetName, width, format) {
+export async function getOptimizedDeliveryUrl(assetId, assetName, width, format) {
+  const bearerToken = await getBearerToken();
   let fileName = assetName;
   if (!assetName.includes('.') || isVideo(format)) {
     fileName = `${assetName}.jpg`;
@@ -70,78 +72,49 @@ export function getOptimizedDeliveryUrl(assetId, assetName, width, format) {
   } else {
     path += `?width=${width}&preferwebp=true`;
   }
-  return `${path}`.replace(/\.(png)/, '.webp').replace(/\.(mov|m3u8|mp4|mpeg|avi|asf|flv|m4v)/, '.jpg');
+  const url = `${path}`.replace(/\.(png)/, '.webp').replace(/\.(mov|m3u8|mp4|mpeg|avi|asf|flv|m4v)/, '.jpg');
+  const options = {
+    method: 'GET',
+    headers: {
+      Authorization: bearerToken,
+    },
+  };
+
+  const response = await fetch(url, options);
+  const imageBlob = await response.blob();
+  return URL.createObjectURL(imageBlob);
+
 }
 
-export function getOptimizedPreviewUrl(assetId, assetName, width, format) {
-  return getOptimizedDeliveryUrl(assetId, `preview-${assetName}`, width, format);
+export async function getOptimizedPreviewUrl(assetId, assetName, width, format) {
+  return await getOptimizedDeliveryUrl(assetId, `preview-${assetName}`, width, format);
 }
 
 /**
  * Get the URL to download an asset original binary
  */
-export function getDownloadUrl(repoAssetID, filename) {
+export async function getDownloadUrl(repoAssetID, filename) {
   return `${getDeliveryEnvironment()}/adobe/assets/deliver/${repoAssetID}/${filename}`;
 }
 
 /**
- * Returns a picture element with webp and fallbacks
- * @param {string} src The image URL
- * @param {boolean} eager load image eager
- * @param {Array} breakpoints breakpoints and corresponding params (eg. width)
+ * Get the metadata for an asset from Polaris
+ * @param {*} assetId - the asset id to get metadata for (repo:assetId)
+ * @returns json response from polaris with metadata of the asset
  */
-export function createDeliveryServicePicture(
-  assetId,
-  assetName,
-  alt = '',
-  eager = false,
-  breakpoints = [{ media: '(min-width: 400px)', width: '2000' }, { width: '750' }],
-) {
-  // const url = new URL(src, window.location.href);
-  const picture = document.createElement('picture');
-  const pathname = getBaseDeliveryUrl(assetId, assetName);
-  // const { pathname } = url;
-  const ext = pathname.substring(pathname.lastIndexOf('.') + 1);
-
-  // webp
-  breakpoints.forEach((br) => {
-    const source = document.createElement('source');
-    if (br.media) source.setAttribute('media', br.media);
-    source.setAttribute('type', 'image/webp');
-    source.setAttribute('srcset', `${getOptimizedDeliveryUrl(assetId, assetName, br.width)}&format=webply&quality=80`);
-    picture.appendChild(source);
-  });
-
-  // fallback
-  breakpoints.forEach((br, i) => {
-    if (i < breakpoints.length - 1) {
-      const source = document.createElement('source');
-      if (br.media) source.setAttribute('media', br.media);
-      source.setAttribute('srcset', `${pathname}?width=${br.width}&format=${ext}&quality=80`);
-      picture.appendChild(source);
-    } else {
-      const img = document.createElement('img');
-      img.setAttribute('loading', eager ? 'eager' : 'lazy');
-      img.setAttribute('alt', alt);
-      picture.appendChild(img);
-      img.setAttribute('src', `${pathname}?width=${br.width}&format=${ext}&quality=80`);
-    }
-  });
-
-  return picture;
-}
-
 export async function fetchMetadataValueFromPolaris(assetId) {
+  const bearerToken = await getBearerToken();
   const options = {
     method: 'GET',
     headers: {
       'x-adobe-accept-experimental': 1,
+      Authorization: bearerToken,
     },
   };
 
-  let response = await fetch(`${getDeliveryEnvironment()}/adobe/assets/${assetId}/metadata`, options);
-  response = await response.json();
-  return response;
+  const response = await fetch(`${getDeliveryEnvironment()}/adobe/assets/${assetId}/metadata`, options);
+  const metadataResponse = await response.json();
+  return metadataResponse;
 }
 
 /**
@@ -155,8 +128,7 @@ export async function getAssetMetadata(assetId) {
   if (cached) {
     return cached;
   }
-  metadataCache[assetId] = fetchMetadataValueFromPolaris(assetId);
-  metadataCache[assetId] = await metadataCache[assetId];
+  metadataCache[assetId] = await fetchMetadataValueFromPolaris(assetId);
   return metadataCache[assetId];
 }
 
