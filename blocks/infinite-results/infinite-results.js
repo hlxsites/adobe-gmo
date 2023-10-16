@@ -2,7 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   getQueryVariable, getAnchorVariable, addDownloadHandlers, removeParamFromWindowURL,
 } from '../../scripts/scripts.js';
-import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
+import { getCardViewConfig, getCardViewSettings, getSearchFieldConfig } from '../../scripts/site-config.js';
 import {
   getFileTypeCSSClass, getFileType, isVideo, getFailedPlaceholderImgSrc,
 } from '../../scripts/filetypes.js';
@@ -15,6 +15,7 @@ import { createMetadataHTML } from '../../scripts/metadata-html-builder.js';
 
 const cardViewConfig = await getCardViewConfig();
 const cardViewSettings = await getCardViewSettings();
+const searchFieldConfig = await getSearchFieldConfig();
 let currentlySelectedAssetCard;
 let lastPage = null;
 let lastRenderArgs;
@@ -422,12 +423,15 @@ export default async function decorate(block) {
     () => { },
   );
   function getFilters() {
-    const currentDate = new Date();
-    const currentEpoch = Math.floor(currentDate.getTime() / 1000);
-    // Algolia does not support filters based on mixed types; for example boolean & numeric field types
-    // is_pur-expirationDate is a boolean type; but aloglia's engine treats boolean false as 0
-    // so we can use that to our advantage for numberic filters
-    return `is_pur-expirationDate = 0 OR pur-expirationDate > ${currentEpoch}`;
+    if (searchFieldConfig.hideExpiredAssets) {
+      const currentDate = new Date();
+      const currentEpoch = Math.floor(currentDate.getTime() / 1000);
+      // Algolia does not support filters based on mixed types; for example boolean & numeric field types
+      // is_pur-expirationDate is a boolean type; but aloglia's engine treats boolean false as 0
+      // so we can use that to our advantage for numberic filters
+      return `is_pur-expirationDate = 0 OR pur-expirationDate > ${currentEpoch}`;
+    }
+    return '';
   }
 
   window.search.addWidgets([

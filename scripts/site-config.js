@@ -208,6 +208,7 @@ export async function getSearchFieldConfig() {
   const result = {
     enableSearchSuggestions: false,
     searchMinChars: 3,
+    hideExpiredAssets: true,
   };
   response[configId]?.data.forEach((row) => {
     if (row.Value) {
