@@ -1,5 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { getFilterConfig } from '../../scripts/site-config.js';
+import { getFilterConfig, getFilterSettings } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
 import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 import { scrollToSearchResults } from '../infinite-results/infinite-results.js';
@@ -52,6 +52,7 @@ export default async function decorate(block) {
   block.appendChild(refinements);
 
   const filterConfig = await getFilterConfig();
+  const filterSettings = await getFilterSettings();
   Object.values(filterConfig).forEach((refinement) => {
     if (!refinement.metadataField) {
       return;
@@ -132,8 +133,8 @@ export default async function decorate(block) {
         }
       };
       const options = el.querySelector('.refinement-options');
-      options.style.display = 'block';
-      labelElem.setAttribute('aria-expanded', 'true');
+      options.style.display = filterSettings.expandFilterCategoryByDefault ? 'block' : 'none';
+      labelElem.setAttribute('aria-expanded', filterSettings.expandFilterCategoryByDefault);
       labelElem.setAttribute('aria-controls', options.id);
       labelElem.setAttribute('role', 'button');
     }

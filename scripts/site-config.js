@@ -142,6 +142,19 @@ export async function getFilterConfig() {
   return result;
 }
 
+export async function getFilterSettings() {
+  const response = await getConfig('site-config.json');
+  const result = {
+    expandFilterCategoryByDefault: false,
+  };
+  response['filter-settings']?.data.forEach((row) => {
+    if (row.Value) {
+      result[toCamelCase(row.Configuration)] = parseValue(row.Value);
+    }
+  });
+  return result;
+}
+
 /**
  * @typedef {Object} DownloadRenditionConfig
  * @property {Array<DownloadRendition>} renditions
