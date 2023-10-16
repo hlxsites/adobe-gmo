@@ -23,7 +23,7 @@
     background-color: var(--assets-browser-background-color);
     border-top: solid #F1F1F1 2px;
     column-gap: 11px;
-    row-gap: 1em;
+    row-gap: 11px;
 }
 
 .section.infinite-results-container.left-closed {

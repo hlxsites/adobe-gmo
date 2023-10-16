@@ -1,6 +1,7 @@
 .stats-wrapper {
     grid-area: stats;
     padding-top: 15px;
+    padding-bottom: 11px;
 }
 
 .stats {
