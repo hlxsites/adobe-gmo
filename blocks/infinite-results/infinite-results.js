@@ -421,10 +421,20 @@ export default async function decorate(block) {
   const customConfigure = window.instantsearch.connectors.connectConfigure(
     () => { },
   );
+  function getFilters() {
+    const currentDate = new Date();
+    const currentEpoch = Math.floor(currentDate.getTime() / 1000);
+    // Algolia does not support filters based on mixed types; for example boolean & numeric field types
+    // is_pur-expirationDate is a boolean type; but aloglia's engine treats boolean false as 0
+    // so we can use that to our advantage for numberic filters
+    return `is_pur-expirationDate = 0 OR pur-expirationDate > ${currentEpoch}`;
+  }
+
   window.search.addWidgets([
     customConfigure({
       searchParameters: {
         hitsPerPage: 40,
+        filters: getFilters(),
       },
     }),
     infiniteHits({
