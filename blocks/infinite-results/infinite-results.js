@@ -2,7 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   getQueryVariable, getAnchorVariable, addDownloadHandlers, removeParamFromWindowURL,
 } from '../../scripts/scripts.js';
-import { getCardViewConfig } from '../../scripts/site-config.js';
+import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
 import {
   getFileTypeCSSClass, getFileType, isVideo, getFailedPlaceholderImgSrc,
 } from '../../scripts/filetypes.js';
@@ -14,6 +14,7 @@ import { createMetadataHTML } from '../../scripts/metadata-html-builder.js';
 /* global instantsearch search */
 
 const cardViewConfig = await getCardViewConfig();
+const cardViewSettings = await getCardViewSettings();
 let currentlySelectedAssetCard;
 let lastPage = null;
 let lastRenderArgs;
@@ -294,7 +295,7 @@ async function createCardElement(hit) {
 
   const metadataElem = card.querySelector('.metadata');
 
-  const metadataFieldsElem = createMetadataHTML(cardViewConfig, hit);
+  const metadataFieldsElem = createMetadataHTML(cardViewConfig, hit, cardViewSettings.hideEmptyMetadataProperty);
   metadataElem.appendChild(metadataFieldsElem);
   // add style to metadata element to make it span 2 or 3 columns if there are empty spaces
   const numOfRows = 2;

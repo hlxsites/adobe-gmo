@@ -217,6 +217,37 @@ export async function getSearchFieldConfig() {
   return result;
 }
 
+export async function getCardViewSettings() {
+  const result = {
+    hideEmptyMetadataProperty: true,
+  };
+  return await mapUserSettingsForId('cardview-settings', result);
+}
+
+export async function getQuickViewSettings() {
+  const result = {
+    hideEmptyMetadataProperty: true,
+  };
+  return await mapUserSettingsForId('quickview-settings', result);
+}
+
+export async function getDetailViewSettings() {
+  const result = {
+    hideEmptyMetadataProperty: true,
+  };
+  return await mapUserSettingsForId('detailview-settings', result);
+}
+
+async function mapUserSettingsForId(configId, result) {
+  const response = await getConfig('site-config.json');
+  response[configId]?.data.forEach((row) => {
+    if (row.Value) {
+      result[toCamelCase(row.Configuration)] = parseValue(row.Value);
+    }
+  });
+  return result;
+}
+
 /**
  * Gets base path for config files
  * If it is a /drafts/{branch} path, it will return /drafts/{branch}

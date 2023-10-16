@@ -34,7 +34,7 @@ function shouldDisplayMetadataAsRow(metadataInfo, formattedValue) {
  * @param {string} metadataInfo.value - metadata field value
  * @param {string} metadataInfo.cssClass - metadata field css class
  */
-function createHTMLForMetadataField(metadataElement, metadataInfo) {
+function createHTMLForMetadataField(metadataElement, metadataInfo, hideEmptyMetadataProperty) {
   const name = metadataInfo.field;
   const label = metadataInfo.title;
   const { value, cssClass } = metadataInfo;
@@ -50,6 +50,9 @@ function createHTMLForMetadataField(metadataElement, metadataInfo) {
   if (value === undefined || value === null
       || (Array.isArray(value)
       && value.every((v) => v === undefined || v === null))) {
+    if (hideEmptyMetadataProperty) {
+      return;
+    }
     valueDiv.classList.add('empty');
     valueDiv.textContent = '--';
     item.appendChild(valueDiv);
@@ -81,14 +84,14 @@ function createHTMLForMetadataField(metadataElement, metadataInfo) {
  *   <div class="value">Value</div>
  * </div>
  */
-export function createMetadataHTML(metadataConfigs, assetJSON) {
+export function createMetadataHTML(metadataConfigs, assetJSON, hideEmptyMetadataProperty) {
   const metadataTable = document.createElement('div');
   metadataTable.classList.add('metadata-fields');
   addMetadataFields(
     metadataConfigs,
     assetJSON,
     (metadataInfo) => {
-      createHTMLForMetadataField(metadataTable, metadataInfo);
+      createHTMLForMetadataField(metadataTable, metadataInfo, hideEmptyMetadataProperty);
     },
   );
   return metadataTable;
@@ -111,7 +114,7 @@ export function createMetadataHTML(metadataConfigs, assetJSON) {
  *    </div>
  *  </div>
  */
-export async function fetchMetadataAndCreateHTML(metadataViewConfig, assetData, includeFileName = true) {
+export async function fetchMetadataAndCreateHTML(metadataViewConfig, assetData, hideEmptyMetadataProperty, includeFileName = true) {
   let assetJSON;
   if (typeof assetData === 'object') {
     assetJSON = assetData;
@@ -131,6 +134,6 @@ export async function fetchMetadataAndCreateHTML(metadataViewConfig, assetData, 
     fileNameDiv.textContent = getMetadataValue('repo:name', assetJSON);
     metadataContainer.appendChild(fileNameDiv);
   }
-  metadataContainer.appendChild(createMetadataHTML(metadataViewConfig, assetJSON));
+  metadataContainer.appendChild(createMetadataHTML(metadataViewConfig, assetJSON, hideEmptyMetadataProperty));
   return metadataContainer;
 }
