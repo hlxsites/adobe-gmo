@@ -2,4 +2,4 @@ mountpoints:
   /: https://adobe.sharepoint.com/sites/assets-distribution-portal/Shared%20Documents/website
 
 folders:
-  /link-share/: /link-share/default
+  /share/: /share/default
