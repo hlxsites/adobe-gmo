@@ -17,7 +17,7 @@ import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../infi
 import { openModal } from '../asset-details-modal/asset-details-modal.js';
 import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
-import { startCCE } from '../../scripts/scripts.js';
+import { startCCE, addExpressEditorHandler } from '../../scripts/scripts.js';
 
 /**
  * Close the asset details panel and deselect the asset card
@@ -77,6 +77,10 @@ export async function openAssetDetails(assetId) {
   const clone = actionsDownloadA.cloneNode(true);
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
   addDownloadHandlers(clone, assetId, fileName, fileFormat);
+  
+  
+  const actionsExpress = assetDetailsPanel.querySelector('.action-edit-asset');
+  addExpressEditorHandler(actionsExpress, assetId, fileName, fileFormat);
 
   // show the asset details panel
   assetDetailsPanel.classList.add('open');
@@ -86,11 +90,6 @@ export async function openAssetDetails(assetId) {
     assetDetailsPanel.parentElement.scrollTop = 0;
   }
 }
-
-function openExpressEditor(assetPath) {
-  
-}
-
 
 export default async function decorate(block) {
   block.innerHTML = ` 

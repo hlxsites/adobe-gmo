@@ -25,6 +25,7 @@ import { isPDF } from './filetypes.js';
 import { getUserProfile, getJumpToken } from './security.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
+let ccEverywhere;
 
 /**
  * Builds hero block and prepends to main in a new section.
@@ -341,6 +342,16 @@ export async function addDownloadHandlers(downloadElement, assetId, repoName, fo
 }
 
 
+export async function addExpressEditorHandler(editorElement, assetId, repoName, format) {
+  editorElement.addEventListener('click', async (e) => {
+    const assetUrl = await getDownloadUrl(assetId, repoName);
+    console.log("asset url: " + assetUrl);
+    const bearerToken = await getBearerToken();
+    const rawAsset = await getAssetData(assetUrl, bearerToken);
+    const assetData = await base64Encode(rawAsset);
+    await openInExpress(assetData, format);
+  });
+}
 
 function buildHostInfo() {
   const hostInfo = {
@@ -390,6 +401,26 @@ async function buildUserInfo() {
   return userInfo;
 }
 
+async function getAssetData(url, bearerToken) {
+  const options = {
+    method: 'GET',
+    headers: {
+      Authorization: bearerToken,
+    },
+  };
+
+  const response = await fetch(url, options);
+  const blob = await response.blob();
+  return blob;
+}
+
+async function base64Encode(blob) {
+  return new Promise((resolve, _) => {
+    const fr = new FileReader();
+    fr.onloadend = () => { resolve(fr.result); }
+    fr.readAsDataURL(blob);
+  })
+}
 
 export async function startCCE() {
   // create static config objects
@@ -398,15 +429,61 @@ export async function startCCE() {
   const userInfo = await buildUserInfo();
   const authInfo = await buildAuthInfo();
 
-  await window.CCEverywhere?.initialize(
+  ccEverywhere = await window.CCEverywhere.initialize(
     hostInfo, configParams, userInfo, authInfo
   );
   console.log("CCE Initialized");
 }
 
+function createFromAEMCallback() {
+  const callback = {
+    onCancel: () => {
+      console.log("User cancelled edit.");
+    },
+    onPublish: (publishParams) => {
+            /*
+            *   the below can be used to retrieve the results of the save action from express
+            *
+            *
+            *   const localData = {project: publishParams.asset[0].projectId, image: publishParams.asset[0].data};
+            *   image_data.src = localData.image;
+            *   project_id = localData.project;
+            *   let img = document.getElementById('savedDesign');
+            *   let blob = new Blob(localData.image, {type: 'text/plain'});
+            *   img.src = URL.createObjectURL(blob);
+            *   console.log("Created from asset", localData, img);
+            */
+    },
+    onError: (err) => {
+      console.error('Error received is: ', err.toString());
+    }
+  }
+  return callback;
+}
 
-export function openInExpress(assetId) {
-
+export async function openInExpress(base64Blob, format) {
+  console.log(format);
+  const userInfo = await buildUserInfo();
+  const authInfo = await buildAuthInfo();
+  console.log("trying to open cce");
+  ccEverywhere.createDesign({
+    callbacks: createFromAEMCallback(),
+    inputParams: {
+      asset: {
+        data: await base64Blob,
+        dataType: 'base64',
+        type: 'image'
+      },
+      canvasSize: {
+        height: 1000,
+        width: 1000,
+        unit: 'px'
+      }
+    },
+    outputParams: {
+      outputType: 'url'
+    },
+  }, userInfo, authInfo)
 }
 
 export function removeParamFromUrl(url, paramName) {
