@@ -237,7 +237,7 @@ export async function selectPreviousAsset() {
  * @param {*} hit - search result hit
  * @returns {HTMLElement} asset card element
  */
-async function createCardElement(hit) {
+function createCardElement(hit) {
   const { assetId } = hit;
   const dcFormat = hit['dc-format'];
   const dcTitle = hit['dc-title'];
@@ -393,20 +393,16 @@ export default async function decorate(block) {
       lastPage = renderArgs.results.page;
 
       // add new result cards
-      async function processHits() {
-        const newCards = [];
+      const newCards = [];
 
-        for (const hit of currentPageHits) {
-          const card = await createCardElement(hit);
-          newCards.push(card);
-        }
-
-        removePlaceholderCards(cards);
-        addPlaceholderCards(cards, newCards);
-        cards.append(...newCards);
+      for (const hit of currentPageHits) {
+        const card = createCardElement(hit);
+        newCards.push(card);
       }
 
-      processHits();
+      removePlaceholderCards(cards);
+      addPlaceholderCards(cards, newCards);
+      cards.append(...newCards);
 
       const assetId = getQueryVariable('assetId') || getAnchorVariable('assetId');
       if (isNewSearch && assetId) {
