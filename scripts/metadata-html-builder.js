@@ -44,6 +44,7 @@ function createHTMLForMetadataField(metadataElement, metadataInfo, hideEmptyMeta
   const labelDiv = document.createElement('div');
   labelDiv.classList.add('label');
   labelDiv.textContent = label;
+  labelDiv.id = `metadata-label-${name}-${Math.random().toString(16).slice(2)}`;
   item.appendChild(labelDiv);
   const valueDiv = document.createElement('div');
   valueDiv.classList.add('value');
@@ -62,7 +63,9 @@ function createHTMLForMetadataField(metadataElement, metadataInfo, hideEmptyMeta
     if (isElement(formattedValue)) {
       valueDiv.appendChild(formattedValue);
     } else {
+      valueDiv.title = formattedValue;
       valueDiv.textContent = formattedValue;
+      valueDiv.setAttribute('aria-labelledby', labelDiv.id);
     }
     item.appendChild(valueDiv);
     metadataElement.appendChild(item);
@@ -132,6 +135,7 @@ export async function fetchMetadataAndCreateHTML(metadataViewConfig, assetData, 
     const fileNameDiv = document.createElement('div');
     fileNameDiv.classList.add('metadata-filename');
     fileNameDiv.textContent = getMetadataValue('repo:name', assetJSON);
+    fileNameDiv.title = fileNameDiv.textContent;
     metadataContainer.appendChild(fileNameDiv);
   }
   metadataContainer.appendChild(createMetadataHTML(metadataViewConfig, assetJSON, hideEmptyMetadataProperty));

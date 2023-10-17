@@ -441,5 +441,21 @@ export default async function decorate(block) {
       container: document.querySelector('#assets'),
     }),
   ]);
+
+  // close selected asset when new search doesn't contain the selected asset
+  window.search.on('render', () => {
+    const { helper } = window.search;
+    const selectedAssetId = currentlySelectedAssetCard?.dataset.assetId;
+    if (selectedAssetId) {
+      if (helper.lastResults.hits.find((hit) => hit.assetId === selectedAssetId)) {
+        selectAssetCard(selectedAssetId);
+        scrollToElement(currentlySelectedAssetCard);
+      } else {
+        deselectAssetCard();
+        closeAssetDetails();
+        scrollToSearchResults();
+      }
+    }
+  });
   search.start();
 }

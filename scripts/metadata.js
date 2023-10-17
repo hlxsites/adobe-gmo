@@ -32,6 +32,15 @@ const SEARCH_FIELD_TO_POLARIS_API_MAP = {
   'tiff-ImageLength': 'assetMetadata.tiff:ImageLength',
 };
 
+const DATE_FIELDS = [
+  'xmp-CreateDate',
+  'xmp-ModifyDate',
+  'xmp-MetadataDate',
+  'repo-createDate',
+  'repo-modifyDate',
+  'pur-expirationDate',
+];
+
 /**
  * Does a breadth-first search of the object for the property name
  *
@@ -246,6 +255,27 @@ export const DATA_TYPES = {
   textWithoutNamespace: (o) => formatTextWithoutNamespace(o),
 };
 
+function isDateValue(value) {
+  if (typeof value === 'object' && value instanceof Date) {
+    return true;
+  } if (typeof value === 'string') {
+    return !Number.isNaN(Date.parse(value)) || false;
+  } if (typeof value === 'number') {
+    try {
+      const date = new Date(value);
+      return !Number.isNaN(date.getTime());
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+}
+
+export function isDate(propertyName, propertyValue) {
+  return DATE_FIELDS.includes(propertyName)
+  || (propertyValue !== undefined && isDateValue(propertyValue));
+}
+
 /**
  * Format asset metadata - formats dates and arrays
  * @param {string} propertyName
@@ -254,6 +284,9 @@ export const DATA_TYPES = {
  * and dates are formatted using toLocaleDateString().
  */
 export function formatAssetMetadata(propertyName, metadataValue) {
+  if (metadataValue === undefined) {
+    return undefined;
+  }
   if (PREDEFINED_METADATA_FIELDS[propertyName]?.format) {
     return PREDEFINED_METADATA_FIELDS[propertyName].format(metadataValue);
   }
@@ -269,8 +302,7 @@ export function formatAssetMetadata(propertyName, metadataValue) {
   }
 
   // dates
-  if (['xmp-CreateDate', 'xmp-ModifyDate', 'xmp-MetadataDate', 'repo-createDate', 'repo-modifyDate']
-    .includes(propertyName)) {
+  if (isDate(propertyName, metadataValue)) {
     return formatDate(metadataValue);
   }
 

@@ -65,8 +65,9 @@ export default function decorate(block) {
         const facetValue = formatAssetMetadata(refinementConfig.metadataField, refinement.value);
         const refinementItemEl = document.createElement('div');
         refinementItemEl.classList.add('current-refinement-item');
+        const operator = refinement.operator || '-';
         refinementItemEl.innerHTML = `
-          <span class="current-refinement-label">${facetLabel} - ${facetValue}</span>
+          <span class="current-refinement-label">${facetLabel} ${operator} ${facetValue}</span>
           <button class="current-refinement-delete" ${createRefinementDataAttributes(refinement)}></button>
         `;
         refinementItemEl.querySelector('button').addEventListener('click', () => {

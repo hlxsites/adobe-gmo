@@ -1,11 +1,8 @@
-import { decorateIcons } from '../../scripts/lib-franklin.js';
+import {
+  buildBlock, decorateBlock, loadBlock, decorateIcons,
+} from '../../scripts/lib-franklin.js';
 import { getFilterConfig, getFilterSettings } from '../../scripts/site-config.js';
-import { formatAssetMetadata } from '../../scripts/metadata.js';
-import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
-import { scrollToSearchResults } from '../infinite-results/infinite-results.js';
-
-// Define algolia search client globals
-/* global instantsearch */
+import { isDate } from '../../scripts/metadata.js';
 
 const TEXT_HIDE_FILTERS = 'Hide filters';
 const TEXT_SHOW_FILTERS = 'Filters';
@@ -13,33 +10,57 @@ const TEXT_SHOW_FILTERS = 'Filters';
 function addFilterButton(block) {
   const toggleFilterPanelButton = document.createElement('div');
   toggleFilterPanelButton.classList.add('refinements-toggle');
-  toggleFilterPanelButton.innerHTML = `<button id="filterButton">
+  toggleFilterPanelButton.innerHTML = `<button id="filter-button">
   <span class="icon icon-filter-open"></span>
   <span class="icon icon-filter-closed hidden"></span>
   <span class="text">${TEXT_HIDE_FILTERS}</span>
-</button><span class="filter-divider hidden"></span>`;
+  </button><span class="filter-divider hidden"></span>`;
   toggleFilterPanelButton.onclick = () => {
     const span = toggleFilterPanelButton.querySelector('span.text');
     if (span.textContent === TEXT_HIDE_FILTERS) {
       span.textContent = TEXT_SHOW_FILTERS;
       document.querySelector('.refinement-wrapper').classList.remove('open');
       document.querySelector('.section.infinite-results-container').classList.add('left-closed');
-      toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-closed').classList.remove('hidden');
-      toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-open').classList.add('hidden');
+      toggleFilterPanelButton.querySelector('#filter-button > span.icon.icon-filter-closed').classList.remove('hidden');
+      toggleFilterPanelButton.querySelector('#filter-button > span.icon.icon-filter-open').classList.add('hidden');
       toggleFilterPanelButton.querySelector('.filter-divider').classList.remove('hidden');
       toggleFilterPanelButton.classList.add('closed');
     } else {
       span.textContent = TEXT_HIDE_FILTERS;
       document.querySelector('.refinement-wrapper').classList.add('open');
       document.querySelector('.section.infinite-results-container').classList.remove('left-closed');
-      toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-open').classList.remove('hidden');
-      toggleFilterPanelButton.querySelector('#filterButton > span.icon.icon-filter-closed').classList.add('hidden');
+      toggleFilterPanelButton.querySelector('#filter-button > span.icon.icon-filter-open').classList.remove('hidden');
+      toggleFilterPanelButton.querySelector('#filter-button > span.icon.icon-filter-closed').classList.add('hidden');
       toggleFilterPanelButton.querySelector('.filter-divider').classList.add('hidden');
       toggleFilterPanelButton.classList.remove('closed');
     }
   };
   document.createElement('span');
   block.appendChild(toggleFilterPanelButton);
+}
+
+async function addRefinementBlock(containerElement, refinementBlockName, refinement, config) {
+  const content = [['blockdata', JSON.stringify({ refinement, config })]];
+  const block = buildBlock(refinementBlockName, content);
+  containerElement.appendChild(block);
+  decorateBlock(block);
+  await loadBlock(block);
+}
+
+function addRefinement(refinement, refinementContainer) {
+  let refinementType = refinement.type;
+  if (!refinementType) {
+    if (isDate(refinement.metadataField)) {
+      refinementType = 'date-range';
+    } else {
+      refinementType = 'facet-list';
+    }
+  }
+  const refinementBlockName = `refinement-${refinementType}`;
+  // Check if the refinement block exists so we can handle failures
+  return import(`../${refinementBlockName}/${refinementBlockName}.js`).then(async () => {
+    await addRefinementBlock(refinementContainer, refinementBlockName, refinement);
+  });
 }
 
 export default async function decorate(block) {
@@ -53,6 +74,7 @@ export default async function decorate(block) {
 
   const filterConfig = await getFilterConfig();
   const filterSettings = await getFilterSettings();
+  const refinementPromises = [];
   Object.values(filterConfig).forEach((refinement) => {
     if (!refinement.metadataField) {
       return;
@@ -63,60 +85,23 @@ export default async function decorate(block) {
     label.classList.add('label');
     label.textContent = refinement.label || refinement.metadataField;
     refinementDiv.appendChild(label);
-    const options = document.createElement('div');
-    options.id = `${refinement.metadataField}-options`;
-    options.classList.add('refinement-options');
-    refinementDiv.appendChild(options);
+    const refinementContainer = document.createElement('div');
+    refinementContainer.id = `${refinement.metadataField}-options`;
+    refinementContainer.classList.add('refinement-options');
+    refinementDiv.appendChild(refinementContainer);
+    // Add the refinement to the page before
+    // we load it so it is in the right order
     refinements.appendChild(refinementDiv);
-    window.search.addWidgets([
-      instantsearch.widgets.refinementList(
-        {
-          container: `#${refinement.metadataField}-options`,
-          attribute: refinement.metadataField,
-          operator: refinement.operator || 'or',
-          limit: 10,
-          showMore: true,
-          searchable: true,
-          searchableIsAlwaysActive: false,
-          cssClasses: {
-            searchableInput: `${refinement.metadataField}-searchable-input`,
-          },
-          templates: {
-            item(item, { html }) {
-              const { count, value } = item;
-              const updatedLabel = formatAssetMetadata(refinement.metadataField, item.label);
-              return html`
-                <input type="checkbox" class="ais-RefinementList-checkbox" value=${value}/>
-                <span class="ais-RefinementList-labelText" title="${updatedLabel}">${updatedLabel}</span>
-                <span class="ais-RefinementList-count">${count}</span>
-              `;
-            },
-          },
-        },
-      ),
-    ]);
-    // set facet visibility
-    // Should be hidden when there are no refinements or results from searched facets;
-    // visible otherwise
-    const observer = new MutationObserver(() => {
-      const noRefinementsEl = options.querySelector('.ais-RefinementList--noRefinement');
-      if (noRefinementsEl) {
-        if (noRefinementsEl.querySelector('.ais-RefinementList-searchBox')
-            && noRefinementsEl.querySelector('.ais-RefinementList-noResults')) {
-          refinementDiv.classList.remove('hidden');
-        } else {
-          refinementDiv.classList.add('hidden');
-        }
-      } else {
-        refinementDiv.classList.remove('hidden');
-      }
-    });
-    observer.observe(options, {
-      subtree: true,
-      attributes: true,
-    });
-  });
 
+    // Add the refinement promise to the array so we can wait for all of them to finish
+    refinementPromises.push(addRefinement(refinement, refinementContainer).catch((e) => {
+      console.log('Unable to add refinement', refinement, e);
+      // Remove the refinement if it fails to load
+      refinementDiv.remove();
+    }));
+  });
+  // Wait for all the refinement promises to finish loading
+  await Promise.all(refinementPromises);
   await decorateIcons(block);
 
   block.querySelectorAll('.refinement').forEach((el) => {
@@ -139,29 +124,4 @@ export default async function decorate(block) {
       labelElem.setAttribute('role', 'button');
     }
   });
-
-  const refinementsEl = block.querySelector('.refinements');
-  const obs = new MutationObserver(() => {
-    const searchInputEl = refinementsEl.querySelectorAll('input[class*=-searchable-input]');
-    searchInputEl.forEach((el) => {
-      const searchBoxEl = el.closest('.ais-RefinementList-searchBox');
-      if (el.disabled) {
-        searchBoxEl.classList.remove('refinementList-search-shown');
-        searchBoxEl.classList.add('refinementList-search-hidden');
-      } else {
-        searchBoxEl.classList.remove('refinementList-search-hidden');
-        searchBoxEl.classList.add('refinementList-search-shown');
-      }
-    });
-    const refinementCheckboxs = document.querySelectorAll(
-      '.ais-RefinementList-item',
-    );
-    refinementCheckboxs.forEach((refinementCheckbox) => {
-      refinementCheckbox.addEventListener('click', () => {
-        closeAssetDetails();
-        scrollToSearchResults();
-      });
-    });
-  });
-  obs.observe(refinementsEl, { childList: true, subtree: true });
 }
