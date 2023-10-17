@@ -1,0 +1,23 @@
+.refinements .date-input-container {
+    margin-left: 10px;
+}
+
+.refinements .date-input-container .flatpickr {
+    display: inline-flex;
+    flex-flow: row nowrap;
+    min-width: 93%;
+    border-radius: 4px;
+    margin-left: 2px;
+}
+
+.refinements .date-input-container label {
+    font: var(--refinement-item-font);
+    display: block;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.refinements .date-input-container button.input-button {
+    padding: 0 23px;
+}
+  
