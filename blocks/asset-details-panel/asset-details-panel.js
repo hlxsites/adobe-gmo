@@ -17,6 +17,7 @@ import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../infi
 import { openModal } from '../asset-details-modal/asset-details-modal.js';
 import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
+import { startCCE } from '../../scripts/scripts.js';
 
 /**
  * Close the asset details panel and deselect the asset card
@@ -52,6 +53,7 @@ export async function openAssetDetails(assetId) {
   if (!assetJSON) return;
 
   const fileName = getMetadataValue('repo:name', assetJSON);
+  console.log(assetJSON);
   const title = formatAssetMetadata(getMetadataValue('dc:title', assetJSON));
   const fileFormat = getMetadataValue('dc:format', assetJSON);
   const assetDetailsPanel = document.querySelector('.asset-details-panel');
@@ -85,6 +87,11 @@ export async function openAssetDetails(assetId) {
   }
 }
 
+function openExpressEditor(assetPath) {
+  
+}
+
+
 export default async function decorate(block) {
   block.innerHTML = ` 
         <div class="asset-details-header-container">
@@ -93,12 +100,15 @@ export default async function decorate(block) {
               <button id="asset-details-download" class="action action-download-asset" title="Download" aria-label="Download">
                 <span class="icon icon-download"></span>
               </button>
+              <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
+                <span class="icon icon-download"></span>
+              </button>
             </div>
             <div class="top-right">
               <button id="asset-details-fullscreen" class="action action-asset-fullscreen" title="Fullscreen" aria-label="Fullscreen">
                 <span class="icon icon-fullScreen"></span>
               </button>
-              <button id="asset-details-previous" class="action action-previous-asset" title="Previous" aria-label="Previous">
+              <button id="asset-details-previous" class="action action-previous-asset" title="Previous lala" aria-label="Previous">
                 <span class="icon icon-previous"></span>
               </button>
               <button id="asset-details-next" class="action action-next-asset" title="Next" aria-label="Next">
@@ -129,4 +139,7 @@ export default async function decorate(block) {
     block.querySelector('iframe')?.remove();
     await openModal();
   });
+  console.log("local hehe");
+  startCCE();
+
 }

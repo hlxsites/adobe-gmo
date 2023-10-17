@@ -22,6 +22,7 @@ import {
   getDownloadUrl,
 } from './polaris.js';
 import { isPDF } from './filetypes.js';
+import { getUserProfile, getJumpToken } from './security.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -337,6 +338,75 @@ export async function addDownloadHandlers(downloadElement, assetId, repoName, fo
       await downloadAsset(href, repoName, options);
     }
   });
+}
+
+
+
+function buildHostInfo() {
+  const hostInfo = {
+    clientId: '05d5980c9fe1440baa898857d410e614',
+    appName: 'gmo_asset_portal',
+    appVersion: {
+        major: 3,
+        minor: 8,
+        patch: 12,
+    },
+    platformCategory: 'web',
+  };
+
+  return hostInfo;
+}
+
+function buildConfigParams() {
+  const configParams = {
+    env: 'prod',
+    locale: 'en_US'
+  };
+
+  return configParams;
+}
+
+async function buildAuthInfo() {
+  const authInfo = {
+    accessToken: await getJumpToken(),
+    useJumpUrl: false
+  };
+
+  return authInfo;
+}
+
+async function buildUserInfo() {
+  let profileObject = await getUserProfile();
+  let userId = await profileObject['userId'];
+
+  const userInfo = {
+    profile: {
+      userId: userId,
+      serviceCode: 'serviceCode',
+      serviceLevel: 'serviceLevel'
+    },
+    piipStatus: 2
+  };
+  return userInfo;
+}
+
+
+export async function startCCE() {
+  // create static config objects
+  const hostInfo = buildHostInfo();
+  const configParams = buildConfigParams();
+  const userInfo = await buildUserInfo();
+  const authInfo = await buildAuthInfo();
+
+  await window.CCEverywhere?.initialize(
+    hostInfo, configParams, userInfo, authInfo
+  );
+  console.log("CCE Initialized");
+}
+
+
+export function openInExpress(assetId) {
+
 }
 
 export function removeParamFromUrl(url, paramName) {

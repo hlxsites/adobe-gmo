@@ -116,7 +116,7 @@ button.action-close svg, button.action-previous-asset svg, button.action-next-as
   height: 13px;
 }
 
-button.action-share-asset svg, button.action-download-asset svg, button.action-asset-fullscreen svg {
+button.action-share-asset svg, button.action-download-asset svg, button.action-asset-fullscreen svg, button.action-edit-asset svg {
   height: 17px;
 }
 

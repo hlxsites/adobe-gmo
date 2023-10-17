@@ -83,6 +83,26 @@ export async function getBearerToken() {
   return `Bearer ${token}`;
 }
 
+export async function getJumpToken() {
+  const bearerToken = await getBearerToken();
+
+  const tokenValue = bearerToken.replace('Bearer ', '');
+  const jumpScope = 'AdobeID,openid,creative_cloud,creative_sdk,additional_info.projectedProductContext';
+  const clientId = 'projectx_webapp';
+
+  const jumpParams = ({
+    bearer_token: tokenValue,
+    target_client_id: clientId,
+    target_scope: jumpScope
+  });
+
+  const jumpResponse = await window.adobeIMS?.jumpToken(jumpParams);
+  const jumpUrl = jumpResponse['jump'];
+  const jumpToken = jumpUrl.substring((jumpUrl.lastIndexOf('/')) + 1);
+  
+  return jumpToken;
+}
+
 export async function getUserProfile() {
   return await window.adobeIMS.getProfile();
 }
