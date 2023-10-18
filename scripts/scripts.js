@@ -316,6 +316,8 @@ function openPDF(url, options) {
     .catch((e) => console.log('Unable to open pdf file', e));
 }
 
+//Test
+
 /**
  * Add download handling code to the download button
  * @param {HTMLElement} downloadElement - download element
