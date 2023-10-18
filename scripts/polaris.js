@@ -50,7 +50,7 @@ export function getBaseDeliveryUrl(assetId, assetName) {
 }
 
 export function getVideoDeliveryUrl(assetId) {
-  return `${getDeliveryEnvironment()}/adobe/assets/${assetId}/play`;
+  return `${getDeliveryEnvironment()}/adobe/assets/${assetId}/play?secureDelivery=true`;
 }
 
 /**
