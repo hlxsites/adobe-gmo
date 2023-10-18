@@ -316,6 +316,19 @@ function openPDF(url, options) {
     .catch((e) => console.log('Unable to open pdf file', e));
 }
 
+function downloadDataLayer(assetId,name,imgURL) {
+  window.adobeDataLayer = window.adobeDataLayer || [];
+
+  var downloadAsset = {
+    assetId : assetId,
+    name : name,
+    url : imgURL
+  }
+  window.adobeDataLayer.push({
+    event : "download",
+    downloadAsset : downloadAsset
+  });
+}
 /**
  * Add download handling code to the download button
  * @param {HTMLElement} downloadElement - download element
@@ -336,6 +349,8 @@ export async function addDownloadHandlers(downloadElement, assetId, repoName, fo
     } else {
       await downloadAsset(href, repoName, options);
     }
+    //Add to adobeDataLayer
+    downloadDataLayer(assetId, repoName,href);
   });
 }
 

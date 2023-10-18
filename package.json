@@ -40,6 +40,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@adobe/adobe-client-data-layer": "^2.0.2",
     "@algolia/autocomplete-js": "^1.11.1",
     "@algolia/autocomplete-plugin-query-suggestions": "1.11.1",
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
@@ -49,6 +50,11 @@
     "instantsearch.js": "^4.56.3"
   },
   "copyDependencies": [
+    {
+      "from": "node_modules/@adobe/adobe-client-data-layer/dist/",
+      "to": "scripts/libs/adobe/",
+      "fileInclude": "adobe-client-data-layer.min.js"
+    },
     {
       "from": "node_modules/algoliasearch/dist/",
       "to": "scripts/libs/algoliasearch/",
