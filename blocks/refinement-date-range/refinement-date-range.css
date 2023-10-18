@@ -1,5 +1,6 @@
 .refinements .date-input-container {
     margin-left: 10px;
+    font: var(--refinement-item-font);
 }
 
 .refinements .date-input-container .flatpickr {
@@ -11,7 +12,6 @@
 }
 
 .refinements .date-input-container label {
-    font: var(--refinement-item-font);
     display: block;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -19,5 +19,5 @@
 
 .refinements .date-input-container button.input-button {
     padding: 0 23px;
+    font: inherit;
 }
-  

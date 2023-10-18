@@ -29,7 +29,7 @@
 }
 
 .refinements span.label {
-  font-size: var(--header-font-size);
+  font: var(--refinement-item-font);
   font-weight: bold;
   padding-left: 21px;
   cursor: pointer;
@@ -130,11 +130,11 @@
   display: none;
 }
 
-.refinements input[type="text"] {
+.refinements input[type="text"], .refinements textarea {
   flex: 1;
   box-sizing: border-box;
-  border: 1px solid var(--border-color);
-  font-family: var(--refinement-item-font);
+  border: 1px solid #d6d6e7;
+  font: var(--refinement-item-font);
   border-radius: 4px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -142,21 +142,25 @@
   padding: 5px 11px 7px;
   text-indent: 0;
   min-width: 48px;
-  height: 32px;
   width: 93%;
   vertical-align: top;
   margin: 0;
   overflow: visible;
-  line-height: 1.5;
   text-overflow: ellipsis;
   transition: border-color 130ms ease-in-out, box-shadow 130ms ease-in-out;
   outline: 0;
+  box-shadow: rgba(119 122 175 / 30%) 0 1px 4px 0 inset;
+}
+
+.refinements input[type="text"]:focus, .refinements textarea:focus {
+  border: unset;
+  box-shadow: unset;
 }
 
 .refinements .input-button {
   width: 34px;
   padding: 0 6px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #d6d6e7;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
   transition: background-color 130ms, box-shadow 130ms, border-color 130ms;

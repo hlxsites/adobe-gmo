@@ -2,10 +2,6 @@ import { getFilterConfig } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
 import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 
-// Define algolia search client globals
-/* global instantsearch */
-
-// read in from configuration
 const filterConfig = await getFilterConfig();
 
 const TEXT_CLEAR_REFINEMENTS = 'clear-refinements';
@@ -17,28 +13,36 @@ export default function decorate(block) {
   block.appendChild(currentRefinements);
 
   const clearRefinements = document.createElement('div');
-  clearRefinements.id = 'clear-refinements';
-  clearRefinements.classList.add('clear-refinements', 'hidden');
+  clearRefinements.id = TEXT_CLEAR_REFINEMENTS;
+  clearRefinements.classList.add(TEXT_CLEAR_REFINEMENTS, 'hidden');
   currentRefinements.appendChild(clearRefinements);
+  const customClearRefinements = window
+    .instantsearch.connectors.connectClearRefinements((renderOptions, isFirstRender) => {
+      const { refine, hasRefinements, widgetParams } = renderOptions;
+      const { container } = widgetParams;
+
+      if (hasRefinements) {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+
+      if (isFirstRender) {
+        container.innerHTML = `
+      <div class="ais-ClearRefinements clear-all">
+        <button class="ais-ClearRefinements-button clear-all-button">Clear all</button>
+      </div>`;
+        container.addEventListener('click', () => {
+          refine();
+          window.dispatchEvent(new Event('clear-all-refinements'));
+        });
+      }
+    });
 
   window.search.addWidgets([
-    instantsearch.widgets.clearRefinements(
+    customClearRefinements(
       {
-        container: `#${TEXT_CLEAR_REFINEMENTS}`,
-        cssClasses: {
-          root: 'clear-all',
-          button: 'clear-all-button',
-        },
-        templates: {
-          resetLabel({ hasRefinements }, { html }) {
-            if (hasRefinements) {
-              clearRefinements.classList.remove('hidden');
-            } else {
-              clearRefinements.classList.add('hidden');
-            }
-            return html`${hasRefinements ? 'Clear all' : ''}`;
-          },
-        },
+        container: clearRefinements,
       },
     ),
   ]);
@@ -80,7 +84,7 @@ export default function decorate(block) {
     refinementsEl.appendChild(clearRefinementEl);
   };
 
-  const customCurrentRefinements = instantsearch.connectors.connectCurrentRefinements(
+  const customCurrentRefinements = window.instantsearch.connectors.connectCurrentRefinements(
     renderCurrentRefinements,
   );
 
