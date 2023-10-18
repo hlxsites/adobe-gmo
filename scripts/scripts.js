@@ -329,7 +329,10 @@ function downloadDataLayer(assetId,name,imgURL) {
     downloadAsset : downloadAsset
   });
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> e521b7247785375699781a8b0f3fcb6164e88e48
 /**
  * Add download handling code to the download button
  * @param {HTMLElement} downloadElement - download element
