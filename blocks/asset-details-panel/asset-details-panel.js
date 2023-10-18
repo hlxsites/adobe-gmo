@@ -78,9 +78,11 @@ export async function openAssetDetails(assetId) {
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
   addDownloadHandlers(clone, assetId, fileName, fileFormat);
   
-  
+
   const actionsExpress = assetDetailsPanel.querySelector('.action-edit-asset');
-  addExpressEditorHandler(actionsExpress, assetId, fileName, fileFormat);
+  const exClone = actionsExpress.cloneNode(true);
+  actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
+  addExpressEditorHandler(exClone, assetId, fileName, fileFormat);
 
   // show the asset details panel
   assetDetailsPanel.classList.add('open');
@@ -100,7 +102,7 @@ export default async function decorate(block) {
                 <span class="icon icon-download"></span>
               </button>
               <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
-                <span class="icon icon-download"></span>
+                <span class="icon icon-express-logo"></span>
               </button>
             </div>
             <div class="top-right">

@@ -349,6 +349,7 @@ export async function addExpressEditorHandler(editorElement, assetId, repoName, 
     const bearerToken = await getBearerToken();
     const rawAsset = await getAssetData(assetUrl, bearerToken);
     const assetData = await base64Encode(rawAsset);
+    adjustZIndex(true);
     await openInExpress(assetData, format);
   });
 }
@@ -435,24 +436,44 @@ export async function startCCE() {
   console.log("CCE Initialized");
 }
 
+
+function adjustZIndex(isOpening) {
+  const headerWrapper = document.getElementsByTagName('header')[0].getElementsByClassName("nav-wrapper")[0];
+  const refinementWrapper = document.getElementsByClassName("refinement-wrapper open")[0];
+
+  if (isOpening) {
+    headerWrapper.style.zIndex = "unset";
+    refinementWrapper.style.zIndex = "unset";
+  } else {
+    headerWrapper.style.zIndex = "2";
+    refinementWrapper.style.zIndex = "1";
+  }
+}
+
+
 function createFromAEMCallback() {
+  // https://developer.adobe.com/express/embed-sdk/docs/reference/types/#callbacks
   const callback = {
     onCancel: () => {
       console.log("User cancelled edit.");
+      adjustZIndex(false);
+    },
+    onLoadStart: () => {
+      // take action once iframe starts loading
     },
     onPublish: (publishParams) => {
-            /*
-            *   the below can be used to retrieve the results of the save action from express
-            *
-            *
-            *   const localData = {project: publishParams.asset[0].projectId, image: publishParams.asset[0].data};
-            *   image_data.src = localData.image;
-            *   project_id = localData.project;
-            *   let img = document.getElementById('savedDesign');
-            *   let blob = new Blob(localData.image, {type: 'text/plain'});
-            *   img.src = URL.createObjectURL(blob);
-            *   console.log("Created from asset", localData, img);
-            */
+      /*
+      *   the below can be used to retrieve the results of the save action from express
+      *
+      *
+      *   const localData = {project: publishParams.asset[0].projectId, image: publishParams.asset[0].data};
+      *   image_data.src = localData.image;
+      *   project_id = localData.project;
+      *   let img = document.getElementById('savedDesign');
+      *   let blob = new Blob(localData.image, {type: 'text/plain'});
+      *   img.src = URL.createObjectURL(blob);
+      *   console.log("Created from asset", localData, img);
+      */
     },
     onError: (err) => {
       console.error('Error received is: ', err.toString());
@@ -462,10 +483,9 @@ function createFromAEMCallback() {
 }
 
 export async function openInExpress(base64Blob, format) {
-  console.log(format);
+  // todo make canvas size dynamic
   const userInfo = await buildUserInfo();
   const authInfo = await buildAuthInfo();
-  console.log("trying to open cce");
   ccEverywhere.createDesign({
     callbacks: createFromAEMCallback(),
     inputParams: {
