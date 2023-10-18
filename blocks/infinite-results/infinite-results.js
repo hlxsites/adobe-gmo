@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getQueryVariable, getAnchorVariable, addDownloadHandlers, removeParamFromWindowURL,
+  getQueryVariable, getAnchorVariable, removeParamFromWindowURL,
 } from '../../scripts/scripts.js';
 import { getCardViewConfig, getCardViewSettings, getSearchFieldConfig } from '../../scripts/site-config.js';
 import {
@@ -10,6 +10,7 @@ import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
 // eslint-disable-next-line import/no-cycle
 import { openAssetDetails, closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 import { createMetadataHTML } from '../../scripts/metadata-html-builder.js';
+import { addDownloadModalHandler } from '../download-modal/download-modal.js';
 // Define algolia search client globals
 /* global instantsearch search */
 
@@ -347,7 +348,7 @@ function createCardElement(hit) {
   decorateIcons(card);
   handleImageFailures(card);
   const actionsDownloadA = card.querySelector('.actions-download');
-  addDownloadHandlers(actionsDownloadA, assetId, repoName, dcFormat);
+  addDownloadModalHandler(actionsDownloadA, assetId, repoName, dcFormat);
 
   return card;
 }
