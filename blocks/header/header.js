@@ -110,7 +110,7 @@ export default async function decorate(block) {
 </div>
 
 <div class="nav-tools">
-      <a class="user-switcher" href="">
+      <a class="user-switcher" href="" aria-label="show profile options">
       <span class="icon icon-user"></span>
       </a>
 </div>

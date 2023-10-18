@@ -30,7 +30,7 @@ function getVideoOverlayCSSClass(format) {
 
 /**
  * In case the preview image fails to load, we replace it with a placeholder image
- * @param {HTMLElement} cardElem - card element
+ * @param {HTMLElement} cardElement - card element
  */
 function handleImageFailures(cardElement) {
   cardElement.querySelectorAll('.thumbnail > img').forEach((el) => {
@@ -188,8 +188,7 @@ function scrollToElement(element, padding = 20) {
 
 /**
  * Handle when an asset card is clicked
- * @param {string} assetId - asset id
- * @param {HTMLElement} assetCard - asset card element
+ * @param {HTMLElement|string} asset Asset to select
  */
 export async function selectAsset(asset) {
   const assetCard = getAssetCard(asset);
@@ -248,8 +247,9 @@ function createCardElement(hit) {
   const card = document.createElement('div');
   card.classList.add('asset-card');
   card.classList.add(`fileType-${fileType}`);
+
   card.innerHTML = `<div class="preview">
-      <a class="thumbnail asset-link">
+      <a class="thumbnail asset-link" href="">
           <img>
           <div class="preview-overlay"><span></span></div>
       </a>
@@ -273,6 +273,8 @@ function createCardElement(hit) {
     await selectAsset(card);
   });
 
+  const detailPageUrl = new URLSearchParams([['assetId', assetId]]);
+  card.querySelector('.asset-link').href = `#${detailPageUrl}`;
   card.dataset.assetId = assetId;
 
   const img = card.querySelector('img');
