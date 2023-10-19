@@ -2,6 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { createTag, closeDialogEvent } from '../../scripts/scripts.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
+import { emitEvent, EventNames } from '../../scripts/events.js';
 
 export default function decorate(block) {
   block.innerHTML = `<dialog>
@@ -118,13 +119,16 @@ export function addDownloadEventListener(container) {
     updateButton(checkedCount, downloadButton);
   });
 
-  downloadButton.addEventListener('click', () => {
+  downloadButton.addEventListener('click', (b) => {
     const items = [];
     renditionCheckboxs.forEach((checkbox) => {
       if (checkbox.checked) {
         items.push({
           name: checkbox.value,
           url: checkbox.getAttribute('data-url'),
+          assetId: checkbox.getAttribute('data-asset-id'),
+          assetName: checkbox.getAttribute('data-asset-name'),
+          renditionName: checkbox.id,
         });
       }
     });
@@ -142,6 +146,11 @@ export function addDownloadEventListener(container) {
           a.download = item.name;
           a.click();
           window.URL.revokeObjectURL(imgUrl);
+          emitEvent(b.target, EventNames.DOWNLOAD, {
+            assetId: item.assetId,
+            repoName: item.assetName,
+            renditionName: item.renditionName,
+          });
         })
         .catch((e) => console.log(`Unable to download file ${item.name}`, e));
     });
@@ -158,7 +167,13 @@ function generateRenditionList(renditions, container) {
     const label = createTag('label', { for: `${rendition.name}` });
     const col1 = createTag('div', { class: 'col1' });
     const checkbox = createTag('input', {
-      type: 'checkbox', id: `${rendition.name}`, name: 'rendition', value: `${rendition.fileName}`, 'data-url': `${rendition.url}`,
+      type: 'checkbox',
+      id: `${rendition.name}`,
+      name: 'rendition',
+      value: `${rendition.fileName}`,
+      'data-url': `${rendition.url}`,
+      'data-asset-id': `${rendition.assetId}`,
+      'data-asset-name': `${rendition.assetName}`,
     });
     const span = createTag('span', { class: 'checkmark' });
     checkbox.checked = rendition.name === 'Original';
