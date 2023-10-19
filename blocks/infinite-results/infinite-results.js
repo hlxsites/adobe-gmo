@@ -360,6 +360,37 @@ export async function scrollToSearchResults() {
   });
 }
 
+function didSearchChange() {
+  const { helper } = window.search;
+  const lastQuery = {};
+  const latestQuery = {};
+  const fieldsToCompare = [
+    'disjunctiveFacets',
+    'disjunctiveFacetsRefinements',
+    'facets',
+    'facetsExcludes',
+    'filters',
+    'hierarchicalFacets',
+    'hierarchicalFacetsRefinements',
+    'hierarchicalFacets',
+    'highlightPostTag',
+    'highlightPreTag',
+    'hitsPerPage',
+    'index',
+    'maxValuesPerFacet',
+    'numericRefinements',
+    'query',
+    'tagRefinements',
+  ];
+  fieldsToCompare.forEach((field) => {
+    lastQuery[field] = helper.lastResults?.[field];
+  });
+  fieldsToCompare.forEach((field) => {
+    latestQuery[field] = helper.state?.[field];
+  });
+  return JSON.stringify(latestQuery) !== JSON.stringify(lastQuery);
+}
+
 export default async function decorate(block) {
   const hits = document.createElement('div');
   hits.id = 'assets';
@@ -444,20 +475,13 @@ export default async function decorate(block) {
       container: document.querySelector('#assets'),
     }),
   ]);
-
   // close selected asset when new search doesn't contain the selected asset
   window.search.on('render', () => {
-    const { helper } = window.search;
     const selectedAssetId = currentlySelectedAssetCard?.dataset.assetId;
-    if (selectedAssetId) {
-      if (helper.lastResults.hits.find((hit) => hit.assetId === selectedAssetId)) {
-        selectAssetCard(selectedAssetId);
-        scrollToElement(currentlySelectedAssetCard);
-      } else {
-        deselectAssetCard();
-        closeAssetDetails();
-        scrollToSearchResults();
-      }
+
+    if (selectedAssetId && didSearchChange()) {
+      deselectAssetCard();
+      closeAssetDetails();
     }
   });
   search.start();
