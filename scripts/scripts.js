@@ -22,6 +22,14 @@ import {
   getDownloadUrl,
 } from './polaris.js';
 import { isPDF } from './filetypes.js';
+import {
+  emitEvent,
+  EventNames,
+} from './events.js';
+
+import {
+  loadDataLayer
+} from './adobe-data-layer.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -282,6 +290,8 @@ export function getAnchorVariable(variable) {
 }
 
 loadPage();
+//Load Adobe Data Layer
+loadDataLayer();
 
 export function safeCSSId(str) {
   return encodeURIComponent(str)
@@ -316,20 +326,6 @@ function openPDF(url, options) {
     .catch((e) => console.log('Unable to open pdf file', e));
 }
 
-function downloadDataLayer(assetId,name,imgURL) {
-  window.adobeDataLayer = window.adobeDataLayer || [];
-
-  var downloadAsset = {
-    assetId : assetId,
-    name : name,
-    url : imgURL
-  }
-  window.adobeDataLayer.push({
-    event : "download",
-    downloadAsset : downloadAsset
-  });
-}
-
 /**
  * Add download handling code to the download button
  * @param {HTMLElement} downloadElement - download element
@@ -350,10 +346,11 @@ export async function addDownloadHandlers(downloadElement, assetId, repoName, fo
     } else {
       await downloadAsset(href, repoName, options);
     }
-    //Add to adobeDataLayer
-    downloadDataLayer(assetId,repoName,href);
+    emitEvent(e.target, EventNames.DOWNLOAD, {
+      assetId,
+      repoName,
+    });
   });
-
 }
 
 export function removeParamFromUrl(url, paramName) {
@@ -404,15 +401,14 @@ export function createTag(tag, attributes) {
   return element;
 }
 
-export function closeDialogEvent(dialog){
+export function closeDialogEvent(dialog) {
   dialog.addEventListener('click', (event) => {
     // only react to clicks outside the dialog. https://stackoverflow.com/a/70593278/79461
     const dialogDimensions = dialog.getBoundingClientRect();
     if (event.clientX < dialogDimensions.left || event.clientX > dialogDimensions.right
       || event.clientY < dialogDimensions.top || event.clientY > dialogDimensions.bottom) {
-        dialog.close();
-        document.body.classList.remove('no-scroll');
+      dialog.close();
+      document.body.classList.remove('no-scroll');
     }
   });
 }
-
