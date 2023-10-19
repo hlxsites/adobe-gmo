@@ -394,8 +394,8 @@ async function buildUserInfo() {
   const userInfo = {
     profile: {
       userId: userId,
-      serviceCode: 'serviceCode',
-      serviceLevel: 'serviceLevel'
+      serviceCode: null,
+      serviceLevel: null
     },
     piipStatus: 2
   };
@@ -443,10 +443,14 @@ function adjustZIndex(isOpening) {
 
   if (isOpening) {
     headerWrapper.style.zIndex = "unset";
-    refinementWrapper.style.zIndex = "unset";
+    if (refinementWrapper) {
+      refinementWrapper.style.zIndex = "unset";
+    }
   } else {
     headerWrapper.style.zIndex = "2";
-    refinementWrapper.style.zIndex = "1";
+    if (refinementWrapper) {
+      refinementWrapper.style.zIndex = "1";
+    }
   }
 }
 

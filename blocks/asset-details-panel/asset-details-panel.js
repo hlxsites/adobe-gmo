@@ -57,6 +57,17 @@ export async function openAssetDetails(assetId) {
   const title = formatAssetMetadata(getMetadataValue('dc:title', assetJSON));
   const fileFormat = getMetadataValue('dc:format', assetJSON);
   const assetDetailsPanel = document.querySelector('.asset-details-panel');
+
+  // ensure express button only shows for valid asset types
+  const expressBtn = assetDetailsPanel.querySelector("#asset-details-express");
+  const validTypes = ['image','video','pdf'];
+  const isTypeValid = validTypes.some(type => fileFormat.includes(type));
+  if (isTypeValid && !(fileFormat.includes("photoshop"))) {
+    expressBtn.style.display = "block";
+  } else {
+    expressBtn.style.display = "none";
+  }
+
   const metadataContainer = assetDetailsPanel.querySelector('#asset-details-metadata-container');
   metadataContainer.innerHTML = '';
   const metadataViewConfig = await getDetailViewConfig();
@@ -78,7 +89,7 @@ export async function openAssetDetails(assetId) {
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
   addDownloadHandlers(clone, assetId, fileName, fileFormat);
   
-
+  // follw above design pattern for express button handler
   const actionsExpress = assetDetailsPanel.querySelector('.action-edit-asset');
   const exClone = actionsExpress.cloneNode(true);
   actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
@@ -102,7 +113,7 @@ export default async function decorate(block) {
                 <span class="icon icon-download"></span>
               </button>
               <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
-                <span class="icon icon-express-logo"></span>
+                <span class="icon icon-cc-express"></span>
               </button>
             </div>
             <div class="top-right">
