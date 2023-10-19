@@ -362,12 +362,13 @@ export async function scrollToSearchResults() {
 
 function didSearchChange() {
   const { helper } = window.search;
-  const lastQuery = {};
+  const lastQuery = window.lastSearchQuery;
   const latestQuery = {};
   const fieldsToCompare = [
     'disjunctiveFacets',
     'disjunctiveFacetsRefinements',
     'facets',
+    'facetsRefinements',
     'facetsExcludes',
     'filters',
     'hierarchicalFacets',
@@ -376,19 +377,18 @@ function didSearchChange() {
     'highlightPostTag',
     'highlightPreTag',
     'hitsPerPage',
-    'index',
     'maxValuesPerFacet',
     'numericRefinements',
     'query',
     'tagRefinements',
   ];
   fieldsToCompare.forEach((field) => {
-    lastQuery[field] = helper.lastResults?.[field];
-  });
-  fieldsToCompare.forEach((field) => {
     latestQuery[field] = helper.state?.[field];
   });
-  return JSON.stringify(latestQuery) !== JSON.stringify(lastQuery);
+  const lastQueryStr = JSON.stringify(latestQuery);
+  window.lastSearchQuery = lastQueryStr;
+  if (lastQuery === undefined) return false; // first search
+  return lastQueryStr !== lastQuery;
 }
 
 export default async function decorate(block) {
@@ -475,13 +475,13 @@ export default async function decorate(block) {
       container: document.querySelector('#assets'),
     }),
   ]);
+
   // close selected asset when new search doesn't contain the selected asset
   window.search.on('render', () => {
     const selectedAssetId = currentlySelectedAssetCard?.dataset.assetId;
-
     if (selectedAssetId && didSearchChange()) {
-      deselectAssetCard();
       closeAssetDetails();
+      scrollToSearchResults();
     }
   });
   search.start();
