@@ -289,11 +289,9 @@ export function getAnchorVariable(variable) {
   return undefined;
 }
 
-
 loadPage();
 //Load Adobe Data Layer
 loadDataLayer();
-
 
 export function safeCSSId(str) {
   return encodeURIComponent(str)
