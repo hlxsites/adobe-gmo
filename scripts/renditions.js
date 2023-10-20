@@ -1,16 +1,26 @@
 import { getDownloadRenditionConfig } from './site-config.js';
 import { isImage } from './filetypes.js';
-import { getDownloadUrl, getBaseDeliveryUrl } from './polaris.js';
+import { getDownloadUrl, getBaseDeliveryUrl, getAssetMetadata } from './polaris.js';
 
 const imageTransformations = [
   'format', 'quality', 'height', 'width', 'size', 'rotation', 'flip', 'crop',
 ];
 
+function insertOriginalBeforeExtension(filename) {
+  const regex = /(\.[^.]+)$/;
+  return filename.replace(regex, '_Original$1');
+}
+
 export async function getAvailableRenditions(assetId, assetName, mimeType) {
+  const assetJSON = await getAssetMetadata(assetId);
   const downloadURL = await getDownloadUrl(assetId, assetName);
   let availableRenditions = [{
     name: 'Original',
+    fileName: insertOriginalBeforeExtension(assetName),
     url: new URL(downloadURL),
+    width: assetJSON.assetMetadata['exif:PixelXDimension'],
+    height: assetJSON.assetMetadata['exif:PixelYDimension'],
+    format: mimeType.split('/')[1],
   }];
   if (isImage(mimeType)) {
     const additionalRenditions = await getAvailableImageRenditions(assetId, assetName, mimeType);
@@ -24,11 +34,15 @@ export async function getAvailableRenditions(assetId, assetName, mimeType) {
  */
 async function getAvailableImageRenditions(assetId, assetName, mimeType) {
   const renditionConfig = await getDownloadRenditionConfig();
-  return renditionConfig.renditions
+  return renditionConfig
     .filter((rendition) => isRenditionApplicable(rendition, mimeType))
     .map((rendition) => ({
       name: rendition.description,
-      url: buildImageRenditionUrl(assetId, assetName, renditionConfig),
+      fileName: decodeURIComponent(buildRenditionFileName(assetName, rendition.description, rendition.format)),
+      url: buildImageRenditionUrl(assetId, assetName, rendition),
+      width: rendition.width,
+      height: rendition.height,
+      format: rendition.format,
     }));
 }
 
@@ -63,15 +77,15 @@ function isRenditionApplicable(renditionConfig, mimeType) {
  * @param {string} assetName
  * @param {DownloadRendition} renditionConfig
  */
-function buildImageRenditionUrl(assetId, assetName, renditionConfig) {
-  const renditionFileName = buildRenditionFileName(assetName, renditionConfig.description, renditionConfig.format);
+function buildImageRenditionUrl(assetId, assetName, rendition) {
+  const renditionFileName = buildRenditionFileName(assetName, rendition.description, rendition.format);
   const baseDeliveryUrl = new URL(getBaseDeliveryUrl(assetId, renditionFileName));
   imageTransformations.forEach((transformation) => {
-    if (renditionConfig[transformation]) {
-      baseDeliveryUrl.searchParams.append(transformation, renditionConfig[transformation]);
+    if (rendition[transformation]) {
+      baseDeliveryUrl.searchParams.append(transformation, rendition[transformation]);
     }
   });
-  return baseDeliveryUrl;
+  return baseDeliveryUrl.toString();
 }
 
 /**
@@ -87,5 +101,6 @@ function buildRenditionFileName(assetName, renditionName, format) {
   if (renditionName) {
     fileName.splice(fileName.length - 1, 0, encodeURIComponent(renditionName));
   }
-  return fileName.join('.');
+
+  return `${fileName.slice(0, -1).join('_')}.${fileName[fileName.length - 1]}`;
 }

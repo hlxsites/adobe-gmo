@@ -7,8 +7,7 @@
     font-size: var(--header-font-size);
     padding-top: 6px;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-flow: row wrap;
     align-content: flex-start;
     justify-content: flex-start;
 }
@@ -20,7 +19,7 @@
     border-radius: 4px;
     opacity: 1;
     vertical-align: middle;
-    padding: 0px 2px 0px 6px;
+    padding: 0 2px 0 6px;
     display: inline-block;
     margin-right: 8px;
     margin-bottom: 8px;
@@ -38,14 +37,15 @@
 .current-refinement-delete {
     width: 7px;
     height: 7px;
-    background: transparent url(/icons/refinement-clear.svg) 0% 0% no-repeat padding-box;
+    background: transparent url("/icons/refinement-clear.svg") 0% 0% no-repeat padding-box;
     opacity: 1;
 	border: none;
     vertical-align: middle;
     margin-left: 0.125em;
+    cursor: pointer;
 }
 
-#clear-refinements button:disabled {
+#clear-refinements button:disabled, #clear-refinements.hidden {
     display: none;
 }
 
@@ -58,12 +58,12 @@
     border-radius: unset;
     padding: 0;
     background: transparent;
-    height: 0rem;
+    height: 0;
     white-space: nowrap;
     cursor: pointer;
     text-align: left;
     font: normal normal bold 12px/15px var(--body-font-family);
-    letter-spacing: 0px;
-    color: #222222;
+    letter-spacing: 0;
+    color: #222;
     opacity: 1;
 }

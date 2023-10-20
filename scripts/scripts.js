@@ -289,9 +289,11 @@ export function getAnchorVariable(variable) {
   return undefined;
 }
 
+
 loadPage();
 //Load Adobe Data Layer
 loadDataLayer();
+
 
 export function safeCSSId(str) {
   return encodeURIComponent(str)
@@ -340,6 +342,7 @@ export async function addDownloadHandlers(downloadElement, assetId, repoName, fo
         Authorization: bearerToken,
       },
     };
+
     const href = await getDownloadUrl(assetId, repoName);
     if (isPDF(format)) {
       await openPDF(href, options);

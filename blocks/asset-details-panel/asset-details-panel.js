@@ -1,9 +1,7 @@
 import {
   decorateIcons,
 } from '../../scripts/lib-franklin.js';
-import {
-  addDownloadHandlers,
-} from '../../scripts/scripts.js';
+import { addDownloadModalHandler } from '../download-modal/download-modal.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import {
   formatAssetMetadata, getMetadataValue,
@@ -74,7 +72,7 @@ export async function openAssetDetails(assetId) {
   const actionsDownloadA = assetDetailsPanel.querySelector('.action-download-asset');
   const clone = actionsDownloadA.cloneNode(true);
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
-  addDownloadHandlers(clone, assetId, fileName, fileFormat);
+  addDownloadModalHandler(clone, assetId, fileName, fileFormat);
 
   // show the asset details panel
   assetDetailsPanel.classList.add('open');

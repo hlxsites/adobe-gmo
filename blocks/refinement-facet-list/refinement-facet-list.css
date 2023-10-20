@@ -1,0 +1,66 @@
+/* stylelint-disable selector-class-pattern */
+
+.refinement-options .ais-RefinementList-checkbox {
+    margin-left: 0;
+    box-shadow: none;
+    background: var(--white-background-color) 0% 0% no-repeat padding-box;
+    border: 2px solid var(--border-color);
+    opacity: 1;
+    vertical-align: text-bottom;
+    min-width: unset;
+    width: 14px;
+    height: 14px;
+}
+
+.refinement-options input[type="checkbox"].ais-RefinementList-checkbox  {
+    border-radius: 2px;
+}
+
+.ais-RefinementList-item--selected .ais-RefinementList-checkbox,.ais-GeoSearch-input:checked {
+    background: url("/icons/checkmark.svg") 0% 0% no-repeat padding-box var(--checkbox-checked-background-color);
+}
+  
+.refinement-options .ais-RefinementList-labelText {
+    font: var(--refinement-item-font);
+    color: var(--text-color);
+    text-align: left;
+    letter-spacing: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+}
+  
+.refinement-options .ais-RefinementList-item {
+    /** Approximately 25px on 100% zoom */
+    line-height: 1.98rem;
+    padding-left: 10px;
+    width: 100%;
+    align-items: left;
+    cursor: pointer;
+}
+  
+.refinement-options .ais-RefinementList-count {
+    font: var(--refinement-item-font);
+    border-radius: 5px;
+    border: none;
+    background-color: rgba(0 0 0 / 6%);
+}
+  
+.refinement-options .ais-RefinementList-item:hover {
+    background-color: rgba(0 0 0 / 6%);
+    border-radius: 5px;
+}
+
+.refinement-options .refinementList-search-hidden {
+    display: none;
+}
+
+.refinement-options .refinementList-search-shown {
+    display: block;
+}
+
+/** show outline / border on focus accessibility **/
+.refinement-options .ais-RefinementList-item input:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
+}

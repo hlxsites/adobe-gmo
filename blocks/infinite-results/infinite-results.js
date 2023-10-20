@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getQueryVariable, getAnchorVariable, addDownloadHandlers, removeParamFromWindowURL,
+  getQueryVariable, getAnchorVariable, removeParamFromWindowURL,
 } from '../../scripts/scripts.js';
 import { getCardViewConfig, getCardViewSettings, getSearchFieldConfig } from '../../scripts/site-config.js';
 import {
@@ -10,6 +10,7 @@ import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
 // eslint-disable-next-line import/no-cycle
 import { openAssetDetails, closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 import { createMetadataHTML } from '../../scripts/metadata-html-builder.js';
+import { addDownloadModalHandler } from '../download-modal/download-modal.js';
 // Define algolia search client globals
 /* global instantsearch search */
 
@@ -30,7 +31,7 @@ function getVideoOverlayCSSClass(format) {
 
 /**
  * In case the preview image fails to load, we replace it with a placeholder image
- * @param {HTMLElement} cardElem - card element
+ * @param {HTMLElement} cardElement - card element
  */
 function handleImageFailures(cardElement) {
   cardElement.querySelectorAll('.thumbnail > img').forEach((el) => {
@@ -188,8 +189,7 @@ function scrollToElement(element, padding = 20) {
 
 /**
  * Handle when an asset card is clicked
- * @param {string} assetId - asset id
- * @param {HTMLElement} assetCard - asset card element
+ * @param {HTMLElement|string} asset Asset to select
  */
 export async function selectAsset(asset) {
   const assetCard = getAssetCard(asset);
@@ -248,8 +248,9 @@ function createCardElement(hit) {
   const card = document.createElement('div');
   card.classList.add('asset-card');
   card.classList.add(`fileType-${fileType}`);
+
   card.innerHTML = `<div class="preview">
-      <a class="thumbnail asset-link">
+      <a class="thumbnail asset-link" href="">
           <img>
           <div class="preview-overlay"><span></span></div>
       </a>
@@ -273,6 +274,8 @@ function createCardElement(hit) {
     await selectAsset(card);
   });
 
+  const detailPageUrl = new URLSearchParams([['assetId', assetId]]);
+  card.querySelector('.asset-link').href = `#${detailPageUrl}`;
   card.dataset.assetId = assetId;
 
   const img = card.querySelector('img');
@@ -345,7 +348,7 @@ function createCardElement(hit) {
   decorateIcons(card);
   handleImageFailures(card);
   const actionsDownloadA = card.querySelector('.actions-download');
-  addDownloadHandlers(actionsDownloadA, assetId, repoName, dcFormat);
+  addDownloadModalHandler(actionsDownloadA, assetId, repoName, dcFormat);
 
   return card;
 }
@@ -355,6 +358,37 @@ export async function scrollToSearchResults() {
     top: document.getElementById('assets').offsetTop,
     behavior: 'smooth',
   });
+}
+
+function didSearchChange() {
+  const { helper } = window.search;
+  const lastQuery = window.lastSearchQuery;
+  const latestQuery = {};
+  const fieldsToCompare = [
+    'disjunctiveFacets',
+    'disjunctiveFacetsRefinements',
+    'facets',
+    'facetsRefinements',
+    'facetsExcludes',
+    'filters',
+    'hierarchicalFacets',
+    'hierarchicalFacetsRefinements',
+    'hierarchicalFacets',
+    'highlightPostTag',
+    'highlightPreTag',
+    'hitsPerPage',
+    'maxValuesPerFacet',
+    'numericRefinements',
+    'query',
+    'tagRefinements',
+  ];
+  fieldsToCompare.forEach((field) => {
+    latestQuery[field] = helper.state?.[field];
+  });
+  const lastQueryStr = JSON.stringify(latestQuery);
+  window.lastSearchQuery = lastQueryStr;
+  if (lastQuery === undefined) return false; // first search
+  return lastQueryStr !== lastQuery;
 }
 
 export default async function decorate(block) {
@@ -441,5 +475,14 @@ export default async function decorate(block) {
       container: document.querySelector('#assets'),
     }),
   ]);
+
+  // close selected asset when new search doesn't contain the selected asset
+  window.search.on('render', () => {
+    const selectedAssetId = currentlySelectedAssetCard?.dataset.assetId;
+    if (selectedAssetId && didSearchChange()) {
+      closeAssetDetails();
+      scrollToSearchResults();
+    }
+  });
   search.start();
 }

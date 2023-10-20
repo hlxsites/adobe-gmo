@@ -23,6 +23,8 @@
   --text-color: var(--black-background-color);
   --header-text-color: white;
   --label-color: #464646;
+  --checkbox-border-color: #222222;
+  --heading-color: #757575;
   --assets-browser-background-color: #f8f8f8;
   --asset-details-image-background-color: #e1e1e1;
   --metadata-label-color: var(--label-color);
@@ -44,6 +46,7 @@
   --button-focus-outline-color: #5258e4;
   --button-focus-outline-offset: 2px;
   --button-active-color: #d5d5d5;
+  --button-text-color: white;
 
   /* fonts */
   --body-font-family: 'adobe clean', 'helvetica neue', helvetica, ubuntu, roboto, noto, sans-serif;
@@ -62,6 +65,7 @@
   --bold-font-size-s: normal normal bold 14px/17px var(--body-font-family);
   --bold-font-size-base: normal normal bold 16px/20px var(--body-font-family);
   --bold-font-size-m: normal normal bold 18px/22px var(--body-font-family);
+  --bold-font-size-l: normal normal bold 22px/27px var(--body-font-family);
   --metadata-tags-font: normal normal normal 12px/15px var(--body-font-family);
   --refinement-item-font: var(--metadata-font);
   --stats-label-font: normal normal normal 16px/20px var(--body-font-family);
@@ -316,6 +320,7 @@ main img {
 iframe {
   width: 100%;
   height: 100%;
+  border: none;
 }
 
 
@@ -366,6 +371,11 @@ body {
 .ais-RefinementList-labelText::first-letter,
 .tag::first-letter {
   text-transform: uppercase
+}
+
+dialog::backdrop {
+  background-color: black;
+  opacity: 0.4;
 }
 
 
