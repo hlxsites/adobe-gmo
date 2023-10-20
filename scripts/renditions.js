@@ -15,6 +15,8 @@ export async function getAvailableRenditions(assetId, assetName, mimeType) {
   const assetJSON = await getAssetMetadata(assetId);
   const downloadURL = await getDownloadUrl(assetId, assetName);
   let availableRenditions = [{
+    assetId,
+    assetName,
     name: 'Original',
     fileName: insertOriginalBeforeExtension(assetName),
     url: new URL(downloadURL),
@@ -37,6 +39,8 @@ async function getAvailableImageRenditions(assetId, assetName, mimeType) {
   return renditionConfig
     .filter((rendition) => isRenditionApplicable(rendition, mimeType))
     .map((rendition) => ({
+      assetId,
+      assetName,
       name: rendition.description,
       fileName: decodeURIComponent(buildRenditionFileName(assetName, rendition.description, rendition.format)),
       url: buildImageRenditionUrl(assetId, assetName, rendition),
