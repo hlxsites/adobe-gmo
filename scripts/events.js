@@ -15,6 +15,15 @@ export const EventNames = {
    * * query: Text that the user searched for.
    */
   SEARCH: 'search',
+
+  /**
+   * Sent whenever a user includes or excludes a facet from their filter.
+   *
+   * The event's detail will contain the following properties:
+   * * previous: An array of the facet filters previously in place.
+   * * current: An array of the facet filters now in place.
+   */
+  FACET: 'facet',
 };
 
 /**
