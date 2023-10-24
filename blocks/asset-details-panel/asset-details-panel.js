@@ -85,7 +85,7 @@ export async function openAssetDetails(assetId) {
   const actionsDownloadA = assetDetailsPanel.querySelector('.action-download-asset');
   const clone = actionsDownloadA.cloneNode(true);
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
-  addDownloadHandlers(clone, assetId, fileName, fileFormat);
+  addDownloadModalHandler(clone, assetId, fileName, fileFormat);
   
   // follow above design pattern for express button handler
   let assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
@@ -96,7 +96,6 @@ export async function openAssetDetails(assetId) {
   const exClone = actionsExpress.cloneNode(true);
   actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
   addExpressEditorHandler(exClone, assetId, fileName, assetHeight, assetWidth, validCheck.fileType);
-  addDownloadModalHandler(clone, assetId, fileName, fileFormat);
 
   // show the asset details panel
   assetDetailsPanel.classList.add('open');
