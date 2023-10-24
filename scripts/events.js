@@ -7,6 +7,14 @@ export const EventNames = {
    * * repoName: Repository from which the asset was downloaded.
    */
   DOWNLOAD: 'download',
+
+  /**
+   * Sent whenever a user performs a text search for assets.
+   *
+   * The event's detail will contain the following properties:
+   * * query: Text that the user searched for.
+   */
+  SEARCH: 'search',
 };
 
 /**
