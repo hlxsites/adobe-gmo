@@ -24,6 +24,15 @@ export const EventNames = {
    * * current: An array of the facet filters now in place.
    */
   FACET: 'facet',
+
+  /**
+   * Sent whenever a user opens an asset's quick preview.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was viewed.
+   * * assetName: Name of the asset that was viewed.
+   */
+  ASSET_QUICK_PREVIEW: 'asset-quick-preview',
 };
 
 /**
