@@ -342,7 +342,7 @@ export async function addDownloadHandlers(downloadElement, assetId, repoName, fo
     }
     emitEvent(e.target, EventNames.DOWNLOAD, {
       assetId,
-      repoName,
+      assetName: repoName,
     });
   });
 }

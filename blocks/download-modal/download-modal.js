@@ -148,7 +148,7 @@ export function addDownloadEventListener(container) {
           window.URL.revokeObjectURL(imgUrl);
           emitEvent(b.target, EventNames.DOWNLOAD, {
             assetId: item.assetId,
-            repoName: item.assetName,
+            assetName: item.assetName,
             renditionName: item.renditionName,
           });
         })

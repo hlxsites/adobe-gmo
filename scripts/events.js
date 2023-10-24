@@ -4,7 +4,7 @@ export const EventNames = {
    *
    * The event's detail will contain the following properties:
    * * assetId: ID of the asset that was downloaded.
-   * * repoName: Repository from which the asset was downloaded.
+   * * assetName: Name of the asset that was downloaded.
    */
   DOWNLOAD: 'download',
 
@@ -33,6 +33,15 @@ export const EventNames = {
    * * assetName: Name of the asset that was viewed.
    */
   ASSET_QUICK_PREVIEW: 'asset-quick-preview',
+
+  /**
+   * Sent whenever a user opens an asset's extended details modal.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was opened.
+   * * assetName: The name of the asset that was opened.
+   */
+  ASSET_DETAIL: 'asset-detail',
 };
 
 /**
