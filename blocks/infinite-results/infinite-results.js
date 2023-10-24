@@ -11,6 +11,7 @@ import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
 import { openAssetDetails, closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 import { createMetadataHTML } from '../../scripts/metadata-html-builder.js';
 import { addDownloadModalHandler } from '../download-modal/download-modal.js';
+import { EventNames, emitEvent } from '../../scripts/events.js';
 // Define algolia search client globals
 /* global instantsearch search */
 
@@ -115,6 +116,9 @@ function createCardContainerAndBindScrollHandler(container, scrollHandler) {
       && newScrollDistance > lastScrollDistance + (scrollHeight - scrollTop)
       && !lastRenderArgs.isLastPage) {
       lastScrollDistance = scrollTop + clientHeight;
+
+      emitEvent(document.documentElement, EventNames.INFINITE_SCROLL);
+
       scrollHandler();
     }
   });
@@ -163,6 +167,10 @@ function selectAssetCard(asset) {
     assetCard.classList.add('selected');
     assetCard.attributes['aria-selected'] = true;
     currentlySelectedAssetCard = assetCard;
+    emitEvent(assetCard, EventNames.ASSET_QUICK_PREVIEW, {
+      assetId: asset,
+      assetName: assetCard.dataset.assetName,
+    });
   }
 }
 
@@ -277,6 +285,7 @@ function createCardElement(hit) {
   const detailPageUrl = new URLSearchParams([['assetId', assetId]]);
   card.querySelector('.asset-link').href = `#${detailPageUrl}`;
   card.dataset.assetId = assetId;
+  card.dataset.assetName = repoName;
 
   const img = card.querySelector('img');
   img.dataset.fileformat = dcFormat;

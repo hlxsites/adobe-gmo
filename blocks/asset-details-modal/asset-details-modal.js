@@ -12,6 +12,7 @@ import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
 import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 import { addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
+import { EventNames, emitEvent } from '../../scripts/events.js';
 
 let scale = 1;
 
@@ -133,6 +134,11 @@ export async function openModal() {
     createMetadataPanel(modal, assetJSON);
 
     createHeaderPanel(modal, assetJSON, assetId);
+
+    emitEvent(document.body, EventNames.ASSET_DETAIL, {
+      assetId,
+      assetName: assetJSON.repositoryMetadata['repo:name'],
+    });
   }
 }
 

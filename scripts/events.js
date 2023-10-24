@@ -4,9 +4,52 @@ export const EventNames = {
    *
    * The event's detail will contain the following properties:
    * * assetId: ID of the asset that was downloaded.
-   * * repoName: Repository from which the asset was downloaded.
+   * * assetName: Name of the asset that was downloaded.
    */
   DOWNLOAD: 'download',
+
+  /**
+   * Sent whenever a user performs a text search for assets.
+   *
+   * The event's detail will contain the following properties:
+   * * query: Text that the user searched for.
+   */
+  SEARCH: 'search',
+
+  /**
+   * Sent whenever a user includes or excludes a facet from their filter.
+   *
+   * The event's detail will contain the following properties:
+   * * previous: An array of the facet filters previously in place.
+   * * current: An array of the facet filters now in place.
+   */
+  FACET: 'facet',
+
+  /**
+   * Sent whenever a user opens an asset's quick preview.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was viewed.
+   * * assetName: Name of the asset that was viewed.
+   */
+  ASSET_QUICK_PREVIEW: 'asset-quick-preview',
+
+  /**
+   * Sent whenever a user opens an asset's extended details modal.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was opened.
+   * * assetName: The name of the asset that was opened.
+   */
+  ASSET_DETAIL: 'asset-detail',
+
+  /**
+   * Sent whenever a user scrolls down the infinite-results block enough that it dynamically
+   * loads more data into the results.
+   *
+   * This event does not provide additional event details.
+   */
+  INFINITE_SCROLL: 'infinite-scroll',
 };
 
 /**
