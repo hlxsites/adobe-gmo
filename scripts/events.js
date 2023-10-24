@@ -42,6 +42,14 @@ export const EventNames = {
    * * assetName: The name of the asset that was opened.
    */
   ASSET_DETAIL: 'asset-detail',
+
+  /**
+   * Sent whenever a user scrolls down the infinite-results block enough that it dynamically
+   * loads more data into the results.
+   *
+   * This event does not provide additional event details.
+   */
+  INFINITE_SCROLL: 'infinite-scroll',
 };
 
 /**

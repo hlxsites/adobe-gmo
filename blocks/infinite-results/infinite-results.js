@@ -116,6 +116,9 @@ function createCardContainerAndBindScrollHandler(container, scrollHandler) {
       && newScrollDistance > lastScrollDistance + (scrollHeight - scrollTop)
       && !lastRenderArgs.isLastPage) {
       lastScrollDistance = scrollTop + clientHeight;
+
+      emitEvent(document.documentElement, EventNames.INFINITE_SCROLL);
+
       scrollHandler();
     }
   });
