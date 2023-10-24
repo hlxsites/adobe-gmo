@@ -1,2 +1,7 @@
 mountpoints:
   /: https://adobe.sharepoint.com/:f:/r/sites/HelixProjects/Shared%20Documents/sites/adobe-gmo/asset-distribution-portal
+
+
+folders:
+  /share/: /share/default
+  /collections/: /collections/default

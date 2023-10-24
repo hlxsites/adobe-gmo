@@ -121,6 +121,7 @@ export async function getDetailViewConfig() {
  * @property {string} metadataField (e.g. 'dc-format')
  * @property {string} aemMetadataField (e.g. 'dc:format')
  * @property {"and"|"or"} operator
+ * @property {string} filterType
  */
 
 /**
@@ -137,6 +138,7 @@ export async function getFilterConfig() {
       aemMetadataField,
       metadataField: dashedName,
       operator: row.Operator,
+      type: row.Type,
     };
   });
   return result;
@@ -179,15 +181,15 @@ export async function getFilterSettings() {
  */
 export async function getDownloadRenditionConfig() {
   const response = await getConfig('site-config.json');
-  const result = {};
-  result.renditions = {};
-  return response['download-renditions'].data.map((row) => {
+  const result = [];
+  response['download-renditions']?.data.map((row) => {
     const { Description, ...rest } = row;
-    return ({
+    result.push({
       description: Description,
       ...rest,
     });
   });
+  return result;
 }
 
 /**

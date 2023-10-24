@@ -1,9 +1,7 @@
 import {
   decorateIcons,
 } from '../../scripts/lib-franklin.js';
-import {
-  addDownloadHandlers,
-} from '../../scripts/scripts.js';
+import { addDownloadModalHandler } from '../download-modal/download-modal.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import {
   formatAssetMetadata, getMetadataValue,
@@ -15,7 +13,7 @@ import {
 import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../infinite-results/infinite-results.js';
 // eslint-disable-next-line import/no-cycle
 import { openModal } from '../asset-details-modal/asset-details-modal.js';
-import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-config.js';
+import { getQuickViewConfig, getQuickViewSettings } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 import { startCCE, addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
@@ -70,12 +68,12 @@ export async function openAssetDetails(assetId) {
 
   const metadataContainer = assetDetailsPanel.querySelector('#asset-details-metadata-container');
   metadataContainer.innerHTML = '';
-  const metadataViewConfig = await getDetailViewConfig();
-  const detailViewSettings = await getDetailViewSettings();
+  const metadataViewConfig = await getQuickViewConfig();
+  const quickViewSettings = await getQuickViewSettings();
   const metadataFieldsElem = await fetchMetadataAndCreateHTML(
     metadataViewConfig,
     assetJSON,
-    detailViewSettings.hideEmptyMetadataProperty,
+    quickViewSettings.hideEmptyMetadataProperty,
   );
   metadataContainer.appendChild(metadataFieldsElem);
 
@@ -98,6 +96,7 @@ export async function openAssetDetails(assetId) {
   const exClone = actionsExpress.cloneNode(true);
   actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
   addExpressEditorHandler(exClone, assetId, fileName, assetHeight, assetWidth, validCheck.fileType);
+  addDownloadModalHandler(clone, assetId, fileName, fileFormat);
 
   // show the asset details panel
   assetDetailsPanel.classList.add('open');

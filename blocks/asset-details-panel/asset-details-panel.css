@@ -11,7 +11,7 @@
 }
 
 .asset-details-panel-wrapper::-webkit-scrollbar {
-  width: 0px;
+  width: 0;
 }
 
 .asset-details-panel {

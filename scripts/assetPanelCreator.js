@@ -36,9 +36,15 @@ export async function addAssetToContainer(
       this.src = getFailedPlaceholderImgSrc(fileFormat);
     };
     container.appendChild(videoElem);
+    // When the iframe's "load" event occurs, send the bearer token wrapped in a message to the iframe content window
     videoElem.addEventListener('load', async function () {
       const iframeContentWindow = videoElem.contentWindow;
-      iframeContentWindow.postMessage(await getBearerToken(), "*");
+      const token = await getBearerToken();
+      const message = {
+        isIMSToken: true,
+        token: token
+      };
+      iframeContentWindow.postMessage(message, "*");
     });
   } else {
     const imgElem = document.createElement('img');

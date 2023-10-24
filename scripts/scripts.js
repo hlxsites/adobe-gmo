@@ -22,6 +22,10 @@ import {
   getDownloadUrl,
 } from './polaris.js';
 import { isPDF } from './filetypes.js';
+import {
+  emitEvent,
+  EventNames,
+} from './events.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -337,6 +341,10 @@ export async function addDownloadHandlers(downloadElement, assetId, repoName, fo
     } else {
       await downloadAsset(href, repoName, options);
     }
+    emitEvent(e.target, EventNames.DOWNLOAD, {
+      assetId,
+      repoName,
+    });
   });
 }
 
@@ -388,15 +396,14 @@ export function createTag(tag, attributes) {
   return element;
 }
 
-export function closeDialogEvent(dialog){
+export function closeDialogEvent(dialog) {
   dialog.addEventListener('click', (event) => {
     // only react to clicks outside the dialog. https://stackoverflow.com/a/70593278/79461
     const dialogDimensions = dialog.getBoundingClientRect();
     if (event.clientX < dialogDimensions.left || event.clientX > dialogDimensions.right
       || event.clientY < dialogDimensions.top || event.clientY > dialogDimensions.bottom) {
-        dialog.close();
-        document.body.classList.remove('no-scroll');
+      dialog.close();
+      document.body.classList.remove('no-scroll');
     }
   });
 }
-

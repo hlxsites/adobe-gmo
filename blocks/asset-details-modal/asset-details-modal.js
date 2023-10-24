@@ -9,7 +9,7 @@ import { closeAssetDetails, disableButtons } from '../asset-details-panel/asset-
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import { selectNextAsset, selectPreviousAsset } from '../infinite-results/infinite-results.js';
 import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
-import { getQuickViewConfig, getQuickViewSettings } from '../../scripts/site-config.js';
+import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 import { addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
@@ -50,9 +50,9 @@ async function createImagePanel(modal, assetId) {
 }
 
 async function createMetadataPanel(modal, assetJSON) {
-  const metadataViewConfig = await getQuickViewConfig();
-  const quickViewSettings = await getQuickViewSettings();
-  const metadataElem = await fetchMetadataAndCreateHTML(metadataViewConfig, assetJSON, quickViewSettings.hideEmptyMetadataProperty, false);
+  const metadataViewConfig = await getDetailViewConfig();
+  const detailViewSettings = await getDetailViewSettings();
+  const metadataElem = await fetchMetadataAndCreateHTML(metadataViewConfig, assetJSON, detailViewSettings.hideEmptyMetadataProperty, false);
   const modalMetadata = modal.querySelector('.modal-metadata');
   const metadataToggle = modal.querySelector('#asset-details-page-metadata');
   if (!metadataToggle.classList.contains('open')) {

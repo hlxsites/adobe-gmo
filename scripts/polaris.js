@@ -4,6 +4,7 @@ import { getBearerToken } from './security.js';
 
 let deliveryEndpointURL = null;
 let backendApiKey = null;
+let assetHandlerApiKey = null;
 
 const regex = /p(\d+)-e(\d+)/;
 
@@ -15,6 +16,7 @@ export async function initDeliveryEnvironment() {
     const adminConfig = await getAdminConfig();
     deliveryEndpointURL = adminConfig.aemDeliveryEndpoint;
     backendApiKey = adminConfig.imsEnvironment === 'stage' ? 'polaris-asset-search-api-key' : 'asset_search_service';
+    assetHandlerApiKey = adminConfig.imsEnvironment === 'stage' ? 'activation_service_test1' : 'activation_service';
   }
   return deliveryEndpointURL;
 }
@@ -25,6 +27,10 @@ export function getDeliveryEnvironment() {
 
 export function getBackendApiKey() {
   return backendApiKey;
+}
+
+export function getAssetHandlerApiKey() {
+  return assetHandlerApiKey;
 }
 
 export function getSearchIndex() {
@@ -50,7 +56,7 @@ export function getBaseDeliveryUrl(assetId, assetName) {
 }
 
 export function getVideoDeliveryUrl(assetId) {
-  return `${getDeliveryEnvironment()}/adobe/assets/${assetId}/play`;
+  return `${getDeliveryEnvironment()}/adobe/assets/${assetId}/play?secureDelivery=true`;
 }
 
 /**

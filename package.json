@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Starter project for Adobe Helix",
   "scripts": {
-    "update-dependencies": "rm -r scripts/libs && webpack --mode production && node build/embedDependencies.js",
+    "update-dependencies": "rm -r scripts/libs/* || true && webpack --mode production && node build/embedDependencies.js",
     "test": "wtr \"./test/**/*.test.js\" --node-resolve --port=2000 --coverage",
     "test:watch": "npm test -- --watch",
     "lint:js": "eslint .",
@@ -45,8 +45,9 @@
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
     "@algolia/autocomplete-theme-classic": "^1.11.1",
     "algoliasearch": "^4.18.0",
+    "instantsearch.js": "^4.56.3",
     "instantsearch.css": "^8.1.0",
-    "instantsearch.js": "^4.56.3"
+    "flatpickr": "^4.6.13"
   },
   "copyDependencies": [
     {
@@ -83,6 +84,14 @@
       "from": "node_modules/@algolia/autocomplete-theme-classic/dist/",
       "to": "scripts/libs/algolia/autocomplete-theme-classic/",
       "fileInclude": "theme.min.css"
+    },
+    {
+      "from": "node_modules/flatpickr/dist/",
+      "to": "scripts/libs/flatpickr/",
+      "globOptions": {
+        "ignore": ["**/esm/**/*", "**/plugins/**/*", "**/l10n/**/*.ts"]
+      },
+      "fileInclude": [ "flatpickr.min.js", "flatpickr.min.css" ]
     }
   ]
 }
