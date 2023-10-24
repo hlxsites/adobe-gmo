@@ -11,6 +11,7 @@ import { selectNextAsset, selectPreviousAsset } from '../infinite-results/infini
 import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
 import { getQuickViewConfig, getQuickViewSettings } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
+import { addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
 let scale = 1;
 
@@ -80,11 +81,29 @@ function createHeaderPanel(modal, assetJSON, assetId) {
   decorateIcons(modal);
   // disable nav buttons if needed
   disableButtons(modal);
+
+  // ensure express button only shows for valid asset types
+  const expressBtn = modal.querySelector("#asset-details-express");
+  let validCheck = fileValidity(dcFormat);
+  if (ccEverywhere && validCheck.isValid) {
+    expressBtn.style.display = "block";
+  } else {
+    expressBtn.style.display = "none";
+  }
+
   // clone the download element to remove previous event listener before adding a new one
   const actionsDownloadA = modal.querySelector('#asset-details-page-download');
   const clone = actionsDownloadA.cloneNode(true);
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
   addDownloadHandlers(clone, assetId, fileName, dcFormat);
+
+  // todo dismiss modal on click
+  const assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
+  const assetWidth = assetJSON.assetMetadata['tiff:ImageWidth'];
+  const actionsExpress = modal.querySelector('.action-edit-asset');
+  const exClone = actionsExpress.cloneNode(true);
+  actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
+  addExpressEditorHandler(exClone, assetId, fileName, assetHeight, assetWidth, "image", document);
 }
 
 export async function openModal() {
@@ -128,6 +147,9 @@ export default function decorate(block) {
           <div class="modal-header-right">
             <button id="asset-details-page-download" class="action action-download-asset" title="Download" aria-label="Download">
               <span class="icon icon-download"></span>
+            </button>
+            <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
+              <span class="icon icon-cc-express"></span>
             </button>
             <button id="asset-details-page-metadata" class="action action-metadata-asset open" title="Hide or View Toggle" aria-label="Metadata">
               <span class="icon icon-info"></span>

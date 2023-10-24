@@ -1,11 +1,11 @@
 import { getAdminConfig } from './site-config.js';
 import { getBearerToken, getUserProfile } from './security.js';
 import { getDownloadUrl } from './polaris.js';
+import { closeModal } from '../blocks/asset-details-modal/asset-details-modal.js';
 
-let ccEverywhere;
+export let ccEverywhere;
 
 function buildHostInfo(clientId, appName) {
-    //todo make this config-based
     const hostInfo = {
       clientId: clientId,
       appName: appName,
@@ -142,45 +142,69 @@ function createFromAEMCallback() {
   return callback;
 }
 
+export function fileValidity(fileFormat) {
+  //const validTypes = ['image','video','pdf'];
+  const validTypes = ['image'];
+  let validity = { isValid: false, fileType: 'unknown' };
+  validTypes.some(type => {
+    const validFile = (fileFormat.includes(type) && !(fileFormat.includes("photoshop")));
+    if (validFile) {
+      validity.isValid = true;
+      validity.fileType = type;
+    }
+  });
+  return validity;
+}
+
 export async function startCCE() {
   // create static config objects
   // todo check if clientid and appname values are null/missing
   const adminInfo = await getAdminConfig();
-  const hostInfo = buildHostInfo(adminInfo.expClientId, adminInfo.expAppName);
-  const configParams = buildConfigParams();
-  const userInfo = await buildUserInfo();
-  const authInfo = await buildAuthInfo();
+  const clientId = adminInfo.expClientId;
+  const appName = adminInfo.expAppName;
 
-  ccEverywhere = await window.CCEverywhere.initialize(
-      hostInfo, configParams, userInfo, authInfo
-  );
-  console.log("CCE Initialized");
+  if (clientId && appName) {
+    const hostInfo = buildHostInfo(clientId, appName);
+    const configParams = buildConfigParams();
+    const userInfo = await buildUserInfo();
+    const authInfo = await buildAuthInfo();
+  
+    ccEverywhere = await window.CCEverywhere.initialize(
+        hostInfo, configParams, userInfo, authInfo
+    );
+    console.log("CCE Initialized");
+  } else {
+    console.log("Missing CCE parameters.")
+  }
 }
 
-export async function addExpressEditorHandler(editorElement, assetId, repoName, assetHeight, assetWidth) {
+export async function addExpressEditorHandler(editorElement, assetId, repoName, assetHeight, assetWidth, assetType, detailsModal) {
   editorElement.addEventListener('click', async (e) => {
+    adjustZIndex(true);
+    if (detailsModal) {
+      closeModal(detailsModal);
+    }
+
     const assetUrl = await getDownloadUrl(assetId, repoName);
     const bearerToken = await getBearerToken();
     const rawAsset = await getAssetData(assetUrl, bearerToken);
     const assetData = await base64Encode(rawAsset);
-    adjustZIndex(true);
-    await openInExpress(assetData, assetHeight, assetWidth);
+    await openInExpress(assetData, assetHeight, assetWidth, assetType);
   });
 }
 
-export async function openInExpress(base64Blob, assetHeight, assetWidth) {
-  // todo make asset type dynamic
+export async function openInExpress(base64Blob, assetHeight, assetWidth, assetType) {
+  // todo fix video
   const userInfo = await buildUserInfo();
   const authInfo = await buildAuthInfo();
-
-  
+  console.log(assetType);
   ccEverywhere.createDesign({
     callbacks: createFromAEMCallback(),
     inputParams: {
       asset: {
         data: await base64Blob,
         dataType: 'base64',
-        type: 'image'
+        type: assetType
       },
       canvasSize: {
         height: assetHeight,
