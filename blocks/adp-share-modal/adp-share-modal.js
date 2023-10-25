@@ -188,7 +188,7 @@ export function addShareModalHandler(shareElement, assetId, assetName, title, fo
 
 export default async function decorate(block) {
   block.innerHTML = `<dialog autofocus>
-    <div class='adp-share-modal-container'>
+    <div class='adp-share-modal-block'>
       <div class='dialog-header'>
         <div class='dialog-header-left'>Share asset</div>
         <div class='dialog-header-right'>
