@@ -17,7 +17,7 @@
 }
 
 .ais-RefinementList-item--selected .ais-RefinementList-checkbox,.ais-GeoSearch-input:checked {
-    background: url("/icons/checkmark.svg") 0% 0% no-repeat padding-box var(--checkbox-checked-background-color);
+    background: url("../../icons/checkmark.svg") 0% 0% no-repeat padding-box var(--checkbox-checked-background-color);
 }
   
 .refinement-options .ais-RefinementList-labelText {

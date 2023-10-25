@@ -37,7 +37,7 @@
 .current-refinement-delete {
     width: 7px;
     height: 7px;
-    background: transparent url("/icons/refinement-clear.svg") 0% 0% no-repeat padding-box;
+    background: transparent url("../../icons/refinement-clear.svg") 0% 0% no-repeat padding-box;
     opacity: 1;
 	border: none;
     vertical-align: middle;

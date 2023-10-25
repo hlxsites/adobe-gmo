@@ -38,11 +38,11 @@
 }
 
 .refinements span.label[aria-expanded="true"] {
-  background: url("/icons/chevron-down.svg") no-repeat left center / 16px;
+  background: url("../../icons/chevron-down.svg") no-repeat left center / 16px;
 }
 
 .refinements span.label[aria-expanded="false"] {
-  background: url("/icons/chevron-right.svg") no-repeat left center / 16px;
+  background: url("../../icons/chevron-right.svg") no-repeat left center / 16px;
 }
 
 .refinement-options {

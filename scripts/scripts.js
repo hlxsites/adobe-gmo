@@ -20,6 +20,7 @@ import {
   getBackendApiKey,
   getDeliveryEnvironment,
 } from './polaris.js';
+import dependencies from "./dependencies.json" assert { type: "json" };
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -93,9 +94,9 @@ export async function loadScript(url, attrs) {
     script.src = url;
     if (attrs) {
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
-      for (const attr in attrs) {
-        script.setAttribute(attr, attrs[attr]);
-      }
+      attrs.forEach((attr) => {
+        script.setAttribute(attr, '');
+      });
     }
 
     script.onload = () => resolve(script);
@@ -155,6 +156,7 @@ async function initSearch() {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
+  loadDependencies();
   await getBearerToken();
   if (!window.location.pathname.includes('/no-access')) {
     const hasAccess = await checkUserAccess();
@@ -224,6 +226,16 @@ async function loadLazy(doc) {
   sampleRUM('lazy');
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
   sampleRUM.observe(main.querySelectorAll('picture > img'));
+}
+
+function loadDependencies() {
+  dependencies.forEach((dependency) => {
+    if (dependency.type === 'js') {
+      loadScript(dependency.src, dependency.attrs);
+    } else if (dependency.type === 'css') {
+      loadCSS(dependency.href);
+    }
+  });
 }
 
 /**

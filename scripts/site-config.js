@@ -269,7 +269,7 @@ function getBaseConfigPath() {
 async function getConfig(filename) {
   if (!filename) throw new Error('filename is required');
   try {
-    return await fetchCached(`${getBaseConfigPath()}/${filename}`, {}, `${window.hlx.codeBasePath}/${filename}`);
+    return await fetchCached(`${getBaseConfigPath()}/${filename}`, {}, `/${filename}`);
   } catch (error) {
     throw new Error(`Error fetching ${filename}: ${error}`, error);
   }
