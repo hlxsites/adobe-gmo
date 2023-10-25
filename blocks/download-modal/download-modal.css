@@ -1,14 +1,35 @@
 .download-modal.block .modal-header {
   border-bottom: none;
   font: var(--bold-font-size-l);
-  padding-left: 36px;
-  height: 86px;
+  padding-left: 35px;
+  padding-right: 42px;
+  flex: 0 0 86px;
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--white-background-color);
+}
+
+.download-modal.block .modal-header .modal-header-left,
+.download-modal.block .modal-header .modal-header-right {
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.download-modal.block .modal-header .icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
 }
 
 .download-modal.block .modal-body {
   display: flex;
   background-color: var(--white-background-color);
   flex-grow: 1;
+  width: 100%;
+  height: calc(100% - 86px);
 }
 
 .download-modal.block .modal-body-left {
@@ -18,6 +39,7 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  flex: 0 0 212px;
 }
 
 .download-modal.block .modal-body-left .asset-image {
@@ -53,6 +75,11 @@
   flex-grow: 1;
   overflow-y: scroll;
   padding-top: 2px;
+}
+
+.download-modal.block .rendition label {
+  cursor: pointer;
+  padding-left: 14px; /* Space for the checkbox */
 }
 
 .download-modal.block .renditions-container .rendition label {
@@ -96,7 +123,6 @@
 .download-modal.block .modal-body-right .actions-container {
   display: flex;
   justify-content: center;
-  /* flex: 0 0 60px; */
   flex: 0 0 72px;
 }
 
@@ -115,12 +141,6 @@
   border: none;
 } 
 
-.download-modal.block .rendition label {
-  cursor: pointer;
-  padding-left: 14px; /* Space for the checkbox */
-}
-
-
 .download-modal.block .rendition input[type='checkbox'] {
   display: none;
 }
@@ -136,20 +156,10 @@
   border-radius: 4px;
 }
 
-.download-modal.block .rendition input[type='checkbox']:checked + .checkmark {
+.download-modal.block .rendition input[type='checkbox']:checked + .checkmark,
+.download-modal.block .rendition.header .checkmark.show-bar {
   background-color: var(--button-focus-outline-color);
   border-color: var(--button-focus-outline-color);
-}
-
-.download-modal.block .rendition label span::after,
-.download-modal.block .rendition.header label span::after {
-  content: "";
-  position: absolute;
-  display: none;
-} 
-
-.download-modal.block .rendition input[type='checkbox']:checked + span::after {
-  display: block;
 }
 
 .download-modal.block .rendition label span::after {
@@ -162,7 +172,19 @@
   transform: rotate(45deg);
 }
 
+.download-modal.block .rendition label span::after,
 .download-modal.block .rendition.header label span::after {
+  content: "";
+  position: absolute;
+  display: none;
+} 
+
+.download-modal.block .rendition input[type='checkbox']:checked + span::after,
+.download-modal.block .rendition.header span.show-bar::after {
+  display: block;
+}
+
+.download-modal.block .rendition.header label span.show-bar::after {
   left: 2px;
   top: 6px;
   width: 4px;

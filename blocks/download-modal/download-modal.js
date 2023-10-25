@@ -3,6 +3,8 @@ import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { createTag, closeDialogEvent } from '../../scripts/scripts.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 import { emitEvent, EventNames } from '../../scripts/events.js';
+import { getBearerToken } from '../../scripts/security.js';
+import { isPDF } from '../../scripts/filetypes.js';
 
 export default function decorate(block) {
   block.innerHTML = `<dialog>
@@ -49,33 +51,6 @@ function updateButton(checkedCount, downloadButton) {
   }
 }
 
-function generateHeader(conatiner) {
-  const renditionHeader = createTag('div', { class: 'rendition header' });
-  const label = createTag('label', { for: 'download-all' });
-  const col1 = createTag('div', { class: 'col1' });
-  const checkbox = createTag('input', {
-    type: 'checkbox', name: 'all', value: 'all', id: 'download-all',
-  });
-  const span = createTag('span', { class: 'checkmark' });
-  col1.appendChild(checkbox);
-  col1.appendChild(span);
-  label.appendChild(col1);
-  const col2 = createTag('div', { class: 'col2' });
-  col2.textContent = 'Title';
-  label.appendChild(col2);
-  const col3 = createTag('div', { class: 'col3' });
-  col3.textContent = 'Width';
-  label.appendChild(col3);
-  const col4 = createTag('div', { class: 'col4' });
-  col4.textContent = 'Height';
-  label.appendChild(col4);
-  const col5 = createTag('div', { class: 'col5' });
-  col5.textContent = 'File format';
-  label.appendChild(col5);
-  renditionHeader.appendChild(label);
-  conatiner.appendChild(renditionHeader);
-}
-
 function generateButton(container) {
   const actionsContainer = createTag('div', { class: 'actions-container' });
   const downloadButton = createTag('button', { class: 'action download' });
@@ -87,6 +62,7 @@ function generateButton(container) {
 export function addDownloadEventListener(container) {
   const renditionCheckboxs = container.querySelectorAll('input[name="rendition"]');
   const allCheckbox = container.querySelector('input[name="all"]');
+  const allCheckboxSpan = allCheckbox.nextElementSibling;
   const downloadButton = container.querySelector('.action.download');
 
   renditionCheckboxs.forEach((checkbox) => {
@@ -99,16 +75,27 @@ export function addDownloadEventListener(container) {
       }
       if (checkedCount === 0) {
         allCheckbox.checked = false;
+        allCheckboxSpan.classList.remove('show-bar');
       } else if (checkedCount === renditionCheckboxs.length) {
         allCheckbox.checked = true;
+        allCheckboxSpan.classList.remove('show-bar');
       } else {
         allCheckbox.checked = false;
+        allCheckboxSpan.classList.add('show-bar');
       }
       updateButton(checkedCount, downloadButton);
+    });
+
+    // add below code to make the checkbox accessible by keyboard
+    checkbox.nextElementSibling.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        checkbox.checked = !checkbox.checked;
+      }
     });
   });
 
   allCheckbox.addEventListener('change', () => {
+    allCheckboxSpan.classList.remove('show-bar');
     let checkedCount = 0;
     renditionCheckboxs.forEach((checkbox) => {
       checkbox.checked = allCheckbox.checked;
@@ -119,8 +106,9 @@ export function addDownloadEventListener(container) {
     updateButton(checkedCount, downloadButton);
   });
 
-  downloadButton.addEventListener('click', (b) => {
+  downloadButton.addEventListener('click', async (b) => {
     const items = [];
+    const token = await getBearerToken();
     renditionCheckboxs.forEach((checkbox) => {
       if (checkbox.checked) {
         items.push({
@@ -129,23 +117,25 @@ export function addDownloadEventListener(container) {
           assetId: checkbox.getAttribute('data-asset-id'),
           assetName: checkbox.getAttribute('data-asset-name'),
           renditionName: checkbox.id,
+          format: checkbox.getAttribute('data-format'),
         });
       }
     });
 
     // Loop through each item in the array
     items.forEach((item) => {
-      fetch(item.url)
+      fetch(item.url, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      })
         .then((resp) => resp.blob())
         .then((blob) => {
-          const imgUrl = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = imgUrl;
-          // Set the filename for each item
-          a.download = item.name;
-          a.click();
-          window.URL.revokeObjectURL(imgUrl);
+          if (isPDF(item.format)) {
+            openPDF(blob);
+          } else {
+            downloadAsset(blob, item.name);
+          }
           emitEvent(b.target, EventNames.DOWNLOAD, {
             assetId: item.assetId,
             assetName: item.assetName,
@@ -157,11 +147,53 @@ export function addDownloadEventListener(container) {
   });
 }
 
+function downloadAsset(blob, assetName) {
+  const imgUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = imgUrl;
+  // Set the filename for each item
+  a.download = assetName;
+  a.click();
+  window.URL.revokeObjectURL(imgUrl);
+}
+
+function openPDF(blob) {
+  const pdfUrl = window.URL.createObjectURL(blob);
+  window.open(pdfUrl, '_blank');
+  window.URL.revokeObjectURL(pdfUrl);
+}
+
 function generateRenditionList(renditions, container) {
   const renditionContainer = createTag('div', { class: 'renditions-container' });
-  generateHeader(renditionContainer);
+  // create select all checkbox
+  const renditionHeader = createTag('div', { class: 'rendition header' });
+  const selectAlllabel = createTag('label', { for: 'download-all' });
+  const selectAllCol1 = createTag('div', { class: 'col1' });
+  const selectAllCheckbox = createTag('input', {
+    type: 'checkbox', name: 'all', value: 'all', id: 'download-all',
+  });
+  const selectAllSpan = createTag('span', { class: 'checkmark show-bar', tabindex: '0' });
+  selectAllCol1.appendChild(selectAllCheckbox);
+  selectAllCol1.appendChild(selectAllSpan);
+  selectAlllabel.appendChild(selectAllCol1);
+  const selectAllCol2 = createTag('div', { class: 'col2' });
+  selectAllCol2.textContent = 'Title';
+  selectAlllabel.appendChild(selectAllCol2);
+  const selectAllCol3 = createTag('div', { class: 'col3' });
+  selectAllCol3.textContent = 'Width';
+  selectAlllabel.appendChild(selectAllCol3);
+  const selectAllCol4 = createTag('div', { class: 'col4' });
+  selectAllCol4.textContent = 'Height';
+  selectAlllabel.appendChild(selectAllCol4);
+  const selectAllCol5 = createTag('div', { class: 'col5' });
+  selectAllCol5.textContent = 'File format';
+  selectAlllabel.appendChild(selectAllCol5);
+  renditionHeader.appendChild(selectAlllabel);
+  renditionContainer.appendChild(renditionHeader);
 
-  renditions.forEach((rendition) => {
+  // create rendition checkboxes
+  renditions.forEach((rendition, index) => {
     const renditionElem = createTag('div', { class: 'rendition' });
     // checkbox
     const label = createTag('label', { for: `${rendition.name}` });
@@ -174,8 +206,9 @@ function generateRenditionList(renditions, container) {
       'data-url': `${rendition.url}`,
       'data-asset-id': `${rendition.assetId}`,
       'data-asset-name': `${rendition.assetName}`,
+      'data-format': `${rendition.format}`,
     });
-    const span = createTag('span', { class: 'checkmark' });
+    const span = createTag('span', { class: 'checkmark', tabindex: `${index + 1}` });
     checkbox.checked = rendition.name === 'Original';
     col1.appendChild(checkbox);
     col1.appendChild(span);
@@ -194,12 +227,16 @@ function generateRenditionList(renditions, container) {
     label.appendChild(col4);
     // format
     const col5 = createTag('div', { class: 'col5' });
-    col5.textContent = `${rendition.format}`;
+    col5.textContent = `${rendition.format.split('/')[1]}`;
     label.appendChild(col5);
     renditionElem.appendChild(label);
     renditionContainer.appendChild(renditionElem);
   });
   container.appendChild(renditionContainer);
+  if (renditions.length === 1) {
+    selectAllSpan.classList.remove('show-bar');
+    selectAllCheckbox.checked = true;
+  }
 
   generateButton(container);
   addDownloadEventListener(container);
@@ -228,6 +265,7 @@ export async function openModal(assetId, repoName, format) {
   const renditionContainer = dialog.querySelector('.modal-body-right');
   generateRenditionHTML(renditions, renditionContainer);
   dialog.showModal();
+  document.querySelector('.download-modal.block .action-close').blur();
 }
 
 function closeDialog(dialog) {

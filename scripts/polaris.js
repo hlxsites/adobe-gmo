@@ -67,7 +67,6 @@ export function getVideoDeliveryUrl(assetId) {
  * @returns the URL to the image rendition
  */
 export async function getOptimizedDeliveryUrl(assetId, assetName, width, format) {
-  const bearerToken = await getBearerToken();
   let fileName = assetName;
   if (!assetName.includes('.') || isVideo(format)) {
     fileName = `${assetName}.jpg`;
@@ -79,17 +78,20 @@ export async function getOptimizedDeliveryUrl(assetId, assetName, width, format)
     path += `?width=${width}&preferwebp=true`;
   }
   const url = `${path}`.replace(/\.(png)/, '.webp').replace(/\.(mov|m3u8|mp4|mpeg|avi|asf|flv|m4v)/, '.jpg');
+  return authorizeURL(url);
+}
+
+export async function authorizeURL(url) {
+  const bearerToken = await getBearerToken();
   const options = {
     method: 'GET',
     headers: {
       Authorization: bearerToken,
     },
   };
-
   const response = await fetch(url, options);
   const imageBlob = await response.blob();
   return URL.createObjectURL(imageBlob);
-
 }
 
 export async function getOptimizedPreviewUrl(assetId, assetName, width, format) {
