@@ -1,0 +1,207 @@
+.adp-share-modal.block dialog {
+  min-width: 647px;
+  border-radius: 6px;
+  border: none;
+  padding: 0;
+}
+
+.adp-share-modal.block dialog .adp-share-modal-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 31px;
+  width: 100%;
+  height: 100%;
+}
+
+.adp-share-modal-container .dialog-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  padding: 28px 34px 0 35px;
+  grid-template-areas: 'dialog-header-left dialog-header-right';
+}
+
+.adp-share-modal-container .dialog-header span.icon {
+  display: flex;
+  align-items: center;
+}
+
+.adp-share-modal-container .dialog-header .dialog-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-area: dialog-header-left;
+  font: var(--bold-font-size-l);
+  text-transform: initial;
+}
+
+.adp-share-modal-container .dialog-header .dialog-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  grid-area: dialog-header-right;
+}
+
+.adp-share-modal-container .dialog-body {
+  display: grid;
+  grid-template-columns: 212px auto;
+  grid-template-rows: 1fr;
+  grid-template-areas: 'dialog-body-left dialog-body-right';
+  column-gap: 40px;
+  font-size: 14px;
+  font-family: var(--body-font-family);
+  padding-left: 37px;
+  padding-right: 38px;
+  padding-bottom: 35px;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-area: dialog-body-left;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-left .asset-image {
+  display: flex;
+  justify-content: center;
+  width: 212px;
+  height: 168px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-left .asset-image > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-left .asset-name {
+  font: var(--metadata-font);
+  color: #222;
+  text-transform: none;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-area: dialog-body-right;
+  text-transform: none;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .share-link-expiry-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  width: 100%;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .share-link-expiry-container input[type="radio"] {
+  appearance: none;
+  margin-left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #FDFDFD 0 0 no-repeat padding-box;
+  border: 2px solid #222;
+  opacity: 1;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .share-link-expiry-container input[type="radio"]:checked {
+  border: 6px solid var(--button-focus-outline-color);
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .label-title {
+  color: var(--heading-color);
+  font: var(--bold-font-size-s);
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .label-title .icon-asterisk {
+  padding-left: 3px;
+  height: 8px;
+  width: 8px;
+  opacity: 0.6;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .share-link-expiry-group {
+  font: var(--metadata-font);
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .share-link-actual-expiration-date-title {
+  font: var(--metadata-font);
+  color: #222;
+  padding-top: 15px;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .share-link-actual-expiration-date-title .expiration-date-time {
+  font: var(--bold-font-size-s);
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .share-login-checkbox {
+  display: none; /* Hide the checkbox for now */
+  padding-top: 10px;
+}
+
+.adp-share-modal .date-input-container > label {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .share-login-checkbox > label {
+  font: var(--metadata-font);
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .actions-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 49px;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .actions-container .action-copy-share-link {
+  background-color: var(--button-focus-outline-color);
+  border-radius: 16px;
+  font: var(--bold-font-size-s);
+  color: var(--button-text-color);
+  height: 32px;
+  width: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: none;
+}
+
+.adp-share-modal-container .dialog-body .dialog-body-right .actions-container .action-copy-share-link:disabled {
+  background-color: var(--button-hover-color);
+}
+
+#share-link-expiry-date-calendar-dialog {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+#share-link-expiry-date-calendar-dialog::backdrop {
+  background: transparent;
+}
+
+#share-link-expiry-date-calendar {
+  display: inline-block;
+  min-width: 230px;
+}
+
+#share-link-expiry-date-calendar input[type="text"] {
+  font: var(--metadata-font);
+}
+
+.adp-share-modal-container .date-input-container {
+  margin-left: 0;
+}
+
+.adp-share-modal .date-input-container .flatpickr {
+  width: 100%;
+}
