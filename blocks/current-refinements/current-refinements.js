@@ -1,12 +1,46 @@
 import { getFilterConfig } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
 import { closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
+import { EventNames, emitEvent } from '../../scripts/events.js';
 
 const filterConfig = await getFilterConfig();
 
 const TEXT_CLEAR_REFINEMENTS = 'clear-refinements';
 
+/**
+ * Emits the site's facet event, but only if the current and updated arrays
+ * are different.
+ * @param {HTMLElement} element Element that will emit the event.
+ * @param {Array<string>} current Current list of facet values.
+ * @param {Array<string>} updated New list of facet values.
+ */
+function sendFacetEvent(element, current, updated) {
+  if (!arraysMatch(current, updated)) {
+    emitEvent(element, EventNames.FACET, {
+      previous: [...current],
+      current: [...updated],
+    })
+  }
+}
+
+/**
+ * Determines whether two string arrays contain the same values.
+ * @param {Array<string>} refinements1 First array to test.
+ * @param {Array<string>} refinements2 Array against which first array is tested. 
+ * @returns {boolean} True if the arrays contain the same values, false otherwise.
+ */
+function arraysMatch(refinements1, refinements2) {
+  let matching = refinements1.length === refinements2.length;
+
+  for (let i = 0; (i < refinements1.length) && (matching); i += 1) {
+    matching = refinements1[i] === refinements2[i];
+  }
+
+  return matching;
+}
+
 export default function decorate(block) {
+  let refinements = [];
   const currentRefinements = document.createElement('div');
   currentRefinements.id = 'current-refinements';
   currentRefinements.classList.add('current-refinements');
@@ -56,6 +90,7 @@ export default function decorate(block) {
     const clearRefinementEl = refinementsEl.querySelector('#clear-refinements');
     refinementsEl.innerHTML = '';
 
+    const newRefinements = [];
     const createRefinementDataAttributes = (refinement) => Object.keys(refinement)
       .map((key) => `data-${key}="${refinement[key]}"`)
       .join(' ');
@@ -70,8 +105,10 @@ export default function decorate(block) {
         const refinementItemEl = document.createElement('div');
         refinementItemEl.classList.add('current-refinement-item');
         const operator = refinement.operator || '-';
+        const refinementLabel = `${facetLabel} ${operator} ${facetValue}`;
+        newRefinements.push(refinementLabel);
         refinementItemEl.innerHTML = `
-          <span class="current-refinement-label">${facetLabel} ${operator} ${facetValue}</span>
+          <span class="current-refinement-label">${refinementLabel}</span>
           <button class="current-refinement-delete" ${createRefinementDataAttributes(refinement)}></button>
         `;
         refinementItemEl.querySelector('button').addEventListener('click', () => {
@@ -82,6 +119,8 @@ export default function decorate(block) {
       });
     });
     refinementsEl.appendChild(clearRefinementEl);
+    sendFacetEvent(refinementsEl, refinements, newRefinements);
+    refinements = [...newRefinements];
   };
 
   const customCurrentRefinements = window.instantsearch.connectors.connectCurrentRefinements(

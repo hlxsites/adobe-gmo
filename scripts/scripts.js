@@ -33,6 +33,7 @@ import {
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
+
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
@@ -349,7 +350,7 @@ export async function addDownloadHandlers(downloadElement, assetId, repoName, fo
     }
     emitEvent(e.target, EventNames.DOWNLOAD, {
       assetId,
-      repoName,
+      assetName: repoName,
     });
   });
 }
