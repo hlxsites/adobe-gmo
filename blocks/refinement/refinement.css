@@ -130,6 +130,7 @@
   display: none;
 }
 
+.share-modal input[type="text"],
 .refinements input[type="text"], .refinements textarea {
   flex: 1;
   box-sizing: border-box;
@@ -157,6 +158,7 @@
   box-shadow: unset;
 }
 
+.share-modal .input-button,
 .refinements .input-button {
   width: 34px;
   padding: 0 6px;
@@ -174,18 +176,21 @@
   cursor: pointer;
 }
 
+.share-modal .input-button span.icon,
 .refinements .input-button span.icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
+.share-modal .input-button svg,
 .refinements .input-button svg {
   width: 18px;
   height: 18px;
   fill: #444;
 }
 
+.share-modal .input-button:focus,
 .refinements .input-button:focus {
   outline: none;
   border: solid 2px var(--assets-browser-selected-border-color);

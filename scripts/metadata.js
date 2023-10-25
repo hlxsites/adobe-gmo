@@ -273,7 +273,7 @@ function isDateValue(value) {
 
 export function isDate(propertyName, propertyValue) {
   return DATE_FIELDS.includes(propertyName)
-  || (propertyValue !== undefined && isDateValue(propertyValue));
+    || (propertyValue !== undefined && isDateValue(propertyValue));
 }
 
 /**

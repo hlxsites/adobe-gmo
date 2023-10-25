@@ -15,6 +15,7 @@ import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../infi
 import { openModal } from '../asset-details-modal/asset-details-modal.js';
 import { getQuickViewConfig, getQuickViewSettings } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
+import { addShareModalHandler } from '../share-modal/share-modal.js';
 
 /**
  * Close the asset details panel and deselect the asset card
@@ -74,6 +75,12 @@ export async function openAssetDetails(assetId) {
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
   addDownloadModalHandler(clone, assetId, fileName, fileFormat);
 
+  // add share modal handler to share button
+  const shareElement = assetDetailsPanel.querySelector('.action-share-asset');
+  const newShareElement = shareElement.cloneNode(true);
+  shareElement.parentElement.replaceChild(newShareElement, shareElement);
+  addShareModalHandler(newShareElement, assetId, fileName, getMetadataValue('dc:title', assetJSON) || fileName, fileFormat);
+
   // show the asset details panel
   assetDetailsPanel.classList.add('open');
 
@@ -90,6 +97,9 @@ export default async function decorate(block) {
             <div class="top-left">
               <button id="asset-details-download" class="action action-download-asset" title="Download" aria-label="Download">
                 <span class="icon icon-download"></span>
+              </button>
+              <button id="asset-details-share" class="action action-share-asset" title="Share" aria-label="Share">
+                <span class="icon icon-share"></span>
               </button>
             </div>
             <div class="top-right">

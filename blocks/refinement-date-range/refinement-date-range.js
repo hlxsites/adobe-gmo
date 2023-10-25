@@ -1,33 +1,5 @@
-/* eslint-disable import/prefer-default-export */
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
-
-function createFlatpickrDateInput(parentElement, attribute, idSuffix, label, enableTime) {
-  const kebabCaseAttribute = attribute.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-  const idAttribute = `${kebabCaseAttribute}-${idSuffix}`;
-
-  const dateInputContainer = document.createElement('div');
-  dateInputContainer.classList.add('date-input-container');
-  dateInputContainer.innerHTML = `
-    <label class="label" for="${idAttribute}">${label}</label>
-    <div class="flatpickr">
-      <input class="${idSuffix}" type="text" placeholder="Select Date..." data-input>
-      <button class="input-button" title="toggle" data-toggle>
-          <span class="icon icon-calendar"></span>
-      </a>
-    </div>`;
-  parentElement.appendChild(dateInputContainer);
-  const fp = window.flatpickr(dateInputContainer.querySelector('.flatpickr'), {
-    parseDate: (datestr) => new Date(datestr),
-    enableTime,
-    wrap: true,
-    allowInput: true,
-    altInput: true,
-    clickOpens: false,
-    monthSelectorType: 'static',
-  });
-  fp.altInput.id = idAttribute;
-  return dateInputContainer;
-}
+import { createStartDateRangeInput, createEndDateRangeInput } from '../../scripts/date-input.js';
 
 function parseMillisEpochToSecondsEpoch(dateStr, addDays = 0) {
   return dateStr && parseInt(dateStr, 10) > 0
@@ -55,8 +27,8 @@ function createCalendarRange(enableTime = false) {
     const refinementValues = window.search.helper?.state?.numericRefinements?.[attribute];
     const start = refinementValues?.[attribute];
     const end = refinementValues?.[attribute];
-    const startDate = createFlatpickrDateInput(container, attribute, 'start-date', 'Start date', enableTime);
-    const endDate = createFlatpickrDateInput(container, attribute, 'end-date', 'End date', enableTime);
+    const startDate = createStartDateRangeInput(container, attribute, 'Start date', enableTime);
+    const endDate = createEndDateRangeInput(container, attribute, 'End date', enableTime);
     if (start) startDate.querySelector('input').value = start === -Infinity ? '' : new Date(start * 1000).toISOString();
     if (end) endDate.querySelector('input').value = end === Infinity ? '' : new Date(end * 1000).toISOString();
     decorateIcons(container);

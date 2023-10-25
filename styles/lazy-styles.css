@@ -1,2 +1,36 @@
 /* below the fold CSS goes here */
 
+/* Start date input styles - see /scripts/date-input.js */
+:root {
+    --calendar-top: 0; /* to override top value set by flatpickr */
+}
+
+.date-input-container {
+    margin-left: 10px;
+}
+
+.date-input-container .flatpickr {
+    display: inline-flex;
+    flex-flow: row nowrap;
+    min-width: 93%;
+    border-radius: 4px;
+    margin-left: 2px;
+}
+
+.date-input-container label {
+    font: var(--refinement-item-font);
+    display: block;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.date-input-container button.input-button {
+    padding: 0 23px;
+}
+
+.flatpickr-calendar {
+    position: fixed;
+    top: var(--calendar-top) !important; /* using !important to override top value set by flatpickr */
+}
+
+/* End date input styles */

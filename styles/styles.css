@@ -71,6 +71,7 @@
   --stats-label-font: normal normal normal 16px/20px var(--body-font-family);
   --stats-value-font: normal normal bold 16px/20px var(--body-font-family);
   --current-refinement-font: normal normal normal 12px/15px var(--body-font-family);
+  --normal-font-size-xs: normal normal normal 12px/15px var(--body-font-family);
 
   /* heading sizes */
   --header-font-size: 14px;

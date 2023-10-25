@@ -10,6 +10,7 @@ import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
 // eslint-disable-next-line import/no-cycle
 import { openAssetDetails, closeAssetDetails } from '../asset-details-panel/asset-details-panel.js';
 import { createMetadataHTML } from '../../scripts/metadata-html-builder.js';
+import { addShareModalHandler } from '../share-modal/share-modal.js';
 import { addDownloadModalHandler } from '../download-modal/download-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 // Define algolia search client globals
@@ -270,6 +271,7 @@ function createCardElement(hit) {
   </div>
   <div class="actions">
       <a class="actions-download"><span class="icon icon-download"></span>Download</a>
+      <a class="actions-share"><span class="icon icon-share"></span>Share</a>
   </div>`;
 
   card.querySelector('.preview').addEventListener('click', async () => {
@@ -358,6 +360,9 @@ function createCardElement(hit) {
   handleImageFailures(card);
   const actionsDownloadA = card.querySelector('.actions-download');
   addDownloadModalHandler(actionsDownloadA, assetId, repoName, dcFormat);
+
+  const shareElement = card.querySelector('.actions-share');
+  addShareModalHandler(shareElement, assetId, repoName, title, dcFormat);
 
   return card;
 }
