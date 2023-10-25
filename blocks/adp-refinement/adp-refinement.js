@@ -64,6 +64,7 @@ function addRefinement(refinement, refinementContainer) {
 }
 
 export default async function decorate(block) {
+  block.textContent = '';
   // refinement container
   const refinements = document.createElement('div');
   block.closest('.adp-refinement-wrapper').classList.add('open');

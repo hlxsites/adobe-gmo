@@ -77,8 +77,16 @@
   --header-font-size: 14px;
   --heading-font-size-s: 20px;
 
+  /* header panel sizes */
+  --header-logo-width: 26px;
+  --header-logo-height: 26px;
+  --header-nav-brand-height: 48.5px;
+
   /* nav height */
   --nav-height: 64px;
+
+  /* body panel sizes */
+  --body-current-refinements-block-height: 34px;
 }
 
 @media (min-width: 900px) {
@@ -96,12 +104,14 @@
 @font-face {
     font-family: "adobe clean";
     src: url("../styles/fonts/AdobeClean/AdobeClean-SemiLight.otf") format("opentype");
+    font-display: swap;
 }
 
 @font-face {
     font-family: "adobe clean";
     src: url("../styles/fonts/AdobeClean/AdobeClean-Bold.otf") format("opentype");
     font-weight: bold;
+    font-display: swap;
 }
 
 body {

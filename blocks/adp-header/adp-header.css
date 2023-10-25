@@ -229,6 +229,7 @@ header .nav-brand {
   align-items: center;
   flex-grow: 1;
   flex-basis: 0;
+  height: var(--header-nav-brand-height);
 }
 
 /* todo */
@@ -240,8 +241,8 @@ header .nav-search label {
 }
 
 header nav .nav-brand img {
-  min-height: 26px;
-  width: auto;
+  width: var(--header-logo-width);
+  height: var(--header-logo-height);
   margin: 10px;
 }
 

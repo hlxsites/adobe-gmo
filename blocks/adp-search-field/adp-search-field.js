@@ -222,6 +222,7 @@ const debouncedSetInstantSearchUiState = (indexUiState) => debounceSetInstantSea
 const debouncedSetInstantSearchUiStateNoDelay = (indexUiState) => debounceSetInstantSearchUiState(0, indexUiState);
 
 export default function decorate(block) {
+  block.textContent = '';
   const { autocomplete } = window['@algolia/autocomplete-js'];
   if (window.search && autocomplete) {
     const searchField = document.createElement('div');

@@ -406,6 +406,7 @@ function didSearchChange() {
 }
 
 export default async function decorate(block) {
+  block.textContent = '';
   const hits = document.createElement('div');
   hits.id = 'assets';
   hits.classList.add('assets');

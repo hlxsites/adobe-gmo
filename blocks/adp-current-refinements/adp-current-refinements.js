@@ -40,6 +40,7 @@ function arraysMatch(refinements1, refinements2) {
 }
 
 export default function decorate(block) {
+  block.textContent = '';
   let refinements = [];
   const currentRefinements = document.createElement('div');
   currentRefinements.id = 'current-refinements';

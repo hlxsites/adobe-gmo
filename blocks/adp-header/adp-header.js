@@ -92,6 +92,7 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
+  block.textContent = '';
   // decorate nav DOM
   const nav = document.createElement('nav');
   nav.id = 'nav';
