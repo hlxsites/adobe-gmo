@@ -7,7 +7,7 @@
 
 .adp-refinement-wrapper.open {
   position: sticky;
-  top: 78px;
+  top: 135px;
   z-index: 1;
   overflow-y: auto;
   height: 80vh;

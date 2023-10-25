@@ -1,7 +1,7 @@
 import {
   decorateIcons, buildBlock, decorateBlock, loadBlock,
 } from '../../scripts/lib-franklin.js';
-import { getBrandingConfig } from '../../scripts/site-config.js';
+import { getBrandingConfig, getQuickLinkConfig } from '../../scripts/site-config.js';
 import { getUserProfile } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
 
@@ -97,32 +97,43 @@ export default async function decorate(block) {
   const nav = document.createElement('nav');
   nav.id = 'nav';
   nav.innerHTML = `
-<div class="nav-brand">
-  <a href="/"><img loading="lazy" src="" alt="logo"></a>
-  <div></div>
-</div>
-<div class="nav-search" id="searchbox">
-</div>
-<div class="nav-sections">
-<!--  <ul>-->
-<!--    <li><a href="#">link 1</a></li>-->
-<!--    <li><a href="#">link 2</a></li>-->
-<!--  </ul>-->
-</div>
-
-<div class="nav-tools">
+  <div class="nav-top">
+    <div class="nav-brand">
+      <a href="/"><img loading="lazy" src="" alt="logo"></a>
+      <div></div>
+    </div>
+    <div class="nav-search" id="searchbox">
+    </div>
+    <div class="nav-sections">
+      <!--  <ul>-->
+      <!--    <li><a href="#">link 1</a></li>-->
+      <!--    <li><a href="#">link 2</a></li>-->
+      <!--  </ul>-->
+    </div>
+    <div class="nav-tools">
       <a class="user-switcher" href="" aria-label="show profile options">
-      <span class="icon icon-user"></span>
+        <span class="icon icon-user"></span>
       </a>
-</div>
-<dialog class="user-profile">
-  <div class="user-container">
-    <div class="user-name"></div>
-    <div class="user-email"></div>
-    <a class="user-signout" href="">Sign Out</a>
+    </div>
+    <dialog class="user-profile">
+      <div class="user-container">
+      <div class="user-name"></div>
+      <div class="user-email"></div>
+        <a class="user-signout" href="">Sign Out</a>
+      </div>
+    </dialog>
   </div>
-</dialog>
-`;
+  <div class="nav-bottom">
+    <div class="quick-links">
+      <div class="item all-assets">
+        <a href="/">All assets</a>
+      </div>
+      <div class="item collections">
+        <a href="/collections/">Collections</a>
+      </div>
+    </div>
+  </div>
+  `;
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
@@ -196,4 +207,51 @@ export default async function decorate(block) {
     nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
     document.title = brandingConfig.brandText;
   }
+
+  // decorate quick links
+  const quickLinksConfig = await getQuickLinkConfig();
+  const quickLinks = nav.querySelector('.quick-links');
+  // append drafts path if needed
+  quickLinks.querySelectorAll('.item').forEach((item) => {
+    if (isURLDraftsPath()) {
+      item.querySelector('a').href = createBaseDraftsPath() + item.querySelector('a').getAttribute('href');
+    }
+  });
+  quickLinksConfig.forEach((item) => {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'item';
+    const itemLinkEl = document.createElement('a');
+    if (item.page.startsWith('/') && isURLDraftsPath()) {
+      itemLinkEl.href = createBaseDraftsPath() + item.page;
+    } else {
+      itemLinkEl.href = item.page;
+    }
+    if (item.page.startsWith('http')) {
+      itemLinkEl.target = '_blank';
+      itemLinkEl.rel = 'noopener';
+    }
+    itemLinkEl.textContent = item.title;
+    itemEl.append(itemLinkEl);
+    quickLinks.append(itemEl);
+  });
+
+  // set aria-selected on quick links
+  quickLinks.querySelectorAll('.item').forEach((item) => {
+    if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
+      item.setAttribute('aria-selected', 'true');
+    }
+  });
+}
+
+export function isURLDraftsPath() {
+  return window.location.pathname.startsWith('/drafts/');
+}
+
+export function createBaseDraftsPath() {
+  if (isURLDraftsPath()) {
+    const contentBranch = window.location.pathname.split('/')[2];
+    return `/drafts/${contentBranch}`;
+  }
+
+  return window.hlx.codeBasePath;
 }

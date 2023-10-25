@@ -83,7 +83,7 @@
   --header-nav-brand-height: 48.5px;
 
   /* nav height */
-  --nav-height: 64px;
+  --nav-height: 123px;
 
   /* body panel sizes */
   --body-current-refinements-block-height: 34px;
@@ -368,7 +368,8 @@ body {
 .metadata-field-title,
 .file-size,
 .user-email,
-.aa-ItemContentTitle {
+.aa-ItemContentTitle,
+.quick-links {
   text-transform: initial;
 }
 

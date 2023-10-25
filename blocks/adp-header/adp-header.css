@@ -7,15 +7,12 @@ header .nav-wrapper {
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
-header nav {
+header nav .nav-top{
   box-sizing: border-box;
   display: grid;
-  grid-template:
-    'hamburger brand tools' var(--nav-height)
-    'search search search' 1fr / auto 1fr auto;
   align-items: center;
   gap: 0 0.5em;
-  height: var(--nav-height);
+  height: 65px;
   padding: 0 1rem;
   font-family: var(--body-font-family);
   color: var(--header-text-color);
@@ -25,8 +22,8 @@ header nav {
 
 
 header nav dialog.user-profile {
-  margin-top: calc(var(--nav-height) - 3px);
-  margin-right: 5px;
+  margin-top: 50px;
+  margin-right: 24px;
   width: 200px;
   height: 105px;;
   border: 1px solid #d5d5d5;
@@ -72,42 +69,36 @@ header nav dialog .user-container .user-signout:hover{
 }
 
 
-header nav[aria-expanded="true"] {
-  grid-template:
-    'hamburger brand' var(--nav-height)
-    'sections sections' 1fr
-    'tools tools' var(--nav-height) / auto 1fr;
+header nav[aria-expanded="true"] .nav-top {
   overflow-y: auto;
   min-height: 100vh;
 }
 
 @media (min-width: 720px) {
-  header nav {
+  header nav .nav-top {
     display: flex;
     justify-content: space-between;
   }
 
-  header nav[aria-expanded="true"] {
+  header nav[aria-expanded="true"] .nav-top {
     min-height: 0;
     overflow: visible;
   }
 }
 
 @media (max-width: 720px) {
-  header nav {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-bottom: 0.5rem;
-    height: fit-content;
-    justify-items: center;
+  header nav .nav-top {
+    display: flex;
+    justify-content: space-between;
   }
 
-  main {
-    padding-top: calc(var(--nav-height) - 1em);
+  header nav .nav-brand div {
+    display: none;
+    visibility: hidden;
   }
 
-  header nav .nav-search {
-    width: 100% !important;
+  header .nav-top .nav-search {
+    width: 60%;
   }
 }
 
@@ -126,6 +117,9 @@ header nav .nav-hamburger {
   height: 22px;
   display: flex;
   align-items: center;
+  /* disable hamburger since there is no use currently */
+  display: none;
+  visibility: hidden;
 }
 
 header nav .nav-hamburger button {
@@ -388,4 +382,53 @@ header nav .nav-tools div {
 
 header nav .nav-tools a {
   margin-right: 10px;
+}
+
+header nav .quick-links {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+}
+
+header nav .quick-links .item {
+  padding-top: 7px;
+  padding-bottom: 11px;
+  text-align: left;
+  font: normal normal normal 16px/20px var(--body-font-family);
+  letter-spacing: 0px;
+  color: var(--label-color);
+  opacity: 1;
+  margin: 10px;
+}
+
+header nav .quick-links .item a:hover {
+  text-decoration: none;
+}
+
+header nav .quick-links .item[aria-selected="true"] {
+  font-weight: bold;
+  color: var(--text-color);
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 24px;
+}
+
+header nav .nav-top {
+  grid-area: nav-top;
+}
+
+header nav .nav-bottom {
+  grid-area: nav-bottom;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+header nav { 
+  display: grid;
+  grid-template-areas: 
+    "nav-top"
+    "nav-bottom";
+  grid-template-rows: 65px 58px;
+  align-items: center;
+  background-color: var(--header-background-color);
 }
