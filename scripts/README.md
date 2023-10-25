@@ -1,6 +1,6 @@
 # Scripts
 
-## collections.js
+## [collections.js](collections.js)
 Example Polaris collections API usage:
 
 Get:
@@ -47,4 +47,22 @@ console.log('patchedCollection retrieved: ', patchedCollection);
 Delete:
 ```javascript
 await deleteCollection(createdCollection.id);
+```
+
+## [link-share.js](link-share.js)
+Example code:
+```javascript
+await getLink(linkId);
+const requestBody = {
+  assets: [{
+    assetId: 'urn:aaid:aem:7590e3e3-77de-414d-b504-7d161a9598b6',
+  }],
+  collections: [{
+    collectionId: 'urn:cid:aem:7590e3e3-77de-414d-b504-7d161a9598b6',
+  }],
+  title: 'Sample link',
+  access: 'restricted',
+};
+await createLink(requestBody);
+await listLinks();
 ```
