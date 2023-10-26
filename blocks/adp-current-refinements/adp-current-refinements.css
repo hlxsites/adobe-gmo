@@ -1,7 +1,3 @@
-.adp-current-refinements-wrapper {
-    grid-column: span 2;
-}
-
 .adp-current-refinements {
     grid-area: current-refinements;
     font-size: var(--header-font-size);
