@@ -346,6 +346,13 @@ main .section.highlight {
   background-color: var(--highlight-background-color);
 }
 
+/* FAQ page typography */
+.section.faq{
+  color: #222222;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 30px;
+}
 
 body {
   text-transform: capitalize;
@@ -377,5 +384,3 @@ dialog::backdrop {
   background-color: black;
   opacity: 0.4;
 }
-
-
