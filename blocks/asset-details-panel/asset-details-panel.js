@@ -153,5 +153,6 @@ export default async function decorate(block) {
     block.querySelector('iframe')?.remove();
     await openModal();
   });
+  await window.adobeIMS?.refreshToken();
   await startCCE();
 }
