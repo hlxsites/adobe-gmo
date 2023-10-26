@@ -2,7 +2,12 @@ import {
   EventNames,
 } from './events.js';
 
+import {
+  getAdminConfig, } from './site-config.js';
+
 export function loadDataLayer() {
+  //Add launch script to <head>
+  addLaunchScriptToHead();
   //Add Event Listeners
   document.addEventListener(EventNames.DOWNLOAD, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.SEARCH, (e) => addDataLayer(e,e.detail));
@@ -22,4 +27,16 @@ function addDataLayer(event,detail) {
       detail : event.detail
     });
   }
+}
+
+async function addLaunchScriptToHead()
+{
+  var result=await getAdminConfig();
+  console.log(result.launchScript);
+  // Create a new <script> element
+  var newScript = document.createElement('script');
+      newScript.src = result.launchScript;
+      newScript.async = true;
+  // Append the <script> element to the <head> tag
+  document.head.appendChild(newScript);
 }
