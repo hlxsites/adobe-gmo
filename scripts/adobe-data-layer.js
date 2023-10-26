@@ -32,7 +32,7 @@ function addDataLayer(event,detail) {
 async function addLaunchScriptToHead()
 {
   var result=await getAdminConfig();
-  console.log(result.launchScript);
+  //console.log(result.launchScript);
   // Create a new <script> element
   var newScript = document.createElement('script');
       newScript.src = result.launchScript;
