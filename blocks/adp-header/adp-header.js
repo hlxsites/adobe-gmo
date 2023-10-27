@@ -227,6 +227,23 @@ export default async function decorate(block) {
     document.title = brandingConfig.brandText;
   }
   initQuickLinks();
+
+  const closeBanner = nav.querySelector('.banner .action-close');
+  closeBanner.addEventListener('click', () => {
+    const selectedAssets = document.querySelectorAll('.asset-card .checkbox-container input[type="checkbox"]:checked');
+    selectedAssets.forEach((asset) => {
+      asset.checked = false;
+      const assetCard = asset.closest('.asset-card');
+      if (assetCard) {
+        assetCard.classList.remove('checked');
+      }
+    });
+    const actionsDiv = document.querySelectorAll('.asset-card .actions');
+    actionsDiv.forEach((action) => {
+      action.classList.remove('hide');
+    });
+    nav.querySelector('.banner')?.classList.remove('show');
+  });
 }
 
 function isURLDraftsPath() {
@@ -287,22 +304,5 @@ function initQuickLinks() {
     if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');
     }
-  });
-
-  const closeBanner = nav.querySelector('.banner .action-close');
-  closeBanner.addEventListener('click', () => {
-    const selectedAssets = document.querySelectorAll('.asset-card .checkbox-container input[type="checkbox"]:checked');
-    selectedAssets.forEach((asset) => {
-      asset.checked = false;
-      const assetCard = asset.closest('.asset-card');
-      if (assetCard) {
-        assetCard.classList.remove('checked');
-      }
-    });
-    const actionsDiv = document.querySelectorAll('.asset-card .actions');
-    actionsDiv.forEach((action) => {
-      action.classList.remove('hide');
-    });
-    nav.querySelector('.banner')?.classList.remove('show');
   });
 }
