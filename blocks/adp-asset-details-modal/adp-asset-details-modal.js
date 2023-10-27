@@ -13,6 +13,7 @@ import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-c
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { addDownloadEventListener } from '../adp-download-modal/adp-download-modal.js';
+import { populateShareModalInfo } from '../adp-share-modal/adp-share-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 
 let scale = 1;
@@ -64,12 +65,13 @@ async function createMetadataPanel(modal) {
   const modalMetadata = modal.querySelector('.modal-metadata');
   const infoButton = modal.querySelector('#asset-details-page-metadata');
   const downloadButton = modal.querySelector('#asset-details-page-download');
+  const shareButton = modal.querySelector('#asset-details-page-share');
   infoButton.classList.add('open');
   downloadButton.classList.remove('open');
+  shareButton.classList.remove('open');
   modalMetadata.classList.add('open');
 
-  modalMetadata.querySelector('.metadata-container')?.remove();
-  modalMetadata.querySelector('.rendition-container')?.remove();
+  removeMetadataContainers(modalMetadata);
   modalMetadata.querySelector('.modal-metadata-heading').textContent = 'Details';
   modalMetadata.appendChild(metadataElem);
 }
@@ -154,6 +156,37 @@ function addRenditionSwitcherEventListener(container, assetContainer) {
   });
 }
 
+function removeMetadataContainers(modalMetadata) {
+  modalMetadata.querySelector('.metadata-container')?.remove();
+  modalMetadata.querySelector('.rendition-container')?.remove();
+  modalMetadata.querySelector('.adp-share-modal-details-container')?.remove();
+}
+
+async function handleClickButton(block, button, textContent, callback) {
+  const modalMetadata = block.querySelector('.modal-metadata');
+  if (button.classList.contains('open')) {
+    button.classList.remove('open');
+    modalMetadata.classList.remove('open');
+  } else {
+    modalMetadata.classList.add('open');
+
+    // remove open class from sibling buttons
+    const buttons = button.parentElement.querySelectorAll('button');
+    buttons.forEach((innerButton) => {
+      innerButton.classList.remove('open');
+    });
+    // add open class to current button
+    button.classList.add('open');
+
+    // remove containers
+    removeMetadataContainers(modalMetadata);
+    modalMetadata.querySelector('.modal-metadata-heading').textContent = textContent;
+
+    // Execute callback
+    await callback();
+  }
+}
+
 export default function decorate(block) {
   block.innerHTML = `
     <dialog class="modal-container">
@@ -195,6 +228,9 @@ export default function decorate(block) {
           <button id="asset-details-page-download" class="action action-download-asset" title="Download" aria-label="Download">
             <span class="icon icon-download"></span>
           </button>
+          <button id="asset-details-page-share" class="action action-share-asset" title="Share" aria-label="Share">
+            <span class="icon icon-share"></span>
+          </button>
         </div>
       </div>
     </dialog>`;
@@ -212,24 +248,11 @@ export default function decorate(block) {
 
   // eslint-disable-next-line func-names
   block.querySelector('#asset-details-page-metadata').addEventListener('click', async function () {
-    const self = this;
     const modalMetadata = block.querySelector('.modal-metadata');
-    const downloadButton = block.querySelector('#asset-details-page-download');
-    if (self.classList.contains('open')) {
-      self.classList.remove('open');
-      modalMetadata.classList.remove('open');
-    } else {
-      self.classList.add('open');
-      modalMetadata.classList.add('open');
-      if (downloadButton.classList.contains('open')) {
-        downloadButton.classList.remove('open');
-      }
-      modalMetadata.querySelector('.metadata-container')?.remove();
-      modalMetadata.querySelector('.rendition-container')?.remove();
-      modalMetadata.querySelector('.modal-metadata-heading').textContent = 'Details';
+    await handleClickButton(block, this, 'Details', async () => {
       const metadataElem = await getMetadataElement(assetJSON);
       modalMetadata.appendChild(metadataElem);
-    }
+    });
   });
 
   async function generateRendtionDownloadHTML(modalMetadata) {
@@ -311,20 +334,28 @@ export default function decorate(block) {
   }
 
   block.querySelector('#asset-details-page-download').addEventListener('click', async function () {
-    const infoButton = block.querySelector('#asset-details-page-metadata');
     const modalMetadata = block.querySelector('.modal-metadata');
-    if (this.classList.contains('open')) {
-      this.classList.remove('open');
-      modalMetadata.classList.remove('open');
-    } else {
-      this.classList.add('open');
-      modalMetadata.classList.add('open');
-      if (infoButton.classList.contains('open')) {
-        infoButton.classList.remove('open');
-      }
+    await handleClickButton(block, this, 'Download', async () => {
       // generate rendition download HTML
       generateRendtionDownloadHTML(modalMetadata);
-    }
+    });
+  });
+
+  block.querySelector('#asset-details-page-share').addEventListener('click', async function () {
+    const modalMetadata = block.querySelector('.modal-metadata');
+    await handleClickButton(block, this, 'Share', async () => {
+      const shareDetailsContainer = document.createElement('div');
+      shareDetailsContainer.classList.add('adp-share-modal-details-container');
+      const shareModalBodyRight = document.querySelector('.adp-share-modal-block .share-link-body-right').cloneNode(true);
+      shareDetailsContainer.appendChild(shareModalBodyRight);
+      await modalMetadata.appendChild(shareDetailsContainer);
+      await populateShareModalInfo(
+        shareDetailsContainer,
+        decodeURIComponent(assetId),
+        assetName,
+        getMetadataValue('title', assetJSON) || assetName
+      );
+    });
   });
 
   block.querySelector('#asset-details-previous').addEventListener('click', () => {

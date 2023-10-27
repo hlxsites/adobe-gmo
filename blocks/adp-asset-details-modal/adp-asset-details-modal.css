@@ -96,6 +96,7 @@
 }
 
 .adp-asset-details-modal.block .modal-right-panel #asset-details-page-metadata.open,
+.adp-asset-details-modal.block .modal-right-panel #asset-details-page-share.open,
 .adp-asset-details-modal.block .modal-right-panel #asset-details-page-download.open {
   background-color: var(--button-active-color);
 }
@@ -300,4 +301,33 @@
   border-top: 2px solid white;
   border-bottom: 0;
   transform: unset;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container {
+  width: 100%;
+  height: calc(100% - 90px);
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right {
+  padding: 27px 22px 22px 21px;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-option.custom-calendar {
+  height: 65px;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .actions-container .action-copy-share-link {
+  width: 259px;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container {
+  overflow-y: auto;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container .date-input-container {
+  margin-left: 0;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container .date-input-container label {
+  padding-top: 0;
 }

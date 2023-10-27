@@ -57,6 +57,7 @@ async function createShareLink(shareLinkElement, assetId, assetName, title, acce
     }
     throw new Error(`${resp.status}: ${resp.statusText}`);
   }).then(async (json) => {
+    // console.log('Share link created', json);
     shareLinkCopied = generateLinkShareUrl(json?.id);
     await navigator.clipboard.writeText(shareLinkCopied);
   }).catch((ex) => {
@@ -70,19 +71,19 @@ function closeDialog(dialog) {
   dialog.close();
 }
 
-function populateExpiryDate(dialog) {
+function populateExpiryDate(parentElement) {
   // Reset copy share link button
   shareLinkCopied = '';
-  const copyShareButton = dialog.querySelector('.action-copy-share-link');
+  const copyShareButton = parentElement.querySelector('.action-copy-share-link');
   copyShareButton.textContent = COPY_SHARE_LINK_TEXT;
 
-  const checkedValue = dialog.querySelector('input[name=share-link-expiry-group]:checked').value;
-  const actualExpiryDate = dialog.querySelector('.share-link-actual-expiration-date-title .expiration-date-time');
-  const expiryCalendar = dialog.querySelector('#share-link-expiry-date-calendar');
+  const checkedValue = parentElement.querySelector('input[name=share-link-expiry-group]:checked').value;
+  const actualExpiryDate = parentElement.querySelector('.share-link-actual-expiration-date-title .expiration-date-time');
+  const expiryCalendar = parentElement.querySelector('#share-link-expiry-date-calendar');
   shareLinkExpiryDate = new Date();
   if (checkedValue === 'custom') {
     expiryCalendar.style.visibility = '';
-    const expiryDateInput = dialog.querySelector('.share-link-expiry-calendar.flatpickr-input');
+    const expiryDateInput = parentElement.querySelector('.share-link-expiry-calendar.flatpickr-input');
     shareLinkExpiryDate = new Date(expiryDateInput.value);
   } else {
     expiryCalendar.style.visibility = 'hidden';
@@ -101,10 +102,10 @@ function formatDate(date) {
 }
 
 export async function openModal(assetId, assetName, title, format) {
-  const dialog = document.querySelector('.adp-share-modal.block dialog');
+  const parentElement = document.querySelector('.adp-share-modal.block dialog');
 
   // Populate the asset image
-  const assetImg = dialog.querySelector('.asset-image img');
+  const assetImg = parentElement.querySelector('.asset-image img');
   assetImg.dataset.fileformat = format;
   assetImg.style.visibility = 'hidden';
   getOptimizedPreviewUrl(assetId, assetName, 350).then((url) => {
@@ -114,16 +115,23 @@ export async function openModal(assetId, assetName, title, format) {
   assetImg.alt = title;
 
   // Populate the asset name
-  const assetImgName = dialog.querySelector('.asset-name');
+  const assetImgName = parentElement.querySelector('.asset-name');
   assetImgName.textContent = title;
 
+  await populateShareModalInfo(parentElement, assetId, assetName, title);
+
+  parentElement.showModal();
+  document.querySelector('.adp-share-modal.block .action-close').blur();
+}
+
+export async function populateShareModalInfo(parentElement, assetId, assetName, title) {
   // Create expiry date calendar dialog
   const calendarDialog = document.createElement('dialog');
   calendarDialog.id = 'share-link-expiry-date-calendar-dialog';
   document.body.appendChild(calendarDialog);
 
   // Populate expiry date calendar
-  const expiryCalendar = dialog.querySelector('#share-link-expiry-date-calendar');
+  const expiryCalendar = parentElement.querySelector('#share-link-expiry-date-calendar');
   const newExpiryCalendar = expiryCalendar.cloneNode(false);
   expiryCalendar.parentElement.replaceChild(newExpiryCalendar, expiryCalendar);
   createDateInput(
@@ -138,26 +146,26 @@ export async function openModal(assetId, assetName, title, format) {
   await decorateIcons(newExpiryCalendar);
 
   // Check the 30 days radio button as default
-  dialog.querySelector('#share-link-expiry-30days').checked = true;
+  parentElement.querySelector('#share-link-expiry-30days').checked = true;
 
   // Handle change for expiry date calendar
-  const expiryDateInput = dialog.querySelector('.share-link-expiry-calendar.flatpickr-input');
+  const expiryDateInput = parentElement.querySelector('.share-link-expiry-calendar.flatpickr-input');
   expiryDateInput.addEventListener('change', () => {
-    populateExpiryDate(dialog);
+    populateExpiryDate(parentElement);
   });
 
   // Handle click for copy share link button
-  const actionsContainer = dialog.querySelector('.actions-container');
-  const newActionsContainer = dialog.querySelector('.actions-container');
+  const actionsContainer = parentElement.querySelector('.actions-container');
+  const newActionsContainer = parentElement.querySelector('.actions-container');
   newActionsContainer.innerHTML = `
     <button class='action action-copy-share-link' aria-label='${COPY_SHARE_LINK_TEXT}'>${COPY_SHARE_LINK_TEXT}</button>
   `;
   actionsContainer.parentElement.replaceChild(newActionsContainer, actionsContainer);
-  const copyShareButton = dialog.querySelector('.action-copy-share-link');
+  const copyShareButton = parentElement.querySelector('.action-copy-share-link');
   copyShareButton.addEventListener('click', async (e) => {
     e.preventDefault();
     if (!shareLinkCopied) {
-      const requireLoginCheckbox = dialog.querySelector('#require-login-checkbox');
+      const requireLoginCheckbox = parentElement.querySelector('#require-login-checkbox');
       const access = requireLoginCheckbox.checked ? SHARE_LINK_ACCESS.RESTRICTED : SHARE_LINK_ACCESS.PUBLIC;
       await createShareLink(copyShareButton, assetId, assetName, title, access, shareLinkExpiryDate);
       copyShareButton.textContent = 'Link copied';
@@ -166,9 +174,16 @@ export async function openModal(assetId, assetName, title, format) {
     }
   });
 
-  dialog.showModal();
-  document.querySelector('.adp-share-modal.block .action-close').blur();
-  populateExpiryDate(dialog);
+  // Handle click for share link expiry radio buttons
+  const shareLinkExpiryRadioButtons = parentElement.querySelectorAll('input[name=share-link-expiry-group]');
+  shareLinkExpiryRadioButtons.forEach((radioButton) => {
+    radioButton.addEventListener('click', () => {
+      populateExpiryDate(parentElement);
+    });
+  });
+
+  // Initialize the expiry date
+  populateExpiryDate(parentElement);
 }
 
 /**
@@ -199,37 +214,47 @@ export default async function decorate(block) {
       </div>
 
       <div class='dialog-body'>
-        <div class='dialog-body-left'>
+        <div class='share-link-body-left'>
           <div class='asset-image'>
             <img/>
           </div>
           <div class='asset-name'></div>
         </div>
-        <div class='dialog-body-right'>
+        <div class='share-link-body-right'>
           <div class='share-link-expiry-container'>
-            <div class='label-title'>Period of expiration<span class='icon icon-asterisk'></span></div>
-            <div>
-              <input type="radio" name="share-link-expiry-group" id="share-link-expiry-24h" value='1' />
-              <label class='share-link-expiry-group' for="share-link-expiry-24h">24 hours</label>
+            <div class='expiry-periods'>
+              <div class='label-title'>Period of expiration<span class='icon icon-asterisk'></span></div>
+              <div class='share-link-expiry-option'>
+                <label>
+                  <input type="radio" name="share-link-expiry-group" id="share-link-expiry-24h" value='1'>
+                  <span class='share-link-expiry-group'>24 hours</span>
+                </label>
+              </div>
+              <div class='share-link-expiry-option'>
+                <label>
+                  <input type="radio" name="share-link-expiry-group" id="share-link-expiry-1week" value='7' />
+                  <span class='share-link-expiry-group'>1 week</span>
+                </label>
+              </div>
+              <div class='share-link-expiry-option'>
+                <label>
+                  <input type="radio" name="share-link-expiry-group" id="share-link-expiry-30days" value='30'/>
+                  <span class='share-link-expiry-group'>30 days</span>
+                </label>
+              </div>
+              <div class='share-link-expiry-option custom-calendar'>
+                <label>
+                  <input type="radio" name="share-link-expiry-group" id="share-link-expiry-custom" value='custom' />
+                  <span class='share-link-expiry-group'>Custom</span>
+                </label>
+                <span id='share-link-expiry-date-calendar'></span>
+              </div>
             </div>
-            <div>
-              <input type="radio" name="share-link-expiry-group" id="share-link-expiry-1week" value='7' />
-              <label class='share-link-expiry-group' for="share-link-expiry-1week">1 week</label>
+            <div class='share-link-actual-expiration-date-title'>The link expires on <span class='expiration-date-time'></span></div>
+            <div class='share-login-checkbox'>
+              <input type='checkbox' id='require-login-checkbox' checked/>
+              <label for='require-login-checkbox'>Requires log-in to access</label>
             </div>
-            <div>
-              <input type="radio" name="share-link-expiry-group" id="share-link-expiry-30days" value='30'/>
-              <label class='share-link-expiry-group' for="share-link-expiry-30days">30 days</label>
-            </div>
-            <div>
-              <input type="radio" name="share-link-expiry-group" id="share-link-expiry-custom" value='custom' />
-              <label class='share-link-expiry-group' for="share-link-expiry-custom">Custom</label>
-              <span id='share-link-expiry-date-calendar'></span>
-            </div>
-          </div>
-          <div class='share-link-actual-expiration-date-title'>The link expires on <span class='expiration-date-time'></span></div>
-          <div class='share-login-checkbox'>
-            <input type='checkbox' id='require-login-checkbox' checked/>
-            <label for='require-login-checkbox'>Requires log-in to access</label>
           </div>
           <div class='actions-container'></div>
         </div>
@@ -256,12 +281,5 @@ export default async function decorate(block) {
       || event.clientY < dialogDimensions.top || event.clientY > dialogDimensions.bottom) {
       closeDialog(dialog);
     }
-  });
-
-  const shareLinkExpiryRadioButtons = dialog.querySelectorAll('input[name=share-link-expiry-group]');
-  shareLinkExpiryRadioButtons.forEach((radioButton) => {
-    radioButton.addEventListener('click', () => {
-      populateExpiryDate(dialog);
-    });
   });
 }
