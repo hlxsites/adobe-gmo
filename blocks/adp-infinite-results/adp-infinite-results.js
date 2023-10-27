@@ -259,11 +259,16 @@ function createCardElement(hit) {
   card.classList.add(`fileType-${fileType}`);
 
   card.innerHTML = `<div class="preview">
-      <a class="thumbnail asset-link" href="">
+      <a class="thumbnail asset-link">
           <img>
           <div class="preview-overlay"><span></span></div>
       </a>
       <div class="filetype-icon-overlay"><span class="icon"></span></div>
+      <label>
+        <div class="checkbox-container">
+            <input type="checkbox" class="checkbox">
+        </div>
+      </label>
   </div>
   <div class="title">
   </div>
@@ -274,7 +279,7 @@ function createCardElement(hit) {
       <a class="actions-share"><span class="icon icon-share"></span>Share</a>
   </div>`;
 
-  card.querySelector('.preview').addEventListener('click', async () => {
+  card.querySelector('.preview .thumbnail').addEventListener('click', async () => {
     await selectAsset(card);
   });
   card.querySelector('.title').addEventListener('click', async () => {
@@ -284,8 +289,31 @@ function createCardElement(hit) {
     await selectAsset(card);
   });
 
-  const detailPageUrl = new URLSearchParams([['assetId', assetId]]);
-  card.querySelector('.asset-link').href = `#${detailPageUrl}`;
+  card.querySelector('input[type="checkbox"]').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const banner = document.querySelector('.adp-header .banner');
+    const selectedCount = banner.querySelector('.selected-count');
+    if (e.target.checked) {
+      card.classList.add('checked');
+    } else {
+      card.classList.remove('checked');
+    }
+    const count = document.querySelectorAll('.asset-card .checkbox-container input[type="checkbox"]:checked').length;
+    const actionsDiv = document.querySelectorAll('.asset-card .actions');
+    if (count === 0) {
+      banner.classList.remove('show');
+      actionsDiv.forEach((div) => {
+        div.classList.remove('hide');
+      });
+    } else {
+      banner.classList.add('show');
+      actionsDiv.forEach((div) => {
+        div.classList.add('hide');
+      });
+    }
+    selectedCount.textContent = count > 1 ? `${count} items selected` : `${count} item selected`;
+  });
+
   card.dataset.assetId = assetId;
   card.dataset.assetName = repoName;
 
@@ -364,6 +392,12 @@ function createCardElement(hit) {
   const shareElement = card.querySelector('.actions-share');
   addShareModalHandler(shareElement, assetId, repoName, title, dcFormat);
 
+  // label checkbox
+  const checkbox = card.querySelector('input[type="checkbox"]');
+  checkbox?.setAttribute('id', assetId);
+  const checkboxLabel = card.querySelector('label');
+  checkboxLabel?.setAttribute('for', assetId);
+
   return card;
 }
 
@@ -435,6 +469,8 @@ export default async function decorate(block) {
       cards.innerHTML = '';
       lastPage = null;
       lastScrollDistance = 0;
+      // remove the banner since all cards have been unselected
+      document.querySelector('.banner')?.classList.remove('show');
     }
 
     // check if new search or new page
@@ -446,6 +482,13 @@ export default async function decorate(block) {
 
       for (const hit of currentPageHits) {
         const card = createCardElement(hit);
+        const count = document.querySelectorAll('.asset-card .checkbox-container input[type="checkbox"]:checked').length;
+        const actions = card.querySelector('.actions');
+        if (count > 0) {
+          actions.classList.add('hide');
+        } else {
+          actions.classList.remove('hide');
+        }
         newCards.push(card);
       }
 

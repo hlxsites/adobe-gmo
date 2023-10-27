@@ -74,6 +74,68 @@ header nav[aria-expanded="true"] .nav-top {
   min-height: 100vh;
 }
 
+header .nav-wrapper .banner {
+  position: fixed;
+  background-color: var(--checkbox-checked-background-color);
+  height: var(--banner-height);
+  width: 100%;
+  top: 65px;
+  justify-content: space-between;
+  display: none;
+}
+
+header .nav-wrapper .banner.show {
+  display: flex;
+}
+
+header .nav-wrapper .banner .banner-left {
+  display: flex;
+  align-items: center;
+  font: var(--bold-font-size-ms);
+  color: var(--banner-text-color);
+  padding-left: 25px;
+}
+
+header .nav-wrapper .banner .banner-right {
+  display: flex;
+  align-items: center;
+  font: var(--bold-font-size-ms);
+  color: var(--banner-text-color);
+  padding-right: 30px;
+  gap: 24px;
+  display: none;
+}
+
+header .nav-wrapper .banner .banner-right .actions {
+  display: flex;
+  align-items: center;
+  justify-self: center;
+}
+
+header .nav-wrapper .banner .banner-right .actions:hover{
+  cursor: pointer;
+}
+
+header .nav-wrapper .banner .banner-right .icon svg {
+  width: 14px;
+  height: 16px;
+  fill: white;
+}
+
+header .nav-wrapper .banner .icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+}
+
+header .nav-wrapper .banner .action-close .icon svg {
+  width: 10px;
+  height: 10px;
+  fill: white;
+}
+
 @media (min-width: 720px) {
   header nav .nav-top {
     display: flex;

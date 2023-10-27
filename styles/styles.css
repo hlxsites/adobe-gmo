@@ -22,8 +22,9 @@
   --highlight-background-color: #ccc;
   --text-color: var(--black-background-color);
   --header-text-color: white;
+  --banner-text-color: white;
   --label-color: #464646;
-  --checkbox-border-color: #222222;
+  --checkbox-border-color: #222;
   --heading-color: #757575;
   --assets-browser-background-color: #f8f8f8;
   --asset-details-image-background-color: #e1e1e1;
@@ -63,6 +64,7 @@
   --metadata-font: normal normal normal 14px/17px var(--body-font-family);
   --metadata-label-font: var(--metadata-font);
   --bold-font-size-s: normal normal bold 14px/17px var(--body-font-family);
+  --bold-font-size-ms: normal normal bold 14px/18px var(--body-font-family);
   --bold-font-size-base: normal normal bold 16px/20px var(--body-font-family);
   --bold-font-size-m: normal normal bold 18px/22px var(--body-font-family);
   --bold-font-size-l: normal normal bold 22px/27px var(--body-font-family);
@@ -84,6 +86,7 @@
 
   /* nav height */
   --nav-height: 123px;
+  --banner-height: 58px;
 
   /* body panel sizes */
   --body-current-refinements-block-height: 34px;
@@ -369,7 +372,8 @@ body {
 .file-size,
 .user-email,
 .aa-ItemContentTitle,
-.quick-links {
+.quick-links,
+.selected-count {
   text-transform: initial;
 }
 

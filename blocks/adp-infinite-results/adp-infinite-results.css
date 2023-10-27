@@ -119,6 +119,47 @@
     overflow: hidden;
 }
 
+.asset-card .preview .checkbox-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    border: 1px solid white;
+    width: 40px;
+    height: 40px;
+    background-color: #f5f5f5;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px #00000026;
+    opacity: 0.85;
+    display: none;
+}
+
+.asset-card:hover .preview .checkbox-container {
+    display:flex;
+}
+
+.asset-card .preview .checkbox-container input[type="checkbox"] {
+    appearance: none;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: white;
+    border-radius: 4px;
+    border: 2px solid var(--border-color);
+    margin: 0;
+}
+
+.asset-card .preview .checkbox-container input[type="checkbox"]:checked {
+    background: url("/icons/checkmark.svg") 0% 0% no-repeat padding-box border-box var(--checkbox-checked-background-color);
+    border: 2px solid var(--checkbox-checked-background-color);
+}
+
+.asset-card .preview .checkbox-container:has(input[type="checkbox"]:checked){
+    display: flex;
+}
+
 .asset-card> :not(.preview) {
     margin: 0 10px;
 }
@@ -178,9 +219,14 @@
     margin-right: auto;
 }
 
-.asset-card.selected {
+.asset-card.selected,
+.asset-card.checked {
     border: 2px solid var(--assets-browser-selected-border-color);
     padding: 4px 4px 10px;
+}
+
+.asset-card.checked {
+    background-color: rgba(82 88 228 / 10%);
 }
 
 .asset-card .title {
@@ -247,6 +293,10 @@
     display: flex;
     border-top: 1px solid #e6e6e6;
     padding-top: 6px;
+}
+
+.asset-card .actions.hide {
+    display: none;
 }
 
 .asset-card .actions :is(button, a) {

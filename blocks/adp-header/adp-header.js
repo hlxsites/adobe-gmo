@@ -132,6 +132,18 @@ export default async function decorate(block) {
     <div class="quick-links">
     </div>
   </div>
+  <div class="banner">
+    <div class="banner-left">
+      <button id="banner-close" class="action action-close" aria-label="Close">
+        <span class="icon icon-close"></span>
+      </button>
+      <div class="selected-count">1 item selected</div>
+    </div>
+    <div class="banner-right">
+      <div class="actions actions-share"><span class="icon icon-share"></span>Share</div>
+      <div class="actions actions-download"><span class="icon icon-download"></span>Download</div>
+    </div>
+  </div>
   `;
 
   const navSections = nav.querySelector('.nav-sections');
@@ -275,5 +287,22 @@ function initQuickLinks() {
     if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');
     }
+  });
+
+  const closeBanner = nav.querySelector('.banner .action-close');
+  closeBanner.addEventListener('click', () => {
+    const selectedAssets = document.querySelectorAll('.asset-card .checkbox-container input[type="checkbox"]:checked');
+    selectedAssets.forEach((asset) => {
+      asset.checked = false;
+      const assetCard = asset.closest('.asset-card');
+      if (assetCard) {
+        assetCard.classList.remove('checked');
+      }
+    });
+    const actionsDiv = document.querySelectorAll('.asset-card .actions');
+    actionsDiv.forEach((action) => {
+      action.classList.remove('hide');
+    });
+    nav.querySelector('.banner')?.classList.remove('show');
   });
 }
