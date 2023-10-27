@@ -6,6 +6,8 @@ import { getUserProfile } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 
+const quickLinksConfig = await getQuickLinkConfig();
+
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
@@ -128,12 +130,6 @@ export default async function decorate(block) {
   </div>
   <div class="nav-bottom">
     <div class="quick-links">
-      <div class="item all-assets">
-        <a href="/">All assets</a>
-      </div>
-      <div class="item collections">
-        <a href="/collections/">Collections</a>
-      </div>
     </div>
   </div>
   `;
@@ -218,16 +214,44 @@ export default async function decorate(block) {
     nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
     document.title = brandingConfig.brandText;
   }
+  initQuickLinks();
+}
 
-  // decorate quick links
-  const quickLinksConfig = await getQuickLinkConfig();
-  const quickLinks = nav.querySelector('.quick-links');
+function isURLDraftsPath() {
+  return window.location.pathname.startsWith('/drafts/');
+}
+
+function createBaseDraftsPath() {
+  if (isURLDraftsPath()) {
+    const contentBranch = window.location.pathname.split('/')[2];
+    return `/drafts/${contentBranch}`;
+  }
+
+  return window.hlx.codeBasePath;
+}
+
+function initQuickLinks() {
+  if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
+    return;
+  }
+
+  const allAssetsDiv = document.createElement('div');
+  allAssetsDiv.classList.add('item', 'all-assets');
+  const allAssetsLink = document.createElement('a');
+  allAssetsLink.href = '/';
+  allAssetsLink.textContent = 'All assets';
+  allAssetsDiv.appendChild(allAssetsLink);
+
+  const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
+  quickLinks.append(allAssetsDiv);
+
   // append drafts path if needed
   quickLinks.querySelectorAll('.item').forEach((item) => {
     if (isURLDraftsPath()) {
       item.querySelector('a').href = createBaseDraftsPath() + item.querySelector('a').getAttribute('href');
     }
   });
+  // decorate quick links
   quickLinksConfig.forEach((item) => {
     const itemEl = document.createElement('div');
     itemEl.className = 'item';
@@ -252,17 +276,4 @@ export default async function decorate(block) {
       item.setAttribute('aria-selected', 'true');
     }
   });
-}
-
-export function isURLDraftsPath() {
-  return window.location.pathname.startsWith('/drafts/');
-}
-
-export function createBaseDraftsPath() {
-  if (isURLDraftsPath()) {
-    const contentBranch = window.location.pathname.split('/')[2];
-    return `/drafts/${contentBranch}`;
-  }
-
-  return window.hlx.codeBasePath;
 }

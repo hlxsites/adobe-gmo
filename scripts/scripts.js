@@ -22,6 +22,8 @@ import {
 } from './polaris.js';
 import dependencies from "./dependencies.json" assert { type: "json" };
 
+const NO_ACCESS_PATH = '/no-access';
+
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
 /**
@@ -158,10 +160,10 @@ async function initSearch() {
 async function loadEager(doc) {
   loadDependencies();
   await getBearerToken();
-  if (!window.location.pathname.includes('/no-access')) {
+  if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
     const hasAccess = await checkUserAccess();
     if (!hasAccess) {
-      window.location.href = '/no-access';
+      window.location.href = NO_ACCESS_PATH;
       return;
     }
     // This is a dev only service worker that caches the algolia JS SDK
