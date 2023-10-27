@@ -50,6 +50,15 @@ export const EventNames = {
    * This event does not provide additional event details.
    */
   INFINITE_SCROLL: 'infinite-scroll',
+
+  /**
+   * Sent whenever a logged in users starts a new session.
+   *
+   * The event's detail will contain the following properties:
+   * * email: Email address of the user.
+   * * displayName: The user's full name.
+   */
+  SESSION_STARTED: 'session-started',
 };
 
 /**

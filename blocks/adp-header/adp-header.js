@@ -4,9 +4,12 @@ import {
 import { getBrandingConfig, getQuickLinkConfig } from '../../scripts/site-config.js';
 import { getUserProfile } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
+import { EventNames, emitEvent } from '../../scripts/events.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
+
+const SESSION_STARTED_KEY = 'assets-distribution-portal-session-started';
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -176,6 +179,14 @@ export default async function decorate(block) {
   loadBlock(searchField);
 
   const userProfile = await getUserProfile();
+
+  if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
+    window.sessionStorage.setItem(SESSION_STARTED_KEY, "true");
+    emitEvent(document.documentElement, EventNames.SESSION_STARTED, {
+      email: userProfile.email,
+      displayName: userProfile.displayName,
+    });
+  }
 
   // decorate user switcher
   const userSwitcher = nav.querySelector('.user-switcher');

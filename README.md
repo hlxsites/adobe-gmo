@@ -153,3 +153,18 @@ The following are valid event names, along with the `detail` data for each:
 ```
 
 * `infinite-scroll`: Additional data has been loaded into the infinite results block. This event does not provide custom details.
+* `session-started`: A user has started a new session. "Session" is defined as the browser's session, which is active for as long as a given browser window is
+  open. Opening a new browser window or browser tab will trigger a new session.
+  * `email`: Email address of the user starting the session.
+  * `displayName`: Full display name of the user starting the session.
+
+```
+{
+  ...
+  detail: {
+    email: 'noreply@adobe.com',
+    displayName: 'Test User',
+  }
+  ...
+}
+```
