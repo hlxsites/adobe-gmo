@@ -20,12 +20,17 @@ header nav .nav-top{
   width: 100%;
 }
 
+header nav a.user-switcher {
+  background-size: cover;
+  width: 30px;
+  height: 30px;
+}
 
 header nav dialog.user-profile {
   margin-top: 50px;
   margin-right: 24px;
   width: 200px;
-  height: 105px;;
+  height: 105px;
   border: 1px solid #d5d5d5;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
   padding: 0;

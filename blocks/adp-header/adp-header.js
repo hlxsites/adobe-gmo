@@ -2,7 +2,7 @@ import {
   decorateIcons, buildBlock, decorateBlock, loadBlock,
 } from '../../scripts/lib-franklin.js';
 import { getBrandingConfig, getQuickLinkConfig } from '../../scripts/site-config.js';
-import { getUserProfile } from '../../scripts/security.js';
+import { getUserProfile, getAvatarUrl } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 
@@ -116,9 +116,7 @@ export default async function decorate(block) {
       <!--  </ul>-->
     </div>
     <div class="nav-tools">
-      <a class="user-switcher" href="" aria-label="show profile options">
-        <span class="icon icon-user"></span>
-      </a>
+      <a class="user-switcher" href="" aria-label="show profile options"></a>
     </div>
     <dialog class="user-profile">
       <div class="user-container">
@@ -187,6 +185,7 @@ export default async function decorate(block) {
   loadBlock(searchField);
 
   const userProfile = await getUserProfile();
+  const avatarUrl = await getAvatarUrl();
 
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
     window.sessionStorage.setItem(SESSION_STARTED_KEY, 'true');
@@ -198,6 +197,11 @@ export default async function decorate(block) {
 
   // decorate user switcher
   const userSwitcher = nav.querySelector('.user-switcher');
+
+  if(avatarUrl){
+    userSwitcher.style = `background-image: url(${avatarUrl});`;
+  }
+
   const dialog = nav.querySelector('.user-profile');
   userSwitcher.addEventListener('click', async (clickEvent) => {
     clickEvent.preventDefault();
