@@ -4,7 +4,7 @@ import {
 import { getBrandingConfig, getQuickLinkConfig } from '../../scripts/site-config.js';
 import { getUserProfile } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
-import { EventNames, emitEvent } from '../../scripts/events.js';
+import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -189,7 +189,7 @@ export default async function decorate(block) {
   const userProfile = await getUserProfile();
 
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
-    window.sessionStorage.setItem(SESSION_STARTED_KEY, "true");
+    window.sessionStorage.setItem(SESSION_STARTED_KEY, 'true');
     emitEvent(document.documentElement, EventNames.SESSION_STARTED, {
       email: userProfile.email,
       displayName: userProfile.displayName,
@@ -230,18 +230,25 @@ export default async function decorate(block) {
 
   const closeBanner = nav.querySelector('.banner .action-close');
   closeBanner.addEventListener('click', () => {
-    const selectedAssets = document.querySelectorAll('.asset-card .checkbox-container input[type="checkbox"]:checked');
-    selectedAssets.forEach((asset) => {
-      asset.checked = false;
-      const assetCard = asset.closest('.asset-card');
-      if (assetCard) {
-        assetCard.classList.remove('checked');
-      }
-    });
-    const actionsDiv = document.querySelectorAll('.asset-card .actions');
-    actionsDiv.forEach((action) => {
-      action.classList.remove('hide');
-    });
+    nav.querySelector('.banner')?.classList.remove('show');
+    emitEvent(document, EventNames.CLOSE_BANNER);
+  });
+  const handleAddRemoveItemSelection = (e) => {
+    const banner = document.querySelector('.adp-header .banner');
+    const selectedCount = banner.querySelector('.selected-count');
+    const count = e.detail.selections.length;
+    if (count === 0) {
+      banner.classList.remove('show');
+    } else {
+      banner.classList.add('show');
+    }
+    selectedCount.textContent = count > 1 ? `${count} items selected` : `${count} item selected`;
+  };
+  addEventListener(EventNames.ADD_ITEM_MULTISELECT, async (e) => handleAddRemoveItemSelection(e));
+  addEventListener(EventNames.REMOVE_ITEM_MULTISELECT, async (e) => handleAddRemoveItemSelection(e));
+
+  /** Hide if search changed */
+  addEventListener(EventNames.SEARCH_RESULTS_CHANGED, () => {
     nav.querySelector('.banner')?.classList.remove('show');
   });
 }

@@ -33,7 +33,7 @@ function addFacetListRefinement(refinement, refinementContainer) {
   // Should be hidden when there are no refinements or results from searched facets;
   // visible otherwise
   const observer = new MutationObserver(() => {
-    const refinementDiv = refinementContainer.closest('.adp-refinement');
+    const refinementDiv = refinementContainer.closest('.refinement');
     const noRefinementsEl = refinementDiv.querySelector('.ais-RefinementList--noRefinement');
     if (noRefinementsEl) {
       if (noRefinementsEl.querySelector('.ais-RefinementList-searchBox')

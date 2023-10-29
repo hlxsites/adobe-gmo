@@ -195,22 +195,22 @@
   border: none;
 }
 
-.adp-share-modal.block #share-link-expiry-date-calendar-dialog {
+#share-link-expiry-date-calendar-dialog {
   width: 100%;
   height: 100%;
   background: transparent;
 }
 
-.adp-share-modal.block #share-link-expiry-date-calendar-dialog::backdrop {
+#share-link-expiry-date-calendar-dialog::backdrop {
   background: transparent;
 }
 
-.adp-share-modal.block #share-link-expiry-date-calendar {
+#share-link-expiry-date-calendar {
   display: inline-block;
   width: 230px;
 }
 
-.adp-share-modal.block #share-link-expiry-date-calendar input[type="text"] {
+#share-link-expiry-date-calendar input[type="text"] {
   font: var(--metadata-font);
 
 }

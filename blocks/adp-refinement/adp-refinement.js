@@ -20,7 +20,7 @@ function addFilterButton(block) {
     if (span.textContent === TEXT_HIDE_FILTERS) {
       span.textContent = TEXT_SHOW_FILTERS;
       document.querySelector('.adp-refinement-wrapper').classList.remove('open');
-      document.querySelector('.section.adp-infinite-results-container').classList.add('left-closed');
+      document.querySelector('.section.adp-refinement-container').classList.add('closed');
       toggleFilterPanelButton.querySelector('#filter-button > span.icon.icon-filter-closed').classList.remove('hidden');
       toggleFilterPanelButton.querySelector('#filter-button > span.icon.icon-filter-open').classList.add('hidden');
       toggleFilterPanelButton.querySelector('.filter-divider').classList.remove('hidden');
@@ -28,7 +28,7 @@ function addFilterButton(block) {
     } else {
       span.textContent = TEXT_HIDE_FILTERS;
       document.querySelector('.adp-refinement-wrapper').classList.add('open');
-      document.querySelector('.section.adp-infinite-results-container').classList.remove('left-closed');
+      document.querySelector('.section.adp-refinement-container').classList.remove('closed');
       toggleFilterPanelButton.querySelector('#filter-button > span.icon.icon-filter-open').classList.remove('hidden');
       toggleFilterPanelButton.querySelector('#filter-button > span.icon.icon-filter-closed').classList.add('hidden');
       toggleFilterPanelButton.querySelector('.filter-divider').classList.add('hidden');

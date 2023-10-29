@@ -1,63 +1,67 @@
 import {
   decorateIcons,
 } from '../../scripts/lib-franklin.js';
-import { addDownloadModalHandler } from '../adp-download-modal/adp-download-modal.js';
+import { openDownloadModal } from '../adp-download-modal/adp-download-modal.js';
+// eslint-disable-next-line import/no-cycle
+import { openAssetDetailsModal } from '../adp-asset-details-modal/adp-asset-details-modal.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import {
-  formatAssetMetadata, getMetadataValue,
+  getAssetMimeType, getAssetTitle, getAssetName,
 } from '../../scripts/metadata.js';
 import {
   getAssetMetadata,
 } from '../../scripts/polaris.js';
-// eslint-disable-next-line import/no-cycle
-import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../adp-infinite-results/adp-infinite-results.js';
-// eslint-disable-next-line import/no-cycle
-import { openModal } from '../adp-asset-details-modal/adp-asset-details-modal.js';
 import { getQuickViewConfig, getQuickViewSettings } from '../../scripts/site-config.js';
-import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
+import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
+import { EventNames, emitEvent } from '../../scripts/events.js';
+// eslint-disable-next-line import/no-cycle
+import {
+  hasNextAsset, hasPreviousAsset, getNextAssetCard, getPreviousAssetCard,
+} from '../adp-infinite-results-instantsearch/adp-infinite-results-instantsearch.js';
 import { addShareModalHandler } from '../adp-share-modal/adp-share-modal.js';
 
 /**
- * Close the asset details panel and deselect the asset card
+ * Close the asset details panel and deselect the item element
  */
-export function closeAssetDetails() {
-  document.querySelector('.adp-asset-details-panel').classList.remove('open');
-
-  deselectAssetCard();
+export function closeAssetDetailsPanel() {
+  const panel = document.querySelector('.adp-asset-details-panel');
+  panel.classList.remove('open');
+  emitEvent(panel, EventNames.ASSET_QUICK_PREVIEW_CLOSE, { assetId: panel.dataset.id });
 }
 
-export function disableButtons(block) {
-  const selectedAsset = document.querySelector('#assets .asset-card.selected');
-  if (!selectedAsset) return;
+/**
+ * Disable nav buttons (if necessary). Disables previous or next buttons if there are no more assets to show.
+ * @param {HTMLElement} block - the asset details panel block or the asset details modal block
+ */
+export function disableActionButtons(block) {
   // reset the buttons first
   const preButton = block.querySelector('.action-previous-asset');
   const nextButton = block.querySelector('.action-next-asset');
   preButton.classList.remove('disabled');
   nextButton.classList.remove('disabled');
-  const previousAssetCard = selectedAsset.previousElementSibling;
-  const nextAssetCard = selectedAsset.nextElementSibling;
-  if (!previousAssetCard || !previousAssetCard.getAttribute('data-asset-id')) {
+  if (!hasPreviousAsset()) {
     preButton.classList.add('disabled');
   }
-  if (!nextAssetCard || !nextAssetCard.getAttribute('data-asset-id')) {
+  if (!hasNextAsset()) {
     nextButton.classList.add('disabled');
   }
 }
 
-export async function openAssetDetails(assetId) {
+export async function openAssetDetailsPanel(assetId) {
   if (!assetId) return;
 
   const assetJSON = await getAssetMetadata(assetId);
   if (!assetJSON) return;
 
-  const fileName = getMetadataValue('repo:name', assetJSON);
-  const title = formatAssetMetadata(getMetadataValue('dc:title', assetJSON));
-  const fileFormat = getMetadataValue('dc:format', assetJSON);
+  const fileName = getAssetName(assetJSON);
+  const title = getAssetTitle(assetJSON);
+  const fileFormat = getAssetMimeType(assetJSON);
   const assetDetailsPanel = document.querySelector('.adp-asset-details-panel');
   const metadataContainer = assetDetailsPanel.querySelector('#asset-details-metadata-container');
   metadataContainer.innerHTML = '';
   const metadataViewConfig = await getQuickViewConfig();
   const quickViewSettings = await getQuickViewSettings();
+  assetDetailsPanel.setAttribute('data-asset-id', assetId);
   const metadataFieldsElem = await fetchMetadataAndCreateHTML(
     metadataViewConfig,
     assetJSON,
@@ -68,18 +72,13 @@ export async function openAssetDetails(assetId) {
   const imgPanel = document.querySelector('#asset-details-image-panel');
   await addAssetToContainer(assetId, fileName, title, fileFormat, imgPanel);
 
-  disableButtons(assetDetailsPanel);
-  // clone the download element to remove previous event listener before adding a new one
-  const actionsDownloadA = assetDetailsPanel.querySelector('.action-download-asset');
-  const clone = actionsDownloadA.cloneNode(true);
-  actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
-  addDownloadModalHandler(clone, assetId, fileName, fileFormat);
+  disableActionButtons(assetDetailsPanel);
 
   // add share modal handler to share button
   const shareElement = assetDetailsPanel.querySelector('.action-share-asset');
   const newShareElement = shareElement.cloneNode(true);
   shareElement.parentElement.replaceChild(newShareElement, shareElement);
-  addShareModalHandler(newShareElement, assetId, fileName, getMetadataValue('dc:title', assetJSON) || fileName, fileFormat);
+  addShareModalHandler(newShareElement, assetId, fileName, getAssetTitle(assetJSON), fileFormat);
 
   // show the asset details panel
   assetDetailsPanel.classList.add('open');
@@ -88,6 +87,10 @@ export async function openAssetDetails(assetId) {
   if (assetDetailsPanel.parentElement.scrollTop > 0) {
     assetDetailsPanel.parentElement.scrollTop = 0;
   }
+  emitEvent(document.documentElement, EventNames.ASSET_QUICK_PREVIEW, {
+    assetId: assetId,
+    assetName: fileName,
+  });
 }
 
 export default async function decorate(block) {
@@ -124,17 +127,37 @@ export default async function decorate(block) {
       </div>
       `;
   decorateIcons(block);
+
+  // clone the download element to remove previous event listener before adding a new one
+  const actionsDownloadA = block.querySelector('.action-download-asset');
+  actionsDownloadA.addEventListener('click', () => {
+    const { assetId } = block.dataset;
+    openDownloadModal(assetId);
+  });
+
+  // add event listeners
   block.querySelector('#asset-details-close').addEventListener('click', () => {
-    closeAssetDetails();
+    closeAssetDetailsPanel();
   });
-  block.querySelector('#asset-details-previous').addEventListener('click', () => {
-    selectPreviousAsset();
+  block.querySelector('#asset-details-previous').addEventListener('click', async (e) => {
+    const { assetId } = block.dataset;
+    emitEvent(e.target, EventNames.PREVIOUS_ASSET, { assetId });
+    const prevId = await getPreviousAssetCard(assetId);
+    if (prevId) {
+      openAssetDetailsPanel(prevId);
+    }
   });
-  block.querySelector('#asset-details-next').addEventListener('click', () => {
-    selectNextAsset();
+  block.querySelector('#asset-details-next').addEventListener('click', async (e) => {
+    const { assetId } = block.dataset;
+    emitEvent(e.target, EventNames.NEXT_ASSET, { assetId });
+    const nextId = await getNextAssetCard(assetId);
+    if (nextId) {
+      openAssetDetailsPanel(nextId);
+    }
   });
-  block.querySelector('#asset-details-fullscreen').addEventListener('click', async () => {
+  block.querySelector('#asset-details-fullscreen').addEventListener('click', () => {
     block.querySelector('iframe')?.remove();
-    await openModal();
+    const { assetId } = block.dataset;
+    openAssetDetailsModal(assetId);
   });
 }

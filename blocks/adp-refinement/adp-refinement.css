@@ -81,7 +81,7 @@
   font-weight: bold;
 }
 
-.refinement .hidden {
+.refinement.hidden {
   display: none;
 }
 

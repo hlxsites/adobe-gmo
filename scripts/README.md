@@ -65,4 +65,3 @@ const requestBody = {
 };
 await createLink(requestBody);
 await listLinks();
-```

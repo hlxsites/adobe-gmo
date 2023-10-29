@@ -1,10 +1,12 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { createTag, closeDialogEvent } from '../../scripts/scripts.js';
-import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
+import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { emitEvent, EventNames } from '../../scripts/events.js';
 import { getBearerToken } from '../../scripts/security.js';
 import { isPDF } from '../../scripts/filetypes.js';
+import { getAssetMetadata } from '../../scripts/polaris.js';
+import { getAssetName, getAssetMimeType } from '../../scripts/metadata.js';
 
 export default function decorate(block) {
   block.innerHTML = `<dialog>
@@ -253,7 +255,12 @@ async function getRenditions(assetId, repoName, format) {
   return renditions;
 }
 
-export async function openModal(assetId, repoName, format) {
+export async function openDownloadModal(assetId) {
+  const assetJSON = await getAssetMetadata(assetId);
+  if (!assetJSON) return;
+  const repoName = getAssetName(assetJSON);
+  const format = getAssetMimeType(assetJSON);
+
   // add no-scroll to disable scrolling for the main page in the background
   document.body.classList.add('no-scroll');
   const dialog = document.querySelector('.adp-download-modal.block dialog');
@@ -271,11 +278,4 @@ export async function openModal(assetId, repoName, format) {
 function closeDialog(dialog) {
   dialog.close();
   document.body.classList.remove('no-scroll');
-}
-
-export async function addDownloadModalHandler(downloadElement, assetId, repoName, format) {
-  downloadElement.addEventListener('click', (e) => {
-    e.preventDefault();
-    openModal(assetId, repoName, format);
-  });
 }

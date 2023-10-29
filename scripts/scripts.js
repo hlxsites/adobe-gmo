@@ -2,7 +2,6 @@ import {
   sampleRUM,
   buildBlock,
   loadHeader,
-  loadFooter,
   decorateButtons,
   decorateIcons,
   decorateSections,
@@ -20,7 +19,8 @@ import {
   getBackendApiKey,
   getDeliveryEnvironment,
 } from './polaris.js';
-import dependencies from "./dependencies.json" assert { type: "json" };
+// eslint-disable-next-line import/extensions
+import dependencies from './dependencies.json' assert { type: "json" };
 
 const NO_ACCESS_PATH = '/no-access';
 
@@ -158,7 +158,7 @@ async function initSearch() {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  loadDependencies();
+  const dependenciesPromise = loadDependencies();
   await getBearerToken();
   if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
     const hasAccess = await checkUserAccess();
@@ -169,6 +169,8 @@ async function loadEager(doc) {
     // This is a dev only service worker that caches the algolia JS SDK
     // check if we are on localhost
     await initializeServiceWorkers();
+    /* Make sure all dependencies are loaded before initializing search */
+    await dependenciesPromise;
     await initSearch();
   }
   const brandingConfig = await getBrandingConfig();
@@ -230,14 +232,16 @@ async function loadLazy(doc) {
   sampleRUM.observe(main.querySelectorAll('picture > img'));
 }
 
-function loadDependencies() {
+async function loadDependencies() {
+  const promises = [];
   dependencies.forEach((dependency) => {
     if (dependency.type === 'js') {
-      loadScript(dependency.src, dependency.attrs);
+      promises.push(loadScript(dependency.src, dependency.attrs));
     } else if (dependency.type === 'css') {
       loadCSS(dependency.href);
     }
   });
+  await Promise.all(promises);
 }
 
 /**
@@ -322,6 +326,19 @@ export function removeParamFromUrl(url, paramName) {
 
 export function removeParamFromWindowURL(paramName) {
   const newURL = removeParamFromUrl(window.location.href, paramName);
+  window.history.replaceState({}, '', newURL);
+}
+
+function setParamInHashParams(url, paramName, paramValue) {
+  const urlObject = new URL(url);
+  const params = new URLSearchParams(urlObject.hash.replace('#', ''));
+  params.set(paramName, paramValue);
+  urlObject.hash = params.toString();
+  return urlObject.toString();
+}
+
+export function setHashParamInWindowURL(paramName, paramValue) {
+  const newURL = setParamInHashParams(window.location.href, paramName, paramValue);
   window.history.replaceState({}, '', newURL);
 }
 

@@ -1,12 +1,72 @@
 export const EventNames = {
   /**
-   * Sent whenever a user has successfully requested to download an asset.
+   * Sent whenever a user selects an asset in the infinite results panel.
    *
    * The event's detail will contain the following properties:
-   * * assetId: ID of the asset that was downloaded.
-   * * assetName: Name of the asset that was downloaded.
+   * * assetId: ID of the asset that was viewed.
+   * * assetName: Name of the asset that was viewed.
    */
-  DOWNLOAD: 'download',
+  ASSET_SELECTED: 'asset-selected', /* user selected an asset in the infinite results panel */
+
+  /**
+   * Sent whenever a user deselects an asset in the infinite results panel.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was viewed.
+   * * assetName: Name of the asset that was viewed.
+   */
+  ASSET_DESELECTED: 'asset-deselected',
+
+  /**
+   * Sent whenever a user adds an asset to their cart.
+   *
+   * The event's detail will contain the following properties:
+   * * id: ID of the item that was added.
+   * * name: Name of the item that was added.
+   * * type: Type of the item that was added.
+   * * selections: Array of the selected ids.
+   */
+  ADD_ITEM_MULTISELECT: 'add-item-multiselect',
+
+  /**
+   * Sent whenever a user removes an asset from their cart.
+   *
+   * The event's detail will contain the following properties:
+   * * id: ID of the item that was removed.
+   * * name: Name of the item that was removed.
+   * * type: Type of the item that was removed.
+   * * selections: Array of the selected ids.
+   */
+  REMOVE_ITEM_MULTISELECT: 'remove-item-multiselect',
+
+  /**
+   * Sent whenever a user clicks the previous asset button in the asset details quick view.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was viewed.
+   * * assetName: Name of the asset that was viewed.
+   */
+  PREVIOUS_ASSET: 'previous-asset', /* user clicked previous asset in the asset details quick view or modal */
+
+  /**
+   * Sent whenever a user clicks the next asset button in the asset details quick view.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was viewed.
+   * * assetName: Name of the asset that was viewed.
+   */
+  NEXT_ASSET: 'next-asset',
+
+  /**
+   * Sent whenever the search results change.  This can happen when the user performs a search,
+   * changes the refinements (facets / filters).
+   *
+   * The event's detail will contain the following properties:
+   * * query: The current search query.
+   * * facets: The current search facets.
+   * * results: The current search results.
+   */
+  SEARCH_RESULTS_CHANGED: 'search-results-changed',
 
   /**
    * Sent whenever a user performs a text search for assets.
@@ -26,6 +86,15 @@ export const EventNames = {
   FACET: 'facet',
 
   /**
+   * Sent whenever a user has successfully requested to download an asset.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was downloaded.
+   * * assetName: Name of the asset that was downloaded.
+   */
+  DOWNLOAD: 'download',
+
+  /**
    * Sent whenever a user opens an asset's quick preview.
    *
    * The event's detail will contain the following properties:
@@ -33,6 +102,20 @@ export const EventNames = {
    * * assetName: Name of the asset that was viewed.
    */
   ASSET_QUICK_PREVIEW: 'asset-quick-preview',
+
+  /**
+   * Sent whenever a user closes an asset's quick preview.
+   *
+   * The event's detail will contain the following properties:
+   * * assetId: ID of the asset that was viewed.
+   */
+  ASSET_QUICK_PREVIEW_CLOSE: 'asset-quick-preview-close',
+
+  /**
+   * Sent whenever a user closes the top header banner (the one that displays the
+   * number of selected items)
+   */
+  CLOSE_BANNER: 'close-banner',
 
   /**
    * Sent whenever a user opens an asset's extended details modal.
@@ -47,7 +130,8 @@ export const EventNames = {
    * Sent whenever a user scrolls down the infinite-results block enough that it dynamically
    * loads more data into the results.
    *
-   * This event does not provide additional event details.
+   * The event's detail will contain the following properties:
+   * * datasource: The name of the datasource for the infinite results view.
    */
   INFINITE_SCROLL: 'infinite-scroll',
 

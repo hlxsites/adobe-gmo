@@ -1,6 +1,6 @@
 import { getFilterConfig } from '../../scripts/site-config.js';
 import { formatAssetMetadata } from '../../scripts/metadata.js';
-import { closeAssetDetails } from '../adp-asset-details-panel/adp-asset-details-panel.js';
+import { closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 
 const filterConfig = await getFilterConfig();
@@ -19,14 +19,14 @@ function sendFacetEvent(element, current, updated) {
     emitEvent(element, EventNames.FACET, {
       previous: [...current],
       current: [...updated],
-    })
+    });
   }
 }
 
 /**
  * Determines whether two string arrays contain the same values.
  * @param {Array<string>} refinements1 First array to test.
- * @param {Array<string>} refinements2 Array against which first array is tested. 
+ * @param {Array<string>} refinements2 Array against which first array is tested.
  * @returns {boolean} True if the arrays contain the same values, false otherwise.
  */
 function arraysMatch(refinements1, refinements2) {
@@ -114,7 +114,7 @@ export default function decorate(block) {
         `;
         refinementItemEl.querySelector('button').addEventListener('click', () => {
           refine(refinement);
-          closeAssetDetails();
+          closeAssetDetailsPanel();
         });
         refinementsEl.appendChild(refinementItemEl);
       });
