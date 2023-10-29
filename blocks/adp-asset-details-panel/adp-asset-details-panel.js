@@ -19,6 +19,7 @@ import {
   hasNextAsset, hasPreviousAsset, getNextAssetCard, getPreviousAssetCard,
 } from '../adp-infinite-results-instantsearch/adp-infinite-results-instantsearch.js';
 import { addShareModalHandler } from '../adp-share-modal/adp-share-modal.js';
+import { startCCE, addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
 /**
  * Close the asset details panel and deselect the item element
@@ -57,6 +58,18 @@ export async function openAssetDetailsPanel(assetId) {
   const title = getAssetTitle(assetJSON);
   const fileFormat = getAssetMimeType(assetJSON);
   const assetDetailsPanel = document.querySelector('.adp-asset-details-panel');
+
+  // ensure express button only shows for valid asset types
+  const expressBtn = assetDetailsPanel.querySelector(".action-edit-asset");
+  let validCheck = fileValidity(fileFormat);
+  if (ccEverywhere && validCheck.isValid) {
+    expressBtn.classList.remove('hidden');
+  } else {
+    if (!expressBtn.classList.contains('hidden')) {
+      expressBtn.classList.add('hidden');
+    }
+  }
+
   const metadataContainer = assetDetailsPanel.querySelector('#asset-details-metadata-container');
   metadataContainer.innerHTML = '';
   const metadataViewConfig = await getQuickViewConfig();
@@ -73,6 +86,16 @@ export async function openAssetDetailsPanel(assetId) {
   await addAssetToContainer(assetId, fileName, title, fileFormat, imgPanel);
 
   disableActionButtons(assetDetailsPanel);
+
+  // follow above design pattern for express button handler
+  let assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
+  let assetWidth = assetJSON.assetMetadata['tiff:ImageWidth'];
+  if (!(assetHeight)) assetHeight = 1000;
+  if (!(assetWidth)) assetWidth = 1000;
+  const actionsExpress = assetDetailsPanel.querySelector('.action-edit-asset');
+  const exClone = actionsExpress.cloneNode(true);
+  actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
+  addExpressEditorHandler(exClone, assetId, fileName, assetHeight, assetWidth, validCheck.fileType);
 
   // add share modal handler to share button
   const shareElement = assetDetailsPanel.querySelector('.action-share-asset');
@@ -103,6 +126,9 @@ export default async function decorate(block) {
               </button>
               <button id="asset-details-share" class="action action-share-asset" title="Share" aria-label="Share">
                 <span class="icon icon-share"></span>
+              </button>
+              <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
+                <span class="icon icon-cc-express"></span>
               </button>
             </div>
             <div class="top-right">
@@ -160,4 +186,6 @@ export default async function decorate(block) {
     const { assetId } = block.dataset;
     openAssetDetailsModal(assetId);
   });
+  await window.adobeIMS?.refreshToken();
+  await startCCE();
 }

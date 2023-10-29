@@ -331,3 +331,7 @@
 .adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container .date-input-container label {
   padding-top: 0;
 }
+
+button.action-edit-asset.hidden {
+  display: none;
+}

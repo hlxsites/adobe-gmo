@@ -17,6 +17,7 @@ import { addDownloadEventListener } from '../adp-download-modal/adp-download-mod
 import { populateShareModalInfo } from '../adp-share-modal/adp-share-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 import { getNextAssetCard, getPreviousAssetCard } from '../adp-infinite-results-instantsearch/adp-infinite-results-instantsearch.js';
+import { addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
 let scale = 1;
 let assetId;
@@ -25,7 +26,7 @@ let format;
 let assetJSON;
 let originalAssetURL;
 
-function closeModal(block) {
+export function closeModal(block) {
   document.body.classList.remove('no-scroll');
   const modal = block.querySelector('.modal-container');
   modal.querySelector('#asset-details-next')?.classList.remove('hidden');
@@ -92,6 +93,24 @@ function createHeaderPanel(modal) {
   decorateIcons(modal);
   // disable nav buttons if needed
   disableActionButtons(modal);
+
+  // ensure express button only shows for valid asset types
+  const expressBtn = modal.querySelector(".action-edit-asset");
+  let validCheck = fileValidity(format);
+  if (ccEverywhere && validCheck.isValid) {
+    expressBtn.classList.remove('hidden');
+  } else {
+    if (!expressBtn.classList.contains('hidden')) {
+      expressBtn.classList.add('hidden');
+    }
+  }
+
+  const assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
+  const assetWidth = assetJSON.assetMetadata['tiff:ImageWidth'];
+  const actionsExpress = modal.querySelector('.action-edit-asset');
+  const exClone = expressBtn.cloneNode(true);
+  actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
+  addExpressEditorHandler(exClone, assetId, assetName, assetHeight, assetWidth, "image", document);
 }
 
 export async function openAssetDetailsModal(id) {
@@ -232,6 +251,9 @@ export default function decorate(block) {
           </button>
           <button id="asset-details-page-share" class="action action-share-asset" title="Share" aria-label="Share">
             <span class="icon icon-share"></span>
+          </button>
+          <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
+            <span class="icon icon-cc-express"></span>
           </button>
         </div>
       </div>
