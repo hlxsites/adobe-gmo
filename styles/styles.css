@@ -35,12 +35,14 @@
   --tag-background-color: #fff;
   --tag-text-color: #505050;
   --stats-label-color: var(--label-color);
+  --radio-background-color: #fdfdfd;
 
   /* borders */
   --border-color: #6d6d6d;
   --assets-browser-selected-border-color: #5258e4;
   --tag-border-color: var(--border-color);
   --tag-border: 1px solid var(--tag-border-color);
+  --select-border: 2px solid #B1B1B1;
 
   /* buttons */
   --button-hover-color: #e6e6e6;
@@ -74,7 +76,7 @@
   --stats-label-font: normal normal normal 16px/20px var(--body-font-family);
   --stats-value-font: normal normal bold 16px/20px var(--body-font-family);
   --current-refinement-font: normal normal normal 12px/15px var(--body-font-family);
-  --normal-font-size-xs: normal normal normal 12px/15px var(--body-font-family);
+  --share-modal-font: var(--metadata-font);
 
   /* heading sizes */
   --header-font-size: 14px;
@@ -360,7 +362,9 @@ body {
 .user-email,
 .aa-ItemContentTitle,
 .quick-links,
-.selected-count {
+.selected-count,
+.initial-format,
+.asset-name {
   text-transform: initial;
 }
 

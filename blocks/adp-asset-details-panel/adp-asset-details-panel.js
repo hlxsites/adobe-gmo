@@ -6,7 +6,7 @@ import { openDownloadModal } from '../adp-download-modal/adp-download-modal.js';
 import { openAssetDetailsModal } from '../adp-asset-details-modal/adp-asset-details-modal.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import {
-  getAssetMimeType, getAssetTitle, getAssetName,
+  getAssetMimeType, getAssetTitle, getAssetName, getAssetHeight, getAssetWidth,
 } from '../../scripts/metadata.js';
 import {
   getAssetMetadata,
@@ -15,19 +15,18 @@ import { getQuickViewConfig, getQuickViewSettings } from '../../scripts/site-con
 import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 // eslint-disable-next-line import/no-cycle
-import {
-  hasNextAsset, hasPreviousAsset, getNextAssetCard, getPreviousAssetCard,
-} from '../adp-infinite-results-instantsearch/adp-infinite-results-instantsearch.js';
 import { addShareModalHandler } from '../adp-share-modal/adp-share-modal.js';
 import { startCCE, addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
+let resultsManager;
 /**
  * Close the asset details panel and deselect the item element
  */
 export function closeAssetDetailsPanel() {
   const panel = document.querySelector('.adp-asset-details-panel');
   panel.classList.remove('open');
-  emitEvent(panel, EventNames.ASSET_QUICK_PREVIEW_CLOSE, { assetId: panel.dataset.id });
+  emitEvent(panel, EventNames.ASSET_QUICK_PREVIEW_CLOSE, { assetId: panel.dataset.assetId });
+  document.querySelector('#share-link-expiry-date-calendar-dialog')?.remove(); // remove the calendar dialog created by the share modal
 }
 
 /**
@@ -40,24 +39,35 @@ export function disableActionButtons(block) {
   const nextButton = block.querySelector('.action-next-asset');
   preButton.classList.remove('disabled');
   nextButton.classList.remove('disabled');
-  if (!hasPreviousAsset()) {
+  if (!resultsManager?.hasPreviousItem()) {
     preButton.classList.add('disabled');
   }
-  if (!hasNextAsset()) {
+  if (!resultsManager?.hasNextItem()) {
     nextButton.classList.add('disabled');
+  }
+  if (resultsManager?.getExcludedItemActions?.()?.includes?.('share')) {
+    block.querySelector('.action-share-asset')?.classList.add('hidden');
   }
 }
 
-export async function openAssetDetailsPanel(assetId) {
+export async function openAssetDetailsPanel(assetId, resultsManagerObj) {
+  resultsManager = resultsManagerObj;
   if (!assetId) return;
 
   const assetJSON = await getAssetMetadata(assetId);
   if (!assetJSON) return;
 
+  const assetDetailsPanel = document.querySelector('.adp-asset-details-panel');
+  if (!assetDetailsPanel) return;
+  if (assetDetailsPanel.dataset.assetId === assetId) {
+    if (!assetDetailsPanel.classList.contains('open')) {
+      assetDetailsPanel.classList.add('open');
+    }
+    return;
+  }
   const fileName = getAssetName(assetJSON);
   const title = getAssetTitle(assetJSON);
   const fileFormat = getAssetMimeType(assetJSON);
-  const assetDetailsPanel = document.querySelector('.adp-asset-details-panel');
 
   // ensure express button only shows for valid asset types
   const expressBtn = assetDetailsPanel.querySelector(".action-edit-asset");
@@ -85,11 +95,11 @@ export async function openAssetDetailsPanel(assetId) {
   const imgPanel = document.querySelector('#asset-details-image-panel');
   await addAssetToContainer(assetId, fileName, title, fileFormat, imgPanel);
 
-  disableActionButtons(assetDetailsPanel);
+  disableActionButtons(assetDetailsPanel, resultsManager);
 
   // follow above design pattern for express button handler
-  let assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
-  let assetWidth = assetJSON.assetMetadata['tiff:ImageWidth'];
+  let assetHeight = getAssetHeight(assetJSON);
+  let assetWidth = getAssetWidth(assetJSON);
   if (!(assetHeight)) assetHeight = 1000;
   if (!(assetWidth)) assetWidth = 1000;
   const actionsExpress = assetDetailsPanel.querySelector('.action-edit-asset');
@@ -168,23 +178,23 @@ export default async function decorate(block) {
   block.querySelector('#asset-details-previous').addEventListener('click', async (e) => {
     const { assetId } = block.dataset;
     emitEvent(e.target, EventNames.PREVIOUS_ASSET, { assetId });
-    const prevId = await getPreviousAssetCard(assetId);
+    const prevId = await resultsManager.selectPreviousItem();
     if (prevId) {
-      openAssetDetailsPanel(prevId);
+      openAssetDetailsPanel(prevId, resultsManager);
     }
   });
   block.querySelector('#asset-details-next').addEventListener('click', async (e) => {
     const { assetId } = block.dataset;
     emitEvent(e.target, EventNames.NEXT_ASSET, { assetId });
-    const nextId = await getNextAssetCard(assetId);
+    const nextId = await resultsManager.selectNextItem();
     if (nextId) {
-      openAssetDetailsPanel(nextId);
+      openAssetDetailsPanel(nextId, resultsManager);
     }
   });
   block.querySelector('#asset-details-fullscreen').addEventListener('click', () => {
     block.querySelector('iframe')?.remove();
     const { assetId } = block.dataset;
-    openAssetDetailsModal(assetId);
+    openAssetDetailsModal(assetId, resultsManager);
   });
   await window.adobeIMS?.refreshToken();
   await startCCE();

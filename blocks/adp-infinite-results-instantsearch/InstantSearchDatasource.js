@@ -2,7 +2,7 @@ import { emitEvent, EventNames } from '../../scripts/events.js';
 import { getCardViewConfig, getCardViewSettings, getSearchFieldConfig } from '../../scripts/site-config.js';
 import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 // eslint-disable-next-line import/no-cycle
-import { closeAssetDetailsPanel, openAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
+import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetID, getAssetName } from '../../scripts/metadata.js';
 import { getAnchorVariable, getQueryVariable, removeParamFromWindowURL, setHashParamInWindowURL } from '../../scripts/scripts.js';
 import InfiniteResultsContainer from '../../scripts/infinite-results/InfiniteResultsContainer.js';
@@ -105,6 +105,7 @@ export default class InstantSearchDataSource {
       item,
       searchResultsCardViewConfig,
       searchResultsCardViewSettings.hideEmptyMetadataProperty,
+      [],
       () => {
         infiniteResultsContainer.selectItem(assetId);
       },
@@ -136,15 +137,15 @@ export default class InstantSearchDataSource {
     }
   }
 
-  onItemDeselected(item, itemId) {
+  onItemDeselected(item, itemId, infiniteResultsContainer) {
     closeAssetDetailsPanel();
     emitEvent(item, EventNames.ASSET_DESELECTED, {
       assetId: itemId,
     });
   }
 
-  onItemSelected(item, itemId) {
-    openAssetDetailsPanel(itemId);
+  onItemSelected(item, itemId, infiniteResultsContainer) {
+    openAssetDetailsPanel(itemId, infiniteResultsContainer);
     emitEvent(item, EventNames.ASSET_SELECTED, {
       assetId: itemId,
     });

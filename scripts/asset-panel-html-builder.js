@@ -36,7 +36,8 @@ export async function addAssetToContainer(
       this.src = getFailedPlaceholderImgSrc(fileFormat);
     };
     container.appendChild(videoElem);
-    // When the iframe's "load" event occurs, send the bearer token wrapped in a message to the iframe content window
+    // When the iframe's "load" event occurs, send the bearer token
+    // wrapped in a message to the iframe content window
     videoElem.addEventListener('load', async () => {
       const iframeContentWindow = videoElem.contentWindow;
       const token = await getBearerToken();
