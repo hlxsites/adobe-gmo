@@ -24,6 +24,10 @@ import dependencies from './dependencies.json' assert { type: "json" };
 
 const NO_ACCESS_PATH = '/no-access';
 
+import {
+  loadDataLayer
+} from './adobe-data-layer.js';
+
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
 /**
@@ -297,11 +301,68 @@ export function getAnchorVariable(variable) {
 }
 
 loadPage();
+//Load Adobe Data Layer
+loadDataLayer();
 
 export function safeCSSId(str) {
   return encodeURIComponent(str)
     .toLowerCase()
     .replace(/\.|%[0-9a-z]{2}/gi, '');
+}
+
+function downloadAsset(url, name, options) {
+  fetch(url, options)
+    .then((resp) => resp.blob())
+    .then((blob) => {
+      const imgUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = imgUrl;
+      // the filename you want
+      a.download = name;
+      a.click();
+      window.URL.revokeObjectURL(imgUrl);
+    })
+    .catch((e) => console.log('Unable to download file', e));
+}
+
+function openPDF(url, options) {
+  fetch(url, options)
+    .then((resp) => resp.blob())
+    .then((blob) => {
+      const pdfUrl = window.URL.createObjectURL(blob);
+      window.open(pdfUrl, '_blank');
+      window.URL.revokeObjectURL(pdfUrl);
+    })
+    .catch((e) => console.log('Unable to open pdf file', e));
+}
+
+/**
+ * Add download handling code to the download button
+ * @param {HTMLElement} downloadElement - download element
+ */
+export async function addDownloadHandlers(downloadElement, assetId, repoName, format) {
+  downloadElement.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const bearerToken = await getBearerToken();
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: bearerToken,
+      },
+    };
+
+    const href = await getDownloadUrl(assetId, repoName);
+    if (isPDF(format)) {
+      await openPDF(href, options);
+    } else {
+      await downloadAsset(href, repoName, options);
+    }
+    emitEvent(e.target, EventNames.DOWNLOAD, {
+      assetId,
+      assetName: repoName,
+    });
+  });
 }
 
 export function removeParamFromUrl(url, paramName) {
