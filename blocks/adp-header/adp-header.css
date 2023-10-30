@@ -302,8 +302,8 @@ header .nav-search label {
 }
 
 header nav .nav-brand img {
-  width: var(--header-logo-width);
-  height: var(--header-logo-height);
+  min-height: 26px;
+  width: auto;
   margin: 10px;
 }
 
