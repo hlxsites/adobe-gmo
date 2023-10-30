@@ -365,6 +365,11 @@ body {
   text-transform: capitalize;
 }
 
+/* this is to counter the body text-transform:capitalize above */
+.adp-refinement-wrapper .label {
+  text-transform: none;
+}
+
 .title,
 .metadata-filename,
 .file-name,
