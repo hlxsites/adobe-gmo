@@ -10,7 +10,6 @@ import {
 } from './format-utils.js';
 
 const SEARCH_FIELD_TO_POLARIS_API_MAP = {
-  assetId: 'repo:assetId',
   'dc-format': 'repositoryMetadata.dc:format',
   'repo-name': 'repositoryMetadata.repo:name',
   'repo-createDate': 'repositoryMetadata.repo:createDate',

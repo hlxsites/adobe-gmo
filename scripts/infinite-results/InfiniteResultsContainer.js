@@ -1,9 +1,8 @@
 import { emitEvent, EventNames } from '../events.js';
-import {
-  createPlaceholderCardElement,
-} from '../card-html-builder.js';
 
 const NUMBER_OF_PLACEHOLDERS = 10;
+const DEFAULT_NO_RESULTS_MSG = '';
+const ADP_ITEM_CSS_CLASS = 'adp-result-item';
 
 export default class InfiniteResultsContainer {
   #currentlySelectedElement;
@@ -94,6 +93,12 @@ export default class InfiniteResultsContainer {
     });
   }
 
+  static createPlaceholderCardElement() {
+    const card = document.createElement('div');
+    card.className = 'adp-result-item placeholder-card';
+    return card;
+  }
+  
   /**
    * We add hidden cards to the end of the list to make sure the infinite scroll styles properly
    * i.e. We want to keep the same number of cards in every row of the flex container
@@ -102,7 +107,7 @@ export default class InfiniteResultsContainer {
    */
   static addPlaceholderCards(elem, arrayOfCards) {
     for (let i = 0; i < NUMBER_OF_PLACEHOLDERS; i += 1) {
-      const card = createPlaceholderCardElement();
+      const card = InfiniteResultsContainer.createPlaceholderCardElement();
       arrayOfCards.push(card);
     }
   }
@@ -130,7 +135,7 @@ export default class InfiniteResultsContainer {
    * @returns {HTMLElement} - element
    */
   getItemByItemId(itemId) {
-    return this.#container.querySelector(`.adp-result-item[data-item-id="${itemId}"]`);
+    return this.#container.querySelector(`.${ADP_ITEM_CSS_CLASS}[data-item-id="${itemId}"]`);
   }
 
   /**
@@ -151,7 +156,7 @@ export default class InfiniteResultsContainer {
       itemCard.classList.remove('selected');
       itemCard.removeAttribute('aria-expanded');
     }
-    this.datasource.onItemDeselected?.(itemCard, itemCard.dataset.itemId);
+    this.datasource.onItemDeselected?.(itemCard, itemCard.dataset.itemId, this);
   }
 
   addItemToSelection(item) {
@@ -237,9 +242,11 @@ export default class InfiniteResultsContainer {
 
   hasNextItem() {
     if (this.#currentlySelectedElement) {
-      const nextAssetCard = this.#currentlySelectedElement.nextElementSibling;
-      if (nextAssetCard && !nextAssetCard.classList.contains('placeholder-card')) {
-        return true;
+      const nextItemElement = this.#currentlySelectedElement.nextElementSibling;
+      if (nextItemElement
+        && nextItemElement.classList.contains(ADP_ITEM_CSS_CLASS)
+        && !nextItemElement.classList.contains('placeholder-card')) {
+        return nextItemElement;
       }
     }
     return false;
@@ -257,7 +264,7 @@ export default class InfiniteResultsContainer {
       this.deselectItem();
     } else {
       this.#selectItemElement(itemId);
-      this.datasource.onItemSelected?.(assetCard, itemId);
+      this.datasource.onItemSelected?.(assetCard, itemId, this);
       // Scroll to the selected item
       await new Promise((resolve) => {
         setTimeout(() => {
@@ -290,6 +297,10 @@ export default class InfiniteResultsContainer {
     return undefined;
   }
 
+  getExcludedItemActions() {
+    return this.datasource.getExcludedItemActions?.();
+  }
+
   // eslint-disable-next-line class-methods-use-this
   async scrollToTopOfContainer() {
     window.scrollTo({
@@ -318,6 +329,32 @@ export default class InfiniteResultsContainer {
   }
 
   /**
+   * Creates the no results element
+   * @param {string|HTMLElement} noResultsMessage - message to display when there are no results
+   */
+  #createNoResultsElement(noResultsMessage) {
+    const noResults = document.createElement('div');
+    noResults.classList.add('adp-no-results');
+    if (typeof noResultsMessage === 'string') {
+      noResults.innerText = noResultsMessage;
+    } else {
+      noResults.appendChild(noResultsMessage);
+    }
+    return noResults;
+  }
+
+  #renderNoResults(containerElem, isError = false) {
+    let noResultsElement;
+    if (isError) {
+      noResultsElement = this.#createNoResultsElement(this.datasource.notFoundMessage?.()
+                              || this.datasource.noResultsMessage?.()) || DEFAULT_NO_RESULTS_MSG;
+    } else {
+      noResultsElement = this.#createNoResultsElement(this.datasource.noResultsMessage?.() || DEFAULT_NO_RESULTS_MSG);
+    }
+    containerElem.append(noResultsElement);
+  }
+
+  /**
    * Callback function to render the results
    * @param {HTMLElement} container - container element to render the results in
    * @param {Array<object>} items - items to render
@@ -342,6 +379,15 @@ export default class InfiniteResultsContainer {
     // if it's a new search then reset the tracking variables
     if (isNewSearch) {
       this.#reset();
+
+      // if there are no results or an error (items is undefined)
+      // then render the no results element
+      const isErrorNotFound = items === undefined;
+      const isNoResults = items && items.length === 0;
+      if (isErrorNotFound || isNoResults) {
+        this.#lastPage = page;
+        this.#renderNoResults(cards, isErrorNotFound);
+      }
     }
 
     // check if new search or new page
@@ -349,16 +395,23 @@ export default class InfiniteResultsContainer {
       this.#lastPage = page;
 
       // add new result cards
-      const newCards = [];
-      for (const item of items) {
-        const card = this.datasource.createItemElement(item, this);
+      let newCards = [];
+      const createItemElement = async (item) => {
+        const card = await this.datasource.createItemElement(item, this);
         card.classList.add('adp-result-item');
         card.dataset.itemId = this.datasource.getItemId(item);
         if (this.datasource.getItemName) {
           card.dataset.itemName = this.datasource.getItemName(item);
         }
+        return card;
+      };
+      // Collect all promises before appending to the DOM to avoid layout thrashing
+      for (const item of items) {
+        const card = createItemElement(item);
         newCards.push(card);
       }
+      newCards = await Promise.all(newCards);
+
       InfiniteResultsContainer.removePlaceholderCards(cards);
       InfiniteResultsContainer.addPlaceholderCards(cards, newCards);
       cards.append(...newCards);

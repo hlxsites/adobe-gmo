@@ -95,21 +95,22 @@
   border-radius: 6px;
 }
 
-.adp-asset-details-modal.block .modal-right-panel #asset-details-page-metadata.open,
-.adp-asset-details-modal.block .modal-right-panel #asset-details-page-share.open,
-.adp-asset-details-modal.block .modal-right-panel #asset-details-page-download.open {
+.adp-asset-details-modal.block .modal-header #asset-details-page-metadata.open,
+.adp-asset-details-modal.block .modal-header  #asset-details-page-share.open,
+.adp-asset-details-modal.block .modal-header #asset-details-page-download.open {
   background-color: var(--button-active-color);
 }
 
-.adp-asset-details-modal.block .modal-header .modal-header-right .action-previous-asset.disabled,
-.adp-asset-details-modal.block .modal-header .modal-header-right .action-next-asset.disabled {
+.adp-asset-details-modal.block .modal-header .action-previous-asset.disabled,
+.adp-asset-details-modal.block .modal-header .action-next-asset.disabled {
   pointer-events: none;
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.adp-asset-details-modal.block .modal-header .modal-header-right .action-previous-asset.hidden,
-.adp-asset-details-modal.block .modal-header .modal-header-right .action-next-asset.hidden {
+.adp-asset-details-modal.block .action-share-asset.hidden,
+.adp-asset-details-modal.block .modal-header .action-previous-asset.hidden,
+.adp-asset-details-modal.block .modal-header .action-next-asset.hidden {
   display: none;
 }
 
@@ -308,28 +309,41 @@
   height: calc(100% - 90px);
 }
 
-.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right {
+.adp-asset-details-modal.block .share-link-body-right {
   padding: 27px 22px 22px 21px;
 }
 
-.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-option.custom-calendar {
+.adp-asset-details-modal.block .share-link-body-right .share-link-expiry-select-container {
+  width: 230px;
+}
+
+.adp-asset-details-modal.block .share-link-expiry-date-calendar .input-button {
+  padding: 0;
+}
+
+.adp-asset-details-modal.block .share-link-body-right .share-link-expiry-option.custom-calendar {
   height: 65px;
 }
 
-.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .actions-container .action-copy-share-link {
+.adp-asset-details-modal.block .share-link-body-right .actions-container .action-copy-share-link {
   width: 259px;
 }
 
-.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container {
+.adp-asset-details-modal.block .share-link-body-right .share-link-expiry-container {
   overflow-y: auto;
 }
 
-.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container .date-input-container {
+.adp-asset-details-modal.block .share-link-body-right .share-link-expiry-container .date-input-container {
   margin-left: 0;
+  width: 230px;
 }
 
-.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container .date-input-container label {
-  padding-top: 0;
+.adp-asset-details-modal.block .share-link-body-right .share-link-expiry-container .date-input-container label {
+  display: none;
+}
+
+.adp-asset-details-modal.block .share-link-body-right .share-link-expiry-container .flatpickr {
+  width: 99%;
 }
 
 button.action-edit-asset.hidden {

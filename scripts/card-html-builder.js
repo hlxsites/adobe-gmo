@@ -1,4 +1,4 @@
-import { decorateIcons } from './lib-franklin.js';
+import { decorateIcons, toCamelCase, toClassName } from './lib-franklin.js';
 import { getOptimizedPreviewUrl } from './polaris.js';
 import {
   isVideo, getFailedPlaceholderImgSrc, getFileType, getFileTypeCSSClass,
@@ -34,14 +34,14 @@ function handleImageFailures(cardElement) {
   });
 }
 
-function createActionButton(action, label, clickHandler) {
+function createActionButton(action, label, clickHandler, iconClass) {
   // Create the 'a' element
   const a = document.createElement('a');
-  a.className = `actions-${action}`;
+  a.className = `action-${action}`;
 
   // Create the 'span' element
   const span = document.createElement('span');
-  span.className = `icon icon-${action}`;
+  span.className = `icon icon-${(iconClass)?toCamelCase(iconClass):toCamelCase(action)}`;
 
   // Append the 'span' to the 'a'
   a.appendChild(span);
@@ -70,6 +70,7 @@ export function createAssetCardElement(
   asset,
   assetMetadataConfig,
   hideEmptyMetadataProperty,
+  excludedActions,
   selectAssetHandler,
   deselectAssetHandler,
   addAddToMultiSelectionHandler,
@@ -101,12 +102,14 @@ export function createAssetCardElement(
   const downloadButton = createActionButton('download', 'Download', () => {
     openDownloadModal(assetId, repoName, mimeType);
   });
-  const shareButton = createActionButton('share', 'Share', () => {
-    openShareModal(assetId, repoName, title, mimeType);
-  });
-
   actionsElement.appendChild(downloadButton);
-  actionsElement.appendChild(shareButton);
+
+  if (!excludedActions || !excludedActions.includes('share')) {
+    const shareButton = createActionButton('share', 'Share', () => {
+      openShareModal(assetId, repoName, title, mimeType);
+    }, 'share');
+    actionsElement.appendChild(shareButton);
+  }
   return card;
 }
 
@@ -272,10 +275,4 @@ function createCardMetadataHTML(assetMetadataConfig, asset, hideEmptyMetadataPro
     resizeObserver.observe(metadataFieldsElem);
   }
   return metadataFieldsElem;
-}
-
-export function createPlaceholderCardElement() {
-  const card = document.createElement('div');
-  card.className = 'adp-result-item placeholder-card';
-  return card;
 }

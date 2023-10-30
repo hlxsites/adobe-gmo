@@ -100,8 +100,12 @@ export async function fetchWithRetryAndBackoffOnErrors(url, options, retryOption
           retryCount++;
           return await attemptFetch();
         }
+        if (response.status === 404) {
+          return undefined;
+        }
+      } else {
+        return await response.json();
       }
-      return await response.json();
     } catch (error) {
       console.error('Error in fetch ', error);
       if (retryCount < maxRetries) {
