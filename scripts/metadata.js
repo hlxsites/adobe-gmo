@@ -114,6 +114,71 @@ function substituteVariableFromJSON(key, json, allowRecursiveSearch) {
   return out;
 }
 
+function getFormattedValue(key, json, allowRecursiveSearch) {
+  let value;
+  if (PREDEFINED_METADATA_FIELDS[key]?.value) {
+    value = PREDEFINED_METADATA_FIELDS[key].value(json);
+  } else {
+    value = getMetadataValue(key, json, allowRecursiveSearch);
+  }
+  value = formatAssetMetadata(key, value);
+  return value;
+}
+
+export function getAssetID(assetJSON) {
+  return getFormattedValue('assetId', assetJSON);
+}
+
+export function getAssetName(assetJSON) {
+  return getFormattedValue('repo-name', assetJSON);
+}
+
+export function getAssetTitle(assetJSON) {
+  return getFormattedValue('title', assetJSON);
+}
+
+/**
+ * Get the asset description
+ */
+export function getAssetDescription(assetJSON) {
+  return getFormattedValue('description', assetJSON);
+}
+
+/**
+ * Get the author(s) of the asset
+ */
+export function getAssetCreator(assetJSON) {
+  return getFormattedValue('creator', assetJSON);
+}
+
+/**
+ * Get the mimetype of the asset e.g. "image/jpeg"
+ */
+export function getAssetMimeType(assetJSON) {
+  return getMetadataValue('dc-format', assetJSON);
+}
+
+/**
+ * Get the width of the asset
+ */
+export function getAssetWidth(assetJSON) {
+  return getMetadataValue('tiff-ImageWidth', assetJSON, true);
+}
+
+/**
+ * Get the height of the asset
+ */
+export function getAssetHeight(assetJSON) {
+  return getMetadataValue('tiff-ImageLength', assetJSON, true);
+}
+
+/**
+ * Get the size of the asset in bytes
+ */
+export function getAssetSize(assetJSON) {
+  return getMetadataValue('size', assetJSON);
+}
+
 /**
  * Predefined metadata fields that have special handling, can have compound values and a
  * special formatter.
@@ -136,17 +201,17 @@ const PREDEFINED_METADATA_FIELDS = {
       }
       return title;
     },
-    format: (value) => value,
+    format: (value) => DATA_TYPES.text(value),
   },
   description: {
     label: 'Description',
     value: (assetJSON) => getMetadataValue('dc-description', assetJSON, true),
-    format: (value) => value,
+    format: (value) => DATA_TYPES.text(value),
   },
   creator: {
     label: 'Creator',
     value: (assetJSON) => getMetadataValue('dc-creator', assetJSON, true),
-    format: (value) => value,
+    format: (value) => DATA_TYPES.textList(value),
   },
   resolution: {
     label: 'Resolution',
@@ -158,17 +223,17 @@ const PREDEFINED_METADATA_FIELDS = {
       const height = getMetadataValue('tiff-ImageLength', assetJSON, true);
       return [width, height];
     },
-    format: (value) => value.join(' x '),
+    format: (value) => DATA_TYPES.resolution(value),
   },
   format: {
     label: 'Format',
     value: (assetJSON) => getMetadataValue('dc-format', assetJSON, true),
-    format: (value) => formatMimeType(value),
+    format: (value) => DATA_TYPES.format(value),
   },
   size: {
     label: 'Size',
     value: (assetJSON) => getMetadataValue('size', assetJSON, true),
-    format: (value) => formatFileSize(value),
+    format: (value) => DATA_TYPES.size(value),
   },
 };
 
@@ -181,7 +246,7 @@ const PREDEFINED_METADATA_FIELDS = {
  * @param {boolean} allowRecursiveSearch - whether to allow recursive search for the property name
  * @returns {*} the substituted value, e.g. ["My title", "My title 2"]
  */
-export function getMetadataValues(key, json, allowRecursiveSearch = true) {
+function getMetadataValues(key, json, allowRecursiveSearch = true) {
   /* There are multiple JSON formats that can be passed in, Polaris API metadata response
       and Search API responses (e.g. Algolia).  Algolia property names have '-'
       instead of ':' in the metadata field names. */
@@ -211,10 +276,18 @@ export function getMetadataValue(key, json, allowRecursiveSearch = true) {
  * Predefined metadata field types with a formatter function
  * @type {Object<string, function(value: *): string|HTMLElement>}
  */
-export const DATA_TYPES = {
+const DATA_TYPES = {
+  /* Get the first element if it's an array */
   text: (o) => {
     if (Array.isArray(o)) {
       return o[0];
+    }
+    return o;
+  },
+  /* Join the array elements with a comma if it's an array */
+  textList: (o) => {
+    if (Array.isArray(o)) {
+      return o.join(', ');
     }
     return o;
   },
@@ -273,7 +346,7 @@ function isDateValue(value) {
 
 export function isDate(propertyName, propertyValue) {
   return DATE_FIELDS.includes(propertyName)
-  || (propertyValue !== undefined && isDateValue(propertyValue));
+    || (propertyValue !== undefined && isDateValue(propertyValue));
 }
 
 /**
@@ -332,6 +405,9 @@ export function formatAssetMetadata(propertyName, metadataValue) {
  * @param {function(metadataInfo:Object)} addMetadataFieldCallback - callback to add metadata field
  */
 export function addMetadataFields(metadataConfigs, assetJSON, addMetadataFieldCallback) {
+  if (!metadataConfigs || metadataConfigs.length === 0) {
+    return;
+  }
   for (const metadataInfo of metadataConfigs) {
     const fieldTitle = metadataInfo.label;
     const metadataProp = metadataInfo.metadataField;
@@ -355,6 +431,7 @@ export function addMetadataFields(metadataConfigs, assetJSON, addMetadataFieldCa
         title: fieldTitle,
         value: metadataPropSubstitutedValue,
         cssClass: safeCSSId(fieldTitle),
+        ...metadataInfo,
       },
     );
   }

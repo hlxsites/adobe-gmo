@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Starter project for Adobe Helix",
   "scripts": {
-    "update-dependencies": "rm -r scripts/libs/* || true && webpack --mode production && node build/embedDependencies.js",
+    "update-dependencies": "rm -r scripts/libs/* || true && webpack --mode production && node build/buildDependencies.js",
     "test": "wtr \"./test/**/*.test.js\" --node-resolve --port=2000 --coverage",
     "test:watch": "npm test -- --watch",
     "lint:js": "eslint .",
@@ -23,7 +23,8 @@
   "homepage": "https://github.com/adobe/helix-project-boilerplate#readme",
   "devDependencies": {
     "@babel/core": "7.21.0",
-    "@babel/eslint-parser": "7.19.1",
+    "@babel/eslint-parser": "^7.19.1",
+    "@babel/plugin-syntax-import-assertions": "^7.22.5",
     "@esm-bundle/chai": "4.3.4-fix.0",
     "@web/test-runner": "0.15.1",
     "@web/test-runner-commands": "0.6.5",
@@ -45,9 +46,9 @@
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
     "@algolia/autocomplete-theme-classic": "^1.11.1",
     "algoliasearch": "^4.18.0",
-    "instantsearch.js": "^4.56.3",
+    "flatpickr": "^4.6.13",
     "instantsearch.css": "^8.1.0",
-    "flatpickr": "^4.6.13"
+    "instantsearch.js": "^4.56.3"
   },
   "copyDependencies": [
     {
@@ -89,9 +90,16 @@
       "from": "node_modules/flatpickr/dist/",
       "to": "scripts/libs/flatpickr/",
       "globOptions": {
-        "ignore": ["**/esm/**/*", "**/plugins/**/*", "**/l10n/**/*.ts"]
+        "ignore": [
+          "**/esm/**/*",
+          "**/plugins/**/*",
+          "**/l10n/**/*.ts"
+        ]
       },
-      "fileInclude": [ "flatpickr.min.js", "flatpickr.min.css" ]
+      "fileInclude": [
+        "flatpickr.min.js",
+        "flatpickr.min.css"
+      ]
     }
   ]
 }

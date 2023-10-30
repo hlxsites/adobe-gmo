@@ -1,0 +1,337 @@
+.adp-asset-details-modal.block dialog {
+  width: 95%;
+  height: 95%;
+  border-radius: 6px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+}
+
+.adp-asset-details-modal.block .modal-body {
+  display: flex;
+  width: 100%;
+  height: calc(100% - 64px);
+}
+
+.adp-asset-details-modal.block .modal-image {
+  flex-grow: 1; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  background-color: var(--gray-background-color);
+  overflow: auto;
+}
+
+.adp-asset-details-modal.block .modal-image img,
+.adp-asset-details-modal.block .modal-image iframe {
+  max-width: 100%; 
+  max-height: 100%;
+  transition: transform 0.2s ease;
+}
+
+.adp-asset-details-modal.block .modal-right-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 27px 0;
+  width: 50px;
+  background-color: var(--white-background-color);
+  border-left: var(--button-active-color) 0.2px solid;
+  gap: 10px;
+  align-items: center;
+  overflow: hidden;
+}
+
+
+.adp-asset-details-modal.block .modal-metadata {
+  display: none;
+  background-color: var(--white-background-color);
+  overflow: auto;
+  width: 300px;
+  height: 100%;
+}
+
+.adp-asset-details-modal.block .modal-metadata.open {
+  display: block;
+}
+
+.adp-asset-details-modal.block .modal-metadata .metadata-container .metadata-fields {
+  display: flex;
+  flex-direction: column;
+  row-gap: 30px;
+  font: var(--metadata-font);
+  padding: 22px;
+}
+
+.adp-asset-details-modal.block .modal-metadata .metadata-container .metadata-fields .metadata-field .label {
+  color: var(--metadata-label-color);
+  font: var(--metadata-label-font);
+}
+
+.adp-asset-details-modal.block .modal-metadata .modal-metadata-heading {
+  font: var(--bold-font-size-base);
+  padding-left: 19px;
+  padding-top: 21px;
+}
+
+.adp-asset-details-modal.block .modal-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 27px;
+  height: 64px;
+  background-color: var(--white-background-color);
+  border-bottom: var(--button-active-color) 0.2px solid;
+  font: var(--bold-font-size-base);
+}
+
+.adp-asset-details-modal.block .modal-header .modal-header-left,
+.adp-asset-details-modal.block .modal-header .modal-header-right {
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.adp-asset-details-modal.block .modal-right-panel .action,
+.adp-asset-details-modal.block .modal-header .modal-header-right .action {
+  border-radius: 6px;
+}
+
+.adp-asset-details-modal.block .modal-right-panel #asset-details-page-metadata.open,
+.adp-asset-details-modal.block .modal-right-panel #asset-details-page-share.open,
+.adp-asset-details-modal.block .modal-right-panel #asset-details-page-download.open {
+  background-color: var(--button-active-color);
+}
+
+.adp-asset-details-modal.block .modal-header .modal-header-right .action-previous-asset.disabled,
+.adp-asset-details-modal.block .modal-header .modal-header-right .action-next-asset.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.adp-asset-details-modal.block .modal-header .modal-header-right .action-previous-asset.hidden,
+.adp-asset-details-modal.block .modal-header .modal-header-right .action-next-asset.hidden {
+  display: none;
+}
+
+.adp-asset-details-modal.block .modal-header .icon,
+.adp-asset-details-modal.block .modal-right-panel .icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+}
+
+.adp-asset-details-modal.block .modal-header .icon svg,
+.adp-asset-details-modal.block .modal-right-panel .icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.adp-asset-details-modal.block .modal-header .icon.icon-previous svg,
+.adp-asset-details-modal.block .modal-header .icon.icon-next svg,
+.adp-asset-details-modal.block .modal-header .icon.icon-close svg {
+  width: 13px;
+  height: 13px;
+}
+
+.adp-asset-details-modal.block .modal-header .divider{
+  border-left: 2px solid var(--border-color);
+  height: 25px; 
+  margin: 0 5px;
+  opacity: 0.4;
+}
+
+.adp-asset-details-modal.block .modal-header .divider.hidden {
+  display: none;
+}
+
+.adp-asset-details-modal.block .rendition-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 42px);
+  justify-content: space-between;
+  background-color: var(--white-background-color);
+  padding: 0 8px;
+}
+
+.adp-asset-details-modal.block .actions-container {
+  position: sticky;
+}
+
+.adp-asset-details-modal.block .rendition-container .actions-container {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 22px;
+}
+
+.adp-asset-details-modal.block .actions-container .download {
+  width: 100%;
+  margin: 0 calc(5.2% * 1.5);
+  background-color: var(--button-focus-outline-color);
+  border-radius: 16px;
+  font: var(--bold-font-size-s);
+  color: var(--button-text-color);
+  height: 37px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: none;
+} 
+
+.adp-asset-details-modal.block .actions-container .download.disabled {
+  background-color: var(--button-hover-color);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.adp-asset-details-modal.block .rendition-fields {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  font: var(--metadata-font);
+  overflow-y: auto;
+}
+
+
+.adp-asset-details-modal.block .rendition { 
+  display: flex;
+  flex: 0 0 62px;
+  border-radius: 6px;
+  gap: 10px;
+  align-items: center;
+  position: relative;
+}
+
+.adp-asset-details-modal.block .rendition.active {
+  border: 1px solid rgba(82 88 228 / 40%);
+  background-color: rgba(82 88 228 / 10%); 
+}
+
+.adp-asset-details-modal.block .text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  margin-left: 44px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.adp-asset-details-modal.block .text-container .file-name {
+  font: var(--bold-font-size-s);
+  color: var(--label-color);
+}
+
+.adp-asset-details-modal.block .modal-header .modal-header-left .file-name {
+  font : var(--bold-font-size-m);
+}
+
+.adp-asset-details-modal.block .rendition.active .text-container .file-name {
+  color: var(--text-color);
+}
+
+.adp-asset-details-modal.block .text-container .header {
+  font: var(--bold-font-size-s);
+  color: var(--text-color);
+}
+
+.adp-asset-details-modal.block .file-info {
+  display: flex;
+  align-items: center;
+}
+
+.adp-asset-details-modal.block .file-info .divider{
+  border-left: 2px solid var(--border-color);
+  height: 13px; 
+  margin: 0 8px;
+  opacity: 0.4;
+}
+
+.adp-asset-details-modal.block .rendition input[type='checkbox'] {
+  display: none;
+}
+
+.adp-asset-details-modal.block .rendition label {
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  transform: translate(-50%, -50%);
+  height: 14px;
+  width: 14px;
+  border: 2px solid var(--checkbox-border-color); 
+  border-radius: 4px;
+  background-color: white;
+}
+
+.adp-asset-details-modal.block .rendition input[type='checkbox']:checked + .checkmark,
+.adp-asset-details-modal.block .rendition .checkmark.show-bar {
+  background-color: var(--button-focus-outline-color);
+  border-color: var(--button-focus-outline-color);
+}
+
+.adp-asset-details-modal.block .rendition label::after {
+  left: 4px;
+  top: 0;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.adp-asset-details-modal.block .rendition label::after,
+.adp-asset-details-modal.block .rendition.header label::after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.adp-asset-details-modal.block .rendition input[type='checkbox']:checked + label::after,
+.adp-asset-details-modal.block .rendition label.show-bar::after {
+  display: block;
+}
+
+.adp-asset-details-modal.block .rendition.header label.show-bar::after {
+  left: 3px;
+  top: 6px;
+  width: 6px;
+  height: 0;
+  border-top: 2px solid white;
+  border-bottom: 0;
+  transform: unset;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container {
+  width: 100%;
+  height: calc(100% - 90px);
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right {
+  padding: 27px 22px 22px 21px;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-option.custom-calendar {
+  height: 65px;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .actions-container .action-copy-share-link {
+  width: 259px;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container {
+  overflow-y: auto;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container .date-input-container {
+  margin-left: 0;
+}
+
+.adp-asset-details-modal.block .adp-share-modal-details-container .share-link-body-right .share-link-expiry-container .date-input-container label {
+  padding-top: 0;
+}
+
+button.action-edit-asset.hidden {
+  display: none;
+}
