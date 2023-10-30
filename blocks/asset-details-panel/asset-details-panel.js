@@ -15,7 +15,6 @@ import { selectNextAsset, selectPreviousAsset, deselectAssetCard } from '../infi
 import { openModal } from '../asset-details-modal/asset-details-modal.js';
 import { getQuickViewConfig, getQuickViewSettings } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
-import { startCCE, addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
 /**
  * Close the asset details panel and deselect the asset card
@@ -54,18 +53,6 @@ export async function openAssetDetails(assetId) {
   const title = formatAssetMetadata(getMetadataValue('dc:title', assetJSON));
   const fileFormat = getMetadataValue('dc:format', assetJSON);
   const assetDetailsPanel = document.querySelector('.asset-details-panel');
-
-  // ensure express button only shows for valid asset types
-  const expressBtn = assetDetailsPanel.querySelector("#asset-details-express");
-  let validCheck = fileValidity(fileFormat);
-  console.log(validCheck);
-  if (ccEverywhere && validCheck.isValid) {
-    expressBtn.style.display = "block";
-  } else {
-    expressBtn.style.display = "none";
-  }
-
-
   const metadataContainer = assetDetailsPanel.querySelector('#asset-details-metadata-container');
   metadataContainer.innerHTML = '';
   const metadataViewConfig = await getQuickViewConfig();
@@ -86,16 +73,6 @@ export async function openAssetDetails(assetId) {
   const clone = actionsDownloadA.cloneNode(true);
   actionsDownloadA.parentNode.replaceChild(clone, actionsDownloadA);
   addDownloadModalHandler(clone, assetId, fileName, fileFormat);
-  
-  // follow above design pattern for express button handler
-  let assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
-  let assetWidth = assetJSON.assetMetadata['tiff:ImageWidth'];
-  if (!(assetHeight)) assetHeight = 1000;
-  if (!(assetWidth)) assetWidth = 1000;
-  const actionsExpress = assetDetailsPanel.querySelector('.action-edit-asset');
-  const exClone = actionsExpress.cloneNode(true);
-  actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
-  addExpressEditorHandler(exClone, assetId, fileName, assetHeight, assetWidth, validCheck.fileType);
 
   // show the asset details panel
   assetDetailsPanel.classList.add('open');
@@ -113,9 +90,6 @@ export default async function decorate(block) {
             <div class="top-left">
               <button id="asset-details-download" class="action action-download-asset" title="Download" aria-label="Download">
                 <span class="icon icon-download"></span>
-              </button>
-              <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
-                <span class="icon icon-cc-express"></span>
               </button>
             </div>
             <div class="top-right">
@@ -153,5 +127,4 @@ export default async function decorate(block) {
     block.querySelector('iframe')?.remove();
     await openModal();
   });
-  await startCCE();
 }
