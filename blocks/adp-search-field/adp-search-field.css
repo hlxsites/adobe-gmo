@@ -1,0 +1,120 @@
+/* stylelint-disable selector-class-pattern */
+:root {
+    --position-autocomplete-panel-top: 52px;
+    --aa-search-input-height: 40px;
+    --aa-icon-size: 15px;
+    --aa-input-icon-size: 15px;
+    --aa-action-icon-size: 15px
+}
+
+.adp-search-field {
+    position: relative;
+}
+
+.adp-search-field input {
+    border-radius: 25px;
+    background-color: var(--overlay-background-color);
+    width: 100%;
+    color: var(--text-color);
+    padding: 0.8em 0.8em 0.8em 40px;
+}
+
+.adp-search-field input::placeholder {
+    color: #7d7d7d;
+}
+
+/** override algolia's background color for search box **/
+.ais-SearchBox-form {
+    background-color: transparent !important;
+}
+
+.aa-Autocomplete,
+.aa-Autocomplete input,
+.aa-Autocomplete div,
+.aa-Autocomplete form {
+    border-radius: 25px;
+    border: none;
+}
+
+.ais-SearchBox-form input:focus {
+    border: 0;
+    margin-left: 1px;
+}
+
+.aa-Form:focus-within {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.aa-InputWrapperPrefix {
+    z-index: 1000;
+    content: "";
+    height: 1rem;
+    margin-top: -0.5rem;
+    position: absolute;
+    top: 50%;
+    width: 1rem;
+}
+
+.aa-InputWrapperPrefix .aa-Label {
+    padding: 0;
+    margin: 0;
+}
+
+.aa-InputWrapperPrefix .aa-SubmitIcon {
+    height: 15px;
+    width: 15px;
+}
+
+.aa-InputWrapperSuffix {
+    z-index: 1000;
+    position: absolute;
+    right: 0;
+    top: 3%;
+}
+
+svg.aa-SubmitIcon,
+svg.aa-ClearIcon {
+    color: #5a5e9a;
+    fill: #5a5e9a;
+}
+
+/* !important is needed to override algolia's inline style
+    that is set by the javascript.
+    TODO: Fix the issue in algolia's autocomplete library code
+        by making it use fixed positioning:
+        https://github.com/algolia/autocomplete/issues/1199
+*/
+.aa-Panel {
+    position: fixed;
+    top: var(--position-autocomplete-panel-top) !important;
+    z-index: 1000;
+}
+
+.aa-ItemContent, 
+.aa-ItemContentTitle {
+    color: var(--text-color);
+    font: var(--metadata-font);
+ }
+
+ .aa-ItemLink:hover {
+    color: var(--text-color);
+    text-decoration: none;
+ }
+
+ .aa-Item:hover {
+    background-color: var(--overlay-background-color);
+ }
+
+ .aa-Item {
+    min-height: 32px;
+ }
+
+ .aa-ItemIcon {
+    margin-top: 1px;
+ }
+
+ .aa-ItemContent {
+    column-gap: 5px;
+ }

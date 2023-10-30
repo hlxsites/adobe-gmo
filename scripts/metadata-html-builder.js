@@ -3,7 +3,7 @@ import {
   getQueryVariable,
   isElement,
 } from './scripts.js';
-import { addMetadataFields, formatAssetMetadata, getMetadataValue } from './metadata.js';
+import { addMetadataFields, formatAssetMetadata, getAssetName } from './metadata.js';
 import { getAssetMetadata } from './polaris.js';
 
 function getAssetIdFromURL() {
@@ -14,8 +14,8 @@ function shouldDisplayMetadataAsRow(metadataInfo, formattedValue) {
   const minCharsForRows = 34;
   const { value } = metadataInfo;
 
-  return ((value !== undefined || value !== null)
-    && value && value.length && value.length > minCharsForRows)
+  return (((value !== undefined || value !== null)
+    && value && value.length && value.length > minCharsForRows))
     || isElement(formattedValue);
 }
 
@@ -37,7 +37,7 @@ function shouldDisplayMetadataAsRow(metadataInfo, formattedValue) {
 function createHTMLForMetadataField(metadataElement, metadataInfo, hideEmptyMetadataProperty) {
   const name = metadataInfo.field;
   const label = metadataInfo.title;
-  const { value, cssClass } = metadataInfo;
+  const { value, cssClass, layout } = metadataInfo;
 
   const item = document.createElement('div');
   item.classList.add('item', 'metadata-field', `metadata-field-${cssClass}`);
@@ -69,7 +69,7 @@ function createHTMLForMetadataField(metadataElement, metadataInfo, hideEmptyMeta
     }
     item.appendChild(valueDiv);
     metadataElement.appendChild(item);
-    if (shouldDisplayMetadataAsRow(metadataInfo, formattedValue)) {
+    if (shouldDisplayMetadataAsRow(metadataInfo, formattedValue) || layout === 'row') {
       item.classList.add('metadata-row');
     }
   }
@@ -134,7 +134,7 @@ export async function fetchMetadataAndCreateHTML(metadataViewConfig, assetData, 
   if (includeFileName) {
     const fileNameDiv = document.createElement('div');
     fileNameDiv.classList.add('metadata-filename');
-    fileNameDiv.textContent = getMetadataValue('repo:name', assetJSON);
+    fileNameDiv.textContent = getAssetName(assetJSON);
     fileNameDiv.title = fileNameDiv.textContent;
     metadataContainer.appendChild(fileNameDiv);
   }

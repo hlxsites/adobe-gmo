@@ -1,0 +1,135 @@
+/* stylelint-disable selector-class-pattern */
+
+.adp-refinement-wrapper {
+  grid-area: refinements;
+  padding-right: 0;
+}
+
+.adp-refinement-wrapper.open {
+  position: sticky;
+  top: 135px;
+  overflow-y: auto;
+  height: 80vh;
+  width: 250px;
+}
+
+.adp-refinement-wrapper .refinements {
+  display: none;
+}
+
+.adp-refinement-wrapper.open .refinements {
+  display: block;
+}
+
+@media screen and (max-width: 720px) {
+  .adp-refinement-wrapper {
+    width: 100%;
+  }
+}
+
+.refinements span.label {
+  font: var(--refinement-item-font);
+  font-weight: bold;
+  padding-left: 21px;
+  cursor: pointer;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.refinements span.label[aria-expanded="true"] {
+  background: url("../../icons/chevron-down.svg") no-repeat left center / 16px;
+}
+
+.refinements span.label[aria-expanded="false"] {
+  background: url("../../icons/chevron-right.svg") no-repeat left center / 16px;
+}
+
+.refinement-options {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-bottom: 26px;
+  list-style: none;
+  font-family: var(--body-font-family);
+}
+
+.refinements .ais-SearchBox-input {
+  max-width: 93%;
+}
+
+.refinements-toggle {
+  font-size: var(--header-font-size);
+  padding: 0;
+  position: sticky;
+  top: 0.01rem;
+  background: linear-gradient(
+    to bottom,
+    var(--assets-browser-background-color) 0 calc(100% - 2rem),
+    transparent 100%
+  );
+  padding-top: 0.88rem;
+  padding-bottom: 1.7rem;
+  z-index: 1;
+}
+
+.refinements-toggle.closed{
+  padding-bottom: 0;
+}
+
+.refinement-options mark {
+  background: none;
+  font-weight: bold;
+}
+
+.refinement.hidden {
+  display: none;
+}
+
+#filter-button {
+  background: none;
+  border: none;
+  font-weight: bold;
+  white-space: nowrap;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  cursor: pointer;
+}
+
+#filter-button .text {
+  text-align: left;
+  font: normal normal bold 16px/20px var(--body-font-family);
+  letter-spacing: 0;
+  color: var(--text-color);
+  opacity: 1;
+  margin-left: 0.250em;
+}
+
+#filter-button .icon {
+  height: 1rem;
+  width: 1rem;
+  vertical-align: text-bottom;
+}
+
+#filter-button > span.icon.hidden {
+  display: none;
+}
+
+.refinements-toggle .filter-divider {
+  width: 1px;
+  height: 17px;
+  background: #FFF 0% 0% no-repeat padding-box;
+  border: 1px solid #6D6D6D;
+  opacity: 0.39;
+  margin-left: 11px;
+  display: inline;
+}
+
+.refinements-toggle .filter-divider.hidden {
+  display: none;
+}
+
+.refinements input[type="text"]:focus, .refinements textarea:focus {
+  border: unset;
+  box-shadow: unset;
+}

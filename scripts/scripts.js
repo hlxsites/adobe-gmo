@@ -2,7 +2,6 @@ import {
   sampleRUM,
   buildBlock,
   loadHeader,
-  loadFooter,
   decorateButtons,
   decorateIcons,
   decorateSections,
@@ -19,20 +18,17 @@ import {
   getSearchIndex,
   getBackendApiKey,
   getDeliveryEnvironment,
-  getDownloadUrl,
 } from './polaris.js';
-import { isPDF } from './filetypes.js';
-import {
-  emitEvent,
-  EventNames,
-} from './events.js';
+// eslint-disable-next-line import/extensions
+import dependencies from './dependencies.json' assert { type: "json" };
+
+const NO_ACCESS_PATH = '/no-access';
 
 import {
   loadDataLayer
 } from './adobe-data-layer.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
-
 
 /**
  * Builds hero block and prepends to main in a new section.
@@ -104,9 +100,9 @@ export async function loadScript(url, attrs) {
     script.src = url;
     if (attrs) {
       // eslint-disable-next-line no-restricted-syntax, guard-for-in
-      for (const attr in attrs) {
-        script.setAttribute(attr, attrs[attr]);
-      }
+      attrs.forEach((attr) => {
+        script.setAttribute(attr, '');
+      });
     }
 
     script.onload = () => resolve(script);
@@ -166,16 +162,19 @@ async function initSearch() {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
+  const dependenciesPromise = loadDependencies();
   await getBearerToken();
-  if (!window.location.pathname.includes('/no-access')) {
+  if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
     const hasAccess = await checkUserAccess();
     if (!hasAccess) {
-      window.location.href = '/no-access';
+      window.location.href = NO_ACCESS_PATH;
       return;
     }
     // This is a dev only service worker that caches the algolia JS SDK
     // check if we are on localhost
     await initializeServiceWorkers();
+    /* Make sure all dependencies are loaded before initializing search */
+    await dependenciesPromise;
     await initSearch();
   }
   const brandingConfig = await getBrandingConfig();
@@ -229,13 +228,24 @@ async function loadLazy(doc) {
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  loadHeader(doc.querySelector('header'));
-  loadFooter(doc.querySelector('footer'));
+  loadHeader(doc.querySelector('header'), 'adp-header');
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   sampleRUM('lazy');
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
   sampleRUM.observe(main.querySelectorAll('picture > img'));
+}
+
+async function loadDependencies() {
+  const promises = [];
+  dependencies.forEach((dependency) => {
+    if (dependency.type === 'js') {
+      promises.push(loadScript(dependency.src, dependency.attrs));
+    } else if (dependency.type === 'css') {
+      loadCSS(dependency.href);
+    }
+  });
+  await Promise.all(promises);
 }
 
 /**
@@ -377,6 +387,19 @@ export function removeParamFromUrl(url, paramName) {
 
 export function removeParamFromWindowURL(paramName) {
   const newURL = removeParamFromUrl(window.location.href, paramName);
+  window.history.replaceState({}, '', newURL);
+}
+
+function setParamInHashParams(url, paramName, paramValue) {
+  const urlObject = new URL(url);
+  const params = new URLSearchParams(urlObject.hash.replace('#', ''));
+  params.set(paramName, paramValue);
+  urlObject.hash = params.toString();
+  return urlObject.toString();
+}
+
+export function setHashParamInWindowURL(paramName, paramValue) {
+  const newURL = setParamInHashParams(window.location.href, paramName, paramValue);
   window.history.replaceState({}, '', newURL);
 }
 
