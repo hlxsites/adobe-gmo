@@ -5,6 +5,18 @@ import { getBearerToken } from './security.js';
 const retryErrorCodes = [429, 503];
 const retryOptions = { retryErrorCodes };
 
+export function getLinkShareID(share) {
+  return share.id;
+}
+
+export function getLinkShareTitle(share) {
+  return share.title;
+}
+
+export function getAssetsFromLinkShare(share) {
+  return share?.assets;
+}
+
 function getLinkShareEndpoint() {
   return `${getDeliveryEnvironment()}/adobe/asset-linkshares`;
 }
@@ -14,7 +26,7 @@ function getLinkShareEndpoint() {
  * @param {string} linkId - Id of link to fetch
  * @returns {Object} response as JSON of link details
  */
-export async function getLink(linkId) {
+export async function getLinkShare(linkId) {
   const url = `${getLinkShareEndpoint()}/${linkId}`;
   const bearerToken = await getBearerToken();
   const options = {
@@ -33,7 +45,7 @@ export async function getLink(linkId) {
  * @param {Object} linkData - request body having link details
  * @returns {Object} response as JSON of created link metadata
  */
-export async function createLink(linkData) {
+export async function createLinkShare(linkData) {
   const url = `${getLinkShareEndpoint()}`;
   const bearerToken = await getBearerToken();
   const options = {
@@ -53,7 +65,7 @@ export async function createLink(linkData) {
  * List all non-expired links
  * @returns {Object} response as JSON of all links alogn with their metadata
  */
-export async function listLinks() {
+export async function listLinkShares() {
   const url = `${getLinkShareEndpoint()}`;
   const bearerToken = await getBearerToken();
   const options = {

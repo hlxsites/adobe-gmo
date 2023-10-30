@@ -53,6 +53,10 @@
   cursor: not-allowed;
 }
 
+.adp-asset-details-panel .asset-details-header #asset-details-share.hidden {
+  display: none;
+}
+
 .adp-asset-details-panel .metadata-fields {
   font: var(--metadata-font);
   display: grid;

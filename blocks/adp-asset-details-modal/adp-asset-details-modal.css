@@ -95,21 +95,22 @@
   border-radius: 6px;
 }
 
-.adp-asset-details-modal.block .modal-right-panel #asset-details-page-metadata.open,
-.adp-asset-details-modal.block .modal-right-panel #asset-details-page-share.open,
-.adp-asset-details-modal.block .modal-right-panel #asset-details-page-download.open {
+.adp-asset-details-modal.block .modal-header #asset-details-page-metadata.open,
+.adp-asset-details-modal.block .modal-header  #asset-details-page-share.open,
+.adp-asset-details-modal.block .modal-header #asset-details-page-download.open {
   background-color: var(--button-active-color);
 }
 
-.adp-asset-details-modal.block .modal-header .modal-header-right .action-previous-asset.disabled,
-.adp-asset-details-modal.block .modal-header .modal-header-right .action-next-asset.disabled {
+.adp-asset-details-modal.block .modal-header .action-previous-asset.disabled,
+.adp-asset-details-modal.block .modal-header .action-next-asset.disabled {
   pointer-events: none;
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.adp-asset-details-modal.block .modal-header .modal-header-right .action-previous-asset.hidden,
-.adp-asset-details-modal.block .modal-header .modal-header-right .action-next-asset.hidden {
+.adp-asset-details-modal.block .action-share-asset.hidden,
+.adp-asset-details-modal.block .modal-header .action-previous-asset.hidden,
+.adp-asset-details-modal.block .modal-header .action-next-asset.hidden {
   display: none;
 }
 

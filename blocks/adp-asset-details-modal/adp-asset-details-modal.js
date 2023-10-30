@@ -16,7 +16,6 @@ import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { addDownloadEventListener } from '../adp-download-modal/adp-download-modal.js';
 import { populateShareModalInfo } from '../adp-share-modal/adp-share-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
-import { getNextAssetCard, getPreviousAssetCard } from '../adp-infinite-results-instantsearch/adp-infinite-results-instantsearch.js';
 import { addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
 let scale = 1;
@@ -25,6 +24,7 @@ let assetName;
 let format;
 let assetJSON;
 let originalAssetURL;
+let resultsManagerObj;
 
 export function closeModal(block) {
   document.body.classList.remove('no-scroll');
@@ -113,7 +113,8 @@ function createHeaderPanel(modal) {
   addExpressEditorHandler(exClone, assetId, assetName, assetHeight, assetWidth, "image", document);
 }
 
-export async function openAssetDetailsModal(id) {
+export async function openAssetDetailsModal(id, resultsManager) {
+  resultsManagerObj = resultsManager;
   scale = 1;
   assetId = id || getAnchorVariable('assetId');
   if (!getAnchorVariable('assetId')) {
@@ -384,14 +385,14 @@ export default function decorate(block) {
 
   block.querySelector('#asset-details-previous').addEventListener('click', async (e) => {
     emitEvent(e.target, EventNames.PREVIOUS_ASSET, { assetId });
-    const id = await getPreviousAssetCard();
-    openAssetDetailsModal(id);
+    const id = await resultsManagerObj.selectPreviousItem(assetId);
+    openAssetDetailsModal(id, resultsManagerObj);
   });
 
   block.querySelector('#asset-details-next').addEventListener('click', async (e) => {
     emitEvent(e.target, EventNames.NEXT_ASSET, { assetId });
-    const id = await getNextAssetCard();
-    openAssetDetailsModal(id);
+    const id = await resultsManagerObj.selectNextItem(assetId);
+    openAssetDetailsModal(id, resultsManagerObj);
   });
 
   block.querySelector('#asset-details-page-zoom-in').addEventListener('click', () => {
@@ -413,7 +414,7 @@ export default function decorate(block) {
     block.querySelector('#asset-details-previous').classList.add('hidden');
     block.querySelector('.divider.first').classList.add('hidden');
     getAssetMetadata(assetId).then(() => {
-      openAssetDetailsModal(assetId);
+      openAssetDetailsModal(assetId, resultsManagerObj);
     }).catch(() => {
       removeParamFromWindowURL('assetId');
     });

@@ -19,8 +19,9 @@ import {
   getBackendApiKey,
   getDeliveryEnvironment,
 } from './polaris.js';
-// eslint-disable-next-line import/extensions
-import dependencies from './dependencies.json' assert { type: "json" };
+
+// Load a list of dependencies the site needs
+let dependenciesJSON = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`).then((res) => res.json());
 
 const NO_ACCESS_PATH = '/no-access';
 
@@ -158,7 +159,7 @@ async function initSearch() {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  const dependenciesPromise = loadDependencies();
+  const loadDependenciesPromise = loadDependencies();
   await getBearerToken();
   if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
     const hasAccess = await checkUserAccess();
@@ -169,8 +170,9 @@ async function loadEager(doc) {
     // This is a dev only service worker that caches the algolia JS SDK
     // check if we are on localhost
     await initializeServiceWorkers();
-    /* Make sure all dependencies are loaded before initializing search */
-    await dependenciesPromise;
+    // Make sure all dependencies are loaded before initializing search
+    // - we load them in parallel by leveraging the promise
+    await loadDependenciesPromise;
     await initSearch();
   }
   const brandingConfig = await getBrandingConfig();
@@ -232,9 +234,14 @@ async function loadLazy(doc) {
   sampleRUM.observe(main.querySelectorAll('picture > img'));
 }
 
+/**
+ * Loads all dependencies in an async way so we can leverage
+ * the browser's ability to load multiple resources in parallel.
+ */
 async function loadDependencies() {
   const promises = [];
-  dependencies.forEach((dependency) => {
+  dependenciesJSON = await dependenciesJSON;
+  dependenciesJSON.forEach((dependency) => {
     if (dependency.type === 'js') {
       promises.push(loadScript(dependency.src, dependency.attrs));
     } else if (dependency.type === 'css') {
@@ -302,6 +309,14 @@ export function safeCSSId(str) {
   return encodeURIComponent(str)
     .toLowerCase()
     .replace(/\.|%[0-9a-z]{2}/gi, '');
+}
+
+export function getLastPartFromURL() {
+  const url = new URL(document.location);
+  const path = url.pathname;
+  const parts = path.split('/');
+  const id = parts[parts.length - 1];
+  return id;
 }
 
 export function removeParamFromUrl(url, paramName) {
