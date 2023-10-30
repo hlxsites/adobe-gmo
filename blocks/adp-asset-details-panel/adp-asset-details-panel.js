@@ -26,6 +26,7 @@ export function closeAssetDetailsPanel() {
   const panel = document.querySelector('.adp-asset-details-panel');
   panel.classList.remove('open');
   emitEvent(panel, EventNames.ASSET_QUICK_PREVIEW_CLOSE, { assetId: panel.dataset.assetId });
+  document.querySelector('#share-link-expiry-date-calendar-dialog')?.remove(); // remove the calendar dialog created by the share modal
 }
 
 /**

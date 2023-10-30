@@ -374,11 +374,12 @@ export default function decorate(block) {
       const shareModalBodyRight = document.querySelector('.adp-share-modal-block .share-link-body-right').cloneNode(true);
       shareDetailsContainer.appendChild(shareModalBodyRight);
       await modalMetadata.appendChild(shareDetailsContainer);
+      const shareLinkExpiryContainer = block.querySelector('.share-link-body-right .share-link-expiry-container');
+      shareLinkExpiryContainer.classList.remove('multi-select');
       await populateShareModalInfo(
         shareDetailsContainer,
-        decodeURIComponent(assetId),
-        assetName,
-        getAssetTitle(assetJSON),
+        [decodeURIComponent(assetId)],
+        getAssetTitle(assetJSON) || assetName,
       );
     });
   });

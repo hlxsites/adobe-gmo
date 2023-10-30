@@ -106,7 +106,6 @@ header .nav-wrapper .banner .banner-right {
   color: var(--banner-text-color);
   padding-right: 30px;
   gap: 24px;
-  display: none;
 }
 
 header .nav-wrapper .banner .banner-right .actions {

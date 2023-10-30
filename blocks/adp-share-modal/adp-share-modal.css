@@ -1,5 +1,5 @@
 .adp-share-modal.block dialog {
-  min-width: 647px;
+  min-width: 555px;
   border-radius: 6px;
   border: none;
   padding: 0;
@@ -44,7 +44,7 @@
 
 .adp-share-modal.block .dialog-body {
   display: grid;
-  grid-template-columns: 212px auto;
+  grid-template-columns: auto auto;
   grid-template-rows: 1fr;
   grid-template-areas: 'share-link-body-left share-link-body-right';
   column-gap: 40px;
@@ -57,6 +57,7 @@
 
 .adp-share-modal.block .share-link-body-left {
   display: flex;
+  width: auto;
   flex-direction: column;
   align-items: flex-start;
   grid-area: share-link-body-left;
@@ -75,10 +76,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 3px;
 }
 
 .adp-share-modal.block .share-link-body-left .asset-name {
-  font: var(--metadata-font);
+  font: var(--share-modal-font);
   color: #222;
   text-transform: none;
   max-width: 100%;
@@ -91,30 +93,19 @@
   align-items: flex-start;
   grid-area: share-link-body-right;
   text-transform: none;
-  height: 100%;
+  min-height: 225px;
   justify-content: space-between;
 }
 
 .share-link-body-right .share-link-expiry-container  .expiry-periods {
   display: flex;
   flex-direction: column;
-  row-gap: 10px;
+  row-gap: 12px;
   width: 100%;
 }
 
-.share-link-body-right .share-link-expiry-container input[type="radio"] {
-  appearance: none;
-  margin-left: 0;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #FDFDFD 0 0 no-repeat padding-box;
-  border: 2px solid #222;
-  opacity: 1;
-}
-
-.share-link-body-right .share-link-expiry-container input[type="radio"]:checked {
-  border: 6px solid var(--button-focus-outline-color);
+.share-link-body-right .share-link-expiry-container.multi-select {
+  margin-top: 24px;
 }
 
 .share-link-body-right .label-title {
@@ -129,30 +120,48 @@
   opacity: 0.6;
 }
 
-.share-link-body-right .share-link-expiry-group {
-  font: var(--metadata-font);
+.share-link-body-right .share-link-expiry-select-container {
+  position: relative;
+  width: 184px;
+  height: 32px;
+  margin-bottom: 10px;
 }
 
-.share-link-body-right .share-link-expiry-option {
-  height: 22px;
+.share-link-body-right .share-link-expiry-select-container select {
+  position: absolute;
+  font: var(--share-modal-font);
+  border: var(--select-border);
+  border-radius: 6px;
+  width: 100%;
+  height: 100%;
+  text-indent: 11px;
+  appearance: none;
+  background-image: url("../../icons/chevronDown.svg");
+  background-repeat: no-repeat;
+  background-position: center right 7px;
 }
 
-.share-link-body-right .share-link-expiry-option.custom-calendar {
-  height: 31px;
+.share-link-body-right .share-link-expiry-select-container::after {
+  position: absolute;
+  content: "";
+  right: 34px;
+  pointer-events: none;
+  border-left: var(--select-border);
+  height: 100%;
 }
 
-.share-link-body-right .share-link-expiry-group {
-  font: var(--metadata-font);
-}
-
-.share-link-body-right input[type='radio'] {
-  accent-color: var(--button-focus-outline-color);
+.share-link-body-right .share-link-expiry-select-container select:focus {
+  outline: none;
+  border: var(--select-border);
 }
 
 .share-link-body-right .share-link-actual-expiration-date-title {
-  font: var(--metadata-font);
+  font: var(--share-modal-font);
   color: #222;
-  padding-top: 15px;
+}
+
+.share-link-body-right .share-link-actual-expiration-date-title.hidden {
+  display: none;
 }
 
 .share-link-body-right .share-link-actual-expiration-date-title .expiration-date-time {
@@ -164,13 +173,13 @@
   padding-top: 10px;
 }
 
+.share-link-body-right .share-login-checkbox > label {
+  font: var(--share-modal-font);
+}
+
 .adp-share-modal.block .date-input-container > label {
   padding-top: 0;
   padding-bottom: 0;
-}
-
-.share-link-body-right .share-login-checkbox > label {
-  font: var(--metadata-font);
 }
 
 .share-link-body-right .actions-container {
@@ -178,7 +187,7 @@
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  padding-top: 49px;
+  padding-top: 50px;
 }
 
 .share-link-body-right .actions-container .action-copy-share-link {
@@ -187,7 +196,7 @@
   font: var(--bold-font-size-s);
   color: var(--button-text-color);
   height: 32px;
-  width: 320px;
+  width: 228px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -195,24 +204,21 @@
   border: none;
 }
 
-#share-link-expiry-date-calendar-dialog {
-  width: 100%;
-  height: 100%;
-  background: transparent;
-}
-
-#share-link-expiry-date-calendar-dialog::backdrop {
-  background: transparent;
-}
-
-#share-link-expiry-date-calendar {
+.adp-share-modal.block .share-link-expiry-date-calendar {
   display: inline-block;
-  width: 230px;
+  width: 184px;
 }
 
-#share-link-expiry-date-calendar input[type="text"] {
-  font: var(--metadata-font);
+.share-link-body-right .share-link-expiry-date-calendar.hidden {
+  display: none;
+}
 
+.adp-share-modal.block .share-link-expiry-date-calendar .input-button {
+  padding: 0;
+}
+
+.adp-share-modal.block .share-link-expiry-date-calendar input[type="text"] {
+  font: var(--share-modal-font);
 }
 
 .adp-share-modal.block .date-input-container {
@@ -221,4 +227,9 @@
 
 .adp-share-modal.block .date-input-container .flatpickr {
   width: 100%;
+}
+
+.share-link-body-right .share-link-in-progress {
+  background: url("../../icons/progress.svg") no-repeat center center;
+  background-size: 20px 20px;
 }
