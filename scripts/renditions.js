@@ -11,6 +11,7 @@ function insertOriginalBeforeExtension(filename) {
   return filename.replace(regex, '_Original$1');
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export async function getAvailableRenditions(assetId, assetName, mimeType) {
   const assetJSON = await getAssetMetadata(assetId);
   const downloadURL = await getDownloadUrl(assetId, assetName);
@@ -22,7 +23,7 @@ export async function getAvailableRenditions(assetId, assetName, mimeType) {
     url: new URL(downloadURL),
     width: assetJSON.assetMetadata['exif:PixelXDimension'],
     height: assetJSON.assetMetadata['exif:PixelYDimension'],
-    format: mimeType.split('/')[1],
+    format: mimeType,
   }];
   if (isImage(mimeType)) {
     const additionalRenditions = await getAvailableImageRenditions(assetId, assetName, mimeType);

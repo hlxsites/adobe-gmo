@@ -252,6 +252,24 @@ async function mapUserSettingsForId(configId, result) {
 }
 
 /**
+ *
+ * @returns {Array<QuickLinkConfig>}
+ */
+export async function getQuickLinkConfig() {
+  const result = [];
+  const response = await getConfig('site-config.json');
+  response.quicklinks.data.forEach((row) => {
+    if (row.Title && row.Page) {
+      result.push({
+        title: row.Title,
+        page: row.Page,
+      });
+    }
+  });
+  return result;
+}
+
+/**
  * Gets base path for config files
  * If it is a /drafts/{branch} path, it will return /drafts/{branch}
  * Otherwise, it will return the code base path.
@@ -269,7 +287,7 @@ function getBaseConfigPath() {
 async function getConfig(filename) {
   if (!filename) throw new Error('filename is required');
   try {
-    return await fetchCached(`${getBaseConfigPath()}/${filename}`, {}, `${window.hlx.codeBasePath}/${filename}`);
+    return await fetchCached(`${getBaseConfigPath()}/${filename}`, {}, `/${filename}`);
   } catch (error) {
     throw new Error(`Error fetching ${filename}: ${error}`, error);
   }

@@ -605,24 +605,26 @@ export async function waitForLCP(lcpBlocks) {
 }
 
 /**
- * Loads a block named 'header' into header
+ * Loads a block named 'header' into header (by default)
  * @param {Element} header header element
+ * @param {String} headerBlockName name of the header block
  * @returns {Promise}
  */
-export function loadHeader(header) {
-  const headerBlock = buildBlock('header', '');
+export function loadHeader(header, headerBlockName = 'header') {
+  const headerBlock = buildBlock(headerBlockName, '');
   header.append(headerBlock);
   decorateBlock(headerBlock);
   return loadBlock(headerBlock);
 }
 
 /**
- * Loads a block named 'footer' into footer
- * @param footer footer element
+ * Loads a block named 'footer' into footer (by default)
+ * @param {Element} footer footer element
+ * @param {String} footerBlockName name of the footer block
  * @returns {Promise}
  */
-export function loadFooter(footer) {
-  const footerBlock = buildBlock('footer', '');
+export function loadFooter(footer, footerBlockName = 'footer') {
+  const footerBlock = buildBlock(footerBlockName, '');
   footer.append(footerBlock);
   decorateBlock(footerBlock);
   return loadBlock(footerBlock);

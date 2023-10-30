@@ -1,7 +1,7 @@
 import { getAdminConfig } from './site-config.js';
 import { getBearerToken, getUserProfile } from './security.js';
 import { getDownloadUrl } from './polaris.js';
-import { closeModal } from '../blocks/asset-details-modal/asset-details-modal.js';
+import { closeModal } from '../blocks/adp-asset-details-modal/adp-asset-details-modal.js';
 
 export let ccEverywhere;
 
@@ -160,8 +160,8 @@ export async function startCCE() {
   // create static config objects
   // todo check if clientid and appname values are null/missing
   const adminInfo = await getAdminConfig();
-  const clientId = adminInfo.expClientId;
-  const appName = adminInfo.expAppName;
+  const clientId = adminInfo.adobeExpressClientId;
+  const appName = adminInfo.adobeExpressAppName;
 
   if (clientId && appName) {
     const hostInfo = buildHostInfo(clientId, appName);
@@ -197,7 +197,6 @@ export async function openInExpress(base64Blob, assetHeight, assetWidth, assetTy
   // todo fix video
   const userInfo = await buildUserInfo();
   const authInfo = await buildAuthInfo();
-  console.log(assetType);
   ccEverywhere.createDesign({
     callbacks: createFromAEMCallback(),
     inputParams: {
