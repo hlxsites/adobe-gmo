@@ -14,8 +14,7 @@ export function loadDataLayer() {
   document.addEventListener(EventNames.FACET, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_QUICK_PREVIEW, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_DETAIL, (e) => addDataLayer(e,e.detail));
-  //Comment out to eliminate error adobe-client-data-layer.min.js:1 Uncaught RangeError: Maximum call stack size exceeded
-  //document.addEventListener(EventNames.INFINITE_SCROLL, (e) => addDataLayer(e,e.detail));
+  document.addEventListener(EventNames.INFINITE_SCROLL, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.SESSION_STARTED, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_SELECTED, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_DESELECTED, (e) => addDataLayer(e,e.detail));
@@ -26,13 +25,27 @@ export function loadDataLayer() {
 
 //Generic function to add to the adobeDataLayer
 function addDataLayer(event,detail) {
-  if(typeof detail !== "undefined")
-  {
-    window.adobeDataLayer = window.adobeDataLayer || [];
-    window.adobeDataLayer.push({
-      event : event.type,
-      detail : event.detail
-    });
+  try {
+    if(typeof detail !== "undefined")
+    {
+      window.adobeDataLayer = window.adobeDataLayer || [];
+      window.adobeDataLayer.push({
+        event : event.type,
+        detail : event.detail
+      });
+    }
+  }
+  catch (error) {
+    //When the error adobe-client-data-layer.min.js:1 Uncaught RangeError: Maximum call stack size exceeded happens then
+    // window.adobeDataLayer is reset to []
+    if(typeof detail !== "undefined")
+    {
+      window.adobeDataLayer = [];
+      window.adobeDataLayer.push({
+        event : event.type,
+        detail : event.detail
+       });
+    }
   }
 }
 
