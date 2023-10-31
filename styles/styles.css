@@ -366,7 +366,8 @@ body {
 }
 
 /* this is to counter the body text-transform:capitalize above */
-.adp-refinement-wrapper .label {
+.adp-refinement-wrapper .label, 
+.current-refinement-label-facet-label {
   text-transform: none;
 }
 
