@@ -14,7 +14,8 @@ export function loadDataLayer() {
   document.addEventListener(EventNames.FACET, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_QUICK_PREVIEW, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_DETAIL, (e) => addDataLayer(e,e.detail));
-  document.addEventListener(EventNames.INFINITE_SCROLL, (e) => addDataLayer(e,e.detail));
+  //Comment out to eliminate error adobe-client-data-layer.min.js:1 Uncaught RangeError: Maximum call stack size exceeded
+  //document.addEventListener(EventNames.INFINITE_SCROLL, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.SESSION_STARTED, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_SELECTED, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_DESELECTED, (e) => addDataLayer(e,e.detail));
