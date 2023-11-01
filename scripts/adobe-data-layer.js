@@ -27,7 +27,7 @@ function addDataLayer(event,detail) {
 {
     if(typeof detail !== "undefined")
     {
-      if (isValidJSON(JSON.stringify(detail)))
+      if (isValidJSON(detail))
       {
         window.adobeDataLayer = window.adobeDataLayer || [];
         window.adobeDataLayer.push({
@@ -45,9 +45,10 @@ function addDataLayer(event,detail) {
   }
 }
 
-function isValidJSON(str) {
+function isValidJSON(object) {
   try {
-    JSON.parse(str);
+    const jsonString = JSON.stringify(object);
+    JSON.parse(jsonString);
     return true;
   } catch (e) {
     return false;
