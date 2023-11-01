@@ -258,7 +258,7 @@ async function mapUserSettingsForId(configId, result) {
 export async function getQuickLinkConfig() {
   const result = [];
   const response = await getConfig('site-config.json');
-  response.quicklinks.data.forEach((row) => {
+  response.quicklinks?.data.forEach((row) => {
     if (row.Title && row.Page) {
       result.push({
         title: row.Title,

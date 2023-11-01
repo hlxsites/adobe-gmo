@@ -1,16 +1,19 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { createTag, closeDialogEvent } from '../../scripts/scripts.js';
-import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
+import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { emitEvent, EventNames } from '../../scripts/events.js';
 import { getBearerToken } from '../../scripts/security.js';
 import { isPDF } from '../../scripts/filetypes.js';
+import { getAssetMetadata } from '../../scripts/polaris.js';
+import { getAssetName, getAssetMimeType } from '../../scripts/metadata.js';
+import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
 
 export default function decorate(block) {
   block.innerHTML = `<dialog>
   <div class="download-container">
   <div class="modal-header">
-    <div class="modal-header-left">
+    <div class="modal-header-left initial-format">
       Download
     </div>
     <div class="modal-header-right">
@@ -20,10 +23,7 @@ export default function decorate(block) {
     </div>
   </div>
   <div class="modal-body">
-    <div class="modal-body-left">
-      <div class="asset-image"></div>
-      <div class="file-name"></div>
-    </div>
+    <div class="modal-body-left"></div>
     <div class="modal-body-right"></div>
   </div>
   </div>
@@ -253,19 +253,35 @@ async function getRenditions(assetId, repoName, format) {
   return renditions;
 }
 
-export async function openModal(assetId, repoName, format) {
+export async function openDownloadModal(assetId) {
+  const assetJSON = await getAssetMetadata(assetId);
+  if (!assetJSON) return;
+  const repoName = getAssetName(assetJSON);
+  const format = getAssetMimeType(assetJSON);
+
   // add no-scroll to disable scrolling for the main page in the background
   document.body.classList.add('no-scroll');
   const dialog = document.querySelector('.adp-download-modal.block dialog');
-  const assetContainer = dialog.querySelector('.asset-image');
+  dialog.classList.remove('multi-select');
+  dialog.querySelector('.modal-header-left').textContent = 'Download';
+  const bodyLeft = dialog.querySelector('.modal-body-left');
+  const newBodyLeft = bodyLeft.cloneNode(false);
+  const body = bodyLeft.parentElement;
+  body.classList.remove('multi-select');
+  body.replaceChild(newBodyLeft, bodyLeft);
+  const assetContainer = createTag('div', { class: 'asset-image' });
+  const assetName = createTag('div', { class: 'file-name' });
+  newBodyLeft.appendChild(assetContainer);
+  newBodyLeft.appendChild(assetName);
   addAssetToContainer(assetId, repoName, null, format, assetContainer);
-  const assetName = dialog.querySelector('.file-name');
   assetName.textContent = repoName;
   const renditions = await getRenditions(assetId, repoName, format);
-  const renditionContainer = dialog.querySelector('.modal-body-right');
-  generateRenditionHTML(renditions, renditionContainer);
+  const bodyRight = dialog.querySelector('.modal-body-right');
+  const newBodyRight = bodyRight.cloneNode(false);
+  body.replaceChild(newBodyRight, bodyRight);
+  generateRenditionHTML(renditions, newBodyRight);
   dialog.showModal();
-  document.querySelector('.download-modal.block .action-close').blur();
+  document.querySelector('.adp-download-modal.block .action-close').blur();
 }
 
 function closeDialog(dialog) {
@@ -273,9 +289,102 @@ function closeDialog(dialog) {
   document.body.classList.remove('no-scroll');
 }
 
-export async function addDownloadModalHandler(downloadElement, assetId, repoName, format) {
-  downloadElement.addEventListener('click', (e) => {
-    e.preventDefault();
-    openModal(assetId, repoName, format);
+export async function openMultiSelectDownloadModal() {
+  document.body.classList.add('no-scroll');
+  const dialog = document.querySelector('.adp-download-modal.block dialog');
+  dialog.classList.add('multi-select');
+
+  // create selected assets table
+  const multiAssetsTable = await createMultiSelectedAssetsTable();
+  const bodyLeft = dialog.querySelector('.modal-body-left');
+  const newBodyLeft = bodyLeft.cloneNode(false);
+  const body = bodyLeft.parentElement;
+  body.classList.add('multi-select');
+  body.replaceChild(newBodyLeft, bodyLeft);
+  newBodyLeft.appendChild(multiAssetsTable);
+
+  //create radio buttons
+  const bodyRight = dialog.querySelector('.modal-body-right');
+  const newBodyRight = bodyRight.cloneNode(false);
+  body.replaceChild(newBodyRight, bodyRight);
+  const radioContainer = createTag('div', { class: 'radio-container' });
+  const message = createTag('div', { class: 'message initial-format' });
+  message.textContent = 'Select the versions of the assets to be downloaded';
+  const downloadOption1 = createTag('div', { class: 'download-option' });
+  const label1 = createTag('label', { for: 'download-original' });
+  const radioOriginal = createTag('input', {
+    type: 'radio', name: 'multi-select-download', value: 'Original', id: 'download-original', checked: true,
   });
+  const span1 = createTag('span', { class: 'multi-select-download-span initial-format' });
+  span1.textContent = 'Only originals';
+  label1.appendChild(radioOriginal);
+  label1.appendChild(span1);
+  downloadOption1.appendChild(label1);
+  const downloadOption2 = createTag('div', { class: 'download-option' });
+  const label2 = createTag('label', { for: 'download-rendition' });
+  const radioRendition = createTag('input', {
+    type: 'radio', name: 'multi-select-download', value: 'Rendition', id: 'download-rendition',
+  });
+  const span2 = createTag('span', { class: 'multi-select-download-span' });
+  span2.textContent = 'Originals + Renditions';
+  label2.appendChild(radioRendition);
+  label2.appendChild(span2);
+  downloadOption2.appendChild(label2);
+  radioContainer.appendChild(message);
+  radioContainer.appendChild(downloadOption1);
+  radioContainer.appendChild(downloadOption2);
+  newBodyRight.appendChild(radioContainer);
+
+  // create download button
+  generateButton(newBodyRight);
+  const downloadButton = newBodyRight.querySelector('.action.download');
+  downloadButton.textContent = 'Download';
+
+  dialog.showModal();
+  document.querySelector('.adp-download-modal.block .action-close').blur();
+
+  downloadButton.addEventListener('click', async (b) => {
+    const rows = multiAssetsTable.querySelectorAll('.asset-row');
+    const checkedRadio = radioContainer.querySelector('input[name="multi-select-download"]:checked');
+    const token = await getBearerToken();
+    rows.forEach(async (row) => {
+      const data = await getAvailableRenditions(row.getAttribute('data-asset-id'), row.getAttribute('data-asset-name'), row.getAttribute('data-fileformat'));
+      data.forEach((item) => {
+        if (checkedRadio.value === 'Original' && item.name !== 'Original') {
+          return;
+        }
+        fetch(item.url, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        })
+          .then((resp) => resp.blob())
+          .then((blob) => {
+            downloadAsset(blob, item.fileName);
+            emitEvent(b.target, EventNames.DOWNLOAD, {
+              assetId: item.assetId,
+              assetName: item.assetName,
+              renditionName: item.name,
+            });
+          })
+          .catch((e) => console.log(`Unable to download file ${item.name}`, e));
+      });
+    });
+  });
+
+  // Download asset count update
+  let rowCount = multiAssetsTable.querySelectorAll('.asset-row').length;
+  dialog.querySelector('.modal-header-left').textContent = `Download ${rowCount} asset${rowCount > 1 ? 's' : ''}`;
+  const assetTable = dialog.querySelector('.multi-selected-assets-table');
+  const handleChanges = (mutationsList) => {
+    mutationsList.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        rowCount = multiAssetsTable.querySelectorAll('.asset-row').length;
+        dialog.querySelector('.modal-header-left').textContent = `Download ${rowCount} asset${rowCount > 1 ? 's' : ''}`;
+      }
+    });
+  };
+  const observer = new MutationObserver(handleChanges);
+  const config = { childList: true };
+  observer.observe(assetTable, config);
 }

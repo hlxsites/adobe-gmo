@@ -2,9 +2,11 @@ import {
   decorateIcons, buildBlock, decorateBlock, loadBlock,
 } from '../../scripts/lib-franklin.js';
 import { getBrandingConfig, getQuickLinkConfig } from '../../scripts/site-config.js';
-import { getUserProfile } from '../../scripts/security.js';
+import { getUserProfile, getAvatarUrl } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
-import { EventNames, emitEvent } from '../../scripts/events.js';
+import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
+import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
+import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -116,14 +118,13 @@ export default async function decorate(block) {
       <!--  </ul>-->
     </div>
     <div class="nav-tools">
-      <a class="user-switcher" href="" aria-label="show profile options">
-        <span class="icon icon-user"></span>
-      </a>
+      <a class="user-switcher" href="" aria-label="show profile options"></a>
     </div>
     <dialog class="user-profile">
       <div class="user-container">
       <div class="user-name"></div>
       <div class="user-email"></div>
+        <a class="asset-metrics" href="/asset-metrics">Asset Metrics</a>
         <a class="user-signout" href="">Sign Out</a>
       </div>
     </dialog>
@@ -187,9 +188,10 @@ export default async function decorate(block) {
   loadBlock(searchField);
 
   const userProfile = await getUserProfile();
+  const avatarUrl = await getAvatarUrl();
 
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
-    window.sessionStorage.setItem(SESSION_STARTED_KEY, "true");
+    window.sessionStorage.setItem(SESSION_STARTED_KEY, 'true');
     emitEvent(document.documentElement, EventNames.SESSION_STARTED, {
       email: userProfile.email,
       displayName: userProfile.displayName,
@@ -198,6 +200,11 @@ export default async function decorate(block) {
 
   // decorate user switcher
   const userSwitcher = nav.querySelector('.user-switcher');
+
+  if(avatarUrl){
+    userSwitcher.style = `background-image: url(${avatarUrl});`;
+  }
+
   const dialog = nav.querySelector('.user-profile');
   userSwitcher.addEventListener('click', async (clickEvent) => {
     clickEvent.preventDefault();
@@ -230,19 +237,37 @@ export default async function decorate(block) {
 
   const closeBanner = nav.querySelector('.banner .action-close');
   closeBanner.addEventListener('click', () => {
-    const selectedAssets = document.querySelectorAll('.asset-card .checkbox-container input[type="checkbox"]:checked');
-    selectedAssets.forEach((asset) => {
-      asset.checked = false;
-      const assetCard = asset.closest('.asset-card');
-      if (assetCard) {
-        assetCard.classList.remove('checked');
-      }
-    });
-    const actionsDiv = document.querySelectorAll('.asset-card .actions');
-    actionsDiv.forEach((action) => {
-      action.classList.remove('hide');
-    });
     nav.querySelector('.banner')?.classList.remove('show');
+    emitEvent(document, EventNames.CLOSE_BANNER);
+  });
+  const handleAddRemoveItemSelection = (e) => {
+    const banner = document.querySelector('.adp-header .banner');
+    const selectedCount = banner.querySelector('.selected-count');
+    const count = e.detail.selections.length;
+    if (count === 0) {
+      banner.classList.remove('show');
+    } else {
+      banner.classList.add('show');
+    }
+    selectedCount.textContent = count > 1 ? `${count} items selected` : `${count} item selected`;
+  };
+  addEventListener(EventNames.ADD_ITEM_MULTISELECT, async (e) => handleAddRemoveItemSelection(e));
+  addEventListener(EventNames.REMOVE_ITEM_MULTISELECT, async (e) => handleAddRemoveItemSelection(e));
+
+  /** Hide if search changed */
+  addEventListener(EventNames.SEARCH_RESULTS_CHANGED, () => {
+    nav.querySelector('.banner')?.classList.remove('show');
+  });
+
+  // Handle click for Share button on banner
+  const shareButton = nav.querySelector('.banner .banner-right .actions-share');
+  shareButton.addEventListener('click', async () => {
+    await openShareModalMultiSelectedAssets();
+  });
+
+  const downloadButton = nav.querySelector('.banner .banner-right .actions-download');
+  downloadButton.addEventListener('click', async () => {
+    await openMultiSelectDownloadModal();
   });
 }
 

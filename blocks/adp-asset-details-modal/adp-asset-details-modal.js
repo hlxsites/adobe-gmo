@@ -3,18 +3,20 @@ import {
   getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL,
 } from '../../scripts/scripts.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
-import { getMetadataValue } from '../../scripts/metadata.js';
+import {
+  getAssetName, getAssetMimeType, getAssetTitle,
+} from '../../scripts/metadata.js';
 // eslint-disable-next-line import/no-cycle
-import { closeAssetDetails, disableButtons } from '../adp-asset-details-panel/adp-asset-details-panel.js';
+import { disableActionButtons } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
-import { selectNextAsset, selectPreviousAsset } from '../adp-infinite-results/adp-infinite-results.js';
 import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
 import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-config.js';
-import { addAssetToContainer } from '../../scripts/assetPanelCreator.js';
+import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { addDownloadEventListener } from '../adp-download-modal/adp-download-modal.js';
 import { populateShareModalInfo } from '../adp-share-modal/adp-share-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
+import { addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
 
 let scale = 1;
 let assetId;
@@ -22,8 +24,9 @@ let assetName;
 let format;
 let assetJSON;
 let originalAssetURL;
+let resultsManagerObj;
 
-function closeModal(block) {
+export function closeModal(block) {
   document.body.classList.remove('no-scroll');
   const modal = block.querySelector('.modal-container');
   modal.querySelector('#asset-details-next')?.classList.remove('hidden');
@@ -31,7 +34,6 @@ function closeModal(block) {
   modal.querySelector('.divider.first')?.classList.remove('hidden');
   modal.querySelector('iframe')?.remove();
   removeParamFromWindowURL('assetId');
-  closeAssetDetails();
   modal.close();
 }
 
@@ -47,9 +49,9 @@ function updateZoomLevel(block) {
 
 async function createImagePanel(modal) {
   const imgPanel = modal.querySelector('.modal-image');
-  assetName = getMetadataValue('repo:name', assetJSON);
-  const assetTitle = getMetadataValue('title', assetJSON);
-  format = getMetadataValue('dc:format', assetJSON);
+  assetName = getAssetName(assetJSON);
+  const assetTitle = getAssetTitle(assetJSON);
+  format = getAssetMimeType(assetJSON);
   await addAssetToContainer(assetId, assetName, assetTitle, format, imgPanel);
   updateZoomLevel(modal);
 }
@@ -83,21 +85,39 @@ function createHeaderPanel(modal) {
   // create fileTypeIcon
   const fileTypeIcon = modal.querySelector('.file-type-icon');
   const iconSpan = document.createElement('span');
-  const iconClass = getFileTypeCSSClass(format || 'application/octet-stream');
+  const mimeType = getAssetMimeType(assetJSON);
+  const iconClass = getFileTypeCSSClass(mimeType);
   iconSpan.classList.add('icon', `icon-${iconClass}`);
   fileTypeIcon.querySelector('span')?.remove();
   fileTypeIcon.appendChild(iconSpan);
   decorateIcons(modal);
   // disable nav buttons if needed
-  disableButtons(modal);
+  disableActionButtons(modal);
+
+  // ensure express button only shows for valid asset types
+  const expressBtn = modal.querySelector(".action-edit-asset");
+  let validCheck = fileValidity(format);
+  if (ccEverywhere && validCheck.isValid) {
+    expressBtn.classList.remove('hidden');
+  } else {
+    if (!expressBtn.classList.contains('hidden')) {
+      expressBtn.classList.add('hidden');
+    }
+  }
+
+  const assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
+  const assetWidth = assetJSON.assetMetadata['tiff:ImageWidth'];
+  const actionsExpress = modal.querySelector('.action-edit-asset');
+  const exClone = expressBtn.cloneNode(true);
+  actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
+  addExpressEditorHandler(exClone, assetId, assetName, assetHeight, assetWidth, "image", document);
 }
 
-export async function openModal() {
+export async function openAssetDetailsModal(id, resultsManager) {
+  resultsManagerObj = resultsManager;
   scale = 1;
-  assetId = getAnchorVariable('assetId');
-  if (!assetId) {
-    const selectedAsset = document.querySelector('#assets .asset-card.selected');
-    assetId = selectedAsset.getAttribute('data-asset-id');
+  assetId = id || getAnchorVariable('assetId');
+  if (!getAnchorVariable('assetId')) {
     addHashParamToWindowURL('assetId', assetId);
   }
   if (assetId) {
@@ -105,17 +125,18 @@ export async function openModal() {
       document.body.classList.add('no-scroll');
     }
     const modal = document.querySelector('.modal-container');
+    if (!modal.classList.contains('open')) {
+      modal.classList.add('open');
+    }
     assetJSON = await getAssetMetadata(assetId);
 
-    await createImagePanel(modal, assetId);
-
-    await createMetadataPanel(modal);
-
-    createHeaderPanel(modal, assetId);
+    createImagePanel(modal, assetId);
+    createMetadataPanel(modal, assetJSON);
+    createHeaderPanel(modal, assetJSON, assetId);
     modal.showModal();
     emitEvent(document.body, EventNames.ASSET_DETAIL, {
       assetId,
-      assetName: assetJSON.repositoryMetadata['repo:name'],
+      assetName: getAssetName(assetJSON),
     });
   }
 }
@@ -128,15 +149,16 @@ function addRenditionSwitcherEventListener(container, assetContainer) {
   }
   originalAssetURL = asset.src;
   textContainers.forEach((textContainer) => {
-    textContainer.addEventListener('click', async function() { // eslint-disable-line
-      const header = this.querySelector('.header');
+    textContainer.addEventListener('click', async (e) => {
+      const self = e.currentTarget;
+      const header = self.querySelector('.header');
       if (header) {
         return;
       }
       textContainers.forEach((innerTextContainer) => {
         innerTextContainer.parentElement.classList.remove('active');
       });
-      const rendition = this.parentElement;
+      const rendition = self.parentElement;
       rendition.classList.add('active');
       if (rendition.querySelector('.file-name')?.textContent === 'Original') {
         asset.src = originalAssetURL;
@@ -230,6 +252,9 @@ export default function decorate(block) {
           </button>
           <button id="asset-details-page-share" class="action action-share-asset" title="Share" aria-label="Share">
             <span class="icon icon-share"></span>
+          </button>
+          <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
+            <span class="icon icon-cc-express"></span>
           </button>
         </div>
       </div>
@@ -349,23 +374,26 @@ export default function decorate(block) {
       const shareModalBodyRight = document.querySelector('.adp-share-modal-block .share-link-body-right').cloneNode(true);
       shareDetailsContainer.appendChild(shareModalBodyRight);
       await modalMetadata.appendChild(shareDetailsContainer);
+      const shareLinkExpiryContainer = block.querySelector('.share-link-body-right .share-link-expiry-container');
+      shareLinkExpiryContainer.classList.remove('multi-select');
       await populateShareModalInfo(
         shareDetailsContainer,
-        decodeURIComponent(assetId),
-        assetName,
-        getMetadataValue('title', assetJSON) || assetName
+        [decodeURIComponent(assetId)],
+        getAssetTitle(assetJSON) || assetName,
       );
     });
   });
 
-  block.querySelector('#asset-details-previous').addEventListener('click', () => {
-    selectPreviousAsset();
-    openModal();
+  block.querySelector('#asset-details-previous').addEventListener('click', async (e) => {
+    emitEvent(e.target, EventNames.PREVIOUS_ASSET, { assetId });
+    const id = await resultsManagerObj.selectPreviousItem(assetId);
+    openAssetDetailsModal(id, resultsManagerObj);
   });
 
-  block.querySelector('#asset-details-next').addEventListener('click', () => {
-    selectNextAsset();
-    openModal();
+  block.querySelector('#asset-details-next').addEventListener('click', async (e) => {
+    emitEvent(e.target, EventNames.NEXT_ASSET, { assetId });
+    const id = await resultsManagerObj.selectNextItem(assetId);
+    openAssetDetailsModal(id, resultsManagerObj);
   });
 
   block.querySelector('#asset-details-page-zoom-in').addEventListener('click', () => {
@@ -386,6 +414,10 @@ export default function decorate(block) {
     block.querySelector('#asset-details-next').classList.add('hidden');
     block.querySelector('#asset-details-previous').classList.add('hidden');
     block.querySelector('.divider.first').classList.add('hidden');
-    openModal();
+    getAssetMetadata(assetId).then(() => {
+      openAssetDetailsModal(assetId, resultsManagerObj);
+    }).catch(() => {
+      removeParamFromWindowURL('assetId');
+    });
   }
 }

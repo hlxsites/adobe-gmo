@@ -20,12 +20,16 @@ header nav .nav-top{
   width: 100%;
 }
 
+header nav a.user-switcher {
+  background-size: cover;
+  width: 30px;
+  height: 30px;
+}
 
 header nav dialog.user-profile {
   margin-top: 50px;
   margin-right: 24px;
   width: 200px;
-  height: 105px;;
   border: 1px solid #d5d5d5;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
   padding: 0;
@@ -55,16 +59,15 @@ header nav dialog .user-container .user-name {
 header nav dialog .user-container .user-email {
   font: var(--metadata-label-font);
   padding-bottom: 10px;
+  border-bottom: 2px solid #d5d5d5;
 }
 
-header nav dialog .user-container .user-signout{
+header nav dialog .user-container a {
   width: 100%;
-  border-top: 2px solid #d5d5d5;
   padding-top: 10px;
-
 }
 
-header nav dialog .user-container .user-signout:hover{
+header nav dialog .user-container a:hover{
   text-decoration: none;
 }
 
@@ -103,7 +106,6 @@ header .nav-wrapper .banner .banner-right {
   color: var(--banner-text-color);
   padding-right: 30px;
   gap: 24px;
-  display: none;
 }
 
 header .nav-wrapper .banner .banner-right .actions {
@@ -297,8 +299,8 @@ header .nav-search label {
 }
 
 header nav .nav-brand img {
-  width: var(--header-logo-width);
-  height: var(--header-logo-height);
+  min-height: 26px;
+  width: auto;
   margin: 10px;
 }
 

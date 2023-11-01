@@ -3,7 +3,7 @@
   max-height: calc(100vh - 155px);
   min-height: calc(100vh - 235px);
   position: sticky;
-  top: 140px;
+  top: 151px;
   box-shadow: 0 0 7px rgb(0 0 0 / 10%);
   border-radius: 10px;
   scrollbar-width: none;
@@ -51,6 +51,10 @@
   pointer-events: none;
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.adp-asset-details-panel .asset-details-header #asset-details-share.hidden {
+  display: none;
 }
 
 .adp-asset-details-panel .metadata-fields {
@@ -107,23 +111,23 @@ button.action {
 }
 
 .asset-details-header .top-left {
-  width: 74px;
+  width: 111px;
   display: flex;
-  justify-content: space-between;
+  gap: 1rem;
 }
 
 button.action-close svg, button.action-previous-asset svg, button.action-next-asset svg {
   height: 13px;
 }
 
-button.action-share-asset svg, button.action-download-asset svg, button.action-asset-fullscreen svg {
+button.action-share-asset svg, button.action-download-asset svg, button.action-asset-fullscreen svg, button.action-edit-asset svg {
   height: 17px;
 }
 
 .asset-details-header .top-right {
   width: 152px;
   display: flex;
-  justify-content: space-between;
+  gap: 1rem;
 }
 
 .adp-asset-details-panel-wrapper .adp-asset-details-panel .metadata-filename {
@@ -176,4 +180,8 @@ button.action-share-asset svg, button.action-download-asset svg, button.action-a
 .asset-details-header-container span.icon {
   display: flex;
   align-items: center;
+}
+
+button.action-edit-asset.hidden {
+  display: none;
 }

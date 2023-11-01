@@ -32,6 +32,14 @@
   height: calc(100% - 86px);
 }
 
+.adp-download-modal.block .modal-body.multi-select {
+  display: flex;
+  background-color: var(--white-background-color);
+  justify-content: space-between;
+  width: 100%;
+  height: calc(100% - 86px);
+}
+
 .adp-download-modal.block .modal-body-left {
   padding-left: 36px;
   padding-right: 47px;
@@ -40,6 +48,27 @@
   justify-content: flex-start;
   align-items: flex-start;
   flex: 0 0 212px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-left {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-left: 35px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-left .multi-selected-assets-table-container {
+  width: 337px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-left .multi-selected-assets-table-container .asset-name {
+  max-width: 220px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-left .multi-selected-assets-table-container .multi-selected-assets-table {
+  max-height: 360px;  
 }
 
 .adp-download-modal.block .modal-body-left .asset-image {
@@ -60,21 +89,23 @@
   padding-top: 16px;
   padding-bottom: 170px;
   font: var(--metadata-font);
+  word-break: break-all;
 }
 
 .adp-download-modal.block .modal-body-right {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  padding-right: 36px;
 }
 
-.adp-download-modal.block .renditions-container {
+.adp-download-modal.block .modal-body.multi-select .modal-body-right {
   display: flex;
   flex-direction: column;
-  row-gap: 15px;
-  flex-grow: 1;
-  overflow-y: scroll;
-  padding-top: 2px;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex: 0 0 408px;
+  font: var(--metadata-font);
 }
 
 .adp-download-modal.block .rendition label {
@@ -92,6 +123,36 @@
 .adp-download-modal.block .renditions-container .rendition.header label {
   color: var(--heading-color);
   font: var(--bold-font-size-s);
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .download-option label{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .download-option input[type='radio'] {
+  appearance: none;
+  margin-left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--radio-background-color) 0 0 no-repeat padding-box;
+  border: 2px solid var(--checkbox-border-color);
+  opacity: 1;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .download-option input[type='radio']:checked {
+  border: 6px solid var(--button-focus-outline-color);
+}
+
+.adp-download-modal.block .renditions-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+  flex-grow: 1;
+  overflow-y: scroll;
+  padding-top: 2px;
 }
 
 .adp-download-modal.block .rendition .col1 {
@@ -120,15 +181,35 @@
   margin-left: 63px;
 }
 
+.adp-download-modal.block .modal-body-right .radio-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font: var(--metadata-font);
+  gap: 20px;
+  padding-top: 25px;
+}
+
+.adp-download-modal.block .modal-body-right .radio-container .message {
+  padding-bottom: 20px;
+}
+
 .adp-download-modal.block .modal-body-right .actions-container {
   display: flex;
   justify-content: center;
   flex: 0 0 72px;
 }
 
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .actions-container {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  font: var(--metadata-font);
+}
+
 .adp-download-modal.block .modal-body-right .actions-container .download {
   width: 100%;
-  margin-right: 36px;
   background-color: var(--button-focus-outline-color);
   border-radius: 16px;
   font: var(--bold-font-size-s);
@@ -139,7 +220,7 @@
   align-items: center;
   text-align: center;
   border: none;
-} 
+}
 
 .adp-download-modal.block .rendition input[type='checkbox'] {
   display: none;
@@ -206,6 +287,16 @@
   min-width: 905px;
   max-height: 60%;
   min-height: 456px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  position: relative
+}
+
+.adp-download-modal.block dialog.multi-select {
+  width: 780px;
+  height: 522px;
   border-radius: 6px;
   overflow: hidden;
   border: none;

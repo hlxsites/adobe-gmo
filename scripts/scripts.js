@@ -2,7 +2,6 @@ import {
   sampleRUM,
   buildBlock,
   loadHeader,
-  loadFooter,
   decorateButtons,
   decorateIcons,
   decorateSections,
@@ -20,7 +19,9 @@ import {
   getBackendApiKey,
   getDeliveryEnvironment,
 } from './polaris.js';
-import dependencies from "./dependencies.json" assert { type: "json" };
+
+// Load a list of dependencies the site needs
+let dependenciesJSON = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`).then((res) => res.json());
 
 const NO_ACCESS_PATH = '/no-access';
 
@@ -158,7 +159,7 @@ async function initSearch() {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  loadDependencies();
+  const loadDependenciesPromise = loadDependencies();
   await getBearerToken();
   if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
     const hasAccess = await checkUserAccess();
@@ -169,6 +170,9 @@ async function loadEager(doc) {
     // This is a dev only service worker that caches the algolia JS SDK
     // check if we are on localhost
     await initializeServiceWorkers();
+    // Make sure all dependencies are loaded before initializing search
+    // - we load them in parallel by leveraging the promise
+    await loadDependenciesPromise;
     await initSearch();
   }
   const brandingConfig = await getBrandingConfig();
@@ -230,14 +234,21 @@ async function loadLazy(doc) {
   sampleRUM.observe(main.querySelectorAll('picture > img'));
 }
 
-function loadDependencies() {
-  dependencies.forEach((dependency) => {
+/**
+ * Loads all dependencies in an async way so we can leverage
+ * the browser's ability to load multiple resources in parallel.
+ */
+async function loadDependencies() {
+  const promises = [];
+  dependenciesJSON = await dependenciesJSON;
+  dependenciesJSON.forEach((dependency) => {
     if (dependency.type === 'js') {
-      loadScript(dependency.src, dependency.attrs);
+      promises.push(loadScript(dependency.src, dependency.attrs));
     } else if (dependency.type === 'css') {
       loadCSS(dependency.href);
     }
   });
+  await Promise.all(promises);
 }
 
 /**
@@ -300,6 +311,14 @@ export function safeCSSId(str) {
     .replace(/\.|%[0-9a-z]{2}/gi, '');
 }
 
+export function getLastPartFromURL() {
+  const url = new URL(document.location);
+  const path = url.pathname;
+  const parts = path.split('/');
+  const id = parts[parts.length - 1];
+  return id;
+}
+
 export function removeParamFromUrl(url, paramName) {
   const urlObject = new URL(url);
   const params = new URLSearchParams(urlObject.search);
@@ -322,6 +341,19 @@ export function removeParamFromUrl(url, paramName) {
 
 export function removeParamFromWindowURL(paramName) {
   const newURL = removeParamFromUrl(window.location.href, paramName);
+  window.history.replaceState({}, '', newURL);
+}
+
+function setParamInHashParams(url, paramName, paramValue) {
+  const urlObject = new URL(url);
+  const params = new URLSearchParams(urlObject.hash.replace('#', ''));
+  params.set(paramName, paramValue);
+  urlObject.hash = params.toString();
+  return urlObject.toString();
+}
+
+export function setHashParamInWindowURL(paramName, paramValue) {
+  const newURL = setParamInHashParams(window.location.href, paramName, paramValue);
   window.history.replaceState({}, '', newURL);
 }
 

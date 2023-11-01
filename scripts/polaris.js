@@ -121,6 +121,9 @@ export async function fetchMetadataValueFromPolaris(assetId) {
   };
 
   const response = await fetch(`${getDeliveryEnvironment()}/adobe/assets/${assetId}/metadata`, options);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
   const metadataResponse = await response.json();
   return metadataResponse;
 }
