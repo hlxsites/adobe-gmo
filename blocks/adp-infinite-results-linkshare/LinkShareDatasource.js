@@ -4,7 +4,7 @@ import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-confi
 import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';
-import { getAssetID } from '../../scripts/metadata.js';
+import { getAssetID, getAssetName } from '../../scripts/metadata.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 
 const searchResultsCardViewConfig = await getCardViewConfig();
@@ -29,7 +29,7 @@ export default class LinkShareDatasource {
     }
     infiniteResultsContainer.resultsCallback(
       container,
-      getAssetsFromLinkShare(share),
+      await getAssetsFromLinkShare(share),
       () => { this.showMore(); },
       0,
       true,
@@ -39,10 +39,9 @@ export default class LinkShareDatasource {
   }
 
   async createItemElement(item, infiniteResultsContainer) {
-    const assetJSON = await getAssetMetadata(item.assetId);
     const assetId = getAssetID(item);
     const card = await createAssetCardElement(
-      assetJSON,
+      item,
       searchResultsCardViewConfig,
       searchResultsCardViewSettings.hideEmptyMetadataProperty,
       this.getExcludedItemActions(),
@@ -52,12 +51,22 @@ export default class LinkShareDatasource {
       () => {
         infiniteResultsContainer.deselectItem(assetId);
       },
+      () => {
+        infiniteResultsContainer.addItemToSelection(assetId);
+      },
+      () => {
+        infiniteResultsContainer.removeItemFromSelection(assetId);
+      },
     );
     return card;
   }
 
   getItemId(item) {
     return item.assetId;
+  }
+
+  getItemName(item) {
+    return getAssetName(item);
   }
 
   getExcludedItemActions() {

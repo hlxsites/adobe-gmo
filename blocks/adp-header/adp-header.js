@@ -147,6 +147,12 @@ export default async function decorate(block) {
   </div>
   `;
 
+  // Hide share button on adp-infinite-results-linkshare block
+  const linkshareInfiniteResults = document.querySelector('.adp-infinite-results-linkshare.block');
+  if (linkshareInfiniteResults) {
+    nav.querySelector('.banner .banner-right .actions-share')?.classList.add('hidden');
+  }
+
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
     navSections.querySelectorAll(':scope > ul > li').forEach((navSection) => {
