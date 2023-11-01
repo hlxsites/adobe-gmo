@@ -276,7 +276,7 @@ export default async function decorate(block) {
         <div class='share-link-body-right'>
           <div class='share-link-expiry-container'>
             <div class='expiry-periods'>
-              <div class='label-title'>Period of expiration<span class='icon icon-asterisk'></span></div>
+              <div class='label-title'>Expiration</div>
               <div class="share-link-expiry-select-container">
                 <select name="share-link-expiry-select">
                   <option class='share-link-expiry-option' value="1">24 hours</option>
