@@ -18,7 +18,6 @@ export function loadDataLayer() {
   document.addEventListener(EventNames.SESSION_STARTED, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_SELECTED, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_DESELECTED, (e) => addDataLayer(e,e.detail));
-  document.addEventListener(EventNames.ADD_ITEM_MULTISELECT, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_QUICK_PREVIEW_CLOSE, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.CLOSE_BANNER, (e) => addDataLayer(e,e.detail));
 }
