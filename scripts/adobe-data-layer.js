@@ -24,29 +24,36 @@ export function loadDataLayer() {
 
 //Generic function to add to the adobeDataLayer
 function addDataLayer(event,detail) {
-  try {
+{
     if(typeof detail !== "undefined")
     {
-      window.adobeDataLayer = window.adobeDataLayer || [];
-      window.adobeDataLayer.push({
-        event : event.type,
-        detail : event.detail
-      });
-    }
-  }
-  catch (error) {
-    //When the error adobe-client-data-layer.min.js:1 Uncaught RangeError: Maximum call stack size exceeded happens then
-    // window.adobeDataLayer is reset to []
-    if(typeof detail !== "undefined")
-    {
-      window.adobeDataLayer = [];
-      window.adobeDataLayer.push({
-        event : event.type,
-        detail : event.detail
-       });
+      if (isValidJSON(detail))
+      {
+        window.adobeDataLayer = window.adobeDataLayer || [];
+        window.adobeDataLayer.push({
+          event : event.type,
+          detail : event.detail
+        });
+      }
+      else
+      {
+        console.debug("event:"+event.type+" the event.detail is invalid JSON");
+        console.debug("event.detail");
+        console.debug(event.detail);
+      }
     }
   }
 }
+
+function isValidJSON(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 
 async function addLaunchScriptToHead()
 {
