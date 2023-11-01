@@ -21,6 +21,11 @@
   display: block;
 }
 
+/* this is to counter the body text-transform:capitalize in style.css */
+.adp-refinement-wrapper .label{
+  text-transform: none;
+}
+
 @media screen and (max-width: 720px) {
   .adp-refinement-wrapper {
     width: 100%;

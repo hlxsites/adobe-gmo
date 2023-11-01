@@ -31,6 +31,11 @@
     line-height: 24px;
 }
 
+/* this is to counter the body text-transform:capitalize in style.css */
+.current-refinement-label-facet-label {
+    text-transform: none;
+}
+
 .current-refinement-delete {
     width: 7px;
     height: 7px;
