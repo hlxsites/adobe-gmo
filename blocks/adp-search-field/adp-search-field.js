@@ -224,7 +224,8 @@ const debouncedSetInstantSearchUiStateNoDelay = (indexUiState) => debounceSetIns
 export default function decorate(block) {
   block.textContent = '';
   const { autocomplete } = window['@algolia/autocomplete-js'];
-  if (window.search && autocomplete) {
+  const isRoot = (!window.location.pathname) || (window.location.pathname === '/');
+  if (window.search && autocomplete && isRoot) {
     const searchField = document.createElement('div');
     block.appendChild(searchField);
     const virtualSearchBox = window.instantsearch.connectors.connectSearchBox(() => {});

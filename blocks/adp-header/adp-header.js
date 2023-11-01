@@ -5,6 +5,8 @@ import { getBrandingConfig, getQuickLinkConfig } from '../../scripts/site-config
 import { getUserProfile, getAvatarUrl } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
+import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
+import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -122,6 +124,7 @@ export default async function decorate(block) {
       <div class="user-container">
       <div class="user-name"></div>
       <div class="user-email"></div>
+        <a class="asset-metrics" href="/asset-metrics">Asset Metrics</a>
         <a class="user-signout" href="">Sign Out</a>
       </div>
     </dialog>
@@ -254,6 +257,17 @@ export default async function decorate(block) {
   /** Hide if search changed */
   addEventListener(EventNames.SEARCH_RESULTS_CHANGED, () => {
     nav.querySelector('.banner')?.classList.remove('show');
+  });
+
+  // Handle click for Share button on banner
+  const shareButton = nav.querySelector('.banner .banner-right .actions-share');
+  shareButton.addEventListener('click', async () => {
+    await openShareModalMultiSelectedAssets();
+  });
+
+  const downloadButton = nav.querySelector('.banner .banner-right .actions-download');
+  downloadButton.addEventListener('click', async () => {
+    await openMultiSelectDownloadModal();
   });
 }
 

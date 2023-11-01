@@ -19,8 +19,9 @@ import {
   getBackendApiKey,
   getDeliveryEnvironment,
 } from './polaris.js';
-// eslint-disable-next-line import/extensions
-import dependencies from './dependencies.json' assert { type: "json" };
+
+// Load a list of dependencies the site needs
+let dependenciesJSON = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`).then((res) => res.json());
 
 const NO_ACCESS_PATH = '/no-access';
 
@@ -162,7 +163,7 @@ async function initSearch() {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  const dependenciesPromise = loadDependencies();
+  const loadDependenciesPromise = loadDependencies();
   await getBearerToken();
   if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
     const hasAccess = await checkUserAccess();
@@ -173,8 +174,9 @@ async function loadEager(doc) {
     // This is a dev only service worker that caches the algolia JS SDK
     // check if we are on localhost
     await initializeServiceWorkers();
-    /* Make sure all dependencies are loaded before initializing search */
-    await dependenciesPromise;
+    // Make sure all dependencies are loaded before initializing search
+    // - we load them in parallel by leveraging the promise
+    await loadDependenciesPromise;
     await initSearch();
   }
   const brandingConfig = await getBrandingConfig();
@@ -236,9 +238,14 @@ async function loadLazy(doc) {
   sampleRUM.observe(main.querySelectorAll('picture > img'));
 }
 
+/**
+ * Loads all dependencies in an async way so we can leverage
+ * the browser's ability to load multiple resources in parallel.
+ */
 async function loadDependencies() {
   const promises = [];
-  dependencies.forEach((dependency) => {
+  dependenciesJSON = await dependenciesJSON;
+  dependenciesJSON.forEach((dependency) => {
     if (dependency.type === 'js') {
       promises.push(loadScript(dependency.src, dependency.attrs));
     } else if (dependency.type === 'css') {
@@ -310,59 +317,12 @@ export function safeCSSId(str) {
     .replace(/\.|%[0-9a-z]{2}/gi, '');
 }
 
-function downloadAsset(url, name, options) {
-  fetch(url, options)
-    .then((resp) => resp.blob())
-    .then((blob) => {
-      const imgUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = imgUrl;
-      // the filename you want
-      a.download = name;
-      a.click();
-      window.URL.revokeObjectURL(imgUrl);
-    })
-    .catch((e) => console.log('Unable to download file', e));
-}
-
-function openPDF(url, options) {
-  fetch(url, options)
-    .then((resp) => resp.blob())
-    .then((blob) => {
-      const pdfUrl = window.URL.createObjectURL(blob);
-      window.open(pdfUrl, '_blank');
-      window.URL.revokeObjectURL(pdfUrl);
-    })
-    .catch((e) => console.log('Unable to open pdf file', e));
-}
-
-/**
- * Add download handling code to the download button
- * @param {HTMLElement} downloadElement - download element
- */
-export async function addDownloadHandlers(downloadElement, assetId, repoName, format) {
-  downloadElement.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const bearerToken = await getBearerToken();
-    const options = {
-      method: 'GET',
-      headers: {
-        Authorization: bearerToken,
-      },
-    };
-
-    const href = await getDownloadUrl(assetId, repoName);
-    if (isPDF(format)) {
-      await openPDF(href, options);
-    } else {
-      await downloadAsset(href, repoName, options);
-    }
-    emitEvent(e.target, EventNames.DOWNLOAD, {
-      assetId,
-      assetName: repoName,
-    });
-  });
+export function getLastPartFromURL() {
+  const url = new URL(document.location);
+  const path = url.pathname;
+  const parts = path.split('/');
+  const id = parts[parts.length - 1];
+  return id;
 }
 
 export function removeParamFromUrl(url, paramName) {

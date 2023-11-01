@@ -30,6 +30,10 @@ export function selectAssetCard(asset) {
   return infiniteResultsContainer.selectItem(asset);
 }
 
+export function deselectAssetCard(asset) {
+  return infiniteResultsContainer.deselectItem(asset);
+}
+
 export function hasNextAsset() {
   return infiniteResultsContainer.hasNextItem();
 }
