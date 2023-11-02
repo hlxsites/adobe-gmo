@@ -4,7 +4,8 @@ import {
   listCollection,
 } from '../../scripts/collections.js';
 import { createCollectionCardElement } from '../../scripts/card-html-builder.js';
-
+import { getCollection } from '../../scripts/collections.js';
+import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
 export default class CollectionsDataSource {
   cursor = null;
 
@@ -49,6 +50,24 @@ export default class CollectionsDataSource {
     );
   }
 
+  async createThumbnailHandler(card, collectionId, title, imgIndex = 0) {
+    const collection = await getCollection(collectionId);
+    const imgContainer = card.querySelector('.preview-collection .thumbnail');
+    const images = collection.items.filter((item) => item.type === 'asset');
+    const imagesToFetch = images.slice(0, 4 - imgIndex);
+
+    for (let index = 0; index < imagesToFetch.length; index += 1) {
+      const item = imagesToFetch[index];
+      getOptimizedPreviewUrl(item.id, null, 120).then((url) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.visibility = '';
+        img.alt = title;
+        imgContainer.appendChild(img);
+      });
+    }
+  }
+
   getItemId(resultItem) {
     return getCollectionID(resultItem);
   }
@@ -60,10 +79,15 @@ export default class CollectionsDataSource {
   createItemElement(item, infiniteResultsContainer) {
     const card = createCollectionCardElement(
       item,
-      () => {
-        const id = getCollectionID(item);
-        infiniteResultsContainer.selectItem(id);
-      },
+      {
+        selectItemHandler: () => {
+          const id = getCollectionID(item);
+          infiniteResultsContainer.selectItem(id);
+        },
+        createThumbnailHandler: (card, id, title) => {
+          this.createThumbnailHandler(card, id, title);
+        },
+      }
     );
     return card;
   }

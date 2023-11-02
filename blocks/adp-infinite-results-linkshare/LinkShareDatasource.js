@@ -45,11 +45,13 @@ export default class LinkShareDatasource {
       searchResultsCardViewConfig,
       searchResultsCardViewSettings.hideEmptyMetadataProperty,
       this.getExcludedItemActions(),
-      () => {
-        infiniteResultsContainer.selectItem(assetId);
-      },
-      () => {
-        infiniteResultsContainer.deselectItem(assetId);
+      {
+        selectItemHandler: () => {
+          infiniteResultsContainer.selectItem(assetId);
+        },
+        deselectAssetHandler: () => {
+          infiniteResultsContainer.deselectItem(assetId);
+        }
       },
       () => {
         infiniteResultsContainer.addItemToSelection(assetId);

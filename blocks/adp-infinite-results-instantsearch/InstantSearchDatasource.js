@@ -106,17 +106,19 @@ export default class InstantSearchDataSource {
       searchResultsCardViewConfig,
       searchResultsCardViewSettings.hideEmptyMetadataProperty,
       [],
-      () => {
-        infiniteResultsContainer.selectItem(assetId);
-      },
-      () => {
-        infiniteResultsContainer.deselectItem(assetId);
-      },
-      () => {
-        infiniteResultsContainer.addItemToSelection(assetId);
-      },
-      () => {
-        infiniteResultsContainer.removeItemFromSelection(assetId);
+      {
+        selectItemHandler: () => {
+          infiniteResultsContainer.selectItem(assetId);
+        },
+        deselectAssetHandler: () => {
+          infiniteResultsContainer.deselectItem(assetId);
+        },
+        addAddToMultiSelectionHandler: () => {
+          infiniteResultsContainer.addItemToSelection(assetId);
+        },
+        removeItemFromMultiSelectionHandler: () => {
+          infiniteResultsContainer.removeItemFromSelection(assetId);
+        },
       },
     );
     return card;
