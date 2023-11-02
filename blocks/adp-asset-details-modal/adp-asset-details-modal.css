@@ -65,6 +65,7 @@
 .adp-asset-details-modal.block .modal-metadata .metadata-container .metadata-fields .metadata-field .label {
   color: var(--metadata-label-color);
   font: var(--metadata-label-font);
+  font-weight: bold;
 }
 
 .adp-asset-details-modal.block .modal-metadata .modal-metadata-heading {
