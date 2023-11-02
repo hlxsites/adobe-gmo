@@ -24,7 +24,6 @@ export function loadDataLayer() {
 
 //Generic function to add to the adobeDataLayer
 function addDataLayer(event,detail) {
-{
     if(typeof detail !== "undefined")
     {
       if (isValidJSON(detail))
@@ -42,7 +41,6 @@ function addDataLayer(event,detail) {
         console.debug(event.detail);
       }
     }
-  }
 }
 
 function isValidJSON(object) {
