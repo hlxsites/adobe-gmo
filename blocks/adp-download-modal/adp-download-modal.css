@@ -1,0 +1,321 @@
+.adp-download-modal.block .modal-header {
+  border-bottom: none;
+  font: var(--bold-font-size-l);
+  padding-left: 35px;
+  padding-right: 42px;
+  flex: 0 0 86px;
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--white-background-color);
+}
+
+.adp-download-modal.block .modal-header .modal-header-left,
+.adp-download-modal.block .modal-header .modal-header-right {
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.adp-download-modal.block .modal-header .icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+}
+
+.adp-download-modal.block .modal-body {
+  display: flex;
+  background-color: var(--white-background-color);
+  flex-grow: 1;
+  width: 100%;
+  height: calc(100% - 86px);
+}
+
+.adp-download-modal.block .modal-body.multi-select {
+  display: flex;
+  background-color: var(--white-background-color);
+  justify-content: space-between;
+  width: 100%;
+  height: calc(100% - 86px);
+}
+
+.adp-download-modal.block .modal-body-left {
+  padding-left: 36px;
+  padding-right: 47px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex: 0 0 212px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-left {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-left: 35px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-left .multi-selected-assets-table-container {
+  width: 337px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-left .multi-selected-assets-table-container .asset-name {
+  max-width: 220px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-left .multi-selected-assets-table-container .multi-selected-assets-table {
+  max-height: 360px;  
+}
+
+.adp-download-modal.block .modal-body-left .asset-image {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: auto;
+  width: 212px;
+}
+
+
+.adp-download-modal.block .modal-body-left .asset-image img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.adp-download-modal.block .file-name {
+  padding-top: 16px;
+  padding-bottom: 170px;
+  font: var(--metadata-font);
+  word-break: break-all;
+}
+
+.adp-download-modal.block .modal-body-right {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding-right: 36px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex: 0 0 408px;
+  font: var(--metadata-font);
+}
+
+.adp-download-modal.block .rendition label {
+  cursor: pointer;
+  padding-left: 14px; /* Space for the checkbox */
+}
+
+.adp-download-modal.block .renditions-container .rendition label {
+  display: flex;
+  font: var(--metadata-font);
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.adp-download-modal.block .renditions-container .rendition.header label {
+  color: var(--heading-color);
+  font: var(--bold-font-size-s);
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .download-option label{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .download-option input[type='radio'] {
+  appearance: none;
+  margin-left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--radio-background-color) 0 0 no-repeat padding-box;
+  border: 2px solid var(--checkbox-border-color);
+  opacity: 1;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .download-option input[type='radio']:checked {
+  border: 6px solid var(--button-focus-outline-color);
+}
+
+.adp-download-modal.block .renditions-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+  flex-grow: 1;
+  overflow-y: scroll;
+  padding-top: 2px;
+}
+
+.adp-download-modal.block .rendition .col1 {
+  flex: 0 0 auto;
+  position: relative;
+  margin-right: 7px;
+}
+
+.adp-download-modal.block .rendition .col2 {
+  flex: 0 0 calc(16% * 1.5);
+  margin-left: 17px;
+}
+
+.adp-download-modal.block .rendition .col3 {
+  flex: 0 0 calc(7% * 1.5);
+  margin-left: 28px;
+}
+
+.adp-download-modal.block .rendition .col4 {
+  flex: 0 0 calc(7% * 1.5);
+  margin-left: 63px;
+}
+
+.adp-download-modal.block .rendition .col5 {
+  flex: 0 0 calc(8.5% * 1.5);
+  margin-left: 63px;
+}
+
+.adp-download-modal.block .modal-body-right .radio-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font: var(--metadata-font);
+  gap: 20px;
+  padding-top: 25px;
+}
+
+.adp-download-modal.block .modal-body-right .radio-container .message {
+  padding-bottom: 20px;
+}
+
+.adp-download-modal.block .modal-body-right .actions-container {
+  display: flex;
+  justify-content: center;
+  flex: 0 0 72px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .actions-container {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 100%;
+  font: var(--metadata-font);
+}
+
+.adp-download-modal.block .modal-body-right .actions-container .download {
+  width: 100%;
+  background-color: var(--button-focus-outline-color);
+  border-radius: 16px;
+  font: var(--bold-font-size-s);
+  color: var(--button-text-color);
+  height: 37px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: none;
+}
+
+.adp-download-modal.block .rendition input[type='checkbox'] {
+  display: none;
+}
+
+.adp-download-modal.block .rendition label span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 14px;
+  width: 14px;
+  border: 2px solid var(--checkbox-border-color); 
+  border-radius: 4px;
+}
+
+.adp-download-modal.block .rendition input[type='checkbox']:checked + .checkmark,
+.adp-download-modal.block .rendition.header .checkmark.show-bar {
+  background-color: var(--button-focus-outline-color);
+  border-color: var(--button-focus-outline-color);
+}
+
+.adp-download-modal.block .rendition label span::after {
+  left: 4px;
+  top: 0;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.adp-download-modal.block .rendition label span::after,
+.adp-download-modal.block .rendition.header label span::after {
+  content: "";
+  position: absolute;
+  display: none;
+} 
+
+.adp-download-modal.block .rendition input[type='checkbox']:checked + span::after,
+.adp-download-modal.block .rendition.header span.show-bar::after {
+  display: block;
+}
+
+.adp-download-modal.block .rendition.header label span.show-bar::after {
+  left: 2px;
+  top: 6px;
+  width: 4px;
+  height: 0;
+  border-top: 1px solid white;
+  border-bottom: 0;;
+  border-width: unset;
+  transform: unset;
+}
+
+.adp-download-modal.block .action.download.disabled {
+  background-color: var(--button-hover-color);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.adp-download-modal.block dialog {
+  width: 60%;
+  min-width: 905px;
+  max-height: 60%;
+  min-height: 456px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  position: relative
+}
+
+.adp-download-modal.block dialog.multi-select {
+  width: 780px;
+  height: 522px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  position: relative
+}
+
+.adp-download-modal.block dialog .download-container {
+  position:absolute;
+  display: flex;
+  flex-direction: column;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.adp-download-modal.block dialog::backdrop {
+  background-color: black;
+  opacity: 0.4;
+}

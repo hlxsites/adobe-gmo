@@ -8,6 +8,7 @@ const environment = adminConfig.imsEnvironment === 'stage' ? 'stg1' : 'prod';
 const imsOrgID = adminConfig.imsOrg;
 const imsOrgWithoutDomain = imsOrgID?.replace('@AdobeOrg', '');
 const imsUserGroup = adminConfig.imsUserGroup || 'assets-distribution-portal-users';
+const ccCollabUrl = adminConfig.imsEnvironment === 'stage' ? 'cc-collab-stage.adobe.io/profile' : 'cc-collab.adobe.io/profile';
 
 const IMS_CONFIG = {
   xApiKey: 'assets-distribution-portal',
@@ -85,6 +86,23 @@ export async function getBearerToken() {
 
 export async function getUserProfile() {
   return await window.adobeIMS.getProfile();
+}
+
+async function getCCCollabProfile() {
+  const bearerToken = await getBearerToken();
+  return await fetchCached(`https://${ccCollabUrl}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: bearerToken,
+      },
+    },
+  );
+}
+
+export async function getAvatarUrl() {
+  const ccProfile = await getCCCollabProfile();
+  return ccProfile.user.avatar;
 }
 
 async function getIMSOrgData() {

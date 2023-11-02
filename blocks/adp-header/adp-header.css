@@ -1,0 +1,498 @@
+/* header and nav layout */
+header .nav-wrapper {
+  z-index: 2;
+  position: fixed;
+  width: 100%;
+  border-bottom: #d5d5d5 0.2px solid;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+header nav .nav-top{
+  box-sizing: border-box;
+  display: grid;
+  align-items: center;
+  gap: 0 0.5em;
+  height: 65px;
+  padding: 0 1rem;
+  font-family: var(--body-font-family);
+  color: var(--header-text-color);
+  background-color: var(--header-background-color);
+  width: 100%;
+}
+
+header nav a.user-switcher {
+  background-size: cover;
+  width: 30px;
+  height: 30px;
+}
+
+header nav dialog.user-profile {
+  margin-top: 50px;
+  margin-right: 24px;
+  width: 200px;
+  border: 1px solid #d5d5d5;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+  padding: 0;
+  border-radius: 6px;
+}
+
+header nav dialog.user-profile::backdrop {
+  background-color: unset;
+  opacity: unset;
+}
+
+header nav dialog .user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: self-start;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px;
+  font: var(--metadata-label-font);
+  overflow: hidden;
+}
+
+header nav dialog .user-container .user-name {
+  font: var(--bold-font-size-s);
+}
+
+header nav dialog .user-container .user-email {
+  font: var(--metadata-label-font);
+  padding-bottom: 10px;
+  border-bottom: 2px solid #d5d5d5;
+}
+
+header nav dialog .user-container a {
+  width: 100%;
+  padding-top: 10px;
+}
+
+header nav dialog .user-container a:hover{
+  text-decoration: none;
+}
+
+
+header nav[aria-expanded="true"] .nav-top {
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+header .nav-wrapper .banner {
+  position: fixed;
+  background-color: var(--checkbox-checked-background-color);
+  height: var(--banner-height);
+  width: 100%;
+  top: 65px;
+  justify-content: space-between;
+  display: none;
+}
+
+header .nav-wrapper .banner.show {
+  display: flex;
+}
+
+header .nav-wrapper .banner .banner-left {
+  display: flex;
+  align-items: center;
+  font: var(--bold-font-size-ms);
+  color: var(--banner-text-color);
+  padding-left: 25px;
+}
+
+header .nav-wrapper .banner .banner-right {
+  display: flex;
+  align-items: center;
+  font: var(--bold-font-size-ms);
+  color: var(--banner-text-color);
+  padding-right: 30px;
+  gap: 24px;
+}
+
+header .nav-wrapper .banner .banner-right .actions {
+  display: flex;
+  align-items: center;
+  justify-self: center;
+}
+
+header .nav-wrapper .banner .banner-right .actions:hover{
+  cursor: pointer;
+}
+
+header .nav-wrapper .banner .banner-right .icon svg {
+  width: 14px;
+  height: 16px;
+  fill: white;
+}
+
+header .nav-wrapper .banner .icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+}
+
+header .nav-wrapper .banner .action-close .icon svg {
+  width: 10px;
+  height: 10px;
+  fill: white;
+}
+
+@media (min-width: 720px) {
+  header nav .nav-top {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  header nav[aria-expanded="true"] .nav-top {
+    min-height: 0;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 720px) {
+  header nav .nav-top {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  header nav .nav-brand div {
+    display: none;
+    visibility: hidden;
+  }
+
+  header .nav-top .nav-search {
+    width: 60%;
+  }
+}
+
+header nav p {
+  margin: 0;
+  line-height: 1;
+}
+
+header nav a:any-link {
+  color: currentcolor;
+}
+
+/* hamburger */
+header nav .nav-hamburger {
+  grid-area: hamburger;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  /* disable hamburger since there is no use currently */
+  display: none;
+  visibility: hidden;
+}
+
+header nav .nav-hamburger button {
+  height: 22px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: inherit;
+  overflow: initial;
+  text-overflow: initial;
+  white-space: initial;
+}
+
+header nav .icon {
+  fill: var(--header-text-color);
+  color: var(--header-text-color);
+}
+
+header nav .nav-search {
+  grid-area: search;
+  width: 550px;
+}
+
+header nav .nav-hamburger {
+  width: 22px;
+}
+
+header nav .nav-hamburger button {
+  background: transparent !important;
+}
+
+header nav .nav-hamburger-icon,
+header nav .nav-hamburger-icon::before,
+header nav .nav-hamburger-icon::after {
+  box-sizing: border-box;
+  display: block;
+  position: relative;
+  width: 20px;
+}
+
+header nav .nav-hamburger-icon::before,
+header nav .nav-hamburger-icon::after {
+  content: '';
+  position: absolute;
+  /*background: currentcolor;*/
+}
+
+header nav[aria-expanded="false"] .nav-hamburger-icon,
+header nav[aria-expanded="false"] .nav-hamburger-icon::before,
+header nav[aria-expanded="false"] .nav-hamburger-icon::after {
+  height: 2px;
+  border-radius: 2px;
+  background: currentcolor;
+}
+
+header nav[aria-expanded="false"] .nav-hamburger-icon::before {
+  top: -6px;
+}
+
+header nav[aria-expanded="false"] .nav-hamburger-icon::after {
+  top: 6px;
+}
+
+header nav[aria-expanded="true"] .nav-hamburger-icon {
+  height: 22px;
+}
+
+header nav[aria-expanded="true"] .nav-hamburger-icon::before,
+header nav[aria-expanded="true"] .nav-hamburger-icon::after {
+  top: 3px;
+  left: 1px;
+  transform: rotate(45deg);
+  transform-origin: 2px 1px;
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+header nav[aria-expanded="true"] .nav-hamburger-icon::after {
+  top: unset;
+  bottom: 3px;
+  transform: rotate(-45deg);
+}
+
+@media (min-width: 720px) {
+  header nav .nav-hamburger {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+/* brand */
+header .nav-brand {
+  display: flex;
+  grid-area: brand;
+  font-size: var(--heading-font-size-xxs);
+  font-weight: 700;
+  line-height: 1;
+  flex-flow: row nowrap;
+  align-items: center;
+  flex-grow: 1;
+  flex-basis: 0;
+  height: var(--header-nav-brand-height);
+}
+
+/* todo */
+header .nav-search label {
+  text-align: left;
+  font-size: 0.8em;
+  font-weight: 300;
+  padding-left: 1em;
+}
+
+header nav .nav-brand img {
+  min-height: 26px;
+  width: auto;
+  margin: 10px;
+}
+
+header nav .nav-brand div {
+  padding-left: 8px;
+}
+
+/* sections */
+header nav .nav-sections {
+  grid-area: sections;
+  flex: 1 1 auto;
+  display: none;
+  visibility: hidden;
+}
+
+header nav[aria-expanded="true"] .nav-sections {
+  /* while nav sections are not used, we hide them to gie the search field more space  */
+  display: none;
+
+  /* display: block; */
+
+  /* visibility: visible; */
+
+  /* align-self: start; */
+}
+
+header nav .nav-sections ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: var(--body-font-size-s);
+  font-weight: 500;
+}
+
+header nav .nav-sections ul > li {
+  font-weight: 700;
+}
+
+header nav .nav-sections ul > li > ul {
+  margin-top: 0;
+}
+
+header nav .nav-sections ul > li > ul > li {
+  font-weight: 500;
+}
+
+@media (min-width: 720px) {
+  header nav .nav-sections {
+    display: block;
+    visibility: visible;
+    white-space: nowrap;
+  }
+
+  header nav[aria-expanded="true"] .nav-sections {
+    align-self: unset;
+  }
+
+  header nav .nav-sections .nav-drop {
+    position: relative;
+    padding-right: 16px;
+    cursor: pointer;
+  }
+
+  header nav .nav-sections .nav-drop::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: .5em;
+    right: 2px;
+    transform: rotate(135deg);
+    width: 6px;
+    height: 6px;
+    border: 2px solid currentcolor;
+    border-radius: 0 1px 0 0;
+    border-width: 2px 2px 0 0;
+  }
+
+  header nav .nav-sections .nav-drop[aria-expanded="true"]::after {
+    top: unset;
+    bottom: .5em;
+    transform: rotate(315deg);
+  }
+
+  header nav .nav-sections ul {
+    display: flex;
+    gap: 2em;
+    margin: 0;
+    font-size: var(--body-font-size-xs);
+  }
+
+  header nav .nav-sections > ul > li {
+    flex: 0 1 auto;
+    position: relative;
+    font-weight: 500;
+  }
+
+  header nav .nav-sections > ul > li > ul {
+    display: none;
+    position: relative;
+  }
+
+  header nav .nav-sections > ul > li[aria-expanded="true"] > ul {
+    display: block;
+    position: absolute;
+    left: -1em;
+    width: 200px;
+    margin-top: 12px;
+    padding: 1em;
+    background-color: var(--highlight-background-color);
+    white-space: initial;
+  }
+
+  header nav .nav-sections > ul > li > ul::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--highlight-background-color);
+  }
+
+  header nav .nav-sections > ul > li > ul > li {
+    padding: 8px 0;
+  }
+}
+
+header nav .nav-tools {
+  grid-area: tools;
+  color: var(--header-text-color);
+  white-space: nowrap;
+  display: flex;
+  gap: 0.5em;
+  flex-grow: 1;
+  flex-basis: 0;
+  justify-content: flex-end;
+}
+
+header nav .nav-tools div {
+  font-size: 0.8em;
+}
+
+header nav .nav-tools a {
+  margin-right: 10px;
+}
+
+header nav .quick-links {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+}
+
+header nav .quick-links .item {
+  padding-top: 7px;
+  padding-bottom: 11px;
+  text-align: left;
+  font: normal normal normal 16px/20px var(--body-font-family);
+  letter-spacing: 0px;
+  color: var(--label-color);
+  opacity: 1;
+  margin: 10px;
+}
+
+header nav .quick-links .item a:hover {
+  text-decoration: none;
+}
+
+header nav .quick-links .item[aria-selected="true"] {
+  font-weight: bold;
+  color: var(--text-color);
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 24px;
+}
+
+header nav .nav-top {
+  grid-area: nav-top;
+}
+
+header nav .nav-bottom {
+  grid-area: nav-bottom;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+header nav { 
+  display: grid;
+  grid-template-areas: 
+    "nav-top"
+    "nav-bottom";
+  grid-template-rows: 65px 58px;
+  align-items: center;
+  background-color: var(--header-background-color);
+}

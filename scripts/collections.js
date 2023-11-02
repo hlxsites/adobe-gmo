@@ -4,6 +4,18 @@ import {
   getDeliveryEnvironment,
 } from './polaris.js';
 
+export function getCollectionID(item) {
+  return item.id;
+}
+
+export function getCollectionTitle(item) {
+  return item.title;
+}
+
+export function getCollectionDescription(item) {
+  return item.description;
+}
+
 async function getRequestHeaders() {
   const token = await getBearerToken();
   return {
