@@ -335,7 +335,7 @@ export default class InfiniteResultsContainer {
   clearAllSelections() {
     this.#selectedItems = [];
     this.#container.querySelectorAll('.adp-result-item.checked').forEach((el) => {
-      this.removeItemFromSelection(el);
+      this.removeItemFromMultiSelection(el);
     });
     this.#container.classList.remove('has-multi-selection');
   }

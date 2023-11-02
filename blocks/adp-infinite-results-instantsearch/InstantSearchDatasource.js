@@ -114,10 +114,10 @@ export default class InstantSearchDataSource {
           infiniteResultsContainer.deselectItem(assetId);
         },
         addAddToMultiSelectionHandler: () => {
-          infiniteResultsContainer.addItemToSelection(assetId);
+          infiniteResultsContainer.addItemToMultiSelection(assetId);
         },
         removeItemFromMultiSelectionHandler: () => {
-          infiniteResultsContainer.removeItemFromSelection(assetId);
+          infiniteResultsContainer.removeItemFromMultiSelection(assetId);
         },
       },
     );

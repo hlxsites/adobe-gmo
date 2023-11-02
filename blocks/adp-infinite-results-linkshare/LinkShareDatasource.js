@@ -51,13 +51,13 @@ export default class LinkShareDatasource {
         },
         deselectAssetHandler: () => {
           infiniteResultsContainer.deselectItem(assetId);
-        }
-      },
-      () => {
-        infiniteResultsContainer.addItemToSelection(assetId);
-      },
-      () => {
-        infiniteResultsContainer.removeItemFromSelection(assetId);
+        },
+        addAddToMultiSelectionHandler: () => {
+          infiniteResultsContainer.addItemToMultiSelection(assetId);
+        },
+        removeItemFromMultiSelectionHandler: () => {
+          infiniteResultsContainer.removeItemFromMultiSelection(assetId);
+        },
       },
     );
     return card;
