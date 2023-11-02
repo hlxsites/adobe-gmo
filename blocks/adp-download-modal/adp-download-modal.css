@@ -128,6 +128,11 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  gap: 6px;
+}
+
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .download-option.hidden {
+  display: none;
 }
 
 .adp-download-modal.block .modal-body.multi-select .modal-body-right .download-option input[type='radio'] {

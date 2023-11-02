@@ -8,6 +8,7 @@ import { isPDF } from '../../scripts/filetypes.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';
 import { getAssetName, getAssetMimeType } from '../../scripts/metadata.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
+import { getDownloadRenditionConfig } from '../../scripts/site-config.js';
 
 export default function decorate(block) {
   block.innerHTML = `<dialog>
@@ -322,6 +323,10 @@ export async function openMultiSelectDownloadModal() {
   radioContainer.appendChild(downloadOption1);
   radioContainer.appendChild(downloadOption2);
   newBodyRight.appendChild(radioContainer);
+  const renditionConfigs = await getDownloadRenditionConfig();
+  if(renditionConfigs.length === 0) {
+    downloadOption2.classList.add('hidden');
+  }
 
   // create download button
   generateButton(newBodyRight);

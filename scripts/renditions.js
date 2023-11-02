@@ -11,7 +11,6 @@ function insertOriginalBeforeExtension(filename) {
   return filename.replace(regex, '_Original$1');
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export async function getAvailableRenditions(assetId, assetName, mimeType) {
   const assetJSON = await getAssetMetadata(assetId);
   const downloadURL = await getDownloadUrl(assetId, assetName);
@@ -35,7 +34,7 @@ export async function getAvailableRenditions(assetId, assetName, mimeType) {
 /**
  * Get the available image rendition configurations available for the asset.
  */
-async function getAvailableImageRenditions(assetId, assetName, mimeType) {
+export async function getAvailableImageRenditions(assetId, assetName, mimeType) {
   const renditionConfig = await getDownloadRenditionConfig();
   return renditionConfig
     .filter((rendition) => isRenditionApplicable(rendition, mimeType))
