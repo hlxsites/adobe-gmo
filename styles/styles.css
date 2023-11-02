@@ -582,7 +582,7 @@ START: Common blocks/*-infinite-results block styling
   display: flex;
 }
 
-.adp-result-item .preview .checkbox-container input[type="checkbox"] {
+input[type="checkbox"] {
   appearance: none;
   display: inline-block;
   width: 14px;
@@ -594,8 +594,13 @@ START: Common blocks/*-infinite-results block styling
   cursor: pointer;
 }
 
-.adp-result-item .preview .checkbox-container input[type="checkbox"]:checked {
+input[type="checkbox"]:checked {
   background: url("/icons/checkmark.svg") 0% 0% no-repeat padding-box border-box var(--checkbox-checked-background-color);
+  border: 2px solid var(--checkbox-checked-background-color);
+}
+
+input[type="checkbox"].intermediate {
+  background: url("/icons/intermediate-checkmark.svg") center center no-repeat padding-box border-box var(--checkbox-checked-background-color);
   border: 2px solid var(--checkbox-checked-background-color);
 }
 

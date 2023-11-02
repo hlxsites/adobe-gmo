@@ -110,7 +110,6 @@
 
 .adp-download-modal.block .rendition label {
   cursor: pointer;
-  padding-left: 14px; /* Space for the checkbox */
 }
 
 .adp-download-modal.block .renditions-container .rendition label {
@@ -157,8 +156,10 @@
 
 .adp-download-modal.block .rendition .col1 {
   flex: 0 0 auto;
-  position: relative;
   margin-right: 7px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .adp-download-modal.block .rendition .col2 {
@@ -223,57 +224,8 @@
 }
 
 .adp-download-modal.block .rendition input[type='checkbox'] {
-  display: none;
-}
-
-.adp-download-modal.block .rendition label span {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  height: 14px;
-  width: 14px;
-  border: 2px solid var(--checkbox-border-color); 
-  border-radius: 4px;
-}
-
-.adp-download-modal.block .rendition input[type='checkbox']:checked + .checkmark,
-.adp-download-modal.block .rendition.header .checkmark.show-bar {
-  background-color: var(--button-focus-outline-color);
-  border-color: var(--button-focus-outline-color);
-}
-
-.adp-download-modal.block .rendition label span::after {
-  left: 4px;
-  top: 0;
-  width: 4px;
-  height: 8px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-.adp-download-modal.block .rendition label span::after,
-.adp-download-modal.block .rendition.header label span::after {
-  content: "";
-  position: absolute;
-  display: none;
-} 
-
-.adp-download-modal.block .rendition input[type='checkbox']:checked + span::after,
-.adp-download-modal.block .rendition.header span.show-bar::after {
-  display: block;
-}
-
-.adp-download-modal.block .rendition.header label span.show-bar::after {
-  left: 2px;
-  top: 6px;
-  width: 4px;
-  height: 0;
-  border-top: 1px solid white;
-  border-bottom: 0;;
-  border-width: unset;
-  transform: unset;
+  width: 15px;
+  height: 15px;
 }
 
 .adp-download-modal.block .action.download.disabled {

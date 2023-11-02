@@ -62,7 +62,6 @@ function generateButton(container) {
 export function addDownloadEventListener(container) {
   const renditionCheckboxs = container.querySelectorAll('input[name="rendition"]');
   const allCheckbox = container.querySelector('input[name="all"]');
-  const allCheckboxSpan = allCheckbox.nextElementSibling;
   const downloadButton = container.querySelector('.action.download');
 
   renditionCheckboxs.forEach((checkbox) => {
@@ -75,27 +74,20 @@ export function addDownloadEventListener(container) {
       }
       if (checkedCount === 0) {
         allCheckbox.checked = false;
-        allCheckboxSpan.classList.remove('show-bar');
+        allCheckbox.classList.remove('intermediate');
       } else if (checkedCount === renditionCheckboxs.length) {
         allCheckbox.checked = true;
-        allCheckboxSpan.classList.remove('show-bar');
+        allCheckbox.classList.remove('intermediate');
       } else {
         allCheckbox.checked = false;
-        allCheckboxSpan.classList.add('show-bar');
+        allCheckbox.classList.add('intermediate');
       }
       updateButton(checkedCount, downloadButton);
-    });
-
-    // add below code to make the checkbox accessible by keyboard
-    checkbox.nextElementSibling.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        checkbox.checked = !checkbox.checked;
-      }
     });
   });
 
   allCheckbox.addEventListener('change', () => {
-    allCheckboxSpan.classList.remove('show-bar');
+    allCheckbox.classList.remove('intermediate');
     let checkedCount = 0;
     renditionCheckboxs.forEach((checkbox) => {
       checkbox.checked = allCheckbox.checked;
@@ -171,11 +163,9 @@ function generateRenditionList(renditions, container) {
   const selectAlllabel = createTag('label', { for: 'download-all' });
   const selectAllCol1 = createTag('div', { class: 'col1' });
   const selectAllCheckbox = createTag('input', {
-    type: 'checkbox', name: 'all', value: 'all', id: 'download-all',
+    type: 'checkbox', name: 'all', value: 'all', id: 'download-all', class: 'intermediate',
   });
-  const selectAllSpan = createTag('span', { class: 'checkmark show-bar', tabindex: '0' });
   selectAllCol1.appendChild(selectAllCheckbox);
-  selectAllCol1.appendChild(selectAllSpan);
   selectAlllabel.appendChild(selectAllCol1);
   const selectAllCol2 = createTag('div', { class: 'col2' });
   selectAllCol2.textContent = 'Title';
@@ -208,10 +198,8 @@ function generateRenditionList(renditions, container) {
       'data-asset-name': `${rendition.assetName}`,
       'data-format': `${rendition.format}`,
     });
-    const span = createTag('span', { class: 'checkmark', tabindex: `${index + 1}` });
     checkbox.checked = rendition.name === 'Original';
     col1.appendChild(checkbox);
-    col1.appendChild(span);
     label.appendChild(col1);
     // title
     const col2 = createTag('div', { class: 'col2' });
@@ -227,14 +215,14 @@ function generateRenditionList(renditions, container) {
     label.appendChild(col4);
     // format
     const col5 = createTag('div', { class: 'col5' });
-    col5.textContent = `${rendition.format.split('/')[1]}`;
+    col5.textContent = rendition.format.includes("/")? `${rendition.format.split('/')[1]}` : `${rendition.format}`;
     label.appendChild(col5);
     renditionElem.appendChild(label);
     renditionContainer.appendChild(renditionElem);
   });
   container.appendChild(renditionContainer);
   if (renditions.length === 1) {
-    selectAllSpan.classList.remove('show-bar');
+    selectAllCheckbox.classList.remove('intermediate');
     selectAllCheckbox.checked = true;
   }
 
