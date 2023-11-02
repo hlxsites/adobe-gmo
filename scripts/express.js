@@ -78,6 +78,7 @@ export async function getJumpToken() {
   const bearerToken = await getBearerToken();
 
   const tokenValue = bearerToken.replace('Bearer ', '');
+  /*
   const jumpScope = 'AdobeID,openid,creative_cloud,creative_sdk,additional_info.projectedProductContext';
   const clientId = 'projectx_webapp';
 
@@ -90,8 +91,8 @@ export async function getJumpToken() {
   const jumpResponse = await window.adobeIMS?.jumpToken(jumpParams);
   const jumpUrl = jumpResponse['jump'];
   const jumpToken = jumpUrl.substring((jumpUrl.lastIndexOf('/')) + 1);
-  
-  return jumpToken;
+  */
+  return tokenValue;
 }
 
 function adjustZIndex(isOpening) {
