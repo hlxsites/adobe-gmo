@@ -337,3 +337,7 @@ function initQuickLinks() {
     }
   });
 }
+
+export function getNavHeight() {
+  return document.querySelector('.nav-wrapper').getBoundingClientRect().height;
+}

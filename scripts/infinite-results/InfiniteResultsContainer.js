@@ -1,4 +1,5 @@
 import { emitEvent, EventNames } from '../events.js';
+import { getNavHeight } from '../../blocks/adp-header/adp-header.js'
 
 const NUMBER_OF_PLACEHOLDERS = 10;
 const DEFAULT_NO_RESULTS_MSG = '';
@@ -224,16 +225,17 @@ export default class InfiniteResultsContainer {
     }
   }
 
-  #scrollToElement(element, padding = 20) {
+  #scrollToElement(element, padding = 26) {
     const rect = element.getBoundingClientRect();
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-    const elementTop = rect.top + scrollPosition;
+    const headerHeight = getNavHeight();
+    const elementTop = rect.top - headerHeight + scrollPosition;
     const elementBottom = rect.bottom + scrollPosition;
     const windowHeight = window.innerHeight;
     if (elementTop < scrollPosition) {
     // Element is above current scroll position
       window.scrollTo({
-        top: Math.max(0, elementTop - padding - 70),
+        top: Math.max(0, elementTop - padding),
         behavior: 'smooth',
       });
     } else if (elementBottom > scrollPosition + windowHeight) {
