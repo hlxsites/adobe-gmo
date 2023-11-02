@@ -1,4 +1,4 @@
-import { decorateIcons, toCamelCase, toClassName } from './lib-franklin.js';
+import { decorateIcons, toCamelCase } from './lib-franklin.js';
 import { getOptimizedPreviewUrl } from './polaris.js';
 import {
   isVideo, getFailedPlaceholderImgSrc, getFileType, getFileTypeCSSClass,
@@ -10,7 +10,7 @@ import { createMetadataHTML } from './metadata-html-builder.js';
 import { openDownloadModal } from '../blocks/adp-download-modal/adp-download-modal.js';
 import { getCollectionID, getCollectionTitle } from './collections.js';
 import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share-modal.js';
-import { getCollection } from './collections.js';
+
 function getVideoOverlayCSSClass(format) {
   if (isVideo(format)) {
     return 'icon icon-videoThumbnailOverlay';
@@ -41,7 +41,7 @@ function createActionButton(action, label, clickHandler, iconClass) {
 
   // Create the 'span' element
   const span = document.createElement('span');
-  span.className = `icon icon-${(iconClass)?toCamelCase(iconClass):toCamelCase(action)}`;
+  span.className = `icon icon-${(iconClass) ? toCamelCase(iconClass) : toCamelCase(action)}`;
 
   // Append the 'span' to the 'a'
   a.appendChild(span);
@@ -77,12 +77,7 @@ export function createAssetCardElement(
   assetMetadataConfig,
   hideEmptyMetadataProperty,
   excludedActions,
-  options = {
-    selectAssetHandler,
-    deselectAssetHandler,
-    addAddToMultiSelectionHandler,
-    removeItemFromMultiSelectionHandler,
-  }
+  options,
 ) {
   const assetId = getAssetID(asset);
   const repoName = getAssetName(asset);
@@ -120,12 +115,7 @@ export function createAssetCardElement(
 
 export function createCollectionCardElement(
   collection,
-  options = {
-    selectAssetHandler,
-    deselectAssetHandler,
-    addAddToMultiSelectionHandler,
-    removeItemFromMultiSelectionHandler,
-  },
+  options,
 ) {
   const id = getCollectionID(collection);
   const title = getCollectionTitle(collection);
@@ -239,7 +229,6 @@ function createCardElement(
 
   return card;
 }
-
 
 function createCardMetadataHTML(assetMetadataConfig, asset, hideEmptyMetadataProperty) {
   const metadataFieldsElem = createMetadataHTML(assetMetadataConfig, asset, hideEmptyMetadataProperty);

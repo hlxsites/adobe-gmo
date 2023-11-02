@@ -16,6 +16,10 @@ export function getCollectionDescription(item) {
   return item.description;
 }
 
+export function getAssetIdFromCollectionItem(assetItem) {
+  return assetItem.id;
+}
+
 async function getRequestHeaders() {
   const token = await getBearerToken();
   return {

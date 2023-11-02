@@ -98,7 +98,7 @@ export default class InfiniteResultsContainer {
     card.className = 'adp-result-item placeholder-card';
     return card;
   }
-  
+
   /**
    * We add hidden cards to the end of the list to make sure the infinite scroll styles properly
    * i.e. We want to keep the same number of cards in every row of the flex container
@@ -122,7 +122,13 @@ export default class InfiniteResultsContainer {
   #getItem(item) {
     if (item instanceof HTMLElement) {
       return item;
-    } if (typeof item === 'string') {
+    }
+    // if it's an object then get the item id from the datasource
+    if (typeof item === 'object') {
+      return this.getItemByItemId(this.datasource.getItemId(item));
+    }
+    // if it's a string or number then get the item by the item id
+    if (typeof item === 'string' || typeof item === 'number') {
       return this.getItemByItemId(item);
     }
     return undefined;
@@ -140,7 +146,7 @@ export default class InfiniteResultsContainer {
 
   /**
    * De-selects the currently selected item element or the item element passed in
-   * @param {*} asset - asset id {string} or item element element {HTMLElement}
+   * @param {string|HTMLElement} asset - asset id {string} or item element element {HTMLElement}
    * @param {boolean} removeFromURL - whether to remove the asset id from the URL or not
    */
   deselectItem(item) {
@@ -159,7 +165,11 @@ export default class InfiniteResultsContainer {
     this.datasource.onItemDeselected?.(itemCard, itemCard.dataset.itemId, this);
   }
 
-  addItemToSelection(item) {
+  /**
+   * Adds an item to multi-selection (sets css class 'checked' on the item's {HTMLElement})
+   * @param {*} item - item id {string} or item card element {HTMLElement} or item object json {object}
+   */
+  addItemToMultiSelection(item) {
     const itemCard = this.#getItem(item);
     if (itemCard) {
       itemCard.classList.add('checked');
@@ -174,7 +184,11 @@ export default class InfiniteResultsContainer {
     });
   }
 
-  removeItemFromSelection(item) {
+  /**
+   * Removes an item to multi-selection (removes css class 'checked' on the item's {HTMLElement})
+   * @param {*} item - item id {string} or item card element {HTMLElement} or item object json {object}
+   */
+  removeItemFromMultiSelection(item) {
     const itemCard = this.#getItem(item);
     if (itemCard) {
       itemCard.classList.remove('checked');
@@ -194,7 +208,7 @@ export default class InfiniteResultsContainer {
 
   /**
    * Selects the item element in the UI
-   * @param {*} item - item id {string} or item card element {HTMLElement}
+   * @param {string|HTMLElement} item - item id {string} or item card element {HTMLElement}
    */
   #selectItemElement(item) {
     const itemElem = this.#getItem(item);
@@ -210,7 +224,6 @@ export default class InfiniteResultsContainer {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   #scrollToElement(element, padding = 20) {
     const rect = element.getBoundingClientRect();
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
@@ -301,7 +314,6 @@ export default class InfiniteResultsContainer {
     return this.datasource.getExcludedItemActions?.();
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async scrollToTopOfContainer() {
     window.scrollTo({
       top: this.#container.offsetTop,
@@ -434,5 +446,12 @@ export default class InfiniteResultsContainer {
         }
       }
     }
+  }
+
+  /**
+   * Hides the container
+   */
+  hide() {
+    this.#container.classList.add('hidden');
   }
 }

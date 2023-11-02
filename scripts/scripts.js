@@ -319,6 +319,16 @@ export function getLastPartFromURL() {
   return id;
 }
 
+export function setLastPartofURL(newLastPart) {
+  const url = new URL(document.location);
+  const path = url.pathname;
+  const parts = path.split('/');
+  // replace :'s with _'s as : isn't valid in a Franklin folder URL
+  parts[parts.length - 1] = newLastPart.replaceAll(':', '_');
+  url.pathname = parts.join('/');
+  window.history.replaceState({}, '', url.toString());
+}
+
 export function removeParamFromUrl(url, paramName) {
   const urlObject = new URL(url);
   const params = new URLSearchParams(urlObject.search);

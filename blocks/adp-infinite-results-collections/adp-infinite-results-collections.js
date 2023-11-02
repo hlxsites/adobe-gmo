@@ -1,12 +1,12 @@
 import InfiniteResultsContainer from '../../scripts/infinite-results/InfiniteResultsContainer.js';
 // eslint-disable-next-line import/no-unresolved
-import CollectionsDataSource from './CollectionsDataSource.js';
+import CollectionsDatasource from './CollectionsDatasource.js';
 
 /** @type {InfiniteResultsContainer} */
 let infiniteResultsContainer;
 
 export default async function decorate(block) {
-  const instantSearchDatasource = new CollectionsDataSource();
+  const instantSearchDatasource = new CollectionsDatasource();
   infiniteResultsContainer = new InfiniteResultsContainer(block, instantSearchDatasource);
 }
 
