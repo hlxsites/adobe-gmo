@@ -196,6 +196,6 @@ export default async function decorate(block) {
     const { assetId } = block.dataset;
     openAssetDetailsModal(assetId, resultsManager);
   });
-  await window.adobeIMS?.refreshToken();
+  //await window.adobeIMS?.refreshToken();
   await startCCE();
 }
