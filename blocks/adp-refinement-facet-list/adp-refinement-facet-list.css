@@ -10,6 +10,7 @@
     min-width: unset;
     width: 14px;
     height: 14px;
+    margin-right: 8px;
 }
 
 .refinement-options input[type="checkbox"].ais-RefinementList-checkbox  {
