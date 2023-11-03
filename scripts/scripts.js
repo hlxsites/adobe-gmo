@@ -397,3 +397,50 @@ export function closeDialogEvent(dialog) {
     }
   });
 }
+
+export function sortMetadata(metadataElement) {
+  let metadataGroups = {};
+  let metadataElem = metadataElement;
+  let metadataParent = metadataElem.querySelector('.metadata-fields');
+  let metadataItems = metadataParent.querySelectorAll('[data-metatype]');
+  let metadataFragment = document.createDocumentFragment();
+
+  // get unique values for metadata group/category
+  let metadataCategories = [];
+  metadataItems.forEach((elem) => {
+    metadataCategories.push(elem.getAttribute('data-metatype'));
+  })
+  let uniqueCategories = [...new Set(metadataCategories)];
+
+  uniqueCategories.forEach((category) => {
+    let headingText;
+    let splitCategory = category.replace("-"," ");
+    //if (splitCategory.includes(" ")) {
+      // capitalize first letter of each word
+      headingText = splitCategory.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+    //} else {
+      // if no spaces, capitalize whole string
+      //headingText = splitCategory.toUpperCase();
+    //}
+    metadataGroups[category] = createMetadataGroup(headingText);
+  })
+
+  metadataItems.forEach((elem) => {
+    let metadataType = elem.getAttribute('data-metatype');
+    metadataGroups[metadataType].appendChild(elem);
+  })
+
+  Object.keys(metadataGroups).forEach((key) => {
+    metadataFragment.appendChild(metadataGroups[key]);
+  })
+
+  metadataParent.appendChild(metadataFragment);
+  return metadataElem;
+}
+
+function createMetadataGroup(headingText) {
+  const metadataGroup = document.createElement('div');
+  metadataGroup.classList.add('metadata-group');
+  metadataGroup.innerHTML = '<span>' + headingText + '</span>';
+  return metadataGroup;
+}

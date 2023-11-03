@@ -106,11 +106,13 @@ export async function getDetailViewConfig() {
   return response.detailview.data.map((row) => {
     const aemMetadataField = row['Metadata-field'];
     const dashedName = aemMetadataField.replaceAll(':', '-');
+    const metadataType = row['Metadata-type'];
 
     return ({
       label: row.Label,
       metadataField: dashedName,
       aemMetadataField,
+      metadataType
     });
   });
 }

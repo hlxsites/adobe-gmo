@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL,
+  getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL, sortMetadata
 } from '../../scripts/scripts.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
@@ -74,8 +74,9 @@ async function createMetadataPanel(modal) {
   modalMetadata.classList.add('open');
 
   removeMetadataContainers(modalMetadata);
-  modalMetadata.querySelector('.modal-metadata-heading').textContent = 'Details';
-  modalMetadata.appendChild(metadataElem);
+  modalMetadata.querySelector('.modal-metadata-heading').textContent = 'Metadata';
+  const sortedMetadata = sortMetadata(metadataElem);
+  modalMetadata.appendChild(sortedMetadata);
 }
 
 function createHeaderPanel(modal) {
@@ -241,7 +242,7 @@ export default function decorate(block) {
       <div class="modal-body">
         <div class="modal-image"></div>
         <div class="modal-metadata open">
-          <div class="modal-metadata-heading">Details</div>
+          <div class="modal-metadata-heading">Metadata</div>
         </div>
         <div class="modal-right-panel">
           <button id="asset-details-page-metadata" class="action action-metadata-asset open" title="Hide or View Toggle" aria-label="Metadata">
