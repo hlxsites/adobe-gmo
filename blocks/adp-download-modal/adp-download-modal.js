@@ -353,7 +353,7 @@ export async function openMultiSelectDownloadModal() {
     const checkedRadio = radioContainer.querySelector('input[name="multi-select-download"]:checked');
     const token = await getBearerToken();
 
-    var downloadFiles = [];
+    const downloadFiles = [];
     rows.forEach(async (row) => {
       const data = await getAvailableRenditions(row.getAttribute('data-asset-id'), row.getAttribute('data-asset-name'), row.getAttribute('data-fileformat'));
       data.forEach((item) => {
