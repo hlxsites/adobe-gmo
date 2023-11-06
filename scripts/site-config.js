@@ -276,12 +276,18 @@ export async function getQuickLinkConfig() {
  * @returns {string} Base path for config files
  */
 function getBaseConfigPath() {
-  if (window.location.pathname.startsWith('/drafts/')) {
-    const contentBranch = window.location.pathname.split('/')[2];
-    return `/drafts/${contentBranch}`;
+  let basePath = '';
+  if (window.location.pathname.startsWith('/qa/') || window.location.pathname.startsWith('/dev/')) {
+    basePath = `/${window.location.pathname.split('/')[1]}`;
+  };
+
+  if (window.location.pathname.includes(`${basePath}/drafts/`)) {
+    let contentBranch = window.location.pathname.split(`${basePath}/drafts/`)[1];
+    contentBranch = contentBranch.endsWith('/') ? contentBranch.slice(0, -1) : contentBranch;
+    return basePath + `/drafts/${contentBranch}`;
   }
 
-  return window.hlx.codeBasePath;
+  return basePath;
 }
 
 async function getConfig(filename) {
