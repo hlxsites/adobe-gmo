@@ -121,7 +121,7 @@ export function addDownloadEventListener(container) {
         });
       }
     });
-    var downloadFiles = [];
+    const downloadFiles = [];
     // Loop through each item in the array
     items.forEach((item) => {
       fetch(item.url, {
