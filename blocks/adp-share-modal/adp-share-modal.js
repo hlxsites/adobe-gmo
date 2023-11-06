@@ -215,7 +215,7 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
   copyShareButton.addEventListener('click', async (e) => {
     e.preventDefault();
     //Array of assets
-    var sharedAssetsArr =[];
+    const sharedAssetsArr =[];
 
     if (!shareLinkUrl) {
       copyShareButton.classList.add('share-link-in-progress');
