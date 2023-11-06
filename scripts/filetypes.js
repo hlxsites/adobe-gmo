@@ -143,6 +143,7 @@ const FILE_TYPE_TO_CARD_ICON_MAP = {
   vector: 'cardDocument',
   audio: 'cardAudio',
   '3dModel': 'card3DModel',
+  collection: 'cardCollection',
 };
 
 const FILE_TYPE_TO_FILE_TYPE_TEXT = {
@@ -154,6 +155,7 @@ const FILE_TYPE_TO_FILE_TYPE_TEXT = {
   vector: 'Vector',
   asset: 'Asset',
   '3dModel': '3D Model',
+  collection: 'Collection',
 };
 
 export function isDocument(mimetype) {
@@ -197,6 +199,7 @@ export function getFileType(mimetype) {
   if (isDocument(mimetype)) return 'document';
   if (is3DModel(mimetype)) return '3dModel';
   if (isAudio(mimetype)) return 'audio';
+  if (mimetype === 'collection') return 'collection';
   return 'asset';
 }
 

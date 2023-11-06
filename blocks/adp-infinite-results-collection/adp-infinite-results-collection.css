@@ -1,1 +1,13 @@
-
+.section.adp-infinite-results-collection-container {
+    padding-top: 24px;
+    display: grid;
+    grid-template-columns: auto min-content;
+    grid-template-rows: auto auto;
+    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
+    grid-template-areas: "infinite-results asset-details";
+    align-items: start;
+    background-color: var(--assets-browser-background-color);
+    border-top: solid #F1F1F1 2px;
+    column-gap: 11px;
+    row-gap: 11px;
+}

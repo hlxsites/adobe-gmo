@@ -1,9 +1,8 @@
-import { getLinkShare, getLinkShareID, getAssetsFromLinkShare } from '../../scripts/link-share.js';
-import { getLastPartFromURL, getAnchorVariable, getQueryVariable, removeParamFromWindowURL, setHashParamInWindowURL } from '../../scripts/scripts.js';
+import { getLinkShare, getAssetsFromLinkShare } from '../../scripts/link-share.js';
+import { getLastPartFromURL, getAnchorVariable, getQueryVariable } from '../../scripts/scripts.js';
 import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
 import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
-import { getAssetMetadata } from '../../scripts/polaris.js';
 import { getAssetID, getAssetName } from '../../scripts/metadata.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 
@@ -47,10 +46,7 @@ export default class LinkShareDatasource {
       this.getExcludedItemActions(),
       {
         selectItemHandler: () => {
-          infiniteResultsContainer.selectItem(assetId);
-        },
-        deselectAssetHandler: () => {
-          infiniteResultsContainer.deselectItem(assetId);
+          infiniteResultsContainer.toggleSelection(assetId);
         },
         addAddToMultiSelectionHandler: () => {
           infiniteResultsContainer.addItemToMultiSelection(assetId);
@@ -88,9 +84,10 @@ export default class LinkShareDatasource {
     if (assetId) {
       return assetId;
     }
+    return undefined;
   }
 
-  onItemDeselected(item, itemId, infiniteResultsContainer) {
+  onItemDeselected(item, itemId) {
     closeAssetDetailsPanel();
     emitEvent(item, EventNames.ASSET_DESELECTED, {
       assetId: itemId,

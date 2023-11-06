@@ -8,7 +8,6 @@ import {
 import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';
-import { getAssetID } from '../../scripts/metadata.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 
 const searchResultsCardViewConfig = await getCardViewConfig();
@@ -39,7 +38,7 @@ export default class CollectionsDatasource {
 
   async loadCollection(collectionId) {
     this.collectionId = collectionId;
-    const collection = await getCollection(getLastPartFromURL().replaceAll('_', ':'));
+    const collection = await getCollection(collectionId);
     this.infiniteResultsContainer.resultsCallback(
       this.container,
       collection.items,
@@ -71,31 +70,32 @@ export default class CollectionsDatasource {
 
   async createItemElement(item, infiniteResultsContainer) {
     const assetJSON = await getAssetMetadata(getAssetIdFromCollectionItem(item));
-    const assetId = getAssetID(item);
+    const assetId = this.getItemId(item);
     const card = await createAssetCardElement(
       assetJSON,
       searchResultsCardViewConfig,
       searchResultsCardViewSettings.hideEmptyMetadataProperty,
       this.getExcludedItemActions(),
-      () => {
-        infiniteResultsContainer.selectItem(assetId);
-        openAssetDetailsPanel(assetId, infiniteResultsContainer);
-      },
-      () => {
-        infiniteResultsContainer.deselectItem(assetId);
-      },
-      () => {
-        infiniteResultsContainer.addItemToMultiSelection(assetId);
-      },
-      () => {
-        infiniteResultsContainer.removeItemFromMultiSelection(assetId);
+      {
+        selectItemHandler: () => {
+          infiniteResultsContainer.toggleSelection(assetId);
+        },
+        deselectItemHandler: () => {
+          infiniteResultsContainer.deselectItem(assetId);
+        },
+        addAddToMultiSelectionHandler: () => {
+          infiniteResultsContainer.addItemToMultiSelection(assetId);
+        },
+        removeItemFromMultiSelectionHandler: () => {
+          infiniteResultsContainer.removeItemFromMultiSelection(assetId);
+        },
       },
     );
     return card;
   }
 
   getItemId(item) {
-    return item.assetId;
+    return item.id;
   }
 
   getExcludedItemActions() {
@@ -127,6 +127,7 @@ export default class CollectionsDatasource {
   }
 
   onItemSelected(item, itemId) {
+    openAssetDetailsPanel(itemId, this.infiniteResultsContainer);
     emitEvent(item, EventNames.ASSET_SELECTED, {
       assetId: itemId,
     });

@@ -302,8 +302,16 @@ function initQuickLinks() {
   allAssetsLink.textContent = 'All assets';
   allAssetsDiv.appendChild(allAssetsLink);
 
+  const collectionsDiv = document.createElement('div');
+  collectionsDiv.classList.add('item', 'collections');
+  const collectionsLink = document.createElement('a');
+  collectionsLink.href = '/collections';
+  collectionsLink.textContent = 'Collections';
+  collectionsDiv.appendChild(collectionsLink);
+
   const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
   quickLinks.append(allAssetsDiv);
+  quickLinks.append(collectionsDiv);
 
   // append drafts path if needed
   quickLinks.querySelectorAll('.item').forEach((item) => {

@@ -1,4 +1,4 @@
-import { decorateIcons, toCamelCase } from './lib-franklin.js';
+import { decorateIcons, toCamelCase, toClassName } from './lib-franklin.js';
 import { getOptimizedPreviewUrl } from './polaris.js';
 import {
   isVideo, getFailedPlaceholderImgSrc, getFileType, getFileTypeCSSClass,
@@ -8,7 +8,7 @@ import {
 } from './metadata.js';
 import { createMetadataHTML } from './metadata-html-builder.js';
 import { openDownloadModal } from '../blocks/adp-download-modal/adp-download-modal.js';
-import { getCollectionID, getCollectionTitle } from './collections.js';
+import { getCollection, getCollectionID, getCollectionTitle } from './collections.js';
 import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share-modal.js';
 
 function getVideoOverlayCSSClass(format) {
@@ -16,6 +16,26 @@ function getVideoOverlayCSSClass(format) {
     return 'icon icon-videoThumbnailOverlay';
   }
   return '';
+}
+
+function createAssetThumbnail(card, id, name, title, mimeType) {
+  const previewElem = card.querySelector('.preview .thumbnail');
+  getOptimizedPreviewUrl(id, name, 350).then((url) => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = title;
+    previewElem.appendChild(img);
+  });
+  // if it's a video, add the video play icon over the middle of the thumbnail
+  if (isVideo(mimeType)) {
+    // create <div class="preview-overlay"><span></span></div>
+    const div = document.createElement('div');
+    div.className = 'preview-overlay';
+    const span = document.createElement('span');
+    div.appendChild(span);
+    previewElem.appendChild(div);
+    span.className = getVideoOverlayCSSClass(mimeType);
+  }
 }
 
 /**
@@ -83,6 +103,11 @@ export function createAssetCardElement(
   const repoName = getAssetName(asset);
   const title = getAssetTitle(asset);
   const mimeType = getAssetMimeType(asset);
+  // Add default thumbnail handler if not provided
+  if (!options.createThumbnailHandler) {
+    options.createThumbnailHandler = createAssetThumbnail;
+  }
+
   const card = createCardElement(
     mimeType,
     assetId,
@@ -113,12 +138,35 @@ export function createAssetCardElement(
   return card;
 }
 
+function createCollectionThumbnail(card, collectionId, title) {
+  const imgContainer = card.querySelector('.preview-collection .thumbnail');
+  getCollection(collectionId)?.then((collection) => {
+    const images = collection.items.filter((item) => item.type === 'asset');
+    const imagesToFetch = images.slice(0, 4);
+
+    for (let index = 0; index < imagesToFetch.length; index += 1) {
+      const item = imagesToFetch[index];
+      getOptimizedPreviewUrl(item.id, null, 120).then((url) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = title;
+        imgContainer.appendChild(img);
+      });
+    }
+  });
+}
+
 export function createCollectionCardElement(
   collection,
   options,
 ) {
   const id = getCollectionID(collection);
   const title = getCollectionTitle(collection);
+  // Add default thumbnail handler if not provided
+  if (!options.createThumbnailHandler) {
+    options.createThumbnailHandler = createCollectionThumbnail;
+  }
+
   const config = [{
     aemMetadataField: 'description',
     label: 'Description',
@@ -151,9 +199,8 @@ function createCardElement(
   const card = document.createElement('div');
   card.classList.add(`filetype-${fileType}`);
 
-  if (mimeType === 'collection') {
-    card.innerHTML = `
-    <div class="preview preview-collection">
+  card.innerHTML = `
+    <div class="preview preview-${toClassName(getFileType(mimeType))}">
       <a class="thumbnail asset-link" href="">
       </a>
       <div class="filetype-icon-overlay"><span class="icon"></span></div>
@@ -161,42 +208,17 @@ function createCardElement(
     <div class="title"></div>
     <div class="metadata"></div>
   `;
+  options.createThumbnailHandler(card, id, name, title, mimeType);
 
-    card.querySelector('.preview-collection .thumbnail').addEventListener('click', (e) => {
-      e.preventDefault();
-      options.selectItemHandler(card);
-    });
+  card.querySelector('.metadata').addEventListener('click', (e) => {
+    e.preventDefault();
+    options.selectItemHandler(card);
+  });
 
-    options.createThumbnailHandler(card, id, title);
-  } else {
-    console.log('card ', card);
-    card.innerHTML = `
-    <div class="preview">
-      <a class="thumbnail asset-link" href="">
-          <img>
-          <div class="preview-overlay"><span></span></div>
-      </a>
-      <div class="filetype-icon-overlay"><span class="icon"></span></div>
-    </div>
-    <div class="title"></div>
-    <div class="metadata"></div>
-  `;
-
-    card.querySelector('.preview .thumbnail').addEventListener('click', (e) => {
-      e.preventDefault();
-      options.selectItemHandler(card);
-    });
-
-    const img = card.querySelector('.preview .thumbnail img');
-    getOptimizedPreviewUrl(id, name, 350).then((url) => {
-      img.src = url;
-      img.style.visibility = '';
-      img.alt = title;
-    });
-
-    const span1 = card.querySelector('.preview-overlay span');
-    span1.className = getVideoOverlayCSSClass(mimeType);
-  }
+  card.querySelector('.preview .thumbnail').addEventListener('click', (e) => {
+    e.preventDefault();
+    options.selectItemHandler(card);
+  });
 
   const span2 = card.querySelector('.filetype-icon-overlay span');
   span2.className = `icon icon-${getFileTypeCSSClass(mimeType)}`;
@@ -226,7 +248,7 @@ function createCardElement(
       }
     });
   }
-
+  decorateIcons(card);
   return card;
 }
 

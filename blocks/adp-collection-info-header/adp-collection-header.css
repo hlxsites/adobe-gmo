@@ -1,0 +1,36 @@
+.section.adp-collection-header-container {
+    padding-right: 0;
+}
+
+.adp-collection-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+    font-size: var(--header-font-size);
+    padding: 0;
+    top: 0.01rem;
+    background: linear-gradient( to bottom, var(--assets-browser-background-color) 0 calc(100% - 2rem), transparent 100% );
+    padding-top: 0.88rem;
+    padding-bottom: 0.88rem;
+    z-index: 1;
+}
+
+.adp-collection-header .back-button .text {
+    text-align: left;
+    letter-spacing: 0;
+    color: var(--text-color);
+    opacity: 1;
+    margin-left: 0.25em;
+    font-weight: bold;
+}
+
+.adp-collection-header .back-button .icon {
+    height: 1rem;
+    width: 1rem;
+    vertical-align: text-bottom;
+}
+
+.adp-collection-header  .collection-title {
+    font-size: var(--body-font-size-xs);
+}

@@ -319,14 +319,21 @@ export function getLastPartFromURL() {
   return id;
 }
 
-export function setLastPartofURL(newLastPart) {
+export function setLastPartofURL(newLastPart, redirect = false) {
   const url = new URL(document.location);
   const path = url.pathname;
   const parts = path.split('/');
-  // replace :'s with _'s as : isn't valid in a Franklin folder URL
-  parts[parts.length - 1] = newLastPart.replaceAll(':', '_');
-  url.pathname = parts.join('/');
-  window.history.replaceState({}, '', url.toString());
+  const lastPart = parts[parts.length - 1];
+  if (lastPart) {
+    // replace :'s with _'s as : isn't valid in a Franklin folder URL
+    parts[parts.length - 1] = newLastPart.replaceAll(':', '_');
+    url.pathname = parts.join('/');
+    if (redirect) {
+      window.location.href = url.toString();
+    } else {
+      window.history.replaceState({}, '', url.toString());
+    }
+  }
 }
 
 export function removeParamFromUrl(url, paramName) {
@@ -397,7 +404,7 @@ export function closeDialogEvent(dialog) {
     if (event.clientX < dialogDimensions.left || event.clientX > dialogDimensions.right
       || event.clientY < dialogDimensions.top || event.clientY > dialogDimensions.bottom) {
       dialog.close();
-      document.body.classList.remove('no-scroll');
+      // document.body.classList.remove('no-scroll');
     }
   });
 }

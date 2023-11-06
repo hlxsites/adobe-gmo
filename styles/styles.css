@@ -835,3 +835,24 @@ input[type="checkbox"].intermediate {
 /*
 END: common blocks/*-infinite-results block styling
 */
+
+/**
+START: blocks/adp-collection-header and blocks/adp-stats
+*/
+.stats-count-label {
+  text-align: left;
+  font: var(--stats-value-font);
+  letter-spacing: 0;
+  color: var(--stats-label-color);
+}
+
+.stats-text-label {
+  text-align: left;
+  font: var(--stats-label-font);
+  letter-spacing: 0;
+  color: var(--stats-label-color);
+}
+
+/**
+END: blocks/adp-collection-header and blocks/adp-stats
+*/

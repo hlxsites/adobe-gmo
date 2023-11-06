@@ -7,32 +7,13 @@ let infiniteResultsContainer;
 export default async function decorate(block) {
   const instantSearchDatasource = new LinkShareDatasource();
   infiniteResultsContainer = new InfiniteResultsContainer(block, instantSearchDatasource);
+  infiniteResultsContainer.render();
   addEventListener(EventNames.ASSET_QUICK_PREVIEW_CLOSE, (e) => {
     infiniteResultsContainer.deselectItem(e.detail.assetId);
   });
   addEventListener(EventNames.CLOSE_BANNER, () => {
     infiniteResultsContainer.clearAllSelections();
   });
-}
-
-export function selectNextCard() {
-  return infiniteResultsContainer.selectNextItem();
-}
-
-export function selectPreviousCard() {
-  return infiniteResultsContainer.selectPreviousItem();
-}
-
-export function selectCard(card) {
-  return infiniteResultsContainer.selectItem(card);
-}
-
-export function hasNextCard() {
-  return infiniteResultsContainer.hasNextItem();
-}
-
-export function hasPreviousCard() {
-  return infiniteResultsContainer.hasPreviousItem();
 }
 
 export function openLinkShare(id) {

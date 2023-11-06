@@ -3,10 +3,8 @@ import {
   getCollectionID,
   getCollectionTitle,
   listCollection,
-  getCollection,
 } from '../../scripts/collections.js';
 import { createCollectionCardElement } from '../../scripts/card-html-builder.js';
-import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
 
 export default class CollectionsDatasource {
   cursor;
@@ -52,24 +50,6 @@ export default class CollectionsDatasource {
     );
   }
 
-  async createThumbnailHandler(card, collectionId, title, imgIndex = 0) {
-    const collection = await getCollection(collectionId);
-    const imgContainer = card.querySelector('.preview-collection .thumbnail');
-    const images = collection.items.filter((item) => item.type === 'asset');
-    const imagesToFetch = images.slice(0, 4 - imgIndex);
-
-    for (let index = 0; index < imagesToFetch.length; index += 1) {
-      const item = imagesToFetch[index];
-      getOptimizedPreviewUrl(item.id, null, 120).then((url) => {
-        const img = document.createElement('img');
-        img.src = url;
-        img.style.visibility = '';
-        img.alt = title;
-        imgContainer.appendChild(img);
-      });
-    }
-  }
-
   getItemId(resultItem) {
     return getCollectionID(resultItem);
   }
@@ -79,15 +59,15 @@ export default class CollectionsDatasource {
   }
 
   createItemElement(item, infiniteResultsContainer) {
+    const id = getCollectionID(item);
     const card = createCollectionCardElement(
       item,
       {
         selectItemHandler: () => {
-          const id = getCollectionID(item);
-          infiniteResultsContainer.selectItem(id);
+          infiniteResultsContainer.toggleSelection(id);
         },
-        createThumbnailHandler: (cardElement, id, title) => {
-          this.createThumbnailHandler(cardElement, id, title);
+        deselectItemHandler: () => {
+          infiniteResultsContainer.deselectItem(id);
         },
       },
     );
@@ -95,6 +75,6 @@ export default class CollectionsDatasource {
   }
 
   onItemSelected(itemElement, itemId) {
-    setLastPartofURL(itemId);
+    setLastPartofURL(`collection/${itemId}`, true);
   }
 }
