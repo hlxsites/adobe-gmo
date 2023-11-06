@@ -114,7 +114,7 @@ export function addDownloadEventListener(container) {
         });
       }
     });
-
+    const downloadFiles = [];
     // Loop through each item in the array
     items.forEach((item) => {
       fetch(item.url, {
@@ -129,13 +129,18 @@ export function addDownloadEventListener(container) {
           } else {
             downloadAsset(blob, item.name);
           }
-          emitEvent(b.target, EventNames.DOWNLOAD, {
-            assetId: item.assetId,
-            assetName: item.assetName,
-            renditionName: item.renditionName,
-          });
+          downloadFiles.push(
+            {
+              assetId: item.assetId,
+              assetName: item.assetName,
+              renditionName: item.renditionName
+            }
+          );
         })
         .catch((e) => console.log(`Unable to download file ${item.name}`, e));
+    });
+    emitEvent(b.target, EventNames.DOWNLOAD, {
+      "downloads":downloadFiles
     });
   });
 }
@@ -340,6 +345,8 @@ export async function openMultiSelectDownloadModal() {
     const rows = multiAssetsTable.querySelectorAll('.asset-row');
     const checkedRadio = radioContainer.querySelector('input[name="multi-select-download"]:checked');
     const token = await getBearerToken();
+
+    const downloadFiles = [];
     rows.forEach(async (row) => {
       const data = await getAvailableRenditions(row.getAttribute('data-asset-id'), row.getAttribute('data-asset-name'), row.getAttribute('data-fileformat'));
       data.forEach((item) => {
@@ -354,14 +361,19 @@ export async function openMultiSelectDownloadModal() {
           .then((resp) => resp.blob())
           .then((blob) => {
             downloadAsset(blob, item.fileName);
-            emitEvent(b.target, EventNames.DOWNLOAD, {
-              assetId: item.assetId,
-              assetName: item.assetName,
-              renditionName: item.name,
-            });
+            downloadFiles.push(
+              {
+                assetId: item.assetId,
+                assetName: item.assetName,
+                renditionName: item.name
+              }
+            );
           })
           .catch((e) => console.log(`Unable to download file ${item.name}`, e));
       });
+    });
+    emitEvent(b.target, EventNames.DOWNLOAD, {
+      "downloads":downloadFiles
     });
   });
 
