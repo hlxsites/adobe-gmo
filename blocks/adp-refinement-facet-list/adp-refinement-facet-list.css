@@ -6,7 +6,7 @@
     background: var(--white-background-color) 0% 0% no-repeat padding-box;
     border: 2px solid var(--border-color);
     opacity: 1;
-    vertical-align: text-bottom;
+    vertical-align: middle;
     min-width: unset;
     width: 14px;
     height: 14px;
