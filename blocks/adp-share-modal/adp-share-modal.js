@@ -3,6 +3,8 @@ import { getBackendApiKey, getDeliveryEnvironment, getOptimizedPreviewUrl } from
 import { createDateInput } from '../../scripts/date-input.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
+import { emitEvent, EventNames } from '../../scripts/events.js';
+import { getUserProfile} from '../../scripts/security.js';
 
 const SHARE_LINK_ACCESS = {
   PUBLIC: 'public',
@@ -15,6 +17,7 @@ defaultExpiryDate.setDate(defaultExpiryDate.getDate() + 30);
 const COPY_SHARE_LINK_TEXT = 'Copy share link';
 let shareLinkExpiryDate = null;
 let shareLinkUrl = '';
+const userProfile = await getUserProfile();
 
 function generateLinkShareUrl(linkId) {
   return `${window.location.protocol}//${window.location.host}/share/${linkId}`;
@@ -211,6 +214,9 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
   const copyShareButton = containerElement.querySelector('.action-copy-share-link');
   copyShareButton.addEventListener('click', async (e) => {
     e.preventDefault();
+    //Array of assets
+    var sharedAssetsArr =[];
+
     if (!shareLinkUrl) {
       copyShareButton.classList.add('share-link-in-progress');
       copyShareButton.textContent = "";
@@ -218,17 +224,32 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
       const access = requireLoginCheckbox.checked ? SHARE_LINK_ACCESS.RESTRICTED : SHARE_LINK_ACCESS.PUBLIC;
       let assetIdsArr = assetIds;
       if (assetIdsArr === null) {
+        //Multiple assets
         assetIdsArr = [];
         containerElement.querySelectorAll('.multi-selected-assets-table .asset-row').forEach((row) => {
           assetIdsArr.push(row.getAttribute('data-asset-id'));
+          sharedAssetsArr.push({"assetId":row.getAttribute('data-asset-id'),"assetName" : row.getAttribute('data-asset-name') });
         });
       }
+       else
+       {  //Single Asset
+          sharedAssetsArr.push({"assetId":assetIds[0],"assetName" : title });
+       }
       shareLinkUrl = await createShareLinkUrl(assetIdsArr, title, access, shareLinkExpiryDate);
       copyShareButton.classList.remove('share-link-in-progress');
     }
     if (shareLinkUrl) {
       copyShareButton.textContent = 'Link copied';
       await navigator.clipboard.writeText(shareLinkUrl);
+
+      emitEvent(containerElement, EventNames.SHARE_LINK, {
+        "email" : userProfile.email,
+        "displayName" : userProfile.displayName,
+        "shareLinkUrl" : shareLinkUrl,
+        "sharedAssetsArr" : sharedAssetsArr,
+        "shareLinkExpiryDate": shareLinkExpiryDate
+      });
+
     } else {
       copyShareButton.textContent = COPY_SHARE_LINK_TEXT;
     }

@@ -136,6 +136,18 @@ export const EventNames = {
   INFINITE_SCROLL: 'infinite-scroll',
 
   /**
+   * Sent whenever user clicks on Copy share Link.
+   *
+   * The event's detail will contain the following properties:
+   * * email: Email address of the user.
+   * * displayName: The user's full name.
+   * * shareLinkUrl: Share Link URL.
+   * * sharedAssetsArr : Array of the share assets
+   * * shareLinkExpiryDate : Share Link Expiry Date
+   */
+  SHARE_LINK: 'share-link',
+
+  /**
    * Sent whenever a logged in users starts a new session.
    *
    * The event's detail will contain the following properties:
