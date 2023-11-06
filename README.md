@@ -21,7 +21,7 @@ npm test
 
 ## Local development setup
 
-> **_NOTE:_** Users should be on Adobe Corp netwrok for local development
+> **_NOTE:_** Users should be on Adobe Corp network for local development.
 
 1. Install the AEM cli `npm install -g @adobe/aem-cli`
     * If command fails with `EEXIST: file already exists`, then run `npm install -g --force @adobe/aem-cli`
@@ -53,7 +53,13 @@ npm test
    ```bash
    sudo aem up
    ```
-9. Go to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
+9. Using Chrome browser, go to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
+10. If you would also like to use Mozilla Firefox instead of Chrome then:
+    1. Open Firefox
+    2. Enter `about:config` in the address bar, hit `[Enter]`
+    3. Click **Accept the Risk and Continue**
+    4. In the search, enter `security.enterprise_roots.enabled` and set the value to true
+    5. Restart Firefox and navigate to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
 
 ## Updating Dependencies
 To update the dependencies under [scripts/libs](scripts/libs) with newer versions:
