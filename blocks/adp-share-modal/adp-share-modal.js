@@ -227,8 +227,8 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
         //Multiple assets
         assetIdsArr = [];
         containerElement.querySelectorAll('.multi-selected-assets-table .asset-row').forEach((row) => {
-          assetIdsArr.push(row.getAttribute('data-asset-id'));
-          sharedAssetsArr.push({"assetId":row.getAttribute('data-asset-id'),"assetName" : row.getAttribute('data-asset-name') });
+          assetIdsArr.push(row.dataset.assetId);
+          sharedAssetsArr.push({"assetId":row.dataset.assetId,"assetName" : row.dataset.assetName});
         });
       }
        else
