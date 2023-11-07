@@ -9,35 +9,11 @@ let infiniteResultsContainer;
 export default async function decorate(block) {
   const instantSearchDatasource = new InstantSearchDataSource();
   infiniteResultsContainer = new InfiniteResultsContainer(block, instantSearchDatasource);
+  infiniteResultsContainer.render();
+  addEventListener(EventNames.ASSET_QUICK_PREVIEW_CLOSE, (e) => {
+    infiniteResultsContainer.deselectItem(e.detail.assetId);
+  });
   addEventListener(EventNames.CLOSE_BANNER, () => {
     infiniteResultsContainer.clearAllSelections();
   });
-}
-
-export function getNextAssetCard() {
-  return infiniteResultsContainer.selectNextItem();
-}
-
-export function getPreviousAssetCard() {
-  return infiniteResultsContainer.selectPreviousItem();
-}
-
-export function getSelectedAssetCard() {
-  return infiniteResultsContainer.getSelectedItem();
-}
-
-export function selectAssetCard(asset) {
-  return infiniteResultsContainer.selectItem(asset);
-}
-
-export function deselectAssetCard(asset) {
-  return infiniteResultsContainer.deselectItem(asset);
-}
-
-export function hasNextAsset() {
-  return infiniteResultsContainer.hasNextItem();
-}
-
-export function hasPreviousAsset() {
-  return infiniteResultsContainer.hasPreviousItem();
 }

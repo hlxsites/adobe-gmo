@@ -164,20 +164,22 @@ async function initSearch() {
  */
 async function loadEager(doc) {
   const loadDependenciesPromise = loadDependencies();
-  await getBearerToken();
-  if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
-    const hasAccess = await checkUserAccess();
-    if (!hasAccess) {
-      window.location.href = NO_ACCESS_PATH;
-      return;
+  if (document.querySelector('head meta[name="public-access"]')?.getAttribute('content').toLowerCase() !== 'true') {
+    await getBearerToken();
+    if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
+      const hasAccess = await checkUserAccess();
+      if (!hasAccess) {
+        window.location.href = NO_ACCESS_PATH;
+        return;
+      }
+      // This is a dev only service worker that caches the algolia JS SDK
+      // check if we are on localhost
+      await initializeServiceWorkers();
+      // Make sure all dependencies are loaded before initializing search
+      // - we load them in parallel by leveraging the promise
+      await loadDependenciesPromise;
+      await initSearch();
     }
-    // This is a dev only service worker that caches the algolia JS SDK
-    // check if we are on localhost
-    await initializeServiceWorkers();
-    // Make sure all dependencies are loaded before initializing search
-    // - we load them in parallel by leveraging the promise
-    await loadDependenciesPromise;
-    await initSearch();
   }
   const brandingConfig = await getBrandingConfig();
   if (brandingConfig.fontCssUrl) {
@@ -325,6 +327,23 @@ export function getLastPartFromURL() {
   return id;
 }
 
+export function setLastPartofURL(newLastPart, redirect = false) {
+  const url = new URL(document.location);
+  const path = url.pathname;
+  const parts = path.split('/');
+  const lastPart = parts[parts.length - 1];
+  if (lastPart) {
+    // replace :'s with _'s as : isn't valid in a Franklin folder URL
+    parts[parts.length - 1] = newLastPart.replaceAll(':', '_');
+    url.pathname = parts.join('/');
+    if (redirect) {
+      window.location.href = url.toString();
+    } else {
+      window.history.replaceState({}, '', url.toString());
+    }
+  }
+}
+
 export function removeParamFromUrl(url, paramName) {
   const urlObject = new URL(url);
   const params = new URLSearchParams(urlObject.search);
@@ -393,7 +412,7 @@ export function closeDialogEvent(dialog) {
     if (event.clientX < dialogDimensions.left || event.clientX > dialogDimensions.right
       || event.clientY < dialogDimensions.top || event.clientY > dialogDimensions.bottom) {
       dialog.close();
-      document.body.classList.remove('no-scroll');
+      // document.body.classList.remove('no-scroll');
     }
   });
 }

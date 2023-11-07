@@ -8,17 +8,3 @@
     font-size: var(--header-font-size);
     word-break: keep-all;
 }
-
-.adp-stats .stats-count-label {
-    text-align: left;
-    font: var(--stats-value-font);
-    letter-spacing: 0px;
-    color: var(--stats-label-color);
-}
-
-.adp-stats .stats-text-label {
-    text-align: left;
-    font: var(--stats-label-font);
-    letter-spacing: 0px;
-    color: var(--stats-label-color);
-}

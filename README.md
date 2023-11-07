@@ -19,13 +19,47 @@ npm i
 npm test
 ```
 
-## Local development
+## Local development setup
 
-1. Create a new repository based on the `helix-project-boilerplate` template and add a mountpoint in the `fstab.yaml`
-1. Add the [helix-bot](https://github.com/apps/helix-bot) to the repository
-1. Install the [Helix CLI](https://github.com/adobe/helix-cli): `npm install -g @adobe/helix-cli`
-1. Start Franklin Proxy: `hlx up` (opens your browser at `http://localhost:3000`)
-1. Open the `{repo}` directory in your favorite IDE and start coding :)
+> **_NOTE:_** Users should be on Adobe Corp network for local development.
+
+1. Install the AEM cli `npm install -g @adobe/aem-cli`
+    * If command fails with `EEXIST: file already exists`, then run `npm install -g --force @adobe/aem-cli`
+2. Update your `/etc/hosts` file.  Add `localhost.corp.adobe.com` to the localhost line:
+   ```
+   127.0.0.1       localhost localhost.corp.adobe.com
+   ```
+3. Create a self-signed certificate:
+   ```
+   mkdir env
+   openssl req -x509 -out env/server.crt -keyout env/server.key \
+    -newkey rsa:2048 -nodes -sha256 \
+    -subj '/CN=localhost.corp.adobe.com' -extensions EXT -config <( \
+    printf "[dn]\nCN=localhost.corp.adobe.com\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost.corp.adobe.com\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+   ```
+4. Open **Keychain Access** on the Mac, select **System** -> **Certificates** and drag and drop the `server.crt` file you created in the last step
+   ![image](https://github.com/adobe/assets-distribution-portal/assets/2372994/4ed62c98-01de-4cc6-b14c-8cb4b837a7b7)
+5. Double-click the cert in the list -> expand **Trust** and select "When using this certificate:" **Always Trust**
+   ![image](https://github.com/adobe/assets-distribution-portal/assets/2372994/d6375f2d-8ffd-4636-aa1a-91f62b8dd76d)
+6. Close **Keychain Access** so it saves the configurations
+7. Create a file in the root of this project's directory called `.env`:
+   ```bash
+   AEM_TLS_CERT=env/server.crt
+   AEM_TLS_KEY=env/server.key
+   AEM_OPEN=/
+   AEM_PORT=443
+   ```
+8. Now start the local aem cli (helix-cli) - note we use sudo so we can use port 443
+   ```bash
+   sudo aem up
+   ```
+9. Using Chrome browser, go to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
+10. If you would also like to use Mozilla Firefox instead of Chrome then:
+    1. Open Firefox
+    2. Enter `about:config` in the address bar, hit `[Enter]`
+    3. Click **Accept the Risk and Continue**
+    4. In the search, enter `security.enterprise_roots.enabled` and set the value to true
+    5. Restart Firefox and navigate to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
 
 ## Updating Dependencies
 To update the dependencies under [scripts/libs](scripts/libs) with newer versions:
@@ -35,7 +69,7 @@ To update the dependencies under [scripts/libs](scripts/libs) with newer version
    * `from` and `to` - patterns for [copy-webpack-plugin](https://webpack.js.org/plugins/copy-webpack-plugin/) so ti adheres to that format.
    * `fileInclude` - specifies which file to include as a `script` or `link` tag in [head.html](head.html) 
 4. Run `npm run update-dependencies`, this will update the dependencies under [scripts/libs](scripts/libs) and add them to [head.html](head.html)
-5. Run `hlx up` and test http://localhost:3000 to make sure everything still works with the updated dependency versions.
+5. Run `sudo aem up` and test https://localhost.corp.adobe.com/ to make sure everything still works with the updated dependency versions.
 6. Run `git add scripts/libs package.json`, `git commit -m "Update dependencies"` to commit the new updated dependencies.
 
 ## Authentication

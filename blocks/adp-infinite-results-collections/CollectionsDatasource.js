@@ -1,3 +1,4 @@
+import { setLastPartofURL } from '../../scripts/scripts.js';
 import {
   getCollectionID,
   getCollectionTitle,
@@ -5,8 +6,8 @@ import {
 } from '../../scripts/collections.js';
 import { createCollectionCardElement } from '../../scripts/card-html-builder.js';
 
-export default class CollectionsDataSource {
-  cursor = null;
+export default class CollectionsDatasource {
+  cursor;
 
   infiniteResultsContainer = null;
 
@@ -21,16 +22,16 @@ export default class CollectionsDataSource {
     this.infiniteResultsContainer.resultsCallback(
       this.container,
       list.items,
-      () => { this.showMore(); },
+      () => this.showMore(),
       this.pageNumber,
       false,
       false,
-      () => { this.isLastPage(); },
+      () => this.isLastPage(),
     );
   }
 
   isLastPage() {
-    return false;
+    return !this.cursor;
   }
 
   async registerResultsCallback(container, infiniteResultsContainer) {
@@ -41,11 +42,11 @@ export default class CollectionsDataSource {
     infiniteResultsContainer.resultsCallback(
       container,
       list.items,
-      () => { this.showMore(); },
+      () => this.showMore(),
       0,
       true,
       true,
-      () => { this.isLastPage(); },
+      () => this.isLastPage(),
     );
   }
 
@@ -58,13 +59,22 @@ export default class CollectionsDataSource {
   }
 
   createItemElement(item, infiniteResultsContainer) {
+    const id = getCollectionID(item);
     const card = createCollectionCardElement(
       item,
-      () => {
-        const id = getCollectionID(item);
-        infiniteResultsContainer.selectItem(id);
+      {
+        selectItemHandler: () => {
+          infiniteResultsContainer.toggleSelection(id);
+        },
+        deselectItemHandler: () => {
+          infiniteResultsContainer.deselectItem(id);
+        },
       },
     );
     return card;
+  }
+
+  onItemSelected(itemElement, itemId) {
+    setLastPartofURL(`collection/${itemId}`, true);
   }
 }

@@ -1,5 +1,5 @@
 import { fetchWithRetryAndBackoffOnErrors } from './fetch-util.js';
-import { getBackendApiKey, getDeliveryEnvironment } from './polaris.js';
+import { getAssetMetadata, getBackendApiKey, getDeliveryEnvironment } from './polaris.js';
 import { getBearerToken } from './security.js';
 
 const retryErrorCodes = [429, 503];
@@ -13,8 +13,8 @@ export function getLinkShareTitle(share) {
   return share.title;
 }
 
-export function getAssetsFromLinkShare(share) {
-  return share?.assets;
+export async function getAssetsFromLinkShare(share) {
+  return await Promise.all(share?.assets.map(async (asset) => await getAssetMetadata(asset.assetId)));
 }
 
 function getLinkShareEndpoint() {

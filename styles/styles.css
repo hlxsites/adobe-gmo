@@ -582,7 +582,7 @@ START: Common blocks/*-infinite-results block styling
   display: flex;
 }
 
-.adp-result-item .preview .checkbox-container input[type="checkbox"] {
+input[type="checkbox"] {
   appearance: none;
   display: inline-block;
   width: 14px;
@@ -594,8 +594,13 @@ START: Common blocks/*-infinite-results block styling
   cursor: pointer;
 }
 
-.adp-result-item .preview .checkbox-container input[type="checkbox"]:checked {
+input[type="checkbox"]:checked {
   background: url("/icons/checkmark.svg") 0% 0% no-repeat padding-box border-box var(--checkbox-checked-background-color);
+  border: 2px solid var(--checkbox-checked-background-color);
+}
+
+input[type="checkbox"].intermediate {
+  background: url("/icons/intermediate-checkmark.svg") center center no-repeat padding-box border-box var(--checkbox-checked-background-color);
   border: 2px solid var(--checkbox-checked-background-color);
 }
 
@@ -640,6 +645,59 @@ START: Common blocks/*-infinite-results block styling
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.adp-result-item .preview-collection a.thumbnail {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1px; /* Adjust the gap as needed */
+  width: 100%;
+  height: 184px; 
+  background-color: #e1e1e1;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.adp-result-item .preview-collection a.thumbnail > img {
+  width: 100%;
+  height: 91px; /* since we have a fixed height for thumbnail */
+  object-fit: cover;
+}
+
+/* Adjust the styling for the preview-overlay */
+.adp-result-item .preview-collection a.thumbnail > .preview-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Takes the full width of the grid cell */
+  height: 100%; /* Takes the full height of the grid cell */
+  color: white; /* Adjust the text color as needed */
+  font-size: 1.5rem; /* Adjust the text size as needed */
+}
+
+.adp-result-item .preview-collection div.preview-overlay .icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  height: 100px;
+  width: 100px;
+}
+
+.adp-result-item .preview-collection div.filetype-icon-overlay .icon {
+  position: absolute;
+  top: calc(100% - 25px);
+  left: 15px;
+  border-radius: 8px;
+}
+
+.adp-result-item .preview-collection div.filetype-icon-overlay .icon svg {
+  width: 20px;
 }
 
 .adp-result-item.filetype-document .preview a.thumbnail > img {
@@ -776,4 +834,25 @@ START: Common blocks/*-infinite-results block styling
 
 /*
 END: common blocks/*-infinite-results block styling
+*/
+
+/**
+START: blocks/adp-collection-header and blocks/adp-stats
+*/
+.stats-count-label {
+  text-align: left;
+  font: var(--stats-value-font);
+  letter-spacing: 0;
+  color: var(--stats-label-color);
+}
+
+.stats-text-label {
+  text-align: left;
+  font: var(--stats-label-font);
+  letter-spacing: 0;
+  color: var(--stats-label-color);
+}
+
+/**
+END: blocks/adp-collection-header and blocks/adp-stats
 */

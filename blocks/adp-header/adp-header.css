@@ -118,6 +118,10 @@ header .nav-wrapper .banner .banner-right .actions:hover{
   cursor: pointer;
 }
 
+header .nav-wrapper .banner .banner-right .actions-share.hidden {
+  display: none;
+}
+
 header .nav-wrapper .banner .banner-right .icon svg {
   width: 14px;
   height: 16px;

@@ -1,4 +1,4 @@
-import { EventNames } from '../../scripts/events.js';
+import { addEventListener, EventNames } from '../../scripts/events.js';
 import InfiniteResultsContainer from '../../scripts/infinite-results/InfiniteResultsContainer.js';
 import LinkShareDatasource from './LinkShareDatasource.js';
 
@@ -7,29 +7,13 @@ let infiniteResultsContainer;
 export default async function decorate(block) {
   const instantSearchDatasource = new LinkShareDatasource();
   infiniteResultsContainer = new InfiniteResultsContainer(block, instantSearchDatasource);
+  infiniteResultsContainer.render();
   addEventListener(EventNames.ASSET_QUICK_PREVIEW_CLOSE, (e) => {
     infiniteResultsContainer.deselectItem(e.detail.assetId);
   });
-}
-
-export function selectNextCard() {
-  return infiniteResultsContainer.selectNextItem();
-}
-
-export function selectPreviousCard() {
-  return infiniteResultsContainer.selectPreviousItem();
-}
-
-export function selectCard(card) {
-  return infiniteResultsContainer.selectItem(card);
-}
-
-export function hasNextCard() {
-  return infiniteResultsContainer.hasNextItem();
-}
-
-export function hasPreviousCard() {
-  return infiniteResultsContainer.hasPreviousItem();
+  addEventListener(EventNames.CLOSE_BANNER, () => {
+    infiniteResultsContainer.clearAllSelections();
+  });
 }
 
 export function openLinkShare(id) {

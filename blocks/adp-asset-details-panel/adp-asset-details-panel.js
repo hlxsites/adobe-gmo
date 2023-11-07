@@ -16,7 +16,9 @@ import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 // eslint-disable-next-line import/no-cycle
 import { addShareModalHandler } from '../adp-share-modal/adp-share-modal.js';
-import { startCCE, addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
+import {
+  startCCE, addExpressEditorHandler, fileValidity, ccEverywhere,
+} from '../../scripts/express.js';
 
 let resultsManager;
 /**
@@ -70,14 +72,12 @@ export async function openAssetDetailsPanel(assetId, resultsManagerObj) {
   const fileFormat = getAssetMimeType(assetJSON);
 
   // ensure express button only shows for valid asset types
-  const expressBtn = assetDetailsPanel.querySelector(".action-edit-asset");
-  let validCheck = fileValidity(fileFormat);
+  const expressBtn = assetDetailsPanel.querySelector('.action-edit-asset');
+  const validCheck = fileValidity(fileFormat);
   if (ccEverywhere && validCheck.isValid) {
     expressBtn.classList.remove('hidden');
-  } else {
-    if (!expressBtn.classList.contains('hidden')) {
-      expressBtn.classList.add('hidden');
-    }
+  } else if (!expressBtn.classList.contains('hidden')) {
+    expressBtn.classList.add('hidden');
   }
 
   const metadataContainer = assetDetailsPanel.querySelector('#asset-details-metadata-container');
@@ -121,7 +121,7 @@ export async function openAssetDetailsPanel(assetId, resultsManagerObj) {
     assetDetailsPanel.parentElement.scrollTop = 0;
   }
   emitEvent(document.documentElement, EventNames.ASSET_QUICK_PREVIEW, {
-    assetId: assetId,
+    assetId,
     assetName: fileName,
   });
 }

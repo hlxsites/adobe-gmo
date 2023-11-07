@@ -8,14 +8,35 @@ import {
 } from './metadata.js';
 import { createMetadataHTML } from './metadata-html-builder.js';
 import { openDownloadModal } from '../blocks/adp-download-modal/adp-download-modal.js';
-import { getCollectionID, getCollectionTitle } from './collections.js';
+import { getCollection, getCollectionID, getCollectionTitle } from './collections.js';
 import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share-modal.js';
+import { closeAssetDetailsPanel } from '../blocks/adp-asset-details-panel/adp-asset-details-panel.js';
 
 function getVideoOverlayCSSClass(format) {
   if (isVideo(format)) {
     return 'icon icon-videoThumbnailOverlay';
   }
   return '';
+}
+
+function createAssetThumbnail(card, id, name, title, mimeType) {
+  const previewElem = card.querySelector('.preview .thumbnail');
+  getOptimizedPreviewUrl(id, name, 350).then((url) => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = title;
+    previewElem.appendChild(img);
+  });
+  // if it's a video, add the video play icon over the middle of the thumbnail
+  if (isVideo(mimeType)) {
+    // create <div class="preview-overlay"><span></span></div>
+    const div = document.createElement('div');
+    div.className = 'preview-overlay';
+    const span = document.createElement('span');
+    div.appendChild(span);
+    previewElem.appendChild(div);
+    span.className = getVideoOverlayCSSClass(mimeType);
+  }
 }
 
 /**
@@ -41,7 +62,7 @@ function createActionButton(action, label, clickHandler, iconClass) {
 
   // Create the 'span' element
   const span = document.createElement('span');
-  span.className = `icon icon-${(iconClass)?toCamelCase(iconClass):toCamelCase(action)}`;
+  span.className = `icon icon-${(iconClass) ? toCamelCase(iconClass) : toCamelCase(action)}`;
 
   // Append the 'span' to the 'a'
   a.appendChild(span);
@@ -61,9 +82,15 @@ function createActionButton(action, label, clickHandler, iconClass) {
 /**
  * Create the card element for the asset including the metadata
  * @param {*} asset - asset metadata object - either the algolia instantsearch hit or the polaris asset /metadata JSON
- * @param {*} selectAssetCallback - callback function to select the asset or collection in the view
  * @param {*} assetMetadataConfig - asset metadata configuration
- * @param {*} hideEmptyMetadataProperty - whether to hide empty metadata properties or not
+ * @param {boolean} hideEmptyMetadataProperty - whether to hide empty metadata properties or not
+ * @param {*} excludedActions - list of actions to exclude from the card, e.g. ['share']
+ * @param {*} options - options for the card element
+ * @param {*} options.selectAssetHandler - function to call when the asset is selected
+ * @param {*} options.deselectAssetHandler - function to call when the asset is deselected
+ * @param {*} options.addAddToMultiSelectionHandler - function to call when the asset is added to the multi-selection
+ * @param {*} options.removeItemFromMultiSelectionHandler - function to call when the asset is removed from the multi-selection
+ * @param {*} options.createThumbnailHandler - function to call when the thumbnail is created
  * @returns - the card element
  */
 export function createAssetCardElement(
@@ -71,24 +98,23 @@ export function createAssetCardElement(
   assetMetadataConfig,
   hideEmptyMetadataProperty,
   excludedActions,
-  selectAssetHandler,
-  deselectAssetHandler,
-  addAddToMultiSelectionHandler,
-  removeItemFromMultiSelection,
+  options,
 ) {
   const assetId = getAssetID(asset);
   const repoName = getAssetName(asset);
   const title = getAssetTitle(asset);
   const mimeType = getAssetMimeType(asset);
+  // Add default thumbnail handler if not provided
+  if (!options.createThumbnailHandler) {
+    options.createThumbnailHandler = createAssetThumbnail;
+  }
+
   const card = createCardElement(
     mimeType,
     assetId,
     repoName,
     title,
-    selectAssetHandler,
-    deselectAssetHandler,
-    addAddToMultiSelectionHandler,
-    removeItemFromMultiSelection,
+    options,
   );
 
   const metadataElem = card.querySelector('.metadata');
@@ -113,15 +139,35 @@ export function createAssetCardElement(
   return card;
 }
 
+function createCollectionThumbnail(card, collectionId, title) {
+  const imgContainer = card.querySelector('.preview-collection .thumbnail');
+  getCollection(collectionId)?.then((collection) => {
+    const images = collection.items.filter((item) => item.type === 'asset');
+    const imagesToFetch = images.slice(0, 4);
+
+    for (let index = 0; index < imagesToFetch.length; index += 1) {
+      const item = imagesToFetch[index];
+      getOptimizedPreviewUrl(item.id, null, 120).then((url) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = title;
+        imgContainer.appendChild(img);
+      });
+    }
+  });
+}
+
 export function createCollectionCardElement(
   collection,
-  selectItemHandler,
-  deselectItemHandler,
-  addAddToMultiSelectionHandler,
-  removeItemFromMultiSelection,
+  options,
 ) {
   const id = getCollectionID(collection);
   const title = getCollectionTitle(collection);
+  // Add default thumbnail handler if not provided
+  if (!options.createThumbnailHandler) {
+    options.createThumbnailHandler = createCollectionThumbnail;
+  }
+
   const config = [{
     aemMetadataField: 'description',
     label: 'Description',
@@ -134,10 +180,7 @@ export function createCollectionCardElement(
     id,
     title,
     title,
-    selectItemHandler,
-    deselectItemHandler,
-    addAddToMultiSelectionHandler,
-    removeItemFromMultiSelection,
+    options,
   );
   const metadataElem = card.querySelector('.metadata');
   const cardMetadataElem = createCardMetadataHTML(config, collection, true, metadataElem);
@@ -150,10 +193,7 @@ function createCardElement(
   id,
   name,
   title,
-  selectItemHandler,
-  deselectItemHandler,
-  addAddToMultiSelectionHandler,
-  removeItemFromMultiSelection,
+  options = {},
 ) {
   const fileType = getFileType(mimeType);
 
@@ -161,62 +201,25 @@ function createCardElement(
   card.classList.add(`filetype-${fileType}`);
 
   card.innerHTML = `
-    <div class="preview">
+    <div class="preview preview-${toClassName(getFileType(mimeType))}">
       <a class="thumbnail asset-link" href="">
-          <img>
-          <div class="preview-overlay"><span></span></div>
       </a>
       <div class="filetype-icon-overlay"><span class="icon"></span></div>
     </div>
     <div class="title"></div>
     <div class="metadata"></div>
   `;
+  options.createThumbnailHandler(card, id, name, title, mimeType);
 
-  card.querySelector('.preview .thumbnail').addEventListener('click', async (e) => {
+  card.querySelector('.metadata').addEventListener('click', (e) => {
     e.preventDefault();
-    await selectItemHandler(card);
+    updateCheckboxState(card, id, options);
   });
-  card.querySelector('.title').addEventListener('click', async (e) => {
+
+  card.querySelector('.preview .thumbnail').addEventListener('click', (e) => {
     e.preventDefault();
-    await selectItemHandler(card);
+    updateCheckboxState(card, id, options);
   });
-  card.querySelector('.metadata').addEventListener('click', async (e) => {
-    e.preventDefault();
-    await selectItemHandler(card);
-  });
-
-  // if we support multi-selection, add checkbox to card
-  if (addAddToMultiSelectionHandler && removeItemFromMultiSelection) {
-    const checkboxLabel = document.createElement('label');
-    const checkboxContainer = document.createElement('div');
-    checkboxContainer.className = 'checkbox-container';
-    const checkboxInput = document.createElement('input');
-    checkboxInput.type = 'checkbox';
-    checkboxInput.setAttribute('aria-label', `Add "${title}" to the selection`);
-    checkboxContainer.appendChild(checkboxInput);
-    checkboxLabel.appendChild(checkboxContainer);
-    card.querySelector('.preview').appendChild(checkboxLabel);
-    checkboxInput.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      if (e.target.checked) {
-        addAddToMultiSelectionHandler(id);
-      } else {
-        removeItemFromMultiSelection(id);
-      }
-    });
-  }
-
-  const img = card.querySelector('img');
-  img.dataset.fileformat = mimeType;
-  img.style.visibility = 'hidden';
-  getOptimizedPreviewUrl(id, name, 350).then((url) => {
-    img.src = url;
-    img.style.visibility = '';
-  });
-  img.alt = title;
-
-  const span1 = card.querySelector('.preview-overlay span');
-  span1.className = getVideoOverlayCSSClass(mimeType);
 
   const span2 = card.querySelector('.filetype-icon-overlay span');
   span2.className = `icon icon-${getFileTypeCSSClass(mimeType)}`;
@@ -226,7 +229,47 @@ function createCardElement(
   titleDiv.textContent = title;
   handleImageFailures(card);
 
+  // if we support multi-selection, add checkbox to card
+  if (options.addAddToMultiSelectionHandler && options.removeItemFromMultiSelectionHandler) {
+    const checkboxLabel = document.createElement('label');
+    const checkboxContainer = document.createElement('div');
+    checkboxContainer.className = 'checkbox-container';
+    const checkboxInput = document.createElement('input');
+    checkboxInput.type = 'checkbox';
+    checkboxInput.setAttribute('aria-label', `Add "${title}" to the selection`);
+    checkboxContainer.appendChild(checkboxInput);
+    checkboxLabel.appendChild(checkboxContainer);
+    card.querySelector('.preview').appendChild(checkboxLabel);
+    checkboxInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (e.target.checked) {
+        // if detail panel is opened, close it
+        if (document.querySelector('.adp-asset-details-panel').classList.contains('open')) {
+          closeAssetDetailsPanel();
+        }
+        options.addAddToMultiSelectionHandler(id);
+      } else {
+        options.removeItemFromMultiSelectionHandler(id);
+      }
+    });
+  }
+  decorateIcons(card);
   return card;
+}
+
+function updateCheckboxState(card, id, options) {
+  if (document.querySelector('.adp-infinite-results-container').classList.contains('has-multi-selection')) {
+    const checkbox = card.querySelector('input[type="checkbox"]');
+    if (checkbox.checked) {
+      checkbox.checked = false;
+      options.removeItemFromMultiSelectionHandler(id);
+    } else {
+      checkbox.checked = true;
+      options.addAddToMultiSelectionHandler(id);
+    }
+  } else {
+    options.selectItemHandler(card);
+  }
 }
 
 function createCardMetadataHTML(assetMetadataConfig, asset, hideEmptyMetadataProperty) {

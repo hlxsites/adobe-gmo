@@ -106,10 +106,21 @@ export default function decorate(block) {
         const refinementItemEl = document.createElement('div');
         refinementItemEl.classList.add('current-refinement-item');
         const operator = refinement.operator || '-';
-        const refinementLabel = `${facetLabel} ${operator} ${facetValue}`;
-        newRefinements.push(refinementLabel);
+      
+        // Create facet event object
+        newRefinements.push({
+          facet: facetLabel,
+          value: facetValue,
+          ...(refinement.operator && {operator}),
+          label: `${facetLabel} ${operator} ${facetValue}`
+        });
+
         refinementItemEl.innerHTML = `
-          <span class="current-refinement-label">${refinementLabel}</span>
+          <span class="current-refinement-label">
+            <span class="current-refinement-label-facet-label">${facetLabel}</span>
+            <span class="current-refinement-label-operator">${operator}</span>
+            <span class="current-refinement-label-facet-value">${facetValue}</span>
+          </span>
           <button class="current-refinement-delete" ${createRefinementDataAttributes(refinement)}></button>
         `;
         refinementItemEl.querySelector('button').addEventListener('click', () => {

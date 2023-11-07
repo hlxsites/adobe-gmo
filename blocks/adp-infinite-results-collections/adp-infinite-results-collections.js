@@ -1,31 +1,9 @@
 import InfiniteResultsContainer from '../../scripts/infinite-results/InfiniteResultsContainer.js';
 // eslint-disable-next-line import/no-unresolved
-import CollectionsDataSource from './CollectionsDataSource.js';
-
-/** @type {InfiniteResultsContainer} */
-let infiniteResultsContainer;
+import CollectionsDatasource from './CollectionsDatasource.js';
 
 export default async function decorate(block) {
-  const instantSearchDatasource = new CollectionsDataSource();
-  infiniteResultsContainer = new InfiniteResultsContainer(block, instantSearchDatasource);
-}
-
-export function getNextCard() {
-  return infiniteResultsContainer.getNextCard();
-}
-
-export function getPreviousCard() {
-  return infiniteResultsContainer.getPreviousCard();
-}
-
-export function selectCard(card) {
-  return infiniteResultsContainer.selectCard(card);
-}
-
-export function hasNextCard() {
-  return infiniteResultsContainer.hasNextCard();
-}
-
-export function hasPreviousCard() {
-  return infiniteResultsContainer.hasPreviousCard();
+  const instantSearchDatasource = new CollectionsDatasource();
+  const infiniteResultsContainer = new InfiniteResultsContainer(block, instantSearchDatasource);
+  infiniteResultsContainer.render();
 }

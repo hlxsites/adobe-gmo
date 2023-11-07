@@ -3,7 +3,17 @@ import {
   getAssetHandlerApiKey,
   getDeliveryEnvironment,
 } from './polaris.js';
+import { getLastPartFromURL } from './scripts.js';
 
+export function getCollectionIdFromURL() {
+  if (window.location.pathname.startsWith('/collection/')) {
+    const collectionId = getLastPartFromURL();
+    if (collectionId !== undefined) {
+      return collectionId.replaceAll('_', ':');
+    }
+  }
+  return undefined;
+}
 export function getCollectionID(item) {
   return item.id;
 }
@@ -14,6 +24,10 @@ export function getCollectionTitle(item) {
 
 export function getCollectionDescription(item) {
   return item.description;
+}
+
+export function getAssetIdFromCollectionItem(assetItem) {
+  return assetItem.id;
 }
 
 async function getRequestHeaders() {

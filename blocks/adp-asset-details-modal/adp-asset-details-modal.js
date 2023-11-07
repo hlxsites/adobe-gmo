@@ -290,15 +290,13 @@ export default function decorate(block) {
     const renditionFields = createTag('div', { class: 'rendition-fields' });
     const renditionHeader = createTag('div', { class: 'rendition header' });
     const headerCheckbox = createTag('input', {
-      type: 'checkbox', name: 'all', value: 'all', id: 'detail-download-all',
+      type: 'checkbox', name: 'all', value: 'all', id: 'detail-download-all', class: 'intermediate'
     });
-    const labelAll = createTag('label', { class: 'checkmark show-bar', for: 'detail-download-all', tabindex: '0' });
     const headerTextContainer = createTag('div', { class: 'text-container' });
     const headerText = createTag('div', { class: 'header' });
     headerText.textContent = 'Select All';
     headerTextContainer.appendChild(headerText);
     renditionHeader.appendChild(headerCheckbox);
-    renditionHeader.appendChild(labelAll);
     renditionHeader.appendChild(headerTextContainer);
     renditionFields.appendChild(renditionHeader);
 
@@ -314,7 +312,6 @@ export default function decorate(block) {
         id: `${rendition.fileName}`,
         'data-format': `${rendition.format}`,
       });
-      const label = createTag('label', { class: 'checkmark', for: `${rendition.fileName}`, tabindex: `${index + 1}` });
       const textContainer = createTag('div', { class: 'text-container' });
       const fileName = createTag('div', { class: 'file-name' });
       fileName.textContent = rendition.name;
@@ -336,12 +333,11 @@ export default function decorate(block) {
       textContainer.appendChild(fileName);
       textContainer.appendChild(fileInfo);
       renditionDiv.appendChild(checkbox);
-      renditionDiv.appendChild(label);
       renditionDiv.appendChild(textContainer);
       renditionFields.appendChild(renditionDiv);
     });
     if (renditions.length === 1) {
-      labelAll.classList.remove('show-bar');
+      headerCheckbox.classList.remove('intermediate');
       headerCheckbox.checked = true;
     }
     renditionContainer.appendChild(renditionFields);

@@ -4,8 +4,7 @@ import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 // eslint-disable-next-line import/no-cycle
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetID, getAssetName } from '../../scripts/metadata.js';
-import { getAnchorVariable, getQueryVariable, removeParamFromWindowURL, setHashParamInWindowURL } from '../../scripts/scripts.js';
-import InfiniteResultsContainer from '../../scripts/infinite-results/InfiniteResultsContainer.js';
+import { getAnchorVariable, getQueryVariable } from '../../scripts/scripts.js';
 
 const searchFieldConfig = await getSearchFieldConfig();
 const searchResultsCardViewConfig = await getCardViewConfig();
@@ -93,12 +92,6 @@ export default class InstantSearchDataSource {
     window.search.start();
   }
 
-  /**
-   * 
-   * @param {HTMLElement} item 
-   * @param {InfiniteResultsContainer} infiniteResultsContainer 
-   * @returns {HTMLElement} - card element
-   */
   createItemElement(item, infiniteResultsContainer) {
     const assetId = getAssetID(item);
     const card = createAssetCardElement(
@@ -106,17 +99,16 @@ export default class InstantSearchDataSource {
       searchResultsCardViewConfig,
       searchResultsCardViewSettings.hideEmptyMetadataProperty,
       [],
-      () => {
-        infiniteResultsContainer.selectItem(assetId);
-      },
-      () => {
-        infiniteResultsContainer.deselectItem(assetId);
-      },
-      () => {
-        infiniteResultsContainer.addItemToSelection(assetId);
-      },
-      () => {
-        infiniteResultsContainer.removeItemFromSelection(assetId);
+      {
+        selectItemHandler: () => {
+          infiniteResultsContainer.toggleSelection(assetId);
+        },
+        addAddToMultiSelectionHandler: () => {
+          infiniteResultsContainer.addItemToMultiSelection(assetId);
+        },
+        removeItemFromMultiSelectionHandler: () => {
+          infiniteResultsContainer.removeItemFromMultiSelection(assetId);
+        },
       },
     );
     return card;
@@ -135,17 +127,19 @@ export default class InstantSearchDataSource {
     if (assetId) {
       return assetId;
     }
+    return undefined;
   }
 
-  onItemDeselected(item, itemId, infiniteResultsContainer) {
+  onItemDeselected(item, itemId) {
     closeAssetDetailsPanel();
     emitEvent(item, EventNames.ASSET_DESELECTED, {
       assetId: itemId,
     });
   }
 
-  onItemSelected(item, itemId, infiniteResultsContainer) {
-    openAssetDetailsPanel(itemId, infiniteResultsContainer);
+  async onItemSelected(item, itemId, infiniteResultsContainer) {
+    await openAssetDetailsPanel(itemId, infiniteResultsContainer);
+    infiniteResultsContainer.scrollToItem(itemId);
     emitEvent(item, EventNames.ASSET_SELECTED, {
       assetId: itemId,
     });

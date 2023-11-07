@@ -147,6 +147,12 @@ export default async function decorate(block) {
   </div>
   `;
 
+  // Hide share button on adp-infinite-results-linkshare block
+  const linkshareInfiniteResults = document.querySelector('.adp-infinite-results-linkshare.block');
+  if (linkshareInfiniteResults) {
+    nav.querySelector('.banner .banner-right .actions-share')?.classList.add('hidden');
+  }
+
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
     navSections.querySelectorAll(':scope > ul > li').forEach((navSection) => {
@@ -187,7 +193,21 @@ export default async function decorate(block) {
   decorateBlock(searchField);
   loadBlock(searchField);
 
+  // Serve nav-brand for both authenticated and non-authenticated users
+  const brandingConfig = await getBrandingConfig();
+  if (brandingConfig.logo) {
+    nav.querySelector('.nav-brand img').src = brandingConfig.logo;
+  }
+  if (brandingConfig.brandText) {
+    nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+    document.title = brandingConfig.brandText;
+  }
+
   const userProfile = await getUserProfile();
+  if (!userProfile) { // stop here for non-authenticated users
+    return;
+  }
+
   const avatarUrl = await getAvatarUrl();
 
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
@@ -225,14 +245,6 @@ export default async function decorate(block) {
     );
   });
 
-  const brandingConfig = await getBrandingConfig();
-  if (brandingConfig.logo) {
-    nav.querySelector('.nav-brand img').src = brandingConfig.logo;
-  }
-  if (brandingConfig.brandText) {
-    nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
-    document.title = brandingConfig.brandText;
-  }
   initQuickLinks();
 
   const closeBanner = nav.querySelector('.banner .action-close');
@@ -296,8 +308,16 @@ function initQuickLinks() {
   allAssetsLink.textContent = 'All assets';
   allAssetsDiv.appendChild(allAssetsLink);
 
+  const collectionsDiv = document.createElement('div');
+  collectionsDiv.classList.add('item', 'collections');
+  const collectionsLink = document.createElement('a');
+  collectionsLink.href = '/collections';
+  collectionsLink.textContent = 'Collections';
+  collectionsDiv.appendChild(collectionsLink);
+
   const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
   quickLinks.append(allAssetsDiv);
+  quickLinks.append(collectionsDiv);
 
   // append drafts path if needed
   quickLinks.querySelectorAll('.item').forEach((item) => {
@@ -330,4 +350,8 @@ function initQuickLinks() {
       item.setAttribute('aria-selected', 'true');
     }
   });
+}
+
+export function getNavHeight() {
+  return document.querySelector('.nav-wrapper').getBoundingClientRect().height;
 }

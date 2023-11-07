@@ -24,7 +24,6 @@
   "devDependencies": {
     "@babel/core": "7.21.0",
     "@babel/eslint-parser": "^7.19.1",
-    "@babel/plugin-syntax-import-assertions": "^7.22.5",
     "@esm-bundle/chai": "4.3.4-fix.0",
     "@web/test-runner": "0.15.1",
     "@web/test-runner-commands": "0.6.5",

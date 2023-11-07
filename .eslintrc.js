@@ -9,11 +9,6 @@ module.exports = {
     allowImportExportEverywhere: true,
     sourceType: 'module',
     requireConfigFile: false,
-    babelOptions: {
-      plugins: [
-        '@babel/plugin-syntax-import-assertions',
-      ],
-    },
   },
   rules: {
     // allow reassigning param
@@ -22,6 +17,7 @@ module.exports = {
     'import/extensions': ['error', {
       js: 'always',
     }],
+    'class-methods-use-this': 'off',
     'no-use-before-define': 'off',
     'no-return-await': 'off',
     'no-restricted-syntax': 'off',
