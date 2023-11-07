@@ -10,6 +10,7 @@ import { createMetadataHTML } from './metadata-html-builder.js';
 import { openDownloadModal } from '../blocks/adp-download-modal/adp-download-modal.js';
 import { getCollection, getCollectionID, getCollectionTitle } from './collections.js';
 import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share-modal.js';
+import { closeAssetDetailsPanel } from '../blocks/adp-asset-details-panel/adp-asset-details-panel.js';
 
 function getVideoOverlayCSSClass(format) {
   if (isVideo(format)) {
@@ -212,12 +213,12 @@ function createCardElement(
 
   card.querySelector('.metadata').addEventListener('click', (e) => {
     e.preventDefault();
-    options.selectItemHandler(card);
+    updateCheckboxState(card, id, options);
   });
 
   card.querySelector('.preview .thumbnail').addEventListener('click', (e) => {
     e.preventDefault();
-    options.selectItemHandler(card);
+    updateCheckboxState(card, id, options);
   });
 
   const span2 = card.querySelector('.filetype-icon-overlay span');
@@ -242,6 +243,10 @@ function createCardElement(
     checkboxInput.addEventListener('click', (e) => {
       e.stopPropagation();
       if (e.target.checked) {
+        // if detail panel is opened, close it
+        if (document.querySelector('.adp-asset-details-panel').classList.contains('open')) {
+          closeAssetDetailsPanel();
+        }
         options.addAddToMultiSelectionHandler(id);
       } else {
         options.removeItemFromMultiSelectionHandler(id);
@@ -250,6 +255,21 @@ function createCardElement(
   }
   decorateIcons(card);
   return card;
+}
+
+function updateCheckboxState(card, id, options) {
+  if (document.querySelector('.adp-infinite-results-container').classList.contains('has-multi-selection')) {
+    const checkbox = card.querySelector('input[type="checkbox"]');
+    if (checkbox.checked) {
+      checkbox.checked = false;
+      options.removeItemFromMultiSelectionHandler(id);
+    } else {
+      checkbox.checked = true;
+      options.addAddToMultiSelectionHandler(id);
+    }
+  } else {
+    options.selectItemHandler(card);
+  }
 }
 
 function createCardMetadataHTML(assetMetadataConfig, asset, hideEmptyMetadataProperty) {
