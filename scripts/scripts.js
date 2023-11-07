@@ -160,20 +160,22 @@ async function initSearch() {
  */
 async function loadEager(doc) {
   const loadDependenciesPromise = loadDependencies();
-  await getBearerToken();
-  if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
-    const hasAccess = await checkUserAccess();
-    if (!hasAccess) {
-      window.location.href = NO_ACCESS_PATH;
-      return;
+  if (document.querySelector('head meta[name="public-access"]')?.getAttribute('content').toLowerCase() !== 'true') {
+    await getBearerToken();
+    if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
+      const hasAccess = await checkUserAccess();
+      if (!hasAccess) {
+        window.location.href = NO_ACCESS_PATH;
+        return;
+      }
+      // This is a dev only service worker that caches the algolia JS SDK
+      // check if we are on localhost
+      await initializeServiceWorkers();
+      // Make sure all dependencies are loaded before initializing search
+      // - we load them in parallel by leveraging the promise
+      await loadDependenciesPromise;
+      await initSearch();
     }
-    // This is a dev only service worker that caches the algolia JS SDK
-    // check if we are on localhost
-    await initializeServiceWorkers();
-    // Make sure all dependencies are loaded before initializing search
-    // - we load them in parallel by leveraging the promise
-    await loadDependenciesPromise;
-    await initSearch();
   }
   const brandingConfig = await getBrandingConfig();
   if (brandingConfig.fontCssUrl) {

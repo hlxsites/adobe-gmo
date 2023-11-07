@@ -85,7 +85,7 @@ export async function getBearerToken() {
 }
 
 export async function getUserProfile() {
-  return await window.adobeIMS.getProfile();
+  return await window.adobeIMS?.getProfile();
 }
 
 async function getCCCollabProfile() {

@@ -193,7 +193,21 @@ export default async function decorate(block) {
   decorateBlock(searchField);
   loadBlock(searchField);
 
+  // Serve nav-brand for both authenticated and non-authenticated users
+  const brandingConfig = await getBrandingConfig();
+  if (brandingConfig.logo) {
+    nav.querySelector('.nav-brand img').src = brandingConfig.logo;
+  }
+  if (brandingConfig.brandText) {
+    nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+    document.title = brandingConfig.brandText;
+  }
+
   const userProfile = await getUserProfile();
+  if (!userProfile) { // stop here for non-authenticated users
+    return;
+  }
+
   const avatarUrl = await getAvatarUrl();
 
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
@@ -231,14 +245,6 @@ export default async function decorate(block) {
     );
   });
 
-  const brandingConfig = await getBrandingConfig();
-  if (brandingConfig.logo) {
-    nav.querySelector('.nav-brand img').src = brandingConfig.logo;
-  }
-  if (brandingConfig.brandText) {
-    nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
-    document.title = brandingConfig.brandText;
-  }
   initQuickLinks();
 
   const closeBanner = nav.querySelector('.banner .action-close');
