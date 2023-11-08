@@ -286,6 +286,10 @@ export function getBaseConfigPath() {
   if (window.location.pathname.startsWith(`/${QA_BASE_PATH}/`)) {
     return `/${QA_BASE_PATH}`;
   }
+  if (window.location.pathname.startsWith(`/${DRAFTS_BASE_PATH}/`)) {
+    const contentBranch = window.location.pathname.split('/')[2];
+    return `/${DRAFTS_BASE_PATH}/${contentBranch}`;
+  }
   return '';
 }
 
