@@ -4,7 +4,6 @@ import { createDateInput } from '../../scripts/date-input.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
 import { emitEvent, EventNames } from '../../scripts/events.js';
-import { getUserProfile} from '../../scripts/security.js';
 
 const SHARE_LINK_ACCESS = {
   PUBLIC: 'public',
@@ -17,7 +16,6 @@ defaultExpiryDate.setDate(defaultExpiryDate.getDate() + 30);
 const COPY_SHARE_LINK_TEXT = 'Copy share link';
 let shareLinkExpiryDate = null;
 let shareLinkUrl = '';
-const userProfile = await getUserProfile();
 
 function generateLinkShareUrl(linkId) {
   return `${window.location.protocol}//${window.location.host}/share/${linkId}`;
@@ -241,10 +239,8 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
     if (shareLinkUrl) {
       copyShareButton.textContent = 'Link copied';
       await navigator.clipboard.writeText(shareLinkUrl);
-
+      // Emit SHARE_LINK event
       emitEvent(containerElement, EventNames.SHARE_LINK, {
-        email: userProfile.email,
-        displayName: userProfile.displayName,
         shareLinkUrl: shareLinkUrl,
         sharedAssetsArr: sharedAssetsArr,
         shareLinkExpiryDate: shareLinkExpiryDate,
