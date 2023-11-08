@@ -11,17 +11,25 @@ import {
   loadBlocks,
   loadCSS,
 } from './lib-franklin.js';
-import { getBrandingConfig } from './site-config.js';
+import { getAdminConfig, getBrandingConfig } from './site-config.js';
 // eslint-disable-next-line import/no-cycle
 import { getBearerToken, checkUserAccess } from './security.js';
 import {
   getSearchIndex,
   getBackendApiKey,
   getDeliveryEnvironment,
+  initDeliveryEnvironment,
 } from './polaris.js';
 
 // Load a list of dependencies the site needs
 let dependenciesJSON = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`).then((res) => res.json());
+dependenciesJSON.then(loadDependencies);
+getBearerToken();
+// Pre-emptively load the configs in parallel
+getAdminConfig();
+getBrandingConfig();
+
+const dependencyScripts = [];
 
 const NO_ACCESS_PATH = '/no-access';
 
@@ -160,24 +168,6 @@ async function initSearch() {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  const loadDependenciesPromise = loadDependencies();
-  if (document.querySelector('head meta[name="public-access"]')?.getAttribute('content').toLowerCase() !== 'true') {
-    await getBearerToken();
-    if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
-      const hasAccess = await checkUserAccess();
-      if (!hasAccess) {
-        window.location.href = NO_ACCESS_PATH;
-        return;
-      }
-      // This is a dev only service worker that caches the algolia JS SDK
-      // check if we are on localhost
-      await initializeServiceWorkers();
-      // Make sure all dependencies are loaded before initializing search
-      // - we load them in parallel by leveraging the promise
-      await loadDependenciesPromise;
-      await initSearch();
-    }
-  }
   const brandingConfig = await getBrandingConfig();
   if (brandingConfig.fontCssUrl) {
     loadCSS(brandingConfig.fontCssUrl);
@@ -224,6 +214,20 @@ export function addFavIcon(href) {
  */
 async function loadLazy(doc) {
   const main = doc.querySelector('main');
+  if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
+    if (!await checkUserAccess()) {
+      window.location.href = NO_ACCESS_PATH;
+      return;
+    }
+    // This is a dev only service worker that caches the algolia JS SDK
+    // check if we are on localhost
+    await initializeServiceWorkers();
+    // Make sure all dependencies are loaded before initializing search
+    // - we load them in parallel by leveraging the promise
+  }
+  await waitForDependency('search');
+  await initDeliveryEnvironment();
+  await initSearch();
   await loadBlocks(main);
 
   const { hash } = window.location;
@@ -243,18 +247,31 @@ async function loadLazy(doc) {
  * the browser's ability to load multiple resources in parallel.
  */
 async function loadDependencies() {
-  const promises = [];
   dependenciesJSON = await dependenciesJSON;
   dependenciesJSON.forEach((dependency) => {
     if (dependency.type === 'js') {
-      promises.push(loadScript(dependency.src, dependency.attrs));
+      if (!dependency.attrs || !dependency.attrs.find((attr) => attr === 'async')) {
+        dependencyScripts.push(loadScript(dependency.src, dependency.attrs));
+      } else {
+        dependencyScripts.push({
+          category: dependency.category || dependency.src,
+          script: loadScript(dependency.src, dependency.attrs),
+        });
+      }
     } else if (dependency.type === 'css') {
       loadCSS(dependency.href);
     }
   });
-  await Promise.all(promises);
+  await Promise.all(dependencyScripts);
 }
 
+export async function waitForDependency(dependencyCategory) {
+  const dependencies = dependencyScripts.filter((d) => d.category === dependencyCategory);
+  if (dependencies && dependencies.length > 0) {
+    return await Promise.all(dependencies.map((d) => d.script));
+  }
+  return Promise.resolve();
+}
 /**
  * Loads everything that happens a lot later,
  * without impacting the user experience.

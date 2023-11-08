@@ -106,7 +106,7 @@ export default async function decorate(block) {
   nav.innerHTML = `
   <div class="nav-top">
     <div class="nav-brand">
-      <a href="/"><img loading="lazy" src="" alt="logo"></a>
+      <a class="adp-logo" href="/"></a>
       <div></div>
     </div>
     <div class="nav-search" id="searchbox">
@@ -193,16 +193,6 @@ export default async function decorate(block) {
   decorateBlock(searchField);
   loadBlock(searchField);
 
-  // Serve nav-brand for both authenticated and non-authenticated users
-  const brandingConfig = await getBrandingConfig();
-  if (brandingConfig.logo) {
-    nav.querySelector('.nav-brand img').src = brandingConfig.logo;
-  }
-  if (brandingConfig.brandText) {
-    nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
-    document.title = brandingConfig.brandText;
-  }
-
   const userProfile = await getUserProfile();
   if (!userProfile) { // stop here for non-authenticated users
     return;
@@ -243,6 +233,21 @@ export default async function decorate(block) {
         redirect_uri: window.location.origin,
       },
     );
+  });
+
+  getBrandingConfig().then((brandingConfig) => {
+    if (brandingConfig.logo) {
+      const logoContainer = nav.querySelector('.nav-brand .adp-logo');
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.src = brandingConfig.logo;
+      img.alt = brandingConfig.brandText;
+      logoContainer.appendChild(img);
+    }
+    if (brandingConfig.brandText) {
+      nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+      document.title = brandingConfig.brandText;
+    }
   });
 
   initQuickLinks();

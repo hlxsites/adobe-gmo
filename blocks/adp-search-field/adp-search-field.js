@@ -1,5 +1,7 @@
 import { getSearchFieldConfig } from '../../scripts/site-config.js';
-import { getSearchClient, getInstantSearchRouting, setCSSVar } from '../../scripts/scripts.js';
+import {
+  getSearchClient, getInstantSearchRouting, setCSSVar, waitForDependency,
+} from '../../scripts/scripts.js';
 import { getSearchIndex } from '../../scripts/polaris.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 
@@ -8,12 +10,6 @@ const { searchMinChars, enableSearchSuggestions } = searchFieldConfig;
 const MAX_ITEMS_IN_AUTOCOMPLETE_MENU = 10;
 const INSTANT_SEARCH_INDEX_NAME = getSearchIndex();
 const instantSearchRouter = getInstantSearchRouting();
-const { createLocalStorageRecentSearchesPlugin } = window[
-  '@algolia/autocomplete-plugin-recent-searches'
-];
-const { createQuerySuggestionsPlugin } = window[
-  '@algolia/autocomplete-plugin-query-suggestions'
-];
 
 // Build URLs that InstantSearch understands.
 function getInstantSearchUrl(indexUiState) {
@@ -95,88 +91,101 @@ function createItemWrapperTemplate({ children, query, html }) {
   </a>`;
 }
 
-const recentSearchesPlugin = createLocalStorageRecentSearchesPlugin({
-  key: 'instantsearch',
-  limit: 10,
-  transformSource({ source }) {
-    return {
-      ...source,
-      getItemUrl({ item }) {
-        return getItemUrl({
-          query: item.label,
-        });
-      },
-      onRemove({ setIsOpen, setQuery, item }) {
-        setQuery(item.label);
-        setIsOpen(false);
-      },
-      onSelect({
-        setIsOpen, setQuery, item, event,
-      }) {
-        onSelect({
-          setQuery,
-          setIsOpen,
-          event,
-          query: item.label,
-        });
-      },
-      // Update the default `item` template to wrap it with a link
-      // and plug it to the InstantSearch router.
-      templates: {
-        ...source.templates,
-        item(params) {
-          const { children } = source.templates.item(params).props;
 
-          return createItemWrapperTemplate({
-            query: params.item.label,
-            children,
-            html: params.html,
-          });
-        },
+function createSuggestionsPlugin(recentSearchesPlugin) {
+  const { createQuerySuggestionsPlugin } = window[
+    '@algolia/autocomplete-plugin-query-suggestions'
+  ];
+  let querySuggestionsPlugin;
+  if (enableSearchSuggestions) {
+    querySuggestionsPlugin = createQuerySuggestionsPlugin({
+      searchClient: getSearchClient(),
+      indexName: 'query_suggestions',
+      getSearchParams({ state }) {
+        // This creates a shared `hitsPerPage` value once the duplicates
+        // between recent searches and Query Suggestions are removed.
+        return recentSearchesPlugin.data.getAlgoliaSearchParams({
+          hitsPerPage: MAX_ITEMS_IN_AUTOCOMPLETE_MENU,
+          query: state.query,
+        });
       },
-    };
-  },
-});
-let querySuggestionsPlugin;
-if (enableSearchSuggestions) {
-  querySuggestionsPlugin = createQuerySuggestionsPlugin({
-    searchClient: getSearchClient(),
-    indexName: 'query_suggestions',
-    getSearchParams({ state }) {
-      // This creates a shared `hitsPerPage` value once the duplicates
-      // between recent searches and Query Suggestions are removed.
-      return recentSearchesPlugin.data.getAlgoliaSearchParams({
-        hitsPerPage: MAX_ITEMS_IN_AUTOCOMPLETE_MENU,
-        query: state.query,
-      });
-    },
+      transformSource({ source }) {
+        return {
+          ...source,
+          sourceId: 'querySuggestionsPlugin',
+          getItemUrl({ item }) {
+            return getItemUrl({
+              query: item.query,
+            });
+          },
+          onSelect({
+            setIsOpen, setQuery, event, item,
+          }) {
+            onSelect({
+              setQuery,
+              setIsOpen,
+              event,
+              query: item.query,
+            });
+          },
+          getItems(params) {
+            // We don't display Query Suggestions when there's no query.
+            if (!params.state.query) {
+              return [];
+            }
+
+            return source.getItems(params);
+          },
+          templates: {
+            ...source.templates,
+            item(params) {
+              const { children } = source.templates.item(params).props;
+
+              return createItemWrapperTemplate({
+                query: params.item.label,
+                children,
+                html: params.html,
+              });
+            },
+          },
+        };
+      },
+    });
+  }
+  return querySuggestionsPlugin;
+}
+
+function createRecentSearchesPlugin() {
+  const { createLocalStorageRecentSearchesPlugin } = window[
+    '@algolia/autocomplete-plugin-recent-searches'
+  ];
+  return createLocalStorageRecentSearchesPlugin({
+    key: 'instantsearch',
+    limit: 10,
     transformSource({ source }) {
       return {
         ...source,
-        sourceId: 'querySuggestionsPlugin',
         getItemUrl({ item }) {
           return getItemUrl({
-            query: item.query,
+            query: item.label,
           });
         },
+        onRemove({ setIsOpen, setQuery, item }) {
+          setQuery(item.label);
+          setIsOpen(false);
+        },
         onSelect({
-          setIsOpen, setQuery, event, item,
+          setIsOpen, setQuery, item, event,
         }) {
           onSelect({
             setQuery,
             setIsOpen,
             event,
-            query: item.query,
+            query: item.label,
           });
         },
-        getItems(params) {
-          // We don't display Query Suggestions when there's no query.
-          if (!params.state.query) {
-            return [];
-          }
-
-          return source.getItems(params);
-        },
+        // Update the default `item` template to wrap it with a link
+        // and plug it to the InstantSearch router.
         templates: {
           ...source.templates,
           item(params) {
@@ -221,8 +230,11 @@ const debounceSetInstantSearchUiState = debounce(setInstantSearchUiState);
 const debouncedSetInstantSearchUiState = (indexUiState) => debounceSetInstantSearchUiState(500, indexUiState);
 const debouncedSetInstantSearchUiStateNoDelay = (indexUiState) => debounceSetInstantSearchUiState(0, indexUiState);
 
-export default function decorate(block) {
+export default async function decorate(block) {
   block.textContent = '';
+  const recentSearchesPlugin = createRecentSearchesPlugin();
+  const querySuggestionsPlugin = createSuggestionsPlugin(recentSearchesPlugin);
+  await waitForDependency('search-autocomplete');
   const { autocomplete } = window['@algolia/autocomplete-js'];
   const isRoot = (!window.location.pathname) || (window.location.pathname === '/');
   if (window.search && autocomplete && isRoot) {

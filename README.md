@@ -115,12 +115,14 @@ npm test
 To update the dependencies under [scripts/libs](scripts/libs) with newer versions:
 1. Delete [scripts/libs](scripts/libs)
 2. Update the dependencies in [package.json](package.json) under `dependencies` with the desired versions
-3. Update the `copyDependencies` configuration to specify which files from the dependencies to copy.
-   * `from` and `to` - patterns for [copy-webpack-plugin](https://webpack.js.org/plugins/copy-webpack-plugin/) so ti adheres to that format.
-   * `fileInclude` - specifies which file to include as a `script` or `link` tag in [head.html](head.html) 
-4. Run `npm run update-dependencies`, this will update the dependencies under [scripts/libs](scripts/libs) and add them to [head.html](head.html)
-5. Run `sudo aem up` and test https://localhost.corp.adobe.com/ to make sure everything still works with the updated dependency versions.
-6. Run `git add scripts/libs package.json`, `git commit -m "Update dependencies"` to commit the new updated dependencies.
+3. Update the `copyDependencies` configuration to specify which files from the dependencies to copy:
+   * `from`, `to`, and `globOptions` - patterns for [copy-webpack-plugin](https://webpack.js.org/plugins/copy-webpack-plugin/) so it adheres to that format.
+   * `fileIncludes` - specifies which js or css file(s) to include in [dependencies.json)[scripts/dependencies.json] - these get processed and loaded
+   `script` or `link` tags during page load.
+4. Update the `externalDependencies` configuration in [package.json](package.json) to specify external dependencies - supports js or css file urls to load
+5. Run `npm run update-dependencies`, this will update the dependencies under [scripts/libs](scripts/libs) and add them to [dependencies.json)
+6. Run `sudo aem up` and test https://localhost.corp.adobe.com/ to make sure everything still works with the updated dependency versions.
+7. Run `git add scripts/libs package.json`, `git commit -m "Update dependencies"` to commit the new updated dependencies.
 
 ## Authentication
 By default, users are redirected for IMS authentication. e.g. when you visit the base URL you will be prompted for IMS auth. e.g. https://main--assets-distribution-portal--adobe.hlx.page

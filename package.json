@@ -53,37 +53,57 @@
     {
       "from": "node_modules/algoliasearch/dist/",
       "to": "scripts/libs/algoliasearch/",
-      "fileInclude": "algoliasearch-lite.umd.js"
+      "fileIncludes": {
+        "file": "algoliasearch-lite.umd.js",
+        "attributes": ["async"],
+        "category": "search"
+      }
     },
     {
       "from": "node_modules/instantsearch.js/dist/",
       "to": "scripts/libs/instantsearch.js/",
-      "fileInclude": "instantsearch.production.min.js"
+      "fileIncludes": {
+        "file": "instantsearch.production.min.js",
+        "attributes": ["async"],
+        "category": "search"
+      }
     },
     {
       "from": "node_modules/instantsearch.css/themes/",
       "to": "scripts/libs/instantsearch.css/themes/",
-      "fileInclude": "satellite-min.css"
+      "fileIncludes": "satellite.css"
     },
     {
       "from": "node_modules/@algolia/autocomplete-js/dist/umd/",
       "to": "scripts/libs/algolia/autocomplete-js/",
-      "fileInclude": "index.production.js"
+      "fileIncludes": {
+        "file": "index.production.js",
+        "attributes": ["async"],
+        "category": "search-autocomplete"
+      }
     },
     {
       "from": "node_modules/@algolia/autocomplete-plugin-recent-searches/dist/umd/",
       "to": "scripts/libs/algolia/autocomplete-plugin-recent-searches/",
-      "fileInclude": "index.production.js"
+      "fileIncludes": {
+        "file": "index.production.js",
+        "attributes": ["async"],
+        "category": "search-autocomplete"
+      }
     },
     {
       "from": "node_modules/@algolia/autocomplete-plugin-query-suggestions/dist/umd/",
       "to": "scripts/libs/algolia/autocomplete-plugin-query-suggestions/",
-      "fileInclude": "index.production.js"
+      "fileIncludes": {
+        "file": "index.production.js",
+        "attributes": ["async"],
+        "category": "search-autocomplete"
+      }
     },
     {
       "from": "node_modules/@algolia/autocomplete-theme-classic/dist/",
       "to": "scripts/libs/algolia/autocomplete-theme-classic/",
-      "fileInclude": "theme.min.css"
+      "fileIncludes": "theme.min.css"
     },
     {
       "from": "node_modules/flatpickr/dist/",
@@ -95,10 +115,23 @@
           "**/l10n/**/*.ts"
         ]
       },
-      "fileInclude": [
-        "flatpickr.min.js",
-        "flatpickr.min.css"
+      "fileIncludes": [
+        {
+          "file": "flatpickr.min.js",
+          "attributes": ["async"],
+          "category": "flatpickr"
+        },
+        {
+          "file": "flatpickr.min.css"
+        }
       ]
+    }
+  ],
+  "externalDependencies": [
+    {
+      "url": "https://sdk-1p.cc-embed.adobe.com/v3/CCEverywhere.js",
+      "attributes": ["async"],
+      "category": "CCEverywhere"
     }
   ]
 }

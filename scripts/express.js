@@ -1,7 +1,9 @@
 import { getAdminConfig } from './site-config.js';
 import { getBearerToken, getUserProfile } from './security.js';
 import { getDownloadUrl } from './polaris.js';
+// eslint-disable-next-line import/no-cycle
 import { closeModal } from '../blocks/adp-asset-details-modal/adp-asset-details-modal.js';
+import { waitForDependency } from './scripts.js';
 
 export let ccEverywhere;
 
@@ -157,6 +159,7 @@ export function fileValidity(fileFormat) {
 }
 
 export async function startCCE() {
+  await waitForDependency('CCEverywhere');
   // create static config objects
   // todo check if clientid and appname values are null/missing
   const adminInfo = await getAdminConfig();

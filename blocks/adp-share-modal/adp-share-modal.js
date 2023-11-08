@@ -1,5 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { getBackendApiKey, getDeliveryEnvironment, getOptimizedPreviewUrl } from '../../scripts/polaris.js';
+import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
 import { createDateInput } from '../../scripts/date-input.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
@@ -9,7 +9,6 @@ const SHARE_LINK_ACCESS = {
   RESTRICTED: 'restricted',
 };
 
-const ASSET_LINK_SHARE_PATH = `${getDeliveryEnvironment()}/adobe/asset-linkshares`;
 const defaultExpiryDate = new Date();
 defaultExpiryDate.setDate(defaultExpiryDate.getDate() + 30);
 const COPY_SHARE_LINK_TEXT = 'Copy share link';
@@ -184,7 +183,7 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
   const expiryCalendar = containerElement.querySelector('.share-link-expiry-date-calendar');
   const newExpiryCalendar = expiryCalendar.cloneNode(false);
   expiryCalendar.parentElement.replaceChild(newExpiryCalendar, expiryCalendar);
-  createDateInput(
+  await createDateInput(
     newExpiryCalendar,
     'share-link-expiry-date-input',
     '',
