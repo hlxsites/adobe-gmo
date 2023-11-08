@@ -245,7 +245,7 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
         sharedAssetsArr: sharedAssetsArr,
         shareLinkExpiryDate: shareLinkExpiryDate,
       });
-
+      
     } else {
       copyShareButton.textContent = COPY_SHARE_LINK_TEXT;
     }

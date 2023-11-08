@@ -168,3 +168,20 @@ The following are valid event names, along with the `detail` data for each:
   ...
 }
 ```
+* `share-link`: Sent whenever user clicks on Copy share Link.
+  * `shareLinkUrl`: Share Link URL.
+  * `sharedAssetsArr`: Array of the share assets.
+  * `shareLinkExpiryDate`: Share Link Expiry Date.
+
+```
+{
+  ...
+  detail: {
+    shareLinkExpiryDate: 'Link Expiry Date'
+    shareLinkUrl: 'Share Link URL',
+    sharedAssetsArry: [ {assetId: 'assetId value', assetName: 'assetName value'},{..},{..}],
+  }
+  ...
+}
+```
+
