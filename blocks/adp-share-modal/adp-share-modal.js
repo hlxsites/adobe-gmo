@@ -87,7 +87,7 @@ function formatDate(date) {
 
 function populateSingleAssetView(dialog, assetId, assetName, title, format) {
   const titleElement = dialog.querySelector('.dialog-header-left');
-  titleElement.textContent = `Share asset`;
+  titleElement.textContent = 'Share asset';
   const dialogBodyLeft = dialog.querySelector('.share-link-body-left');
   const newDialogBodyLeft = dialogBodyLeft.cloneNode(false);
   newDialogBodyLeft.innerHTML = `
@@ -213,7 +213,7 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
     e.preventDefault();
     if (!shareLinkUrl) {
       copyShareButton.classList.add('share-link-in-progress');
-      copyShareButton.textContent = "";
+      copyShareButton.textContent = '';
       const requireLoginCheckbox = containerElement.querySelector('#require-login-checkbox');
       const access = requireLoginCheckbox.checked ? SHARE_LINK_ACCESS.RESTRICTED : SHARE_LINK_ACCESS.PUBLIC;
       let assetIdsArr = assetIds;

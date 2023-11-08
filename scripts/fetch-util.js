@@ -79,22 +79,22 @@ export async function fetchWithRetryAndBackoffOnErrors(url, options, retryOption
   const {
     maxRetries = defaultMaxRetries,
     baseDelay = defaultBaseDelay,
-    retryErrorCodes = defaultRetryErrorCodes
+    retryErrorCodes = defaultRetryErrorCodes,
   } = retryOptions || {};
 
   let retryCount = 0;
 
   const waitWithExponentialBackoff = async (baseDelay, retryCount) => {
-    const delayTime = baseDelay * Math.pow(2, retryCount) * Math.random();
+    const delayTime = baseDelay * 2 ** retryCount * Math.random();
     console.log(`Retrying...Attempt ${retryCount} with delay ${delayTime}`);
-    await new Promise(resolve => setTimeout(resolve, delayTime));
+    await new Promise((resolve) => setTimeout(resolve, delayTime));
   };
 
   const attemptFetch = async () => {
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        const shouldRetry = retryErrorCodes.some(code => response.status === code);
+        const shouldRetry = retryErrorCodes.some((code) => response.status === code);
         if (shouldRetry && retryCount < maxRetries) {
           await waitWithExponentialBackoff(baseDelay, retryCount);
           retryCount++;
@@ -112,9 +112,8 @@ export async function fetchWithRetryAndBackoffOnErrors(url, options, retryOption
         await waitWithExponentialBackoff(baseDelay, retryCount);
         retryCount++;
         return await attemptFetch();
-      } else {
-        throw error;
       }
+      throw error;
     }
   };
 

@@ -6,24 +6,24 @@ import { closeModal } from '../blocks/adp-asset-details-modal/adp-asset-details-
 export let ccEverywhere;
 
 function buildHostInfo(clientId, appName) {
-    const hostInfo = {
-      clientId: clientId,
-      appName: appName,
-      appVersion: {
-          major: 3,
-          minor: 8,
-          patch: 12,
-      },
-      platformCategory: 'web',
-    };
-  
-    return hostInfo;
+  const hostInfo = {
+    clientId,
+    appName,
+    appVersion: {
+      major: 3,
+      minor: 8,
+      patch: 12,
+    },
+    platformCategory: 'web',
+  };
+
+  return hostInfo;
 }
-  
+
 function buildConfigParams() {
   const configParams = {
-      env: 'prod',
-      locale: 'en_US'
+    env: 'prod',
+    locale: 'en_US',
   };
 
   return configParams;
@@ -31,34 +31,34 @@ function buildConfigParams() {
 
 async function buildAuthInfo() {
   const authInfo = {
-      accessToken: await getJumpToken(),
-      useJumpUrl: false
+    accessToken: await getJumpToken(),
+    useJumpUrl: false,
   };
 
-return authInfo;
+  return authInfo;
 }
 
 async function buildUserInfo() {
-  let profileObject = await getUserProfile();
-  let userId = await profileObject['userId'];
+  const profileObject = await getUserProfile();
+  const userId = await profileObject.userId;
 
   const userInfo = {
-      profile: {
-        userId: userId,
-        serviceCode: null,
-        serviceLevel: null
-      },
-      piipStatus: 2
+    profile: {
+      userId,
+      serviceCode: null,
+      serviceLevel: null,
+    },
+    piipStatus: 2,
   };
   return userInfo;
 }
 
 async function getAssetData(url, bearerToken) {
   const options = {
-      method: 'GET',
-      headers: {
-        Authorization: bearerToken,
-      },
+    method: 'GET',
+    headers: {
+      Authorization: bearerToken,
+    },
   };
 
   const response = await fetch(url, options);
@@ -68,10 +68,10 @@ async function getAssetData(url, bearerToken) {
 
 async function base64Encode(blob) {
   return new Promise((resolve, _) => {
-      const fr = new FileReader();
-      fr.onloadend = () => { resolve(fr.result); }
-      fr.readAsDataURL(blob);
-  })
+    const fr = new FileReader();
+    fr.onloadend = () => { resolve(fr.result); };
+    fr.readAsDataURL(blob);
+  });
 }
 
 export async function getJumpToken() {
@@ -84,29 +84,29 @@ export async function getJumpToken() {
   const jumpParams = ({
     bearer_token: tokenValue,
     target_client_id: clientId,
-    target_scope: jumpScope
+    target_scope: jumpScope,
   });
 
   const jumpResponse = await window.adobeIMS?.jumpToken(jumpParams);
-  const jumpUrl = jumpResponse['jump'];
+  const jumpUrl = jumpResponse.jump;
   const jumpToken = jumpUrl.substring((jumpUrl.lastIndexOf('/')) + 1);
-  
+
   return jumpToken;
 }
 
 function adjustZIndex(isOpening) {
-  const headerWrapper = document.getElementsByTagName('header')[0].getElementsByClassName("nav-wrapper")[0];
-  const refinementWrapper = document.getElementsByClassName("refinement-wrapper open")[0];
+  const headerWrapper = document.getElementsByTagName('header')[0].getElementsByClassName('nav-wrapper')[0];
+  const refinementWrapper = document.getElementsByClassName('refinement-wrapper open')[0];
 
   if (isOpening) {
-    headerWrapper.style.zIndex = "unset";
+    headerWrapper.style.zIndex = 'unset';
     if (refinementWrapper) {
-      refinementWrapper.style.zIndex = "unset";
+      refinementWrapper.style.zIndex = 'unset';
     }
   } else {
-    headerWrapper.style.zIndex = "2";
+    headerWrapper.style.zIndex = '2';
     if (refinementWrapper) {
-      refinementWrapper.style.zIndex = "1";
+      refinementWrapper.style.zIndex = '1';
     }
   }
 }
@@ -115,7 +115,7 @@ function createFromAEMCallback() {
   // https://developer.adobe.com/express/embed-sdk/docs/reference/types/#callbacks
   const callback = {
     onCancel: () => {
-      console.log("User cancelled edit.");
+      console.log('User cancelled edit.');
       adjustZIndex(false);
     },
     onLoadStart: () => {
@@ -137,17 +137,17 @@ function createFromAEMCallback() {
     },
     onError: (err) => {
       console.error('Error received is: ', err.toString());
-    }
-  }
+    },
+  };
   return callback;
 }
 
 export function fileValidity(fileFormat) {
-  //const validTypes = ['image','video','pdf'];
+  // const validTypes = ['image','video','pdf'];
   const validTypes = ['image'];
-  let validity = { isValid: false, fileType: 'unknown' };
-  validTypes.some(type => {
-    const validFile = (fileFormat.includes(type) && !(fileFormat.includes("photoshop")));
+  const validity = { isValid: false, fileType: 'unknown' };
+  validTypes.some((type) => {
+    const validFile = (fileFormat.includes(type) && !(fileFormat.includes('photoshop')));
     if (validFile) {
       validity.isValid = true;
       validity.fileType = type;
@@ -168,13 +168,11 @@ export async function startCCE() {
     const configParams = buildConfigParams();
     const userInfo = await buildUserInfo();
     const authInfo = await buildAuthInfo();
-  
-    ccEverywhere = await window.CCEverywhere.initialize(
-        hostInfo, configParams, userInfo, authInfo
-    );
-    console.log("CCE Initialized");
+
+    ccEverywhere = await window.CCEverywhere.initialize(hostInfo, configParams, userInfo, authInfo);
+    console.log('CCE Initialized');
   } else {
-    console.log("Missing CCE parameters.")
+    console.log('Missing CCE parameters.');
   }
 }
 
@@ -203,16 +201,16 @@ export async function openInExpress(base64Blob, assetHeight, assetWidth, assetTy
       asset: {
         data: await base64Blob,
         dataType: 'base64',
-        type: assetType
+        type: assetType,
       },
       canvasSize: {
         height: assetHeight,
         width: assetWidth,
-        unit: 'px'
-      }
+        unit: 'px',
+      },
     },
     outputParams: {
-      outputType: 'url'
+      outputType: 'url',
     },
-  }, userInfo, authInfo)
+  }, userInfo, authInfo);
 }

@@ -3,27 +3,26 @@ const fs = require('fs');
 const packageJson = require('../package.json');
 
 fs.readFile('scripts/dependencies.json', 'utf8', (err, data) => {
-
   // verify file was loaded.
   if (err) {
     return console.log(err);
   }
 
   // initialize dependencies object
-  let dependencies = [];
+  const dependencies = [];
 
   // function to add dependencies to the dependencies object
   const addDependency = (destinationPath, filename) => {
     if (filename.endsWith('.css')) {
       dependencies.push({
-        type: "css",
-        href: `/${destinationPath}${filename}`
+        type: 'css',
+        href: `/${destinationPath}${filename}`,
       });
     } else if (filename.endsWith('.js')) {
       dependencies.push({
         type: 'js',
         src: `/${destinationPath}${filename}`,
-        attrs: ['defer']
+        attrs: ['defer'],
       });
     }
   };

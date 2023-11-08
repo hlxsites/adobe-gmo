@@ -130,6 +130,7 @@ const backendSearchClient = {
       body: JSON.stringify({ requests }),
     })
       .then((res) => res.json())
+      // eslint-disable-next-line no-console
       .catch((e) => console.error('Unable to fetch results', e));
   },
 };
@@ -195,6 +196,7 @@ async function loadEager(doc) {
 async function initializeServiceWorkers() {
   if (window.location.hostname.includes('localhost')) {
     const sw = await navigator.serviceWorker.register('/localdata.js');
+    // eslint-disable-next-line no-console
     console.log('ServiceWorker registered', sw);
   }
 }
@@ -289,6 +291,7 @@ export function getQueryVariable(variable) {
       return decodeURIComponent(pair[1]);
     }
   }
+  // eslint-disable-next-line no-console
   console.log('Query variable %s not found', variable);
   return null;
 }

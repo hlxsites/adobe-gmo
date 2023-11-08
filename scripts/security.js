@@ -90,7 +90,8 @@ export async function getUserProfile() {
 
 async function getCCCollabProfile() {
   const bearerToken = await getBearerToken();
-  return await fetchCached(`https://${ccCollabUrl}`,
+  return await fetchCached(
+    `https://${ccCollabUrl}`,
     {
       method: 'GET',
       headers: {

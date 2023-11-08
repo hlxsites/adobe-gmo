@@ -221,7 +221,7 @@ export default async function decorate(block) {
   // decorate user switcher
   const userSwitcher = nav.querySelector('.user-switcher');
 
-  if(avatarUrl){
+  if (avatarUrl) {
     userSwitcher.style = `background-image: url(${avatarUrl});`;
   }
 

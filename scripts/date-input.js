@@ -1,4 +1,5 @@
 import { setCSSVar } from './scripts.js';
+
 const FLATPICKR_CALENDAR_HEIGHT = 300;
 /**
  * Creates a date input field with a label and calendar icon
