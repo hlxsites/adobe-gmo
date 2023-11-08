@@ -474,6 +474,10 @@ START: Common blocks/*-infinite-results block styling
     "infinite-results infinite-results infinite-results asset-details";
 }
 
+.adp-infinite-results-container.has-multi-selection .adp-result-item .actions {
+  display: none;
+}
+
 .adp-infinite-results .items {
   padding-top: 0;
   flex: 1;
