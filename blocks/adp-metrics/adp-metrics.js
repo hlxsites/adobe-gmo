@@ -2,6 +2,7 @@ import {
   readBlockConfig,
   loadScript,
 } from '../../scripts/lib-franklin.js';
+import { logError } from '../../scripts/scripts.js';
 
 const GENERAL_METRICS = [{
   category: 'Total assets',
@@ -335,7 +336,7 @@ export default async function decorate(block) {
     await loadScript('https://cdn.jsdelivr.net/npm/vega-lite@5.16.0');
     await loadScript('https://cdn.jsdelivr.net/npm/vega-embed@6.22.2');
   } catch (e) {
-    console.log('Error rendering graphs', e);
+    logError('Error rendering graphs', e);
   }
 
   if (vegaEmbed) {

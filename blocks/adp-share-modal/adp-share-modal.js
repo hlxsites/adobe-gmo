@@ -1,5 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
+import { logError } from '../../scripts/scripts.js';
 import { createDateInput } from '../../scripts/date-input.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
@@ -40,7 +41,7 @@ async function createShareLinkUrl(assetIds, title, access, expiryTime) {
     const json = await createLinkShare(payload);
     return generateLinkShareUrl(json?.id);
   } catch (ex) {
-    console.error('Unable to create share link', ex);
+    logError('createShareLinkUrl', ex);
   }
   return null;
 }

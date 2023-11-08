@@ -3,7 +3,7 @@ import { getBearerToken, getUserProfile } from './security.js';
 import { getDownloadUrl } from './polaris.js';
 // eslint-disable-next-line import/no-cycle
 import { closeModal } from '../blocks/adp-asset-details-modal/adp-asset-details-modal.js';
-import { waitForDependency } from './scripts.js';
+import { waitForDependency, logError } from './scripts.js';
 
 export let ccEverywhere;
 
@@ -117,7 +117,6 @@ function createFromAEMCallback() {
   // https://developer.adobe.com/express/embed-sdk/docs/reference/types/#callbacks
   const callback = {
     onCancel: () => {
-      console.log('User cancelled edit.');
       adjustZIndex(false);
     },
     onLoadStart: () => {
@@ -138,7 +137,7 @@ function createFromAEMCallback() {
       */
     },
     onError: (err) => {
-      console.error('Error received is: ', err.toString());
+      logError('createFromAEMCallback', err);
     },
   };
   return callback;
@@ -173,8 +172,10 @@ export async function startCCE() {
     const authInfo = await buildAuthInfo();
 
     ccEverywhere = await window.CCEverywhere.initialize(hostInfo, configParams, userInfo, authInfo);
+    // eslint-disable-next-line no-console
     console.log('CCE Initialized');
   } else {
+    // eslint-disable-next-line no-console
     console.log('Missing CCE parameters.');
   }
 }

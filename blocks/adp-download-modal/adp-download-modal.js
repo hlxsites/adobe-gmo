@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
-import { createTag, closeDialogEvent } from '../../scripts/scripts.js';
+import { createTag, closeDialogEvent, logError } from '../../scripts/scripts.js';
 import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { emitEvent, EventNames } from '../../scripts/events.js';
 import { getBearerToken } from '../../scripts/security.js';
@@ -137,7 +137,7 @@ export function addDownloadEventListener(container) {
             },
           );
         })
-        .catch((e) => console.log(`Unable to download file ${item.name}`, e));
+        .catch((e) => logError(`Unable to download file ${item.name}`, e));
     });
     emitEvent(b.target, EventNames.DOWNLOAD, {
       downloads: downloadFiles,
@@ -369,7 +369,7 @@ export async function openMultiSelectDownloadModal() {
               },
             );
           })
-          .catch((e) => console.log(`Unable to download file ${item.name}`, e));
+          .catch((e) => logError(`Unable to download file ${item.name}`, e));
       });
     });
     emitEvent(b.target, EventNames.DOWNLOAD, {

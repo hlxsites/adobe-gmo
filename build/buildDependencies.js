@@ -5,6 +5,7 @@ const packageJson = require('../package.json');
 fs.readFile('scripts/dependencies.json', 'utf8', (err) => {
   // verify file was loaded.
   if (err) {
+    // eslint-disable-next-line no-console
     return console.log(err);
   }
 
@@ -61,7 +62,9 @@ fs.readFile('scripts/dependencies.json', 'utf8', (err) => {
 
   // write the dependencies object to the dependencies.json file
   fs.writeFile('scripts/dependencies.json', JSON.stringify(dependencies), 'utf8', (errr) => {
+    // eslint-disable-next-line no-console
     if (err) return console.log(errr);
+    // eslint-disable-next-line no-console
     return console.log('The file was saved!');
   });
 

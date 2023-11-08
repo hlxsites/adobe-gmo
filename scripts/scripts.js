@@ -51,6 +51,17 @@ function buildHeroBlock(main) {
 }
 
 /**
+ * Logs the details of an error that was encountered by the portal.
+ * @param {string} source Description of where the error occurred.
+ * @param {Error} error Error whose details should be captured.
+ */
+export function logError(source, error) {
+  // eslint-disable-next-line no-console
+  console.error(source, error);
+  sampleRUM('error', { source, target: error.message });
+}
+
+/**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
@@ -58,8 +69,7 @@ function buildAutoBlocks(main) {
   try {
     buildHeroBlock(main);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Auto Blocking failed', error);
+    logError('buildAutoBlocks', error);
   }
 }
 
@@ -138,8 +148,7 @@ const backendSearchClient = {
       body: JSON.stringify({ requests }),
     })
       .then((res) => res.json())
-      // eslint-disable-next-line no-console
-      .catch((e) => console.error('Unable to fetch results', e));
+      .catch((e) => logError('backendSearchClient', e));
   },
 };
 
@@ -308,8 +317,6 @@ export function getQueryVariable(variable) {
       return decodeURIComponent(pair[1]);
     }
   }
-  // eslint-disable-next-line no-console
-  console.log('Query variable %s not found', variable);
   return null;
 }
 

@@ -3,7 +3,7 @@ import {
   getAssetHandlerApiKey,
   getDeliveryEnvironment,
 } from './polaris.js';
-import { getLastPartFromURL } from './scripts.js';
+import { getLastPartFromURL, logError } from './scripts.js';
 
 export function getCollectionIdFromURL() {
   if (window.location.pathname.startsWith('/collection/')) {
@@ -79,7 +79,7 @@ export async function getCollection(collectionId) {
     }
   } catch (error) {
     // Handle network or other errors
-    console.error('Error retrieving collection:', error);
+    logError('getCollection', error);
     throw error;
   }
 }
@@ -122,7 +122,7 @@ export async function createCollection(title, description, items) {
     }
   } catch (error) {
     // Handle network or other errors
-    console.error('Error creating collection:', error);
+    logError('createCollection', error);
     throw error;
   }
 }
@@ -167,7 +167,7 @@ export async function listCollection(limit = undefined, cursor = '') {
     // Handle other response codes
     throw new Error(`Failed to list collection: ${response.status} ${response.statusText}`);
   } catch (error) {
-    console.error('ErFailed to list collection:', error);
+    logError('listCollection', error);
     throw error;
   }
 }
@@ -220,7 +220,7 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
       throw new Error(`Failed to update collection: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error updating collection:', error);
+    logError('patchCollection', error);
     throw error;
   }
 }
@@ -241,13 +241,11 @@ export async function deleteCollection(collectionId) {
 
     const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
 
-    if (response.status === 204) {
-      console.log('Collection deleted successfully');
-    } else {
+    if (response.status !== 204) {
       throw new Error(`Failed to delete collection: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error deleting collection:', error);
+    logError('deleteCollection', error);
     throw error;
   }
 }
