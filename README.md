@@ -23,6 +23,8 @@ npm test
 
 > **_NOTE:_** Users should be on Adobe Corp network for local development.
 
+# macOS Instructions
+
 1. Install the AEM cli `npm install -g @adobe/aem-cli`
     * If command fails with `EEXIST: file already exists`, then run `npm install -g --force @adobe/aem-cli`
 2. Update your `/etc/hosts` file.  Add `localhost.corp.adobe.com` to the localhost line:
@@ -53,6 +55,54 @@ npm test
    ```bash
    sudo aem up
    ```
+9. Using Chrome browser, go to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
+10. If you would also like to use Mozilla Firefox instead of Chrome then:
+    1. Open Firefox
+    2. Enter `about:config` in the address bar, hit `[Enter]`
+    3. Click **Accept the Risk and Continue**
+    4. In the search, enter `security.enterprise_roots.enabled` and set the value to true
+    5. Restart Firefox and navigate to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
+
+# Windows 11 Instructions
+
+> **_NOTE:_** Ensure you have Git and Node.js installed before proceeding. Open CMD and enter `git --version` and `node --version` to verify intallation.
+
+1. Open GitBash, and install the AEM cli `npm install -g @adobe/aem-cli`
+    * If command fails with `EEXIST: file already exists`, then run `npm install -g --force @adobe/aem-cli`
+2. Update your `C:\Windows\System32\drivers\etc\hosts` file using a text editor with administrator privileges.  Add `localhost.corp.adobe.com` to the localhost line:
+   ```
+   127.0.0.1       localhost localhost.corp.adobe.com
+   ```
+3. Create a self-signed certificate by entering the following four commands into GitBash:
+   ```
+   mkdir env
+
+   printf "[dn]\nCN=localhost.corp.adobe.com\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost.corp.adobe.com\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth" > ext.conf
+
+   openssl req -x509 -out env/server.crt -keyout env/server.key \
+   -newkey rsa:2048 -nodes -sha256 \
+   -subj "//CN=localhost.corp.adobe.com" -extensions EXT -config ext.conf \
+   -days 1826
+
+   rm ext.conf
+   ```
+   This will create the directory `C:\Users\(username)\env` that contains `server.crt` and `server.key`. Move the `env` folder to the root of this project's directory.
+4. In the Start Menu, type `Manage computer certificates` and click to open the Local computer certificates storehouse. You will need admin permission to complete the process.
+5. Navigate to Certificates – Local Computer > Personal > Certificates. This place stores all the local certificate that is created on the computer. Find the certificate you have created that contains `localhost.corp.adobe.com` in the `Issued To` and `Issued From` columns.
+6. Next, on the left panel, expand Trusted Root Certification Authorities > Certificates. Drag and drop the local certificate and drop into this folder. You can also copy and paste it.
+7. Create a file in the root of this project's directory called `.env` and use a text editor to modify its contents to the following:
+   ```
+   AEM_TLS_CERT=env/server.crt
+   AEM_TLS_KEY=env/server.key
+   AEM_OPEN=/
+   AEM_PORT=443
+   ```
+8. Create a batch file to start the local aem cli (helix cli). Create a file on the desktop with the file extention `.bat` and use a text editor to modify its contents with the following, while making sure to change the directory in the `cd` command to the root directory of the project:
+   ```
+   @echo off
+   %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command "Start-Process PowerShell -Verb RunAs -ArgumentList '-NoProfile', '-ExecutionPolicy Bypass', '-Command', 'cd Change-me-to-the-Root-Directory-of-the-Project; aem up --tls-cert env/server.crt --tls-key env/server.key'"
+   ```
+   Test your batch file. If all has been configured correctly, User Account Control prompt for permission to open Powershell as Administrator. Click yes. Powershell should then open and start the local aem cli.
 9. Using Chrome browser, go to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
 10. If you would also like to use Mozilla Firefox instead of Chrome then:
     1. Open Firefox
