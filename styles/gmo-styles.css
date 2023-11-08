@@ -7,3 +7,8 @@
     /* disable capitalization until ADP portal has fixed ASSETS-30971 */
     text-transform: initial;
   }
+
+header:empty {
+  display: none;
+  visibility: hidden;
+}
