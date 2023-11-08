@@ -4,14 +4,42 @@ import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 // eslint-disable-next-line import/no-cycle
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetID, getAssetName } from '../../scripts/metadata.js';
-import { getAnchorVariable, getQueryVariable, removeParamFromWindowURL, setHashParamInWindowURL } from '../../scripts/scripts.js';
-import InfiniteResultsContainer from '../../scripts/infinite-results/InfiniteResultsContainer.js';
+import { getAnchorVariable, getQueryVariable } from '../../scripts/scripts.js';
 
 const searchFieldConfig = await getSearchFieldConfig();
 const searchResultsCardViewConfig = await getCardViewConfig();
 const searchResultsCardViewSettings = await getCardViewSettings();
 
+/**
+ * @typedef AlgoliaAssetRecord
+ * @property {string} assetId ID of the asset from its source repository.
+ */
+
+/**
+ * @typedef AlgoliaSearchResults
+ * @property {Array<AlgoliaAssetRecord>} hits Search hits that are included on the current page.
+ * @property {number} hitsPerPage Number of hits included on each page of the search.
+ * @property {number} nbHits Total number of hits matching the current search.
+ * @property {number} nbPages Total number of pages of hits in the current search.
+ * @property {string} query Full text of the search query.
+ * @property {number} page 0-based index of the current page of the results.
+ */
+
+/**
+ * @typedef AlgoliaRenderArgs
+ * @property {Array<AlgoliaAssetRecord>} currentPageHits Search hits that are included on the current page.
+ * @property {Array<AlgoliaAssetRecord>} hits Search hits that are included on the current page.
+ * @property {function} showMore Can be invoked with no arguments to retrieve more results for the current
+ *  search from Algolia.
+ * @property {AlgoliaSearchResults} results Results for the current search.
+ * @property {boolean} isFirstPage True if the current page is the first page in the result set. False otherwise.
+ * @property {boolean} isLastPage True if the current page is the last page in the result set. False otherwise.
+ */
+
 export default class InstantSearchDataSource {
+  /**
+   * @type {AlgoliaRenderArgs}
+   */
   lastRenderArgs;
 
   constructor() {
@@ -41,12 +69,56 @@ export default class InstantSearchDataSource {
     return isNewSearch;
   }
 
+  /**
+   * Based on render arguments from Algolia, retrieves the current page number specified
+   * by the arguments.
+   * @param {AlgoliaRenderArgs} renderArgs Render information as provided by Algolia.
+   * @returns {number} 0-based index of the current page, or -1 if no page specified.
+   */
+  static getPageNumber(renderArgs) {
+    if (renderArgs && renderArgs.results && renderArgs.results.page !== undefined) {
+      return renderArgs.results.page;
+    }
+    return -1;
+  }
+
+  /**
+   * Compares two sets of render arguments from Algolia and determines if difference between
+   * the two indicates a new page. This is determined based on whether the render args
+   * indicate a new search, and whether the page number is different.
+   * @param {AlgoliaRenderArgs} priorRenderArgs Render information as provided by Algolia.
+   * @param {AlgoliaRenderArgs} currentRenderArgs Render information as provided by Algolia.
+   * @returns {boolean} True if the render args are on different pages, false otherwise.
+   */
+  static checkIfNewPage(priorRenderArgs, currentRenderArgs) {
+    const isNewSearch = InstantSearchDataSource.checkIfNewSearch(priorRenderArgs, currentRenderArgs);
+    const priorPage = InstantSearchDataSource.getPageNumber(priorRenderArgs);
+    const currentPage = InstantSearchDataSource.getPageNumber(currentRenderArgs);
+    return !isNewSearch && priorPage >= 0 && currentPage >= 0 && priorPage !== currentPage;
+  }
+
   isLastPage() {
     return this.lastRenderArgs?.isLastPage;
   }
 
+  /**
+   * Registers the data source with an infinite results container so that the container is notified whenever
+   * the data source has more results to load.
+   * @param {HTMLElement} container Element containing the infinite results.
+   * @param {import('../../scripts/infinite-results/InfiniteResultsContainer.js').default} infiniteResultsContainer
+   *  Infinite results container that will be notified of new results.
+   */
   registerResultsCallback(container, infiniteResultsContainer) {
-    const infiniteHits = window.instantsearch.connectors.connectInfiniteHits((renderArgs, isFirstRender) => {
+    const infiniteHits = window.instantsearch.connectors.connectInfiniteHits((
+      /**
+       * @type {AlgoliaRenderArgs}
+       */
+      renderArgs,
+      /**
+       * @type {boolean}
+       */
+      isFirstRender,
+    ) => {
       const isNewSearch = InstantSearchDataSource.checkIfNewSearch(this.lastRenderArgs, renderArgs);
       const {
         currentPageHits, showMore, results,
@@ -60,6 +132,15 @@ export default class InstantSearchDataSource {
         isNewSearch,
         () => this.isLastPage(),
       );
+      const isNewPage = InstantSearchDataSource.checkIfNewPage(this.lastRenderArgs, renderArgs);
+      if (isNewPage) {
+        emitEvent(container, EventNames.SEARCH_PAGED, {
+          pageResultCount: currentPageHits.length,
+          pageIndex: results?.page,
+          pageSize: results?.hitsPerPage,
+          totalResultCount: results.nbHits,
+        });
+      }
       this.lastRenderArgs = renderArgs;
     });
     // Note: "configure" doesn't work with infiniteHits.
@@ -93,12 +174,6 @@ export default class InstantSearchDataSource {
     window.search.start();
   }
 
-  /**
-   * 
-   * @param {HTMLElement} item 
-   * @param {InfiniteResultsContainer} infiniteResultsContainer 
-   * @returns {HTMLElement} - card element
-   */
   createItemElement(item, infiniteResultsContainer) {
     const assetId = getAssetID(item);
     const card = createAssetCardElement(
@@ -108,10 +183,7 @@ export default class InstantSearchDataSource {
       [],
       {
         selectItemHandler: () => {
-          infiniteResultsContainer.selectItem(assetId);
-        },
-        deselectAssetHandler: () => {
-          infiniteResultsContainer.deselectItem(assetId);
+          infiniteResultsContainer.toggleSelection(assetId);
         },
         addAddToMultiSelectionHandler: () => {
           infiniteResultsContainer.addItemToMultiSelection(assetId);
@@ -137,17 +209,19 @@ export default class InstantSearchDataSource {
     if (assetId) {
       return assetId;
     }
+    return undefined;
   }
 
-  onItemDeselected(item, itemId, infiniteResultsContainer) {
+  onItemDeselected(item, itemId) {
     closeAssetDetailsPanel();
     emitEvent(item, EventNames.ASSET_DESELECTED, {
       assetId: itemId,
     });
   }
 
-  onItemSelected(item, itemId, infiniteResultsContainer) {
-    openAssetDetailsPanel(itemId, infiniteResultsContainer);
+  async onItemSelected(item, itemId, infiniteResultsContainer) {
+    await openAssetDetailsPanel(itemId, infiniteResultsContainer);
+    infiniteResultsContainer.scrollToItem(itemId);
     emitEvent(item, EventNames.ASSET_SELECTED, {
       assetId: itemId,
     });

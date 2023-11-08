@@ -1,5 +1,5 @@
 import { emitEvent, EventNames } from '../events.js';
-import { getNavHeight } from '../../blocks/adp-header/adp-header.js'
+import { getNavHeight } from '../../blocks/adp-header/adp-header.js';
 
 const NUMBER_OF_PLACEHOLDERS = 10;
 const DEFAULT_NO_RESULTS_MSG = '';
@@ -10,6 +10,8 @@ export default class InfiniteResultsContainer {
 
   #lastPage;
 
+  #block;
+
   #container;
 
   #lastScrollDistance;
@@ -19,6 +21,9 @@ export default class InfiniteResultsContainer {
   #selectedItems = [];
 
   constructor(block, datasource) {
+    this.datasource = datasource;
+    this.#block = block;
+
     if (!datasource.getItemId) {
       throw new Error(`Datasource ${datasource?.constructor?.name} must implement function getItemId`, datasource);
     }
@@ -28,16 +33,17 @@ export default class InfiniteResultsContainer {
     if (!datasource.registerResultsCallback) {
       throw new Error(`Datasource ${datasource?.constructor?.name} must implement function registerResultsCallback`, datasource);
     }
-    this.datasource = datasource;
-    block.innerHTML = '';
-    block.parentElement.classList.add('adp-infinite-results-wrapper');
-    block.classList.add('adp-infinite-results');
+  }
+
+  render() {
+    this.#block.innerHTML = '';
+    this.#block.parentElement.classList.add('adp-infinite-results-wrapper');
+    this.#block.classList.add('adp-infinite-results');
     const items = document.createElement('div');
     items.id = 'items';
     items.classList.add('items', 'adp-infinite-results-container');
     this.#container = items;
-    block.appendChild(items);
-
+    this.#block.appendChild(items);
     this.datasource.registerResultsCallback(items, this);
   }
 
@@ -61,11 +67,15 @@ export default class InfiniteResultsContainer {
     // an IntersectionObserver doesn't fire before the user reaches the bottom of the page.
     // Using a scroll caclulation gives a smoother infinite scroll experience.
     window.addEventListener('scroll', () => {
+      const scrollContainer = this.#getScrollParent(container);
+      if (!scrollContainer) {
+        return;
+      }
       const {
         scrollTop,
         scrollHeight,
         clientHeight,
-      } = this.#getScrollParent(container);
+      } = scrollContainer;
       // newScrollDistance is the distance from the top of the page to the
       // "page fold" (bottom of the viewport)
       const newScrollDistance = scrollTop + clientHeight;
@@ -147,23 +157,19 @@ export default class InfiniteResultsContainer {
 
   /**
    * De-selects the currently selected item element or the item element passed in
-   * @param {string|HTMLElement} asset - asset id {string} or item element element {HTMLElement}
-   * @param {boolean} removeFromURL - whether to remove the asset id from the URL or not
+   * @param {string} itemId - item id {string}
    */
   deselectItem(item) {
-    let itemCard;
-    if (!item) {
-      if (this.#currentlySelectedElement) {
-        itemCard = this.#currentlySelectedElement;
-      }
-    } else {
-      itemCard = this.#getItem(item);
-    }
-    if (itemCard) {
+    let itemCard = this.#getItem(item);
+    if (this.#currentlySelectedElement
+      && this.#currentlySelectedElement.classList.contains('selected')
+      && (this.#currentlySelectedElement.dataset.itemId === itemCard.dataset.itemId)) {
+      itemCard = this.#currentlySelectedElement;
       itemCard.classList.remove('selected');
       itemCard.removeAttribute('aria-expanded');
+      this.#currentlySelectedElement = undefined;
+      this.datasource.onItemDeselected?.(itemCard, itemCard.dataset.itemId, this);
     }
-    this.datasource.onItemDeselected?.(itemCard, itemCard.dataset.itemId, this);
   }
 
   /**
@@ -225,6 +231,13 @@ export default class InfiniteResultsContainer {
     }
   }
 
+  scrollToItem(item) {
+    const itemElem = this.#getItem(item);
+    if (itemElem) {
+      this.#scrollToElement(itemElem);
+    }
+  }
+
   #scrollToElement(element, padding = 26) {
     const rect = element.getBoundingClientRect();
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
@@ -267,6 +280,16 @@ export default class InfiniteResultsContainer {
     return false;
   }
 
+  async toggleSelection(item) {
+    const assetCard = this.#getItem(item);
+
+    if (assetCard.classList.contains('selected')) {
+      this.deselectItem(assetCard);
+    } else {
+      this.selectItem(assetCard);
+    }
+  }
+
   /**
    * Handle when an item element is clicked
    * @param {HTMLElement|string} asset Asset to select
@@ -275,9 +298,7 @@ export default class InfiniteResultsContainer {
     const assetCard = this.#getItem(item);
     const { itemId } = assetCard.dataset;
 
-    if (assetCard.classList.contains('selected')) {
-      this.deselectItem();
-    } else {
+    if (!assetCard.classList.contains('selected')) {
       this.#selectItemElement(itemId);
       this.datasource.onItemSelected?.(assetCard, itemId, this);
       // Scroll to the selected item
@@ -382,8 +403,6 @@ export default class InfiniteResultsContainer {
   async resultsCallback(container, items, showMoreCallback, pageNumber, isFirstRender, isNewSearch, lastPageCallback) {
     if (isFirstRender) {
       const scrollHandler = () => {
-      // Send event when the triggers an infinite scroll showMore event
-        emitEvent(document.documentElement, EventNames.INFINITE_SCROLL, { datasource: this.datasource });
         showMoreCallback();
       };
       this.#bindScrollHandler(container, scrollHandler, lastPageCallback);

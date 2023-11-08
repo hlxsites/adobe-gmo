@@ -1,4 +1,6 @@
-import { setCSSVar } from './scripts.js';
+import { setCSSVar, waitForDependency } from './scripts.js';
+
+const FLATPICKR_CALENDAR_HEIGHT = 300;
 /**
  * Creates a date input field with a label and calendar icon
  * @param {*} container - The element to append the date input to
@@ -6,9 +8,13 @@ import { setCSSVar } from './scripts.js';
  * @param {*} label - The label for the date input
  * @param {*} enableTime - Whether or not to enable time selection
  * @param {*} calendarContainer - The element to append the calendar selection div to - defaults to body element
+ * @param {*} idSuffix - The suffix to append to the id of the date input
+ * @param {*} defaultDate - The default date to set the date input to
+ *   see https://flatpickr.js.org/options/#:~:text=table%20below.-,defaultDate,-String
  * @returns - The date input container
  */
-export function createDateInput(container, id, label, enableTime = false, calendarContainer = null, idSuffix = '', defaultDate = null) {
+export async function createDateInput(container, id, label, enableTime = false, calendarContainer = null, idSuffix = '', defaultDate = null) {
+  await waitForDependency('flatpickr');
   const kebabCaseAttribute = id.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
   let idAttribute = kebabCaseAttribute;
   if (idSuffix) idAttribute += `-${idSuffix}`;
@@ -42,10 +48,23 @@ export function createDateInput(container, id, label, enableTime = false, calend
   fpConfig.onOpen = () => {
     if (calendarContainer && calendarContainer.showModal) calendarContainer.showModal();
     // override calendar position that is set by flatpickr's js
-    setCSSVar(
-      '--calendar-top',
-      `${dateInputContainer.getBoundingClientRect().top + dateInputContainer.getBoundingClientRect().height + 5}px`,
-    );
+    if (dateInputContainer.getBoundingClientRect().top + dateInputContainer.getBoundingClientRect().height
+      + 5 + FLATPICKR_CALENDAR_HEIGHT
+      < window.innerHeight) {
+      setCSSVar(
+        '--calendar-top',
+        `${dateInputContainer.getBoundingClientRect().top + dateInputContainer.getBoundingClientRect().height + 5}px`,
+      );
+    } else {
+      // position above if the calendar would go off the screen
+      const labelHeight = dateInputContainer.querySelector('.label')?.getBoundingClientRect?.().height || 0;
+      setCSSVar(
+        '--calendar-top',
+        `${dateInputContainer.getBoundingClientRect().top
+          + labelHeight
+          - FLATPICKR_CALENDAR_HEIGHT - 5}px`,
+      );
+    }
   };
   const fp = window.flatpickr(dateInputContainer.querySelector('.flatpickr'), fpConfig);
   fp.altInput.id = idAttribute;
@@ -56,14 +75,14 @@ export function createDateInput(container, id, label, enableTime = false, calend
  * Creates a start date input field with a label and calendar icon
  * See createDateInput for params
  */
-export function createStartDateRangeInput(inputContainer, id, label, enableTime = false, calendarContainer = null) {
-  return createDateInput(inputContainer, id, label, enableTime, calendarContainer, 'start-date');
+export async function createStartDateRangeInput(inputContainer, id, label, enableTime = false, calendarContainer = null) {
+  return await createDateInput(inputContainer, id, label, enableTime, calendarContainer, 'start-date');
 }
 
 /**
  * Creates an end date input field with a label and calendar icon
  * See createDateInput for params
  */
-export function createEndDateRangeInput(inputContainer, id, label, enableTime = false, calendarContainer = null) {
-  return createDateInput(inputContainer, id, label, enableTime, calendarContainer, 'end-date');
+export async function createEndDateRangeInput(inputContainer, id, label, enableTime = false, calendarContainer = null) {
+  return await createDateInput(inputContainer, id, label, enableTime, calendarContainer, 'end-date');
 }

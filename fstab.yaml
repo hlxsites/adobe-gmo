@@ -4,3 +4,4 @@ mountpoints:
 folders:
   /share/: /share/default
   /collection/: /collection/default
+

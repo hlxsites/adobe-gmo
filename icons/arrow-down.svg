@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12" viewBox="0 0 12 12">
+  <defs>
+    <clipPath id="clip-In_browse_page_-_default_state_for_3_metadata_fields_88">
+      <rect width="12" height="12"/>
+    </clipPath>
+  </defs>
+  <g id="In_browse_page_-_default_state_for_3_metadata_fields_88" data-name="In browse page - default state (for 3 metadata fields) – 88" clip-path="url(#clip-In_browse_page_-_default_state_for_3_metadata_fields_88)">
+    <rect width="12" height="12" fill="#fff"/>
+    <path id="a112" d="M8.274,6.9l-.9.9V1.938a.937.937,0,1,0-1.875,0V7.8l-.9-.9A.937.937,0,0,0,3.275,8.223l2.5,2.5a.937.937,0,0,0,1.325,0l2.5-2.5A.937.937,0,0,0,8.274,6.9Z" transform="translate(-0.437 0.001)" fill="#444"/>
+  </g>
+</svg>

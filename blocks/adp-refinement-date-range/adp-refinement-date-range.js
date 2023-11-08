@@ -7,8 +7,8 @@ function parseMillisEpochToSecondsEpoch(dateStr, addDays = 0) {
     : undefined;
 }
 
-function createCalendarRange(enableTime = false) {
-  return window.instantsearch.connectors.connectRange((options, isFirstRendering) => {
+async function createCalendarRange(enableTime = false) {
+  return window.instantsearch.connectors.connectRange(async (options, isFirstRendering) => {
     const { widgetParams } = options;
     const { attribute, container } = widgetParams;
     if (!isFirstRendering) {
@@ -27,8 +27,8 @@ function createCalendarRange(enableTime = false) {
     const refinementValues = window.search.helper?.state?.numericRefinements?.[attribute];
     const start = refinementValues?.[attribute];
     const end = refinementValues?.[attribute];
-    const startDate = createStartDateRangeInput(container, attribute, 'Start date', enableTime);
-    const endDate = createEndDateRangeInput(container, attribute, 'End date', enableTime);
+    const startDate = await createStartDateRangeInput(container, attribute, 'Start date', enableTime);
+    const endDate = await createEndDateRangeInput(container, attribute, 'End date', enableTime);
     if (start) startDate.querySelector('input').value = start === -Infinity ? '' : new Date(start * 1000).toISOString();
     if (end) endDate.querySelector('input').value = end === Infinity ? '' : new Date(end * 1000).toISOString();
     decorateIcons(container);
@@ -63,8 +63,8 @@ function createCalendarRange(enableTime = false) {
   });
 }
 
-function addCalendarRefinement(container, attribute, enableTime = false) {
-  const calendarRange = createCalendarRange(enableTime);
+async function addCalendarRefinement(container, attribute, enableTime = false) {
+  const calendarRange = await createCalendarRange(enableTime);
   window.search.addWidgets([
     calendarRange({
       container,

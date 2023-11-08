@@ -41,6 +41,29 @@ function createAssetRow(assetId, assetName, title, format) {
   return row;
 }
 
+function sortTable(header, table, ascending) {
+  const rows = [...table.querySelectorAll('.asset-row')];
+  rows.sort((a, b) => {
+    const nameA = a.querySelector('.asset-name').textContent.toUpperCase();
+    const nameB = b.querySelector('.asset-name').textContent.toUpperCase();
+    return nameA.localeCompare(nameB);
+  });
+  if (!ascending) {
+    rows.reverse();
+  }
+  rows.forEach((row) => {
+    table.appendChild(row);
+  });
+
+  const sortIcon = header.querySelector('.multi-selected-assets-table-header .icon');
+  if (ascending) {
+    sortIcon.classList.remove('opposite');
+  } else {
+    sortIcon.classList.add('opposite');
+  }
+  decorateIcons(header);
+}
+
 /**
  * Create a table of multi selected assets
  * @returns {HTMLDivElement}
@@ -49,7 +72,7 @@ export async function createMultiSelectedAssetsTable() {
   const tableContainer = document.createElement('div');
   tableContainer.classList.add('multi-selected-assets-table-container');
   tableContainer.innerHTML = `
-    <div class="multi-selected-assets-table-header">Name</div>
+    <div class="multi-selected-assets-table-header">Name<span class='icon icon-arrow-down'></span></div>
     <div class="multi-selected-assets-table"/>
   `;
 
@@ -57,11 +80,6 @@ export async function createMultiSelectedAssetsTable() {
   table.classList.add('multi-selected-assets-table');
 
   const selectedAssets = [...document.querySelectorAll('.adp-infinite-results.block .adp-result-item.checked')];
-  selectedAssets.sort((a, b) => {
-    const nameA = a.querySelector('.title')?.textContent.toUpperCase() || a.getAttribute('data-item-name').toUpperCase();
-    const nameB = b.querySelector('.title')?.textContent.toUpperCase() || b.getAttribute('data-item-name').toUpperCase();
-    return nameA.localeCompare(nameB);
-  });
   selectedAssets.forEach((asset) => {
     const assetId = asset.getAttribute('data-item-id');
     const assetName = asset.getAttribute('data-item-name');
@@ -74,6 +92,16 @@ export async function createMultiSelectedAssetsTable() {
     table.appendChild(row);
   });
 
-  await decorateIcons(table);
+  // Handle sorting
+  const header = tableContainer.querySelector('.multi-selected-assets-table-header');
+  sortTable(header, table, true); // sort ascending by default
+  header.setAttribute('aria-sort-ascending', 'true');
+  header.addEventListener('click', () => {
+    const sortOrder = !(header.getAttribute('aria-sort-ascending') === 'true');
+    header.setAttribute('aria-sort-ascending', sortOrder.toString());
+    sortTable(header, table, sortOrder);
+  });
+
+  decorateIcons(tableContainer);
   return tableContainer;
 }

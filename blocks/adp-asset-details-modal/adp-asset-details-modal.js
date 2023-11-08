@@ -95,14 +95,12 @@ function createHeaderPanel(modal) {
   disableActionButtons(modal);
 
   // ensure express button only shows for valid asset types
-  const expressBtn = modal.querySelector(".action-edit-asset");
-  let validCheck = fileValidity(format);
+  const expressBtn = modal.querySelector('.action-edit-asset');
+  const validCheck = fileValidity(format);
   if (ccEverywhere && validCheck.isValid) {
     expressBtn.classList.remove('hidden');
-  } else {
-    if (!expressBtn.classList.contains('hidden')) {
-      expressBtn.classList.add('hidden');
-    }
+  } else if (!expressBtn.classList.contains('hidden')) {
+    expressBtn.classList.add('hidden');
   }
 
   const assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
@@ -110,7 +108,7 @@ function createHeaderPanel(modal) {
   const actionsExpress = modal.querySelector('.action-edit-asset');
   const exClone = expressBtn.cloneNode(true);
   actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
-  addExpressEditorHandler(exClone, assetId, assetName, assetHeight, assetWidth, "image", document);
+  addExpressEditorHandler(exClone, assetId, assetName, assetHeight, assetWidth, 'image', document);
 }
 
 export async function openAssetDetailsModal(id, resultsManager) {
@@ -290,7 +288,7 @@ export default function decorate(block) {
     const renditionFields = createTag('div', { class: 'rendition-fields' });
     const renditionHeader = createTag('div', { class: 'rendition header' });
     const headerCheckbox = createTag('input', {
-      type: 'checkbox', name: 'all', value: 'all', id: 'detail-download-all', class: 'intermediate'
+      type: 'checkbox', name: 'all', value: 'all', id: 'detail-download-all', class: 'intermediate',
     });
     const headerTextContainer = createTag('div', { class: 'text-container' });
     const headerText = createTag('div', { class: 'header' });
