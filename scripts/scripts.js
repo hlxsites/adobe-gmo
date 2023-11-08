@@ -192,9 +192,6 @@ function cleanUrl(url) {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  emitEvent(document.documentElement, EventNames.PAGE_VIEW, {
-    url: cleanUrl(window.location),
-  });
   const brandingConfig = await getBrandingConfig();
   if (brandingConfig.fontCssUrl) {
     loadCSS(brandingConfig.fontCssUrl);
@@ -240,6 +237,9 @@ export function addFavIcon(href) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
+  emitEvent(document.documentElement, EventNames.PAGE_VIEW, {
+    url: cleanUrl(window.location),
+  });
   const main = doc.querySelector('main');
   if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
     if (!await checkUserAccess()) {
