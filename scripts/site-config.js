@@ -1,6 +1,9 @@
 import { fetchCached } from './fetch-util.js';
 import { toCamelCase } from './lib-franklin.js';
 
+const QA_BASE_PATH = 'qa';
+const DRAFTS_BASE_PATH = 'drafts';
+
 function parseValue(value) {
   if (value === 'true' || value === 'false') {
     return value === 'true';
@@ -275,19 +278,21 @@ export async function getQuickLinkConfig() {
  * Otherwise, it will return the code base path.
  * @returns {string} Base path for config files
  */
-function getBaseConfigPath() {
-  let basePath = '';
-  if (window.location.pathname.startsWith('/qa/') || window.location.pathname.startsWith('/dev/')) {
-    basePath = `/${window.location.pathname.split('/')[1]}`;
-  };
-
-  if (window.location.pathname.includes(`${basePath}/drafts/`)) {
-    let contentBranch = window.location.pathname.split(`${basePath}/drafts/`)[1];
-    contentBranch = contentBranch.endsWith('/') ? contentBranch.slice(0, -1) : contentBranch;
-    return basePath + `/drafts/${contentBranch}`;
+export function getBaseConfigPath() {
+  if (window.location.pathname.startsWith(`/${QA_BASE_PATH}/${DRAFTS_BASE_PATH}/`)) {
+    const contentBranch = window.location.pathname.split('/')[3];
+    return `/${QA_BASE_PATH}/${DRAFTS_BASE_PATH}/${contentBranch}`;
   }
+  if (window.location.pathname.startsWith(`/${QA_BASE_PATH}/`)) {
+    return `/${QA_BASE_PATH}`;
+  }
+  return '';
+}
 
-  return basePath;
+export function isUrlPathNonRoot() {
+  return window.location.pathname.startsWith(`/${QA_BASE_PATH}/`)
+    || window.location.pathname.startsWith(`/${QA_BASE_PATH}/${DRAFTS_BASE_PATH}/`)
+    || window.location.pathname.startsWith(`/${DRAFTS_BASE_PATH}/`);
 }
 
 async function getConfig(filename) {

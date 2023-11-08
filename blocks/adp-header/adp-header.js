@@ -1,7 +1,9 @@
 import {
   decorateIcons, buildBlock, decorateBlock, loadBlock,
 } from '../../scripts/lib-franklin.js';
-import { getBrandingConfig, getQuickLinkConfig } from '../../scripts/site-config.js';
+import {
+  getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
+} from '../../scripts/site-config.js';
 import { getUserProfile, getAvatarUrl } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
@@ -288,19 +290,6 @@ export default async function decorate(block) {
   });
 }
 
-function isURLDraftsPath() {
-  return window.location.pathname.startsWith('/drafts/');
-}
-
-function createBaseDraftsPath() {
-  if (isURLDraftsPath()) {
-    const contentBranch = window.location.pathname.split('/')[2];
-    return `/drafts/${contentBranch}`;
-  }
-
-  return window.hlx.codeBasePath;
-}
-
 function initQuickLinks() {
   if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
     return;
@@ -310,7 +299,7 @@ function initQuickLinks() {
   allAssetsDiv.classList.add('item', 'all-assets');
   const allAssetsLink = document.createElement('a');
   allAssetsLink.href = '/';
-  allAssetsLink.textContent = 'All assets';
+  allAssetsLink.textContent = 'All Assets';
   allAssetsDiv.appendChild(allAssetsLink);
 
   const collectionsDiv = document.createElement('div');
@@ -326,8 +315,8 @@ function initQuickLinks() {
 
   // append drafts path if needed
   quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (isURLDraftsPath()) {
-      item.querySelector('a').href = createBaseDraftsPath() + item.querySelector('a').getAttribute('href');
+    if (isUrlPathNonRoot()) {
+      item.querySelector('a').href = getBaseConfigPath() + item.querySelector('a').getAttribute('href');
     }
   });
   // decorate quick links
@@ -335,8 +324,8 @@ function initQuickLinks() {
     const itemEl = document.createElement('div');
     itemEl.className = 'item';
     const itemLinkEl = document.createElement('a');
-    if (item.page.startsWith('/') && isURLDraftsPath()) {
-      itemLinkEl.href = createBaseDraftsPath() + item.page;
+    if (item.page.startsWith('/') && isUrlPathNonRoot()) {
+      itemLinkEl.href = getBaseConfigPath() + item.page;
     } else {
       itemLinkEl.href = item.page;
     }
