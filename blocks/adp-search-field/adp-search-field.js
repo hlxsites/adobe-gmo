@@ -33,17 +33,6 @@ function isModifierEvent(event) {
 // Set the InstantSearch index UI state from external events.
 function setInstantSearchUiState(indexUiState) {
   window.search.setUiState((uiState) => {
-    const oldIndexInfo = uiState[INSTANT_SEARCH_INDEX_NAME] || {};
-    const prevQuery = oldIndexInfo.query;
-    const newQuery = indexUiState.query;
-    if (newQuery && newQuery !== prevQuery) {
-      // emit event that user performed a search, but only if there is a query
-      // in the new state, and it doesn't match the query in the old state
-      const searchInput = document.querySelector('.aa-Autocomplete input[type="search"].aa-Input');
-      if (searchInput) {
-        emitEvent(searchInput, EventNames.SEARCH, { query: newQuery });
-      }
-    }
     return {
       ...uiState,
       [INSTANT_SEARCH_INDEX_NAME]: {

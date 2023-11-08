@@ -97,6 +97,32 @@ export default class InstantSearchDataSource {
     return !isNewSearch && priorPage >= 0 && currentPage >= 0 && priorPage !== currentPage;
   }
 
+  /**
+   * Based on render arguments from Algolia, retrieves the current query specified
+   * by the arguments.
+   * @param {AlgoliaRenderArgs} renderArgs Render information as provided by Algolia.
+   * @returns {string} Search query, which may be falsy if there is none specified.
+   */
+  static getQuery(renderArgs) {
+    if (renderArgs && renderArgs.results) {
+      return renderArgs.results.query;
+    }
+    return '';
+  }
+
+  /**
+   * Compares two sets of render arguments from Algolia and determines if the search query
+   * is different between them.
+   * @param {AlgoliaRenderArgs} priorRenderArgs Render information as provided by Algolia.
+   * @param {AlgoliaRenderArgs} currentRenderArgs Render information as provided by Algolia.
+   * @returns {boolean} True if the render args have a different query.
+   */
+  static checkIfNewQuery(priorRenderArgs, currentRenderArgs) {
+    const priorQuery = InstantSearchDataSource.getQuery(priorRenderArgs);
+    const currentQuery = InstantSearchDataSource.getQuery(currentRenderArgs);
+    return !!currentQuery && currentQuery !== priorQuery;
+  }
+
   isLastPage() {
     return this.lastRenderArgs?.isLastPage;
   }
@@ -133,12 +159,18 @@ export default class InstantSearchDataSource {
         () => this.isLastPage(),
       );
       const isNewPage = InstantSearchDataSource.checkIfNewPage(this.lastRenderArgs, renderArgs);
+      const eventData = {
+        pageResultCount: currentPageHits?.length,
+        pageIndex: results?.page,
+        pageSize: results?.hitsPerPage,
+        totalResultCount: results?.nbHits,
+      };
       if (isNewPage) {
-        emitEvent(container, EventNames.SEARCH_PAGED, {
-          pageResultCount: currentPageHits.length,
-          pageIndex: results?.page,
-          pageSize: results?.hitsPerPage,
-          totalResultCount: results.nbHits,
+        emitEvent(container, EventNames.SEARCH_PAGED, eventData);
+      } else if (InstantSearchDataSource.checkIfNewQuery(this.lastRenderArgs, renderArgs)) {
+        emitEvent(container, EventNames.SEARCH, {
+          ...eventData,
+          query: results.query,
         });
       }
       this.lastRenderArgs = renderArgs;

@@ -73,6 +73,10 @@ export const EventNames = {
    *
    * The event's detail will contain the following properties:
    * * query: Text that the user searched for.
+   * * pageResultCount: The number of results that are in the first page.
+   * * pageIndex: 0-index based number of the page, which will always be 0 (indicating the first page).
+   * * pageSize: The maximum number of results that are included on each page.
+   * * totalResultCount: The total number of results across all pages.
    */
   SEARCH: 'search',
 
