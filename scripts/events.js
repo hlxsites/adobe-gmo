@@ -89,8 +89,9 @@ export const EventNames = {
    * Sent whenever a user has successfully requested to download an asset.
    *
    * The event's detail will contain the following properties:
-   * * assetId: ID of the asset that was downloaded.
-   * * assetName: Name of the asset that was downloaded.
+   * * downloads: Array of the items that were downloaded. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was downloaded.
+   *   * assetName: Name of the asset that was downloaded.
    */
   DOWNLOAD: 'download',
 
@@ -136,12 +137,12 @@ export const EventNames = {
   INFINITE_SCROLL: 'infinite-scroll',
 
   /**
-   * Sent whenever user clicks on Copy share Link.
+   * Sent whenever a user shares one or more assets.
    *
    * The event's detail will contain the following properties:
-   * * shareLinkUrl: Share Link URL.
-   * * sharedAssetsArr : Array of the share assets
-   * * shareLinkExpiryDate : Share Link Expiry Date
+   * * shared : Array of the share assets. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was shared.
+   *   * assetName: Name of the asset that was shared.
    */
   SHARE_LINK: 'share-link',
 

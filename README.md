@@ -169,17 +169,21 @@ The following are valid event names, along with the `detail` data for each:
 }
 ```
 * `share-link`: Sent whenever user clicks on Copy share Link.
-  * `shareLinkUrl`: Share Link URL.
-  * `sharedAssetsArr`: Array of the share assets.
-  * `shareLinkExpiryDate`: Share Link Expiry Date.
+  * `shares`: An array of information about each shared item. Each item in the array will have these properties:
+    * `assetId`: ID of the asset that was shared.
+    * `assetName`: Name of the asset that was shared.
 
 ```
 {
   ...
   detail: {
-    shareLinkExpiryDate: 'Link Expiry Date'
-    shareLinkUrl: 'Share Link URL',
-    sharedAssetsArry: [ {assetId: 'assetId value', assetName: 'assetName value'},{..},{..}],
+    shares:[{
+      assetId: 'id-of-an-asset',
+      assetName: 'My test asset.jpg',
+    }, {
+      assetId: 'id-of-another-asset',
+      assetName: 'My other asset.jpg',
+    }]
   }
   ...
 }

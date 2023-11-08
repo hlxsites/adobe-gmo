@@ -241,9 +241,7 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
       await navigator.clipboard.writeText(shareLinkUrl);
       // Emit SHARE_LINK event
       emitEvent(containerElement, EventNames.SHARE_LINK, {
-        shareLinkUrl: shareLinkUrl,
-        sharedAssetsArr: sharedAssetsArr,
-        shareLinkExpiryDate: shareLinkExpiryDate,
+        shared: sharedAssetsArr,
       });
       
     } else {
