@@ -103,17 +103,24 @@ document.addEventListener('download', (e) => {
 
 The following are valid event names, along with the `detail` data for each:
 
-* `download`: An asset or rendition has been downloaded.
-  * `assetId`: ID of the asset that was downloaded.
-  * `assetName`: Name of the asset that was downloaded.
-  * `renditionName`: If present, the rendition that was downloaded.
+* `download`: One or more asset(s) or rendition(s) have been downloaded.
+  * `downloads`: An array of information about each downloaded item. Each item in the array will have these properties:
+    * `assetId`: ID of the asset that was downloaded.
+    * `assetName`: Name of the asset that was downloaded.
+    * `renditionName`: If present, the rendition that was downloaded.
 
 ```
 {
   ...
   detail: {
-    assetId: 'id-of-an-asset',
-    assetName: 'My test asset.jpg',
+    downloads: [{
+      assetId: 'id-of-an-asset',
+      assetName: 'My test asset.jpg',
+    }, {
+      assetId: 'id-of-another-asset',
+      assetName: 'My other asset.jpg',
+      renditionName: 'original'
+    }]
   }
   ...
 }
@@ -186,7 +193,25 @@ The following are valid event names, along with the `detail` data for each:
 }
 ```
 
-* `infinite-scroll`: Additional data has been loaded into the infinite results block. This event does not provide custom details.
+* `search-paged`: An additional page worth of data has been loaded into the app's search results.
+  * `pageResultCount`: The number of results that are in the new page.
+  * `pageIndex`: 0-index based number of the page. For example, the first page is index 0, second page is index 1, etc.
+  * `pageSize`: The maximum number of results that are included on each page.
+  * `totalResultCount`: The total number of results across all pages.
+
+```
+{
+  ...
+  detail: {
+    pageResultCount: 19,
+    pageIndex: 5,
+    pageSize: 20,
+    totalResultCount: 59,
+  }
+  ...
+}
+```
+
 * `session-started`: A user has started a new session. "Session" is defined as the browser's session, which is active for as long as a given browser window is
   open. Opening a new browser window or browser tab will trigger a new session.
   * `email`: Email address of the user starting the session.

@@ -127,13 +127,16 @@ export const EventNames = {
   ASSET_DETAIL: 'asset-detail',
 
   /**
-   * Sent whenever a user scrolls down the infinite-results block enough that it dynamically
-   * loads more data into the results.
+   * Sent whenever a user causes search results to load another page worth of items.
    *
    * The event's detail will contain the following properties:
-   * * datasource: The name of the datasource for the infinite results view.
+   * * pageResultCount: The number of results that are in the new page.
+   * * pageIndex: 0-index based number of the page. For example, the first page is
+   *    index 0, second page is index 1, etc.
+   * * pageSize: The maximum number of results that are included on each page.
+   * * totalResultCount: The total number of results across all pages.
    */
-  INFINITE_SCROLL: 'infinite-scroll',
+  SEARCH_PAGED: 'search-paged',
 
   /**
    * Sent whenever a logged in users starts a new session.
