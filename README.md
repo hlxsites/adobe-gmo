@@ -180,12 +180,20 @@ The following are valid event names, along with the `detail` data for each:
 
 * `search`: A search query has been executed.
   * `query`: Full text that was searched.
+  * `pageResultCount`: The number of results that are in the first page.
+  * `pageIndex`: 0-index based number of the page, which will always be 0 (indicating the first page).
+  * `pageSize`: The maximum number of results that are included on each page.
+  * `totalResultCount`: The total number of results across all pages.
 
 ```
 {
   ...
   detail: {
     query: 'adobe logo',
+    pageResultCount: 19,
+    pageIndex: 0,
+    pageSize: 20,
+    totalResultCount: 19,
   }
   ...
 }
