@@ -146,6 +146,14 @@ export const EventNames = {
    * * displayName: The user's full name.
    */
   SESSION_STARTED: 'session-started',
+
+  /**
+   * Sent whenever one of the portal's pages loads.
+   *
+   * The event's detail will contain the following properties:
+   * * url: Full URL of the page that was loaded.
+   */
+  PAGE_VIEW: 'page-view',
 };
 
 /**

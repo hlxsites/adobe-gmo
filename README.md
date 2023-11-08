@@ -279,3 +279,17 @@ The following are valid event names, along with the `detail` data for each:
   ...
 }
 ```
+
+* `page-view`: A page has loaded on the site. This will be triggered by any action that loads a portal URL, including but not limited to: users typing one of the site's URLs into the browser address bar,
+ users clicking links, users navigating to browser favorites, redirects to the site, etc. The event will be fired for _any_ page on the portal, including pages from individual implementations.
+  * `url`: Full URL of the page that was loaded.
+
+```
+{
+  ...
+  detail: {
+    url: 'https://main--adobe-gmo--hlxsites.hlx.page/#assetId=urn%3Aaaid%3Aaem%3Affe954d3-2a18-4c09-90ff-78e2973da522'
+  }
+  ...
+}
+```

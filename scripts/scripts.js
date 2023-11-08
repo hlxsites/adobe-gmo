@@ -20,6 +20,7 @@ import {
   getDeliveryEnvironment,
   initDeliveryEnvironment,
 } from './polaris.js';
+import { EventNames, emitEvent } from './events.js';
 
 // Load a list of dependencies the site needs
 let dependenciesJSON = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`).then((res) => res.json());
@@ -173,10 +174,27 @@ async function initSearch() {
 }
 
 /**
+ * Removes any sensitive information from one of the portal's URLs.
+ * @param {URL} url URL to be cleaned.
+ * @returns {string} String version of the URL.
+ */
+function cleanUrl(url) {
+  const cleaned = new URL(url);
+  // remove ims information
+  if (String(cleaned.hash).startsWith('#old_hash')) {
+    cleaned.hash = '';
+  }
+  return cleaned.toString();
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
+  emitEvent(document.documentElement, EventNames.PAGE_VIEW, {
+    url: cleanUrl(window.location),
+  });
   const brandingConfig = await getBrandingConfig();
   if (brandingConfig.fontCssUrl) {
     loadCSS(brandingConfig.fontCssUrl);
