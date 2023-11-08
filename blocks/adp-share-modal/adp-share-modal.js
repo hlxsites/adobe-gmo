@@ -215,7 +215,7 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
   copyShareButton.addEventListener('click', async (e) => {
     e.preventDefault();
     //Array of assets
-    const sharedAssetsArr =[];
+    const sharedAssetsArr = [];
 
     if (!shareLinkUrl) {
       copyShareButton.classList.add('share-link-in-progress');
@@ -228,13 +228,13 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
         assetIdsArr = [];
         containerElement.querySelectorAll('.multi-selected-assets-table .asset-row').forEach((row) => {
           assetIdsArr.push(row.dataset.assetId);
-          sharedAssetsArr.push({"assetId":row.dataset.assetId,"assetName" : row.dataset.assetName});
+          sharedAssetsArr.push({ assetId : row.dataset.assetId, assetName : row.dataset.assetName });
         });
       }
-       else
-       {  //Single Asset
-          sharedAssetsArr.push({"assetId":assetIds[0],"assetName" : title });
-       }
+      else
+      {  // Single Asset
+        sharedAssetsArr.push({ assetId : assetIds[0], assetName : title });
+      }
       shareLinkUrl = await createShareLinkUrl(assetIdsArr, title, access, shareLinkExpiryDate);
       copyShareButton.classList.remove('share-link-in-progress');
     }
@@ -243,11 +243,11 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
       await navigator.clipboard.writeText(shareLinkUrl);
 
       emitEvent(containerElement, EventNames.SHARE_LINK, {
-        "email" : userProfile.email,
-        "displayName" : userProfile.displayName,
-        "shareLinkUrl" : shareLinkUrl,
-        "sharedAssetsArr" : sharedAssetsArr,
-        "shareLinkExpiryDate": shareLinkExpiryDate
+        email: userProfile.email,
+        displayName: userProfile.displayName,
+        shareLinkUrl: shareLinkUrl,
+        sharedAssetsArr: sharedAssetsArr,
+        shareLinkExpiryDate: shareLinkExpiryDate,
       });
 
     } else {
