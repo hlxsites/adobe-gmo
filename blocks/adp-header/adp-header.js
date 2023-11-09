@@ -9,6 +9,7 @@ import { closeDialogEvent } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
 import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
+import { addAddToCollectionModalHandler } from '../adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -143,6 +144,7 @@ export default async function decorate(block) {
       <div class="selected-count">1 item selected</div>
     </div>
     <div class="banner-right">
+      <div class="actions actions-add-to-collection"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
       <div class="actions actions-share"><span class="icon icon-share"></span>Share</div>
       <div class="actions actions-download"><span class="icon icon-download"></span>Download</div>
     </div>
@@ -153,6 +155,13 @@ export default async function decorate(block) {
   const linkshareInfiniteResults = document.querySelector('.adp-infinite-results-linkshare.block');
   if (linkshareInfiniteResults) {
     nav.querySelector('.banner .banner-right .actions-share')?.classList.add('hidden');
+    nav.querySelector('.banner .banner-right .actions-add-to-collection')?.classList.add('hidden');
+  }
+
+  // Hide add to collection button on adp-infinite-results-collection block
+  const collectionInfiniteResults = document.querySelector('.adp-infinite-results-collection.block');
+  if (collectionInfiniteResults) {
+    nav.querySelector('.banner .banner-right .actions-add-to-collection')?.classList.add('hidden');
   }
 
   const navSections = nav.querySelector('.nav-sections');
@@ -287,6 +296,11 @@ export default async function decorate(block) {
   const downloadButton = nav.querySelector('.banner .banner-right .actions-download');
   downloadButton.addEventListener('click', async () => {
     await openMultiSelectDownloadModal();
+  });
+
+  const addToCollectionButton = nav.querySelector('.banner .banner-right .actions-add-to-collection');
+  addToCollectionButton.addEventListener('click', async () => {
+    await addAddToCollectionModalHandler();
   });
 }
 

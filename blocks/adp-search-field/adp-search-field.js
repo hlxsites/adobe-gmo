@@ -80,7 +80,6 @@ function createItemWrapperTemplate({ children, query, html }) {
   </a>`;
 }
 
-
 function createSuggestionsPlugin(recentSearchesPlugin) {
   const { createQuerySuggestionsPlugin } = window[
     '@algolia/autocomplete-plugin-query-suggestions'

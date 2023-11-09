@@ -387,7 +387,7 @@ dialog::backdrop {
 }
 
 
-input[type="text"], textarea {
+input[type="text"], textarea, select {
   flex: 1;
   box-sizing: border-box;
   border: 1px solid #d6d6e7;
