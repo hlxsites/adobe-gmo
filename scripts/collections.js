@@ -3,7 +3,7 @@ import {
   getAssetHandlerApiKey,
   getDeliveryEnvironment,
 } from './polaris.js';
-import { getLastPartFromURL } from './scripts.js';
+import { getLastPartFromURL, logError } from './scripts.js';
 
 export function getCollectionIdFromURL() {
   if (window.location.pathname.startsWith('/collection/')) {
@@ -38,6 +38,16 @@ async function getRequestHeaders() {
     Authorization: token,
   };
 }
+
+async function getRequestHeadersWithIfMatch(etag) {
+  const token = await getBearerToken();
+  return {
+    'Content-Type': 'application/json',
+    'x-api-key': await getAssetHandlerApiKey(),
+    Authorization: token,
+    'If-Match': etag,
+  };
+}
 /**
  * Constructs and returns the base URL for collections.
  *
@@ -67,7 +77,7 @@ export async function getCollection(collectionId) {
     if (response.status === 200) {
       // Collection retrieved successfully
       const responseBody = await response.json();
-      responseBody.etag = response.headers.get('If-None-Match');
+      responseBody.etag = response.headers.get('If-none-match');
       return responseBody;
     } if (response.status === 404) {
       // Handle 404 error
@@ -79,7 +89,7 @@ export async function getCollection(collectionId) {
     }
   } catch (error) {
     // Handle network or other errors
-    console.error('Error retrieving collection:', error);
+    logError('getCollection', error);
     throw error;
   }
 }
@@ -122,7 +132,7 @@ export async function createCollection(title, description, items) {
     }
   } catch (error) {
     // Handle network or other errors
-    console.error('Error creating collection:', error);
+    logError('createCollection', error);
     throw error;
   }
 }
@@ -167,7 +177,7 @@ export async function listCollection(limit = undefined, cursor = '') {
     // Handle other response codes
     throw new Error(`Failed to list collection: ${response.status} ${response.statusText}`);
   } catch (error) {
-    console.error('ErFailed to list collection:', error);
+    logError('listCollection', error);
     throw error;
   }
 }
@@ -186,19 +196,22 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
   try {
     const patchOperations = [];
     if (addOperation) {
-      addOperation.op = 'add';
-      patchOperations.push(addOperation);
+      for (const op of addOperation) {
+        op.op = 'add';
+        patchOperations.push(op);
+      }
     }
     if (deleteOperation) {
-      deleteOperation.op = 'remove';
-      patchOperations.push(deleteOperation);
+      for (const op of deleteOperation) {
+        op.op = 'remove';
+        patchOperations.push(op);
+      }
     }
     const options = {
       method: 'PATCH',
-      headers: await getRequestHeaders(),
+      headers: await getRequestHeadersWithIfMatch(etag),
       body: JSON.stringify(patchOperations),
     };
-
     const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
 
     if (response.status === 200) {
@@ -220,7 +233,7 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
       throw new Error(`Failed to update collection: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error updating collection:', error);
+    logError('patchCollection', error);
     throw error;
   }
 }
@@ -241,13 +254,11 @@ export async function deleteCollection(collectionId) {
 
     const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
 
-    if (response.status === 204) {
-      console.log('Collection deleted successfully');
-    } else {
+    if (response.status !== 204) {
       throw new Error(`Failed to delete collection: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error deleting collection:', error);
+    logError('deleteCollection', error);
     throw error;
   }
 }

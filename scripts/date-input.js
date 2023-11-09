@@ -1,4 +1,5 @@
-import { setCSSVar } from './scripts.js';
+import { setCSSVar, waitForDependency } from './scripts.js';
+
 const FLATPICKR_CALENDAR_HEIGHT = 300;
 /**
  * Creates a date input field with a label and calendar icon
@@ -12,7 +13,8 @@ const FLATPICKR_CALENDAR_HEIGHT = 300;
  *   see https://flatpickr.js.org/options/#:~:text=table%20below.-,defaultDate,-String
  * @returns - The date input container
  */
-export function createDateInput(container, id, label, enableTime = false, calendarContainer = null, idSuffix = '', defaultDate = null) {
+export async function createDateInput(container, id, label, enableTime = false, calendarContainer = null, idSuffix = '', defaultDate = null) {
+  await waitForDependency('flatpickr');
   const kebabCaseAttribute = id.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
   let idAttribute = kebabCaseAttribute;
   if (idSuffix) idAttribute += `-${idSuffix}`;
@@ -73,14 +75,14 @@ export function createDateInput(container, id, label, enableTime = false, calend
  * Creates a start date input field with a label and calendar icon
  * See createDateInput for params
  */
-export function createStartDateRangeInput(inputContainer, id, label, enableTime = false, calendarContainer = null) {
-  return createDateInput(inputContainer, id, label, enableTime, calendarContainer, 'start-date');
+export async function createStartDateRangeInput(inputContainer, id, label, enableTime = false, calendarContainer = null) {
+  return await createDateInput(inputContainer, id, label, enableTime, calendarContainer, 'start-date');
 }
 
 /**
  * Creates an end date input field with a label and calendar icon
  * See createDateInput for params
  */
-export function createEndDateRangeInput(inputContainer, id, label, enableTime = false, calendarContainer = null) {
-  return createDateInput(inputContainer, id, label, enableTime, calendarContainer, 'end-date');
+export async function createEndDateRangeInput(inputContainer, id, label, enableTime = false, calendarContainer = null) {
+  return await createDateInput(inputContainer, id, label, enableTime, calendarContainer, 'end-date');
 }

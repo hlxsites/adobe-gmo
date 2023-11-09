@@ -1,12 +1,15 @@
 import {
   decorateIcons, buildBlock, decorateBlock, loadBlock,
 } from '../../scripts/lib-franklin.js';
-import { getBrandingConfig, getQuickLinkConfig } from '../../scripts/site-config.js';
+import {
+  getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
+} from '../../scripts/site-config.js';
 import { getUserProfile, getAvatarUrl } from '../../scripts/security.js';
 import { closeDialogEvent } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
 import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
+import { addAddToCollectionModalHandler } from '../adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -106,7 +109,7 @@ export default async function decorate(block) {
   nav.innerHTML = `
   <div class="nav-top">
     <div class="nav-brand">
-      <a href="/"><img loading="lazy" src="" alt="logo"></a>
+      <a class="adp-logo" href="/"></a>
       <div></div>
     </div>
     <div class="nav-search" id="searchbox">
@@ -141,6 +144,7 @@ export default async function decorate(block) {
       <div class="selected-count">1 item selected</div>
     </div>
     <div class="banner-right">
+      <div class="actions actions-add-to-collection"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
       <div class="actions actions-share"><span class="icon icon-share"></span>Share</div>
       <div class="actions actions-download"><span class="icon icon-download"></span>Download</div>
     </div>
@@ -151,6 +155,13 @@ export default async function decorate(block) {
   const linkshareInfiniteResults = document.querySelector('.adp-infinite-results-linkshare.block');
   if (linkshareInfiniteResults) {
     nav.querySelector('.banner .banner-right .actions-share')?.classList.add('hidden');
+    nav.querySelector('.banner .banner-right .actions-add-to-collection')?.classList.add('hidden');
+  }
+
+  // Hide add to collection button on adp-infinite-results-collection block
+  const collectionInfiniteResults = document.querySelector('.adp-infinite-results-collection.block');
+  if (collectionInfiniteResults) {
+    nav.querySelector('.banner .banner-right .actions-add-to-collection')?.classList.add('hidden');
   }
 
   const navSections = nav.querySelector('.nav-sections');
@@ -193,16 +204,6 @@ export default async function decorate(block) {
   decorateBlock(searchField);
   loadBlock(searchField);
 
-  // Serve nav-brand for both authenticated and non-authenticated users
-  const brandingConfig = await getBrandingConfig();
-  if (brandingConfig.logo) {
-    nav.querySelector('.nav-brand img').src = brandingConfig.logo;
-  }
-  if (brandingConfig.brandText) {
-    nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
-    document.title = brandingConfig.brandText;
-  }
-
   const userProfile = await getUserProfile();
   if (!userProfile) { // stop here for non-authenticated users
     return;
@@ -221,7 +222,7 @@ export default async function decorate(block) {
   // decorate user switcher
   const userSwitcher = nav.querySelector('.user-switcher');
 
-  if(avatarUrl){
+  if (avatarUrl) {
     userSwitcher.style = `background-image: url(${avatarUrl});`;
   }
 
@@ -243,6 +244,21 @@ export default async function decorate(block) {
         redirect_uri: window.location.origin,
       },
     );
+  });
+
+  getBrandingConfig().then((brandingConfig) => {
+    if (brandingConfig.logo) {
+      const logoContainer = nav.querySelector('.nav-brand .adp-logo');
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.src = brandingConfig.logo;
+      img.alt = brandingConfig.brandText;
+      logoContainer.appendChild(img);
+    }
+    if (brandingConfig.brandText) {
+      nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+      document.title = brandingConfig.brandText;
+    }
   });
 
   initQuickLinks();
@@ -281,19 +297,11 @@ export default async function decorate(block) {
   downloadButton.addEventListener('click', async () => {
     await openMultiSelectDownloadModal();
   });
-}
 
-function isURLDraftsPath() {
-  return window.location.pathname.startsWith('/drafts/');
-}
-
-function createBaseDraftsPath() {
-  if (isURLDraftsPath()) {
-    const contentBranch = window.location.pathname.split('/')[2];
-    return `/drafts/${contentBranch}`;
-  }
-
-  return window.hlx.codeBasePath;
+  const addToCollectionButton = nav.querySelector('.banner .banner-right .actions-add-to-collection');
+  addToCollectionButton.addEventListener('click', async () => {
+    await addAddToCollectionModalHandler();
+  });
 }
 
 function initQuickLinks() {
@@ -305,7 +313,7 @@ function initQuickLinks() {
   allAssetsDiv.classList.add('item', 'all-assets');
   const allAssetsLink = document.createElement('a');
   allAssetsLink.href = '/';
-  allAssetsLink.textContent = 'All assets';
+  allAssetsLink.textContent = 'All Assets';
   allAssetsDiv.appendChild(allAssetsLink);
 
   const collectionsDiv = document.createElement('div');
@@ -321,8 +329,8 @@ function initQuickLinks() {
 
   // append drafts path if needed
   quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (isURLDraftsPath()) {
-      item.querySelector('a').href = createBaseDraftsPath() + item.querySelector('a').getAttribute('href');
+    if (isUrlPathNonRoot()) {
+      item.querySelector('a').href = getBaseConfigPath() + item.querySelector('a').getAttribute('href');
     }
   });
   // decorate quick links
@@ -330,8 +338,8 @@ function initQuickLinks() {
     const itemEl = document.createElement('div');
     itemEl.className = 'item';
     const itemLinkEl = document.createElement('a');
-    if (item.page.startsWith('/') && isURLDraftsPath()) {
-      itemLinkEl.href = createBaseDraftsPath() + item.page;
+    if (item.page.startsWith('/') && isUrlPathNonRoot()) {
+      itemLinkEl.href = getBaseConfigPath() + item.page;
     } else {
       itemLinkEl.href = item.page;
     }

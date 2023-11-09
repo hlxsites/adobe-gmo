@@ -403,8 +403,6 @@ export default class InfiniteResultsContainer {
   async resultsCallback(container, items, showMoreCallback, pageNumber, isFirstRender, isNewSearch, lastPageCallback) {
     if (isFirstRender) {
       const scrollHandler = () => {
-      // Send event when the triggers an infinite scroll showMore event
-        emitEvent(document.documentElement, EventNames.INFINITE_SCROLL, { datasource: this.datasource });
         showMoreCallback();
       };
       this.#bindScrollHandler(container, scrollHandler, lastPageCallback);

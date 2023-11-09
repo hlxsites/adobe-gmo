@@ -3,12 +3,11 @@ import { fetchCached } from './fetch-util.js';
 import { getAdminConfig } from './site-config.js';
 
 let isIMSInitialized = false;
-const adminConfig = await getAdminConfig();
-const environment = adminConfig.imsEnvironment === 'stage' ? 'stg1' : 'prod';
-const imsOrgID = adminConfig.imsOrg;
-const imsOrgWithoutDomain = imsOrgID?.replace('@AdobeOrg', '');
-const imsUserGroup = adminConfig.imsUserGroup || 'assets-distribution-portal-users';
-const ccCollabUrl = adminConfig.imsEnvironment === 'stage' ? 'cc-collab-stage.adobe.io/profile' : 'cc-collab.adobe.io/profile';
+let environment;
+let imsOrgID;
+let imsOrgWithoutDomain;
+let imsUserGroup;
+let ccCollabUrl;
 
 const IMS_CONFIG = {
   xApiKey: 'assets-distribution-portal',
@@ -24,6 +23,14 @@ const IMS_CONFIG = {
 };
 
 async function getBearerTokenFromIMS(callWithToken) {
+  if (!environment) {
+    const adminConfig = await getAdminConfig();
+    environment = adminConfig.imsEnvironment === 'stage' ? 'stg1' : 'prod';
+    imsOrgID = adminConfig.imsOrg;
+    imsOrgWithoutDomain = imsOrgID?.replace('@AdobeOrg', '');
+    imsUserGroup = adminConfig.imsUserGroup || 'assets-distribution-portal-users';
+    ccCollabUrl = adminConfig.imsEnvironment === 'stage' ? 'cc-collab-stage.adobe.io/profile' : 'cc-collab.adobe.io/profile';
+  }
   if (window.adobeIMS?.getAccessToken() && window.adobeIMS.getAccessToken().token) {
     callWithToken(window.adobeIMS.getAccessToken().token);
     return;
@@ -85,12 +92,14 @@ export async function getBearerToken() {
 }
 
 export async function getUserProfile() {
-  return await window.adobeIMS?.getProfile();
+  await getBearerToken();
+  return await window.adobeIMS.getProfile();
 }
 
 async function getCCCollabProfile() {
   const bearerToken = await getBearerToken();
-  return await fetchCached(`https://${ccCollabUrl}`,
+  return await fetchCached(
+    `https://${ccCollabUrl}`,
     {
       method: 'GET',
       headers: {
@@ -135,5 +144,6 @@ async function isUserInSecurityGroup(securityGroup) {
 }
 
 export async function checkUserAccess() {
-  return isUserInSecurityGroup(imsUserGroup);
+  await getBearerToken();
+  return await isUserInSecurityGroup(imsUserGroup);
 }

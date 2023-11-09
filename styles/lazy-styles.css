@@ -51,6 +51,22 @@
   margin-bottom: 9px;
   margin-left: 12px;
   font: var(--bold-font-size-s);
+  width: fit-content;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.multi-selected-assets-table-container .multi-selected-assets-table-header .icon {
+  width: 12px;
+  height: 12px;
+  padding-left: 3px;
+}
+
+.multi-selected-assets-table-container .multi-selected-assets-table-header .icon.icon-arrow-down.opposite {
+  transform: rotate(180deg);
+  margin-left: 3px;
+  margin-top: 5px;
 }
 
 .multi-selected-assets-table {

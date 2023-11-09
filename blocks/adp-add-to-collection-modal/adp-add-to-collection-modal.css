@@ -1,0 +1,191 @@
+.adp-add-to-collection-modal.block dialog {
+  min-width: 647px;
+  border-radius: 6px;
+  border: none;
+  padding: 0;
+}
+
+.adp-add-to-collection-modal.block dialog .adp-add-to-collection-modal-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  row-gap: 31px;
+  width: 100%;
+  height: 100%;
+}
+
+.adp-add-to-collection-modal-container .dialog-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  padding: 28px 34px 0 35px;
+  grid-template-areas: 'dialog-header-left dialog-header-right';
+}
+
+.adp-add-to-collection-modal-container .dialog-header span.icon {
+  display: flex;
+  align-items: center;
+}
+
+.adp-add-to-collection-modal-container .dialog-header .dialog-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-area: dialog-header-left;
+  font: var(--bold-font-size-l);
+  text-transform: initial;
+}
+
+.adp-add-to-collection-modal-container .dialog-header .dialog-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  grid-area: dialog-header-right;
+}
+
+.adp-add-to-collection-modal-container .dialog-body {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: 1fr;
+  grid-template-areas: 'dialog-body-left dialog-body-right';
+  column-gap: 40px;
+  font-size: 14px;
+  font-family: var(--body-font-family);
+  padding-left: 37px;
+  padding-right: 38px;
+  padding-bottom: 35px;
+  justify-content: space-between;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-left {
+  display: flex;
+  width: auto;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-area: dialog-body-left;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right {
+  display: flex;
+  width: auto;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-area: dialog-body-right;
+  text-transform: none;
+  min-height: 225px;
+  justify-content: space-between;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .collection-selector-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  width: 100%;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .collection-selector-container .new-collection-radio-button-group {
+  display: inline-flex;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .collection-selector-container .add-to-existing-dropdown-radio-button-group {
+  display: inline-flex;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .collection-selector-container label {
+  display: flex;
+  align-items: center;
+  font: var(--metadata-font);
+  font-size: 14px; 
+  margin: 0; 
+  padding-left: 5px;
+  padding-top: 2px;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .collection-selector-container input[type="radio"] {
+  width: 16px;
+  height: 16px; /* Adjust the height to your preference */
+  border-radius: 50%;
+  opacity: 1;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-left .collection-selector-container input[type="radio"]:checked {
+  border: 6px solid var(--button-focus-outline-color);
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .actions-container {
+  display: flex;
+  column-gap: 11px;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+  padding-top: 20px;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .actions-container .action-submit {
+  background-color: var(--button-focus-outline-color);
+  border-radius: 16px;
+  font: var(--bold-font-size-s);
+  color: var(--button-text-color);
+  height: 32px;
+  width: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: none;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .actions-container .action-submit:disabled {
+  background-color: var(--button-hover-color);
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .actions-container .action-cancel {
+  background-color: var(--button-focus-outline-color);
+  border-radius: 16px;
+  font: var(--bold-font-size-s);
+  color: var(--button-text-color);
+  height: 32px;
+  width: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: none;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .actions-container .action-cancel:disabled {
+  background-color: var(--button-hover-color);
+}
+
+/* Styling for the new text box */
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .new-collection-input-container .new-collection-input {
+  width: 80%;
+  margin-top: 10px;
+  margin-left: 20px; 
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+/* Styling for the dropdown */
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .add-to-existing-dropdown-container .add-to-existing-dropdown {
+  display: block;
+  width: 80%;
+  height: 100%;
+  font: var(--share-modal-font);
+  border: var(--select-border);
+  border-radius: 4px;
+  padding: 4px;
+  margin-top: 10px;
+  margin-left: 20px; 
+  margin-bottom: 10px;
+  text-indent: 11px;
+  appearance: none;
+  background-image: url(../../icons/chevronDown.svg);
+  background-repeat: no-repeat;
+  background-position: center right 7px;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .label-title {
+  color: var(--heading-color);
+  font: var(--bold-font-size-s);
+}

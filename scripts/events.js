@@ -73,6 +73,10 @@ export const EventNames = {
    *
    * The event's detail will contain the following properties:
    * * query: Text that the user searched for.
+   * * pageResultCount: The number of results that are in the first page.
+   * * pageIndex: 0-index based number of the page, which will always be 0 (indicating the first page).
+   * * pageSize: The maximum number of results that are included on each page.
+   * * totalResultCount: The total number of results across all pages.
    */
   SEARCH: 'search',
 
@@ -89,8 +93,9 @@ export const EventNames = {
    * Sent whenever a user has successfully requested to download an asset.
    *
    * The event's detail will contain the following properties:
-   * * assetId: ID of the asset that was downloaded.
-   * * assetName: Name of the asset that was downloaded.
+   * * downloads: Array of the items that were downloaded. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was downloaded.
+   *   * assetName: Name of the asset that was downloaded.
    */
   DOWNLOAD: 'download',
 
@@ -127,13 +132,26 @@ export const EventNames = {
   ASSET_DETAIL: 'asset-detail',
 
   /**
-   * Sent whenever a user scrolls down the infinite-results block enough that it dynamically
-   * loads more data into the results.
+   * Sent whenever a user causes search results to load another page worth of items.
    *
    * The event's detail will contain the following properties:
-   * * datasource: The name of the datasource for the infinite results view.
+   * * pageResultCount: The number of results that are in the new page.
+   * * pageIndex: 0-index based number of the page. For example, the first page is
+   *    index 0, second page is index 1, etc.
+   * * pageSize: The maximum number of results that are included on each page.
+   * * totalResultCount: The total number of results across all pages.
    */
-  INFINITE_SCROLL: 'infinite-scroll',
+  SEARCH_PAGED: 'search-paged',
+
+  /**
+   * Sent whenever a user shares one or more assets.
+   *
+   * The event's detail will contain the following properties:
+   * * shared : Array of the share assets. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was shared.
+   *   * assetName: Name of the asset that was shared.
+   */
+  SHARE_LINK: 'share-link',
 
   /**
    * Sent whenever a logged in users starts a new session.
@@ -143,6 +161,14 @@ export const EventNames = {
    * * displayName: The user's full name.
    */
   SESSION_STARTED: 'session-started',
+
+  /**
+   * Sent whenever one of the portal's pages loads.
+   *
+   * The event's detail will contain the following properties:
+   * * url: Full URL of the page that was loaded.
+   */
+  PAGE_VIEW: 'page-view',
 };
 
 /**

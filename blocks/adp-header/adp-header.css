@@ -122,6 +122,10 @@ header .nav-wrapper .banner .banner-right .actions-share.hidden {
   display: none;
 }
 
+header .nav-wrapper .banner .banner-right .actions-add-to-collection.hidden {
+  display: none;
+}
+
 header .nav-wrapper .banner .banner-right .icon svg {
   width: 14px;
   height: 16px;

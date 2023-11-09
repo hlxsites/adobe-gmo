@@ -1,6 +1,7 @@
 import {
   buildBlock, decorateBlock, loadBlock, decorateIcons,
 } from '../../scripts/lib-franklin.js';
+import { logError } from '../../scripts/scripts.js';
 import { getFilterConfig, getFilterSettings } from '../../scripts/site-config.js';
 import { isDate } from '../../scripts/metadata.js';
 
@@ -96,7 +97,7 @@ export default async function decorate(block) {
 
     // Add the refinement promise to the array so we can wait for all of them to finish
     refinementPromises.push(addRefinement(refinement, refinementContainer).catch((e) => {
-      console.log('Unable to add refinement', refinement, e);
+      logError(`Unable to add refinement ${refinement}`, e);
       // Remove the refinement if it fails to load
       refinementDiv.remove();
     }));

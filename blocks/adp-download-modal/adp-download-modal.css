@@ -248,7 +248,6 @@
   overflow: hidden;
   border: none;
   padding: 0;
-  position: relative
 }
 
 .adp-download-modal.block dialog.multi-select {
@@ -258,7 +257,6 @@
   overflow: hidden;
   border: none;
   padding: 0;
-  position: relative
 }
 
 .adp-download-modal.block dialog .download-container {
