@@ -93,8 +93,9 @@ export const EventNames = {
    * Sent whenever a user has successfully requested to download an asset.
    *
    * The event's detail will contain the following properties:
-   * * assetId: ID of the asset that was downloaded.
-   * * assetName: Name of the asset that was downloaded.
+   * * downloads: Array of the items that were downloaded. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was downloaded.
+   *   * assetName: Name of the asset that was downloaded.
    */
   DOWNLOAD: 'download',
 
@@ -141,6 +142,16 @@ export const EventNames = {
    * * totalResultCount: The total number of results across all pages.
    */
   SEARCH_PAGED: 'search-paged',
+
+  /**
+   * Sent whenever a user shares one or more assets.
+   *
+   * The event's detail will contain the following properties:
+   * * shared : Array of the share assets. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was shared.
+   *   * assetName: Name of the asset that was shared.
+   */
+  SHARE_LINK: 'share-link',
 
   /**
    * Sent whenever a logged in users starts a new session.

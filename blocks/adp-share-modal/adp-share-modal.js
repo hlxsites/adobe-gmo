@@ -4,6 +4,7 @@ import { logError } from '../../scripts/scripts.js';
 import { createDateInput } from '../../scripts/date-input.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
+import { emitEvent, EventNames } from '../../scripts/events.js';
 
 const SHARE_LINK_ACCESS = {
   PUBLIC: 'public',
@@ -211,6 +212,9 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
   const copyShareButton = containerElement.querySelector('.action-copy-share-link');
   copyShareButton.addEventListener('click', async (e) => {
     e.preventDefault();
+    //Array of assets
+    const sharedAssetsArr = [];
+
     if (!shareLinkUrl) {
       copyShareButton.classList.add('share-link-in-progress');
       copyShareButton.textContent = '';
@@ -218,10 +222,16 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
       const access = requireLoginCheckbox.checked ? SHARE_LINK_ACCESS.RESTRICTED : SHARE_LINK_ACCESS.PUBLIC;
       let assetIdsArr = assetIds;
       if (assetIdsArr === null) {
+        //Multiple assets
         assetIdsArr = [];
         containerElement.querySelectorAll('.multi-selected-assets-table .asset-row').forEach((row) => {
-          assetIdsArr.push(row.getAttribute('data-asset-id'));
+          assetIdsArr.push(row.dataset.assetId);
+          sharedAssetsArr.push({ assetId : row.dataset.assetId, assetName : row.dataset.assetName });
         });
+      }
+      else
+      {  // Single Asset
+        sharedAssetsArr.push({ assetId : assetIds[0], assetName : title });
       }
       shareLinkUrl = await createShareLinkUrl(assetIdsArr, title, access, shareLinkExpiryDate);
       copyShareButton.classList.remove('share-link-in-progress');
@@ -229,6 +239,11 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
     if (shareLinkUrl) {
       copyShareButton.textContent = 'Link copied';
       await navigator.clipboard.writeText(shareLinkUrl);
+      // Emit SHARE_LINK event
+      emitEvent(containerElement, EventNames.SHARE_LINK, {
+        shared: sharedAssetsArr,
+      });
+      
     } else {
       copyShareButton.textContent = COPY_SHARE_LINK_TEXT;
     }
