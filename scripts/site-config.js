@@ -246,6 +246,16 @@ export async function getDetailViewSettings() {
   return await mapUserSettingsForId('detailview-settings', result);
 }
 
+export async function getMetadataConfigs() {
+  const response = await getConfig('site-config.json');
+  const configId = 'metadata-configs';
+
+  return response?.[configId]?.data?.map((row) => ({
+    metadataField: row['Metadata-field'],
+    metadataConfigFile: row['Metadata-config-file'],
+  })) || [];
+}
+
 async function mapUserSettingsForId(configId, result) {
   const response = await getConfig('site-config.json');
   response[configId]?.data.forEach((row) => {

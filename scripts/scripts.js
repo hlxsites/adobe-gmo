@@ -102,7 +102,6 @@ export function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSepa
 
 async function applySiteBranding() {
   const brandingConfig = await getBrandingConfig();
-
   setCSSVar('--header-background-color', brandingConfig.menubarColor);
   setCSSVar('--header-text-color', brandingConfig.brandTextColor);
   setCSSVar('--body-font-family', brandingConfig.font, true);

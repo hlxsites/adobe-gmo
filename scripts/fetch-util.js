@@ -42,7 +42,7 @@ async function fetchWithErrorHandling(url, options, failOverURL) {
 }
 
 /**
- * Fetches a URL and returns the response as JSON or text
+ * Fetches a URL and returns the response as a JSON object or text.
  * @param {*} url - URL to fetch
  * @param {*} options - fetch options
  * @param {*} failOverURL - URL to fetch if the first one fails
