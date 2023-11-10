@@ -410,6 +410,7 @@ export function addMetadataFields(metadataConfigs, assetJSON, addMetadataFieldCa
   for (const metadataInfo of metadataConfigs) {
     const fieldTitle = metadataInfo.label;
     const metadataProp = metadataInfo.metadataField;
+    const { metadataGroup } = metadataInfo;
 
     let metadataPropSubstitutedValue;
 
@@ -428,6 +429,7 @@ export function addMetadataFields(metadataConfigs, assetJSON, addMetadataFieldCa
       {
         field: metadataProp,
         title: fieldTitle,
+        group: metadataGroup,
         value: metadataPropSubstitutedValue,
         cssClass: safeCSSId(fieldTitle),
         ...metadataInfo,

@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL,
+  getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL, sortMetadata,
 } from '../../scripts/scripts.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
@@ -75,7 +75,8 @@ async function createMetadataPanel(modal) {
 
   removeMetadataContainers(modalMetadata);
   modalMetadata.querySelector('.modal-metadata-heading').textContent = 'Details';
-  modalMetadata.appendChild(metadataElem);
+  const sortedMetadata = sortMetadata(metadataElem);
+  modalMetadata.appendChild(sortedMetadata);
 }
 
 function createHeaderPanel(modal) {

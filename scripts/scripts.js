@@ -455,3 +455,41 @@ export function closeDialogEvent(dialog) {
     }
   });
 }
+
+export function sortMetadata(metadataElement) {
+  const metadataGroups = {};
+  const metadataElem = metadataElement;
+  const metadataParent = metadataElem.querySelector('.metadata-fields');
+  const metadataItems = metadataParent.querySelectorAll('[data-metagroup]');
+  const metadataFragment = document.createDocumentFragment();
+
+  // get unique values for metadata group/category
+  const metadataCategories = [];
+  metadataItems.forEach((elem) => {
+    metadataCategories.push(elem.getAttribute('data-metagroup'));
+  });
+  const uniqueCategories = [...new Set(metadataCategories)];
+
+  uniqueCategories.forEach((category) => {
+    metadataGroups[category] = createMetadataGroup(category);
+  });
+
+  metadataItems.forEach((elem) => {
+    const metadataType = elem.getAttribute('data-metagroup');
+    metadataGroups[metadataType].appendChild(elem);
+  });
+
+  Object.keys(metadataGroups).forEach((key) => {
+    metadataFragment.appendChild(metadataGroups[key]);
+  });
+
+  metadataParent.appendChild(metadataFragment);
+  return metadataElem;
+}
+
+function createMetadataGroup(headingText) {
+  const metadataGroup = document.createElement('div');
+  metadataGroup.classList.add('metadata-group');
+  metadataGroup.innerHTML = `<span>${headingText}</span>`;
+  return metadataGroup;
+}

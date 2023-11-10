@@ -62,9 +62,24 @@
   padding: 22px;
 }
 
+.adp-asset-details-modal.block .modal-metadata .metadata-container .metadata-fields .metadata-group {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.adp-asset-details-modal.block .modal-metadata .metadata-container .metadata-fields .metadata-group span {
+  font: var(--bold-font-size-base);
+}
+
+.adp-asset-details-modal.block .modal-metadata .metadata-container .metadata-fields .metadata-group .metadata-field {
+  padding-left: 15px;
+}
+
 .adp-asset-details-modal.block .modal-metadata .metadata-container .metadata-fields .metadata-field .label {
   color: var(--metadata-label-color);
   font: var(--metadata-label-font);
+  font-weight: bold;
 }
 
 .adp-asset-details-modal.block .modal-metadata .modal-metadata-heading {

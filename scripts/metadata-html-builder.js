@@ -37,10 +37,16 @@ function shouldDisplayMetadataAsRow(metadataInfo, formattedValue) {
 function createHTMLForMetadataField(metadataElement, metadataInfo, hideEmptyMetadataProperty) {
   const name = metadataInfo.field;
   const label = metadataInfo.title;
+  const { metadataGroup } = metadataInfo;
   const { value, cssClass, layout } = metadataInfo;
 
   const item = document.createElement('div');
   item.classList.add('item', 'metadata-field', `metadata-field-${cssClass}`);
+
+  if (metadataGroup) {
+    item.setAttribute('data-metagroup', metadataInfo.metadataGroup);
+  }
+
   const labelDiv = document.createElement('div');
   labelDiv.classList.add('label');
   labelDiv.textContent = label;

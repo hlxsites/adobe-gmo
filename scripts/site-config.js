@@ -109,10 +109,12 @@ export async function getDetailViewConfig() {
   return response.detailview.data.map((row) => {
     const aemMetadataField = row['Metadata-field'];
     const dashedName = aemMetadataField.replaceAll(':', '-');
+    const metadataGroup = row.Category;
 
     return ({
       label: row.Label,
       metadataField: dashedName,
+      metadataGroup,
       aemMetadataField,
     });
   });
