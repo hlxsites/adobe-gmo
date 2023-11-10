@@ -19,6 +19,7 @@ export function loadDataLayer() {
   document.addEventListener(EventNames.ASSET_DESELECTED, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.ASSET_QUICK_PREVIEW_CLOSE, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.CLOSE_BANNER, (e) => addDataLayer(e,e.detail));
+  document.addEventListener(EventNames.SHARE_LINK, (e) => addDataLayer(e,e.detail));
 }
 
 //Generic function to add to the adobeDataLayer
