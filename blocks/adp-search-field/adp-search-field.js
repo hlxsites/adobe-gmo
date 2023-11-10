@@ -3,7 +3,6 @@ import {
   getSearchClient, getInstantSearchRouting, setCSSVar, waitForDependency,
 } from '../../scripts/scripts.js';
 import { getSearchIndex } from '../../scripts/polaris.js';
-import { EventNames, emitEvent } from '../../scripts/events.js';
 
 const searchFieldConfig = await getSearchFieldConfig();
 const { searchMinChars, enableSearchSuggestions } = searchFieldConfig;
@@ -32,17 +31,15 @@ function isModifierEvent(event) {
 
 // Set the InstantSearch index UI state from external events.
 function setInstantSearchUiState(indexUiState) {
-  window.search.setUiState((uiState) => {
-    return {
-      ...uiState,
-      [INSTANT_SEARCH_INDEX_NAME]: {
-        ...uiState[INSTANT_SEARCH_INDEX_NAME],
-        // We reset the page when the search state changes.
-        page: 1,
-        ...indexUiState,
-      },
-    };
-  });
+  window.search.setUiState((uiState) => ({
+    ...uiState,
+    [INSTANT_SEARCH_INDEX_NAME]: {
+      ...uiState[INSTANT_SEARCH_INDEX_NAME],
+      // We reset the page when the search state changes.
+      page: 1,
+      ...indexUiState,
+    },
+  }));
 }
 
 function onSelect({

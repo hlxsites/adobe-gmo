@@ -243,7 +243,12 @@ export default function decorate(block) {
           <div class="modal-metadata-heading">Details</div>
         </div>
         <div class="modal-right-panel">
-          <button id="asset-details-page-metadata" class="action action-metadata-asset open" title="Hide or View Toggle" aria-label="Metadata">
+          <button
+            id="asset-details-page-metadata"
+            class="action action-metadata-asset open"
+            title="Hide or View Toggle"
+            aria-label="Metadata"
+          >
             <span class="icon icon-info"></span>
           </button>
           <button id="asset-details-page-download" class="action action-download-asset" title="Download" aria-label="Download">
@@ -301,7 +306,7 @@ export default function decorate(block) {
 
     // create rendition checkboxes
     const renditions = await getAvailableRenditions(assetId, assetName, format);
-    renditions.forEach((rendition, index) => {
+    renditions.forEach((rendition) => {
       const renditionDiv = createTag('div', { class: 'rendition' });
       const checkbox = createTag('input', {
         type: 'checkbox',
@@ -353,6 +358,7 @@ export default function decorate(block) {
     modalMetadata.appendChild(renditionContainer);
   }
 
+  // eslint-disable-next-line func-names
   block.querySelector('#asset-details-page-download').addEventListener('click', async function () {
     const modalMetadata = block.querySelector('.modal-metadata');
     await handleClickButton(block, this, 'Download', async () => {
@@ -361,6 +367,7 @@ export default function decorate(block) {
     });
   });
 
+  // eslint-disable-next-line func-names
   block.querySelector('#asset-details-page-share').addEventListener('click', async function () {
     const modalMetadata = block.querySelector('.modal-metadata');
     await handleClickButton(block, this, 'Share', async () => {

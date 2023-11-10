@@ -13,7 +13,15 @@ const FLATPICKR_CALENDAR_HEIGHT = 300;
  *   see https://flatpickr.js.org/options/#:~:text=table%20below.-,defaultDate,-String
  * @returns - The date input container
  */
-export async function createDateInput(container, id, label, enableTime = false, calendarContainer = null, idSuffix = '', defaultDate = null) {
+export async function createDateInput(
+  container,
+  id,
+  label,
+  enableTime = false,
+  calendarContainer = null,
+  idSuffix = '',
+  defaultDate = null,
+) {
   await waitForDependency('flatpickr');
   const kebabCaseAttribute = id.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
   let idAttribute = kebabCaseAttribute;

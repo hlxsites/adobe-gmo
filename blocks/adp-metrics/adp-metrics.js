@@ -270,6 +270,7 @@ function createDonutLiteSpec(options) {
 }
 
 function render(spec, id) {
+  // eslint-disable-next-line no-undef
   vegaEmbed(id, spec, { actions: false });
 }
 
@@ -339,6 +340,7 @@ export default async function decorate(block) {
     logError('Error rendering graphs', e);
   }
 
+  // eslint-disable-next-line no-undef
   if (vegaEmbed) {
     const target = block.querySelector('.graph-container');
     createGraph(target, 'mime-types', 'Assets by Format', MIME_TYPES, 'donut', {

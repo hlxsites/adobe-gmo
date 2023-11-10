@@ -212,7 +212,7 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
   const copyShareButton = containerElement.querySelector('.action-copy-share-link');
   copyShareButton.addEventListener('click', async (e) => {
     e.preventDefault();
-    //Array of assets
+    // Array of assets
     const sharedAssetsArr = [];
 
     if (!shareLinkUrl) {
@@ -222,16 +222,14 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
       const access = requireLoginCheckbox.checked ? SHARE_LINK_ACCESS.RESTRICTED : SHARE_LINK_ACCESS.PUBLIC;
       let assetIdsArr = assetIds;
       if (assetIdsArr === null) {
-        //Multiple assets
+        // Multiple assets
         assetIdsArr = [];
         containerElement.querySelectorAll('.multi-selected-assets-table .asset-row').forEach((row) => {
           assetIdsArr.push(row.dataset.assetId);
-          sharedAssetsArr.push({ assetId : row.dataset.assetId, assetName : row.dataset.assetName });
+          sharedAssetsArr.push({ assetId: row.dataset.assetId, assetName: row.dataset.assetName });
         });
-      }
-      else
-      {  // Single Asset
-        sharedAssetsArr.push({ assetId : assetIds[0], assetName : title });
+      } else { // Single Asset
+        sharedAssetsArr.push({ assetId: assetIds[0], assetName: title });
       }
       shareLinkUrl = await createShareLinkUrl(assetIdsArr, title, access, shareLinkExpiryDate);
       copyShareButton.classList.remove('share-link-in-progress');
@@ -243,7 +241,6 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
       emitEvent(containerElement, EventNames.SHARE_LINK, {
         shared: sharedAssetsArr,
       });
-      
     } else {
       copyShareButton.textContent = COPY_SHARE_LINK_TEXT;
     }

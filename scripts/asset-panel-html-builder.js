@@ -32,6 +32,7 @@ export async function addAssetToContainer(
     videoElem.src = videoUrl;
     videoElem.alt = altAttrib;
     videoElem.frameborder = '0';
+    // eslint-disable-next-line func-names
     videoElem.onerror = function () {
       this.src = getFailedPlaceholderImgSrc(fileFormat);
     };
@@ -55,6 +56,7 @@ export async function addAssetToContainer(
       imgElem.style.visibility = '';
     });
     imgElem.alt = altAttrib;
+    // eslint-disable-next-line func-names
     imgElem.onerror = function () {
       this.src = getFailedPlaceholderImgSrc(fileFormat);
     };

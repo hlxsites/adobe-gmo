@@ -189,7 +189,7 @@ function generateRenditionList(renditions, container) {
   renditionContainer.appendChild(renditionHeader);
 
   // create rendition checkboxes
-  renditions.forEach((rendition, index) => {
+  renditions.forEach((rendition) => {
     const renditionElem = createTag('div', { class: 'rendition' });
     // checkbox
     const label = createTag('label', { for: `${rendition.name}` });
@@ -348,7 +348,11 @@ export async function openMultiSelectDownloadModal() {
 
     const downloadFiles = [];
     rows.forEach(async (row) => {
-      const data = await getAvailableRenditions(row.getAttribute('data-asset-id'), row.getAttribute('data-asset-name'), row.getAttribute('data-fileformat'));
+      const data = await getAvailableRenditions(
+        row.getAttribute('data-asset-id'),
+        row.getAttribute('data-asset-name'),
+        row.getAttribute('data-fileformat'),
+      );
       data.forEach((item) => {
         if (checkedRadio.value === 'Original' && item.name !== 'Original') {
           return;

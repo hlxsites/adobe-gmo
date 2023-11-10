@@ -69,7 +69,7 @@ async function getAssetData(url, bearerToken) {
 }
 
 async function base64Encode(blob) {
-  return new Promise((resolve, _) => {
+  return new Promise((resolve) => {
     const fr = new FileReader();
     fr.onloadend = () => { resolve(fr.result); };
     fr.readAsDataURL(blob);
@@ -122,7 +122,7 @@ function createFromAEMCallback() {
     onLoadStart: () => {
       // take action once iframe starts loading
     },
-    onPublish: (publishParams) => {
+    onPublish: (/* publishParams */) => {
       /*
       *   the below can be used to retrieve the results of the save action from express
       *
@@ -152,7 +152,9 @@ export function fileValidity(fileFormat) {
     if (validFile) {
       validity.isValid = true;
       validity.fileType = type;
+      return true;
     }
+    return false;
   });
   return validity;
 }
@@ -181,7 +183,7 @@ export async function startCCE() {
 }
 
 export async function addExpressEditorHandler(editorElement, assetId, repoName, assetHeight, assetWidth, assetType, detailsModal) {
-  editorElement.addEventListener('click', async (e) => {
+  editorElement.addEventListener('click', async () => {
     adjustZIndex(true);
     if (detailsModal) {
       closeModal(detailsModal);
