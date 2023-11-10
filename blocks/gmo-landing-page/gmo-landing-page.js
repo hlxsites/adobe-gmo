@@ -4,8 +4,11 @@ export default async function decorate(block) {
     const config = readBlockConfig(block);
     block.innerHTML=`
     <div class="video-background">
-        <video autoplay loop muted playsinline>
+        <video autoplay loop muted playsinline class="desktop">
             <source src="${config.videodesktop}" type="video/mp4">
+        </video>
+        <video autoplay loop muted playsinline class="mobile">
+            <source src="${config.videomobile}" type="video/mp4">
         </video>
     </div>
     <div class="video-overlay">

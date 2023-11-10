@@ -24,6 +24,11 @@
     height: auto;
 }
 
+.gmo-landing-page .video-background video.mobile {
+    display: none;
+    visibility: none;
+}
+
 .gmo-landing-page .video-overlay {
     position: absolute;
     left: 0;
@@ -40,11 +45,6 @@
     position: relative;
 }
 
-.gmo-landing-page .video-overlay .logo img {
-    width: 1037px;
-    height: 150px;
-}
-
 .gmo-landing-page .video-overlay .button.sign-in {
     background-color: #1473e6;
     border-radius: 24px;
@@ -55,8 +55,10 @@
     font-size: 15px;
     padding: 0.833em;
     text-align: center;
-    margin-top: 182px;
+    margin-top: 16.2%;
 }
+
+
 
 .gmo-landing-page .video-overlay .button.sign-in a {
     color: #fff;
@@ -70,4 +72,40 @@
 .gmo-landing-page .video-overlay .signin-notif {
     font-size: 14px;
     margin-top: 25px;
+}
+
+@media screen and (max-width: 1380px) {
+    .gmo-landing-page .video-overlay .button.sign-in {
+        margin-top: 10%;
+    }
+}
+
+@media screen and (max-width: 1050px) {
+    .gmo-landing-page .video-overlay .button.sign-in {
+        margin-top: 5%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .gmo-landing-page {
+        flex-direction: column;
+    }
+    .gmo-landing-page .video-overlay {
+        position: relative;
+        left: unset;
+        width: unset;
+        margin: 5%;
+    }
+    .gmo-landing-page .video-overlay .hero-text {
+        font-size: unset;
+    }
+    .gmo-landing-page .video-background video.desktop {
+        display: none;
+        visibility: hidden;
+    }
+    .gmo-landing-page .video-background video.mobile {
+        display: block;
+        visibility: visible;
+    }
+
 }
