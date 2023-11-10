@@ -1,11 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 
 export default async function decorate(block) {
-    //block.innerHTML = `<div class="gmo-landing-page-test">test</div>`
-    //console.log(block.children);
-    //console.log(readBlockConfig(block));
     const config = readBlockConfig(block);
-    console.log(config);
     block.innerHTML=`
     <div class="video-background">
         <video autoplay loop muted playsinline>

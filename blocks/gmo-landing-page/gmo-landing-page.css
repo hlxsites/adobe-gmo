@@ -38,7 +38,6 @@
 
 .gmo-landing-page .video-overlay .logo {
     position: relative;
-    left: -15px;
 }
 
 .gmo-landing-page .video-overlay .logo img {
@@ -62,6 +61,10 @@
 .gmo-landing-page .video-overlay .button.sign-in a {
     color: #fff;
     font-weight: bold;
+}
+
+.gmo-landing-page .video-overlay .button.sign-in a:hover {
+    text-decoration: none;
 }
 
 .gmo-landing-page .video-overlay .signin-notif {
