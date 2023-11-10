@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL,
+  getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL, sortMetadata,
 } from '../../scripts/scripts.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
@@ -75,7 +75,8 @@ async function createMetadataPanel(modal) {
 
   removeMetadataContainers(modalMetadata);
   modalMetadata.querySelector('.modal-metadata-heading').textContent = 'Details';
-  modalMetadata.appendChild(metadataElem);
+  const sortedMetadata = sortMetadata(metadataElem);
+  modalMetadata.appendChild(sortedMetadata);
 }
 
 function createHeaderPanel(modal) {
@@ -95,14 +96,12 @@ function createHeaderPanel(modal) {
   disableActionButtons(modal);
 
   // ensure express button only shows for valid asset types
-  const expressBtn = modal.querySelector(".action-edit-asset");
-  let validCheck = fileValidity(format);
+  const expressBtn = modal.querySelector('.action-edit-asset');
+  const validCheck = fileValidity(format);
   if (ccEverywhere && validCheck.isValid) {
     expressBtn.classList.remove('hidden');
-  } else {
-    if (!expressBtn.classList.contains('hidden')) {
-      expressBtn.classList.add('hidden');
-    }
+  } else if (!expressBtn.classList.contains('hidden')) {
+    expressBtn.classList.add('hidden');
   }
 
   const assetHeight = assetJSON.assetMetadata['tiff:ImageLength'];
@@ -110,7 +109,7 @@ function createHeaderPanel(modal) {
   const actionsExpress = modal.querySelector('.action-edit-asset');
   const exClone = expressBtn.cloneNode(true);
   actionsExpress.parentNode.replaceChild(exClone, actionsExpress);
-  addExpressEditorHandler(exClone, assetId, assetName, assetHeight, assetWidth, "image", document);
+  addExpressEditorHandler(exClone, assetId, assetName, assetHeight, assetWidth, 'image', document);
 }
 
 export async function openAssetDetailsModal(id, resultsManager) {
@@ -244,7 +243,12 @@ export default function decorate(block) {
           <div class="modal-metadata-heading">Details</div>
         </div>
         <div class="modal-right-panel">
-          <button id="asset-details-page-metadata" class="action action-metadata-asset open" title="Hide or View Toggle" aria-label="Metadata">
+          <button
+            id="asset-details-page-metadata"
+            class="action action-metadata-asset open"
+            title="Hide or View Toggle"
+            aria-label="Metadata"
+          >
             <span class="icon icon-info"></span>
           </button>
           <button id="asset-details-page-download" class="action action-download-asset" title="Download" aria-label="Download">
@@ -290,7 +294,7 @@ export default function decorate(block) {
     const renditionFields = createTag('div', { class: 'rendition-fields' });
     const renditionHeader = createTag('div', { class: 'rendition header' });
     const headerCheckbox = createTag('input', {
-      type: 'checkbox', name: 'all', value: 'all', id: 'detail-download-all', class: 'intermediate'
+      type: 'checkbox', name: 'all', value: 'all', id: 'detail-download-all', class: 'intermediate',
     });
     const headerTextContainer = createTag('div', { class: 'text-container' });
     const headerText = createTag('div', { class: 'header' });
@@ -302,7 +306,7 @@ export default function decorate(block) {
 
     // create rendition checkboxes
     const renditions = await getAvailableRenditions(assetId, assetName, format);
-    renditions.forEach((rendition, index) => {
+    renditions.forEach((rendition) => {
       const renditionDiv = createTag('div', { class: 'rendition' });
       const checkbox = createTag('input', {
         type: 'checkbox',
@@ -354,6 +358,7 @@ export default function decorate(block) {
     modalMetadata.appendChild(renditionContainer);
   }
 
+  // eslint-disable-next-line func-names
   block.querySelector('#asset-details-page-download').addEventListener('click', async function () {
     const modalMetadata = block.querySelector('.modal-metadata');
     await handleClickButton(block, this, 'Download', async () => {
@@ -362,6 +367,7 @@ export default function decorate(block) {
     });
   });
 
+  // eslint-disable-next-line func-names
   block.querySelector('#asset-details-page-share').addEventListener('click', async function () {
     const modalMetadata = block.querySelector('.modal-metadata');
     await handleClickButton(block, this, 'Share', async () => {

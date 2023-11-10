@@ -1,7 +1,8 @@
 /* eslint-disable no-restricted-globals */
 
+// eslint-disable-next-line no-console
 console.log('running service worker');
-function stringifySort(key, value) {
+function stringifySort(sortKey, value) {
   if (value instanceof Object && !(value instanceof Array)) {
     return Object.keys(value)
       .sort()

@@ -11,17 +11,26 @@ import {
   loadBlocks,
   loadCSS,
 } from './lib-franklin.js';
-import { getBrandingConfig } from './site-config.js';
+import { getAdminConfig, getBrandingConfig } from './site-config.js';
 // eslint-disable-next-line import/no-cycle
 import { getBearerToken, checkUserAccess } from './security.js';
 import {
   getSearchIndex,
   getBackendApiKey,
   getDeliveryEnvironment,
+  initDeliveryEnvironment,
 } from './polaris.js';
+import { EventNames, emitEvent } from './events.js';
 
 // Load a list of dependencies the site needs
 let dependenciesJSON = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`).then((res) => res.json());
+dependenciesJSON.then(loadDependencies);
+getBearerToken();
+// Pre-emptively load the configs in parallel
+getAdminConfig();
+getBrandingConfig();
+
+const dependencyScripts = [];
 
 const NO_ACCESS_PATH = '/no-access';
 
@@ -47,6 +56,17 @@ function buildHeroBlock(main) {
 }
 
 /**
+ * Logs the details of an error that was encountered by the portal.
+ * @param {string} source Description of where the error occurred.
+ * @param {Error} error Error whose details should be captured.
+ */
+export function logError(source, error) {
+  // eslint-disable-next-line no-console
+  console.error(source, error);
+  sampleRUM('error', { source, target: error.message });
+}
+
+/**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
@@ -54,8 +74,7 @@ function buildAutoBlocks(main) {
   try {
     buildHeroBlock(main);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Auto Blocking failed', error);
+    logError('buildAutoBlocks', error);
   }
 }
 
@@ -87,7 +106,6 @@ export function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSepa
 
 async function applySiteBranding() {
   const brandingConfig = await getBrandingConfig();
-
   setCSSVar('--header-background-color', brandingConfig.menubarColor);
   setCSSVar('--header-text-color', brandingConfig.brandTextColor);
   setCSSVar('--body-font-family', brandingConfig.font, true);
@@ -134,7 +152,7 @@ const backendSearchClient = {
       body: JSON.stringify({ requests }),
     })
       .then((res) => res.json())
-      .catch((e) => console.error('Unable to fetch results', e));
+      .catch((e) => logError('backendSearchClient', e));
   },
 };
 
@@ -159,28 +177,24 @@ async function initSearch() {
 }
 
 /**
+ * Removes any sensitive information from one of the portal's URLs.
+ * @param {URL} url URL to be cleaned.
+ * @returns {string} String version of the URL.
+ */
+function cleanUrl(url) {
+  const cleaned = new URL(url);
+  // remove ims information
+  if (String(cleaned.hash).startsWith('#old_hash')) {
+    cleaned.hash = '';
+  }
+  return cleaned.toString();
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  const loadDependenciesPromise = loadDependencies();
-  if (document.querySelector('head meta[name="public-access"]')?.getAttribute('content').toLowerCase() !== 'true') {
-    await getBearerToken();
-    if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
-      const hasAccess = await checkUserAccess();
-      if (!hasAccess) {
-        window.location.href = NO_ACCESS_PATH;
-        return;
-      }
-      // This is a dev only service worker that caches the algolia JS SDK
-      // check if we are on localhost
-      await initializeServiceWorkers();
-      // Make sure all dependencies are loaded before initializing search
-      // - we load them in parallel by leveraging the promise
-      await loadDependenciesPromise;
-      await initSearch();
-    }
-  }
   const brandingConfig = await getBrandingConfig();
   if (brandingConfig.fontCssUrl) {
     loadCSS(brandingConfig.fontCssUrl);
@@ -199,6 +213,7 @@ async function loadEager(doc) {
 async function initializeServiceWorkers() {
   if (window.location.hostname.includes('localhost')) {
     const sw = await navigator.serviceWorker.register('/localdata.js');
+    // eslint-disable-next-line no-console
     console.log('ServiceWorker registered', sw);
   }
 }
@@ -225,7 +240,24 @@ export function addFavIcon(href) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
+  emitEvent(document.documentElement, EventNames.PAGE_VIEW, {
+    url: cleanUrl(window.location),
+  });
   const main = doc.querySelector('main');
+  if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
+    if (!await checkUserAccess()) {
+      window.location.href = NO_ACCESS_PATH;
+      return;
+    }
+    // This is a dev only service worker that caches the algolia JS SDK
+    // check if we are on localhost
+    await initializeServiceWorkers();
+    // Make sure all dependencies are loaded before initializing search
+    // - we load them in parallel by leveraging the promise
+  }
+  await waitForDependency('search');
+  await initDeliveryEnvironment();
+  await initSearch();
   await loadBlocks(main);
 
   const { hash } = window.location;
@@ -245,18 +277,31 @@ async function loadLazy(doc) {
  * the browser's ability to load multiple resources in parallel.
  */
 async function loadDependencies() {
-  const promises = [];
   dependenciesJSON = await dependenciesJSON;
   dependenciesJSON.forEach((dependency) => {
     if (dependency.type === 'js') {
-      promises.push(loadScript(dependency.src, dependency.attrs));
+      if (!dependency.attrs || !dependency.attrs.find((attr) => attr === 'async')) {
+        dependencyScripts.push(loadScript(dependency.src, dependency.attrs));
+      } else {
+        dependencyScripts.push({
+          category: dependency.category || dependency.src,
+          script: loadScript(dependency.src, dependency.attrs),
+        });
+      }
     } else if (dependency.type === 'css') {
       loadCSS(dependency.href);
     }
   });
-  await Promise.all(promises);
+  await Promise.all(dependencyScripts);
 }
 
+export async function waitForDependency(dependencyCategory) {
+  const dependencies = dependencyScripts.filter((d) => d.category === dependencyCategory);
+  if (dependencies && dependencies.length > 0) {
+    return await Promise.all(dependencies.map((d) => d.script));
+  }
+  return Promise.resolve();
+}
 /**
  * Loads everything that happens a lot later,
  * without impacting the user experience.
@@ -293,7 +338,6 @@ export function getQueryVariable(variable) {
       return decodeURIComponent(pair[1]);
     }
   }
-  console.log('Query variable %s not found', variable);
   return null;
 }
 
@@ -415,4 +459,42 @@ export function closeDialogEvent(dialog) {
       // document.body.classList.remove('no-scroll');
     }
   });
+}
+
+export function sortMetadata(metadataElement) {
+  const metadataGroups = {};
+  const metadataElem = metadataElement;
+  const metadataParent = metadataElem.querySelector('.metadata-fields');
+  const metadataItems = metadataParent.querySelectorAll('[data-metagroup]');
+  const metadataFragment = document.createDocumentFragment();
+
+  // get unique values for metadata group/category
+  const metadataCategories = [];
+  metadataItems.forEach((elem) => {
+    metadataCategories.push(elem.getAttribute('data-metagroup'));
+  });
+  const uniqueCategories = [...new Set(metadataCategories)];
+
+  uniqueCategories.forEach((category) => {
+    metadataGroups[category] = createMetadataGroup(category);
+  });
+
+  metadataItems.forEach((elem) => {
+    const metadataType = elem.getAttribute('data-metagroup');
+    metadataGroups[metadataType].appendChild(elem);
+  });
+
+  Object.keys(metadataGroups).forEach((key) => {
+    metadataFragment.appendChild(metadataGroups[key]);
+  });
+
+  metadataParent.appendChild(metadataFragment);
+  return metadataElem;
+}
+
+function createMetadataGroup(headingText) {
+  const metadataGroup = document.createElement('div');
+  metadataGroup.classList.add('metadata-group');
+  metadataGroup.innerHTML = `<span>${headingText}</span>`;
+  return metadataGroup;
 }

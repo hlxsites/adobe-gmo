@@ -2,23 +2,24 @@ import {
   readBlockConfig,
   loadScript,
 } from '../../scripts/lib-franklin.js';
+import { logError } from '../../scripts/scripts.js';
 
 const GENERAL_METRICS = [{
   category: 'Total assets',
-  amount: 3026
+  amount: 3026,
 }, {
   category: 'Total size',
   amount: 1024 * 1024 * 1024 * 203,
-  unit: 'bytes'
+  unit: 'bytes',
 }, {
   category: 'Uploads year-to-date',
-  amount: 3614
+  amount: 3614,
 }, {
   category: 'Uploads quarter-to-date',
-  amount: 188
+  amount: 188,
 }, {
   category: 'Uploads last 30 days',
-  amount: 47
+  amount: 47,
 }];
 
 function formatNumber(number) {
@@ -83,117 +84,117 @@ const MIME_TYPES = [
 
 const BUSINESS_UNITS = [{
   category: 'Digital Media',
-  amount: 2517
+  amount: 2517,
 }, {
   category: 'Other',
-  amount: 509
+  amount: 509,
 }];
 
 const PRODUCTS = [{
   category: 'Photoshop',
-  amount: 2516
+  amount: 2516,
 }, {
   category: 'Captivate',
-  amount: 1
+  amount: 1,
 }, {
   category: 'Adobe Consulting Services',
-  amount: 1
+  amount: 1,
 }, {
   category: 'Adobe Connect',
-  amount: 1
+  amount: 1,
 }, {
   category: 'Acrobat Pro',
-  amount: 1
+  amount: 1,
 }, {
   category: 'Other',
-  amount: 506
+  amount: 506,
 }];
 
 const CAMPAIGNS = [{
   category: 'Photoshop Everyone Can',
-  amount: 2215
+  amount: 2215,
 }, {
   category: 'Photoshop Brand Campaign 1.0',
-  amount: 173
+  amount: 173,
 }, {
   category: 'Photoshop Every Can (Pilot)',
-  amount: 63
+  amount: 63,
 }, {
   category: 'Photoshop Everyone Can Phase 2.5: Generative Fill',
-  amount: 70
+  amount: 70,
 }, {
   category: 'Photoshop Gen Fill Fall Release Fast Follow',
-  amount: 7
+  amount: 7,
 }, {
   category: 'Photoshop Everyone Can (TESTING)',
-  amount: 6
+  amount: 6,
 }, {
   category: 'DEF Initiative (AS TEST 8.24.23)',
-  amount: 5
+  amount: 5,
 }, {
   category: 'ZYX Initiative (AS TEST 8.21.23)',
-  amount: 2
+  amount: 2,
 }, {
   category: 'TESTING Deliverable NC Automation',
-  amount: 2
+  amount: 2,
 }, {
   category: 'campaign name',
-  amount: 1
+  amount: 1,
 }, {
   category: 'PW EMEA Folders',
-  amount: 1
+  amount: 1,
 }];
 
 const PROGRAMS = [{
   category: 'PS Everyone Can 1.5 Brand Campaign',
-  amount: 952
+  amount: 952,
 }, {
   category: 'PS Everyone Can 1.0 Brand Campaign',
-  amount: 738
+  amount: 738,
 }, {
   category: 'PS Everyone Can 2.0 Brand Campaign',
-  amount: 620
+  amount: 620,
 }, {
   category: 'Photoshop Everyone Can Phase 2.5: Generative Fill',
-  amount: 65
+  amount: 65,
 }, {
   category: 'Ps Everyone Can 2.0 - Chapter 5 - Supplemental ROI/Performance Media',
-  amount: 42
+  amount: 42,
 }, {
   category: 'Ps Everyone Can Phase 2 Master Campaign Tracker - Chapter 6',
-  amount: 16
+  amount: 16,
 }, {
   category: 'Ps Everyone Can 2.0 - Chapter 1 - Primary Content Suites',
-  amount: 14
+  amount: 14,
 }, {
   category: 'Demo Projects',
-  amount: 9
+  amount: 9,
 }, {
   category: 'TESTING Sub-Project Restructuring (For Grace)',
-  amount: 1
+  amount: 1,
 }, {
   category: 'program name',
-  amount: 1
+  amount: 1,
 }];
 
 const OWNERS = [{
   category: 'Kelsey Sawyer',
-  amount: 83
+  amount: 83,
 }, {
   category: 'Kelsey Bucsko',
-  amount: 38
+  amount: 38,
 }, {
   category: 'Carolyn Scott',
-  amount: 16
+  amount: 16,
 }, {
   category: 'Alex Michael Smith',
-  amount: 9
+  amount: 9,
 }, {
   category: 'Shawnn Guthrie',
-  amount: 2
+  amount: 2,
 }, {
   category: 'Grace Daly',
-  amount: 1
+  amount: 1,
 }];
 
 function createBarLiteSpec(options) {
@@ -201,7 +202,7 @@ function createBarLiteSpec(options) {
     description = '',
     values = [],
     xLabel = 'Category',
-    yLabel = 'Amount'
+    yLabel = 'Amount',
   } = options;
   return {
     $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
@@ -213,18 +214,18 @@ function createBarLiteSpec(options) {
     },
     mark: 'bar',
     encoding: {
-      x: {field: 'category', type: 'ordinal', title: xLabel},
-      y: {field: 'amount', type: 'quantitative', title: yLabel},
+      x: { field: 'category', type: 'ordinal', title: xLabel },
+      y: { field: 'amount', type: 'quantitative', title: yLabel },
       tooltip: [{
         field: 'category',
         type: 'nominal',
-        title: xLabel
+        title: xLabel,
       }, {
         field: 'amount',
         type: 'quantitative',
-        title: yLabel
-      }]
-    }
+        title: yLabel,
+      }],
+    },
   };
 }
 
@@ -237,27 +238,27 @@ function createPieLiteSpec(options) {
     innerRadius = 0,
   } = options;
   return {
-    '$schema': 'https://vega.github.io/schema/vega-lite/v5.json',
+    $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
     description,
     width: 200,
     height: 200,
     data: {
       values,
     },
-    mark: {type: 'arc', innerRadius},
+    mark: { type: 'arc', innerRadius },
     encoding: {
-      theta: {field: 'amount', type: 'quantitative'},
-      color: {field: 'category', type: 'nominal', legend: { title: xLabel }},
+      theta: { field: 'amount', type: 'quantitative' },
+      color: { field: 'category', type: 'nominal', legend: { title: xLabel } },
       tooltip: [{
         field: 'category',
         type: 'nominal',
-        title: xLabel
+        title: xLabel,
       }, {
         field: 'amount',
         type: 'quantitative',
-        title: yLabel
-      }]
-    }
+        title: yLabel,
+      }],
+    },
   };
 }
 
@@ -269,6 +270,7 @@ function createDonutLiteSpec(options) {
 }
 
 function render(spec, id) {
+  // eslint-disable-next-line no-undef
   vegaEmbed(id, spec, { actions: false });
 }
 
@@ -301,8 +303,8 @@ function createPlaceholder(block) {
 }
 
 /**
- * 
- * @param {HTMLElement} block 
+ *
+ * @param {HTMLElement} block
  */
 export default async function decorate(block) {
   const config = readBlockConfig(block);
@@ -335,9 +337,10 @@ export default async function decorate(block) {
     await loadScript('https://cdn.jsdelivr.net/npm/vega-lite@5.16.0');
     await loadScript('https://cdn.jsdelivr.net/npm/vega-embed@6.22.2');
   } catch (e) {
-    console.log('Error rendering graphs', e);
+    logError('Error rendering graphs', e);
   }
 
+  // eslint-disable-next-line no-undef
   if (vegaEmbed) {
     const target = block.querySelector('.graph-container');
     createGraph(target, 'mime-types', 'Assets by Format', MIME_TYPES, 'donut', {
@@ -366,7 +369,7 @@ export default async function decorate(block) {
     });
     createGraph(target, 'top-requestors', 'Top Requestors of Content', OWNERS.slice(0, 5), 'bar', {
       xLabel: 'Requestor',
-      yLabel: 'Requests'
+      yLabel: 'Requests',
     });
     createPlaceholder(target);
     createPlaceholder(target);

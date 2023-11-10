@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
-import { createTag, closeDialogEvent } from '../../scripts/scripts.js';
+import { createTag, closeDialogEvent, logError } from '../../scripts/scripts.js';
 import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { emitEvent, EventNames } from '../../scripts/events.js';
 import { getBearerToken } from '../../scripts/security.js';
@@ -133,14 +133,14 @@ export function addDownloadEventListener(container) {
             {
               assetId: item.assetId,
               assetName: item.assetName,
-              renditionName: item.renditionName
-            }
+              renditionName: item.renditionName,
+            },
           );
         })
-        .catch((e) => console.log(`Unable to download file ${item.name}`, e));
+        .catch((e) => logError(`Unable to download file ${item.name}`, e));
     });
     emitEvent(b.target, EventNames.DOWNLOAD, {
-      "downloads":downloadFiles
+      downloads: downloadFiles,
     });
   });
 }
@@ -189,7 +189,7 @@ function generateRenditionList(renditions, container) {
   renditionContainer.appendChild(renditionHeader);
 
   // create rendition checkboxes
-  renditions.forEach((rendition, index) => {
+  renditions.forEach((rendition) => {
     const renditionElem = createTag('div', { class: 'rendition' });
     // checkbox
     const label = createTag('label', { for: `${rendition.name}` });
@@ -221,7 +221,7 @@ function generateRenditionList(renditions, container) {
     label.appendChild(col4);
     // format
     const col5 = createTag('div', { class: 'col5' });
-    col5.textContent = rendition.format.includes("/")? `${rendition.format.split('/')[1]}` : `${rendition.format}`;
+    col5.textContent = rendition.format.includes('/') ? `${rendition.format.split('/')[1]}` : `${rendition.format}`;
     label.appendChild(col5);
     renditionElem.appendChild(label);
     renditionContainer.appendChild(renditionElem);
@@ -297,7 +297,7 @@ export async function openMultiSelectDownloadModal() {
   body.replaceChild(newBodyLeft, bodyLeft);
   newBodyLeft.appendChild(multiAssetsTable);
 
-  //create radio buttons
+  // create radio buttons
   const bodyRight = dialog.querySelector('.modal-body-right');
   const newBodyRight = bodyRight.cloneNode(false);
   body.replaceChild(newBodyRight, bodyRight);
@@ -329,7 +329,7 @@ export async function openMultiSelectDownloadModal() {
   radioContainer.appendChild(downloadOption2);
   newBodyRight.appendChild(radioContainer);
   const renditionConfigs = await getDownloadRenditionConfig();
-  if(renditionConfigs.length === 0) {
+  if (renditionConfigs.length === 0) {
     downloadOption2.classList.add('hidden');
   }
 
@@ -348,7 +348,11 @@ export async function openMultiSelectDownloadModal() {
 
     const downloadFiles = [];
     rows.forEach(async (row) => {
-      const data = await getAvailableRenditions(row.getAttribute('data-asset-id'), row.getAttribute('data-asset-name'), row.getAttribute('data-fileformat'));
+      const data = await getAvailableRenditions(
+        row.getAttribute('data-asset-id'),
+        row.getAttribute('data-asset-name'),
+        row.getAttribute('data-fileformat'),
+      );
       data.forEach((item) => {
         if (checkedRadio.value === 'Original' && item.name !== 'Original') {
           return;
@@ -365,15 +369,15 @@ export async function openMultiSelectDownloadModal() {
               {
                 assetId: item.assetId,
                 assetName: item.assetName,
-                renditionName: item.name
-              }
+                renditionName: item.name,
+              },
             );
           })
-          .catch((e) => console.log(`Unable to download file ${item.name}`, e));
+          .catch((e) => logError(`Unable to download file ${item.name}`, e));
       });
     });
     emitEvent(b.target, EventNames.DOWNLOAD, {
-      "downloads":downloadFiles
+      downloads: downloadFiles,
     });
   });
 

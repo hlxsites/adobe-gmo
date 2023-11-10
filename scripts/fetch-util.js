@@ -1,3 +1,5 @@
+import { sampleRUM } from './lib-franklin.js';
+
 const fetchCache = {};
 
 /**
@@ -40,7 +42,7 @@ async function fetchWithErrorHandling(url, options, failOverURL) {
 }
 
 /**
- * Fetches a URL and returns the response as JSON or text
+ * Fetches a URL and returns the response as a JSON object or text.
  * @param {*} url - URL to fetch
  * @param {*} options - fetch options
  * @param {*} failOverURL - URL to fetch if the first one fails
@@ -79,25 +81,26 @@ export async function fetchWithRetryAndBackoffOnErrors(url, options, retryOption
   const {
     maxRetries = defaultMaxRetries,
     baseDelay = defaultBaseDelay,
-    retryErrorCodes = defaultRetryErrorCodes
+    retryErrorCodes = defaultRetryErrorCodes,
   } = retryOptions || {};
 
   let retryCount = 0;
 
-  const waitWithExponentialBackoff = async (baseDelay, retryCount) => {
-    const delayTime = baseDelay * Math.pow(2, retryCount) * Math.random();
-    console.log(`Retrying...Attempt ${retryCount} with delay ${delayTime}`);
-    await new Promise(resolve => setTimeout(resolve, delayTime));
+  const waitWithExponentialBackoff = async (baseDelayBackoff, retryCountBackoff) => {
+    const delayTime = baseDelayBackoff * 2 ** retryCountBackoff * Math.random();
+    // eslint-disable-next-line no-console
+    console.log(`Retrying...Attempt ${retryCountBackoff} with delay ${delayTime}`);
+    return new Promise((resolve) => { setTimeout(resolve, delayTime); });
   };
 
   const attemptFetch = async () => {
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        const shouldRetry = retryErrorCodes.some(code => response.status === code);
+        const shouldRetry = retryErrorCodes.some((code) => response.status === code);
         if (shouldRetry && retryCount < maxRetries) {
           await waitWithExponentialBackoff(baseDelay, retryCount);
-          retryCount++;
+          retryCount += 1;
           return await attemptFetch();
         }
         if (response.status === 404) {
@@ -107,15 +110,15 @@ export async function fetchWithRetryAndBackoffOnErrors(url, options, retryOption
         return await response.json();
       }
     } catch (error) {
-      console.error('Error in fetch ', error);
+      sampleRUM('error', { source: 'attemptFetch', target: error.message });
       if (retryCount < maxRetries) {
         await waitWithExponentialBackoff(baseDelay, retryCount);
-        retryCount++;
+        retryCount += 1;
         return await attemptFetch();
-      } else {
-        throw error;
       }
+      throw error;
     }
+    return undefined;
   };
 
   return await attemptFetch();

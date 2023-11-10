@@ -13,3 +13,5 @@ helix-importer-ui
 
 /env/
 .env
+server.crt
+server.key

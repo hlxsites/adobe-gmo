@@ -1,15 +1,16 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { getBackendApiKey, getDeliveryEnvironment, getOptimizedPreviewUrl } from '../../scripts/polaris.js';
+import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
+import { logError } from '../../scripts/scripts.js';
 import { createDateInput } from '../../scripts/date-input.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
+import { emitEvent, EventNames } from '../../scripts/events.js';
 
 const SHARE_LINK_ACCESS = {
   PUBLIC: 'public',
   RESTRICTED: 'restricted',
 };
 
-const ASSET_LINK_SHARE_PATH = `${getDeliveryEnvironment()}/adobe/asset-linkshares`;
 const defaultExpiryDate = new Date();
 defaultExpiryDate.setDate(defaultExpiryDate.getDate() + 30);
 const COPY_SHARE_LINK_TEXT = 'Copy share link';
@@ -41,7 +42,7 @@ async function createShareLinkUrl(assetIds, title, access, expiryTime) {
     const json = await createLinkShare(payload);
     return generateLinkShareUrl(json?.id);
   } catch (ex) {
-    console.error('Unable to create share link', ex);
+    logError('createShareLinkUrl', ex);
   }
   return null;
 }
@@ -87,7 +88,7 @@ function formatDate(date) {
 
 function populateSingleAssetView(dialog, assetId, assetName, title, format) {
   const titleElement = dialog.querySelector('.dialog-header-left');
-  titleElement.textContent = `Share asset`;
+  titleElement.textContent = 'Share asset';
   const dialogBodyLeft = dialog.querySelector('.share-link-body-left');
   const newDialogBodyLeft = dialogBodyLeft.cloneNode(false);
   newDialogBodyLeft.innerHTML = `
@@ -184,7 +185,7 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
   const expiryCalendar = containerElement.querySelector('.share-link-expiry-date-calendar');
   const newExpiryCalendar = expiryCalendar.cloneNode(false);
   expiryCalendar.parentElement.replaceChild(newExpiryCalendar, expiryCalendar);
-  createDateInput(
+  await createDateInput(
     newExpiryCalendar,
     'share-link-expiry-date-input',
     '',
@@ -211,17 +212,24 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
   const copyShareButton = containerElement.querySelector('.action-copy-share-link');
   copyShareButton.addEventListener('click', async (e) => {
     e.preventDefault();
+    // Array of assets
+    const sharedAssetsArr = [];
+
     if (!shareLinkUrl) {
       copyShareButton.classList.add('share-link-in-progress');
-      copyShareButton.textContent = "";
+      copyShareButton.textContent = '';
       const requireLoginCheckbox = containerElement.querySelector('#require-login-checkbox');
       const access = requireLoginCheckbox.checked ? SHARE_LINK_ACCESS.RESTRICTED : SHARE_LINK_ACCESS.PUBLIC;
       let assetIdsArr = assetIds;
       if (assetIdsArr === null) {
+        // Multiple assets
         assetIdsArr = [];
         containerElement.querySelectorAll('.multi-selected-assets-table .asset-row').forEach((row) => {
-          assetIdsArr.push(row.getAttribute('data-asset-id'));
+          assetIdsArr.push(row.dataset.assetId);
+          sharedAssetsArr.push({ assetId: row.dataset.assetId, assetName: row.dataset.assetName });
         });
+      } else { // Single Asset
+        sharedAssetsArr.push({ assetId: assetIds[0], assetName: title });
       }
       shareLinkUrl = await createShareLinkUrl(assetIdsArr, title, access, shareLinkExpiryDate);
       copyShareButton.classList.remove('share-link-in-progress');
@@ -229,6 +237,10 @@ export async function populateShareModalInfo(containerElement, assetIds, title) 
     if (shareLinkUrl) {
       copyShareButton.textContent = 'Link copied';
       await navigator.clipboard.writeText(shareLinkUrl);
+      // Emit SHARE_LINK event
+      emitEvent(containerElement, EventNames.SHARE_LINK, {
+        shared: sharedAssetsArr,
+      });
     } else {
       copyShareButton.textContent = COPY_SHARE_LINK_TEXT;
     }

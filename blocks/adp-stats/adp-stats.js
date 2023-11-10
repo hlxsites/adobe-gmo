@@ -1,7 +1,7 @@
 // Define algolia search client globals
 /* global instantsearch */
 
-export default function decorate(block) {
+export default function decorate() {
   window.search.addWidgets([
     instantsearch.widgets.stats(
       {

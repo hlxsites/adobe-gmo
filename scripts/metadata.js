@@ -8,6 +8,8 @@ import {
   formatResolution,
   formatTextWithoutNamespace,
 } from './format-utils.js';
+import { fetchCached } from './fetch-util.js';
+import { getBaseConfigPath, getMetadataConfigs } from './site-config.js';
 
 const SEARCH_FIELD_TO_POLARIS_API_MAP = {
   'dc-format': 'repositoryMetadata.dc:format',
@@ -205,12 +207,12 @@ const PREDEFINED_METADATA_FIELDS = {
   description: {
     label: 'Description',
     value: (assetJSON) => getMetadataValue('dc-description', assetJSON, true),
-    format: (value) => DATA_TYPES.text(value),
+    format: (value) => DATA_TYPES.text(value, 'dc-description'),
   },
   creator: {
     label: 'Creator',
     value: (assetJSON) => getMetadataValue('dc-creator', assetJSON, true),
-    format: (value) => DATA_TYPES.textList(value),
+    format: (value) => DATA_TYPES.textList(value, 'dc-creator'),
   },
   resolution: {
     label: 'Resolution',
@@ -277,18 +279,22 @@ export function getMetadataValue(key, json, allowRecursiveSearch = true) {
  */
 const DATA_TYPES = {
   /* Get the first element if it's an array */
-  text: (o) => {
+  text: (o, metadataFieldName) => {
     if (Array.isArray(o)) {
-      return o[0];
+      return getTextForValue(metadataFieldName, o[0]);
     }
-    return o;
+    return getTextForValue(metadataFieldName, o);
   },
   /* Join the array elements with a comma if it's an array */
-  textList: (o) => {
+  textList: (o, metadataFieldName) => {
     if (Array.isArray(o)) {
-      return o.join(', ');
+      const textList = [];
+      o.forEach((value) => {
+        textList.push(getTextForValue(metadataFieldName, value));
+      });
+      return textList.join(', ');
     }
-    return o;
+    return getTextForValue(metadataFieldName, o);
   },
   number: (o) => formatNumber(o),
   date: (o) => formatDate(o),
@@ -305,24 +311,26 @@ const DATA_TYPES = {
    * Need to output elements here as
    * tags are a special case needing structure.
    */
-  tags: (o) => {
+  tags: (o, metadataPropertyName) => {
     if (Array.isArray(o)) {
       const output = document.createElement('div');
       output.classList.add('tags');
       o.forEach((tag) => {
+        const tagText = getTextForValue(metadataPropertyName, tag.value);
         const tagDiv = document.createElement('div');
         tagDiv.classList.add('tag');
-        tagDiv.textContent = tag.value;
+        tagDiv.textContent = tagText;
+        tagDiv.dataset.value = tag.value;
         if (tag.confidence) {
-          tagDiv.title = `${tag.value} (${formatConfidence(tag.confidence)})`;
+          tagDiv.title = `${tagText} (${formatConfidence(tag.confidence)})`;
         } else {
-          tagDiv.title = tag.value;
+          tagDiv.title = tagText;
         }
         output.appendChild(tagDiv);
       });
       return output;
     }
-    return o;
+    return getTextForValue(metadataPropertyName, o);
   },
   textWithoutNamespace: (o) => formatTextWithoutNamespace(o),
 };
@@ -360,12 +368,12 @@ export function formatAssetMetadata(propertyName, metadataValue) {
     return undefined;
   }
   if (PREDEFINED_METADATA_FIELDS[propertyName]?.format) {
-    return PREDEFINED_METADATA_FIELDS[propertyName].format(metadataValue);
+    return PREDEFINED_METADATA_FIELDS[propertyName].format(metadataValue, propertyName);
   }
 
   // tags
   if (['xcm-machineKeywords', 'xcm-keywords'].includes(propertyName)) {
-    return DATA_TYPES.tags(metadataValue);
+    return DATA_TYPES.tags(metadataValue, propertyName);
   }
 
   // file types
@@ -394,7 +402,7 @@ export function formatAssetMetadata(propertyName, metadataValue) {
     return formatDate(metadataValue);
   }
 
-  return metadataValue;
+  return getTextForValue(propertyName, metadataValue);
 }
 
 /**
@@ -410,6 +418,7 @@ export function addMetadataFields(metadataConfigs, assetJSON, addMetadataFieldCa
   for (const metadataInfo of metadataConfigs) {
     const fieldTitle = metadataInfo.label;
     const metadataProp = metadataInfo.metadataField;
+    const { metadataGroup } = metadataInfo;
 
     let metadataPropSubstitutedValue;
 
@@ -428,6 +437,7 @@ export function addMetadataFields(metadataConfigs, assetJSON, addMetadataFieldCa
       {
         field: metadataProp,
         title: fieldTitle,
+        group: metadataGroup,
         value: metadataPropSubstitutedValue,
         cssClass: safeCSSId(fieldTitle),
         ...metadataInfo,
@@ -435,3 +445,54 @@ export function addMetadataFields(metadataConfigs, assetJSON, addMetadataFieldCa
     );
   }
 }
+
+export function convertToFormalMetadataName(name) {
+  if (name && !name.includes(':')) {
+    return name.replace('-', ':');
+  }
+  return name;
+}
+
+const metadataMappings = {};
+
+export async function getMetadataMappingConfig(metadataPropertyName, metadataConfigFileName) {
+  if (metadataMappings[metadataPropertyName] !== undefined) {
+    return metadataMappings[metadataPropertyName];
+  }
+  let mappingJson = await fetchCached(`${getBaseConfigPath()}/metadata-configs/${metadataConfigFileName}.json`);
+  if (!mappingJson || !mappingJson.data) {
+    mappingJson = {};
+    mappingJson.data = [];
+  }
+  metadataMappings[metadataPropertyName] = {};
+  for (const option of mappingJson.data) {
+    metadataMappings[metadataPropertyName][option.value] = option.text;
+  }
+  return metadataMappings[metadataPropertyName];
+}
+
+export function getTextForValue(metadataPropertyName, value) {
+  const formalMetadataPropName = convertToFormalMetadataName(metadataPropertyName);
+  if (!formalMetadataPropName && value) {
+    return value;
+  }
+  if (!value) {
+    return '';
+  }
+  if (metadataMappings[formalMetadataPropName] === undefined) {
+    return value;
+  }
+  if (metadataMappings[formalMetadataPropName][value] === undefined) {
+    return value;
+  }
+  return metadataMappings[formalMetadataPropName][value];
+}
+
+async function preloadAllMetadataConfigs() {
+  const metadataConfigs = await getMetadataConfigs();
+  // Collect all metadata field mapping files configured in site-config.json
+  // eslint-disable-next-line max-len
+  await Promise.all(metadataConfigs.map(async (metadataConfig) => await getMetadataMappingConfig(metadataConfig.metadataField, metadataConfig.metadataConfigFile)));
+}
+
+await preloadAllMetadataConfigs();

@@ -387,7 +387,7 @@ dialog::backdrop {
 }
 
 
-input[type="text"], textarea {
+input[type="text"], textarea, select {
   flex: 1;
   box-sizing: border-box;
   border: 1px solid #d6d6e7;
@@ -472,6 +472,10 @@ START: Common blocks/*-infinite-results block styling
   grid-template-areas:
     "refinements stats current-refinements current-refinements"
     "infinite-results infinite-results infinite-results asset-details";
+}
+
+.adp-infinite-results-container.has-multi-selection .adp-result-item .actions {
+  display: none;
 }
 
 .adp-infinite-results .items {

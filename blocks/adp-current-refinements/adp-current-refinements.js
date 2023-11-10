@@ -24,16 +24,16 @@ function sendFacetEvent(element, current, updated) {
 }
 
 /**
- * Determines whether two string arrays contain the same values.
+ * Determines whether two refinement arrays contain the same label values.
  * @param {Array<string>} refinements1 First array to test.
  * @param {Array<string>} refinements2 Array against which first array is tested.
- * @returns {boolean} True if the arrays contain the same values, false otherwise.
+ * @returns {boolean} True if the arrays contain the same labels, false otherwise.
  */
 function arraysMatch(refinements1, refinements2) {
   let matching = refinements1.length === refinements2.length;
 
   for (let i = 0; (i < refinements1.length) && (matching); i += 1) {
-    matching = refinements1[i] === refinements2[i];
+    matching = refinements1[i].label === refinements2[i].label;
   }
 
   return matching;
@@ -106,13 +106,13 @@ export default function decorate(block) {
         const refinementItemEl = document.createElement('div');
         refinementItemEl.classList.add('current-refinement-item');
         const operator = refinement.operator || '-';
-      
+
         // Create facet event object
         newRefinements.push({
           facet: facetLabel,
           value: facetValue,
-          ...(refinement.operator && {operator}),
-          label: `${facetLabel} ${operator} ${facetValue}`
+          ...(refinement.operator && { operator }),
+          label: `${facetLabel} ${operator} ${facetValue}`,
         });
 
         refinementItemEl.innerHTML = `

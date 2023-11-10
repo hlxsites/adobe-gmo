@@ -142,7 +142,3 @@ export async function getAssetMetadata(assetId) {
   metadataCache[assetId] = await fetchMetadataValueFromPolaris(assetId);
   return metadataCache[assetId];
 }
-
-// Retrieve the delivery environment from configuration
-// other modules will wait until this await resolves before using this module
-await initDeliveryEnvironment();
