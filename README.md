@@ -200,8 +200,12 @@ The following are valid event names, along with the `detail` data for each:
 ```
 
 * `facet`: Assets have been filtered by one or more facets. Filter information provided in the event's details will be a human-readable description of the facet value.
-  * `previous`: Array of facet filters in place before they were changed.
-  * `current`: Array of facet filters now in place.
+  * `previous`: Array of facet filters in place before they were changed. Each item in the array will contain these properties:
+    * `facet`: The name of the facet being filtered.
+    * `value`: Value by which the facet is being filtered.
+    * `label`: Human-readable label describing the facet filter, as it appears in the portal's UI.
+    * `operator`: If present, the operator for the filter. For example, it might be `>=` or `<=` for date range filters.
+  * `current`: Array of facet filters now in place. Each item in the array will contain the same properties as the `previous` property.
 
 ```
 {

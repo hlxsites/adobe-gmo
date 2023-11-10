@@ -84,8 +84,12 @@ export const EventNames = {
    * Sent whenever a user includes or excludes a facet from their filter.
    *
    * The event's detail will contain the following properties:
-   * * previous: An array of the facet filters previously in place.
-   * * current: An array of the facet filters now in place.
+   * * `previous`: Array of facet filters in place before they were changed. Each item in the array will contain these properties:
+   *   * `facet`: The name of the facet being filtered.
+   *   * `value`: Value by which the facet is being filtered.
+   *   * `label`: Human-readable label describing the facet filter, as it appears in the portal's UI.
+   *   * `operator`: If present, the operator for the filter. For example, it might be `>=` or `<=` for date range filters.
+   * * `current`: Array of facet filters now in place. Each item in the array will contain the same properties as the `previous` property.
    */
   FACET: 'facet',
 
