@@ -173,6 +173,17 @@ export const EventNames = {
    * * url: Full URL of the page that was loaded.
    */
   PAGE_VIEW: 'page-view',
+
+
+  /*
+  Todo add API DOC description for this event
+  */
+  CREATE_COLLECTION: 'create-collection',
+
+  /*
+  Todo add API DOC description for this event
+  */
+  UPDATE_COLLECTION: 'update-collection',
 };
 
 /**

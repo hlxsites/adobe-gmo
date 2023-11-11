@@ -3,6 +3,7 @@ import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
+import { emitEvent, EventNames } from '../../scripts/events.js';
 
 function closeDialog(dialog) {
   dialog.close();
@@ -114,29 +115,43 @@ export async function openModal(items) {
 
   // Create an empty array to store the selected items
   const selectedItems = [];
+  const assetsArray = [];
   // Store the selected items in the array
   items.forEach((item) => {
     selectedItems.push({
       id: item.id,
       type: item.type,
     });
+
+    assetsArray.push({
+      assetId: item.id,
+      assetName: item.name,
+    });
   });
 
   // Event listener for the "Submit" button click
   const submitButton = dialog.querySelector('.action-submit');
   submitButton.addEventListener('click', () => {
+
     // Get the title from the newCollectionInput
     if (newCollectionRadio.checked) {
       const titleInput = dialog.querySelector('.new-collection-input');
       const title = titleInput.value;
       createCollection(title, title, selectedItems);
       resetDialogState();
+
+      emitEvent(document.documentElement, EventNames.CREATE_COLLECTION, {
+        collectionName : title,
+        collectionId : null,
+        assets: assetsArray,
+      });
+
     }
     // If "Add to Existing Collection" is selected, get the title from the dropdown
     if (addToExistingRadio.checked) {
       const dropdownSelect = dialog.querySelector('.add-to-existing-dropdown');
       const collectionId = dropdownSelect.value;
-
+      const collectionName = dropdownSelect.options[dropdownSelect.selectedIndex].textContent;
       const payload = [];
       for (const item of selectedItems) {
         payload.push({
@@ -149,6 +164,12 @@ export async function openModal(items) {
         .then((collection) => {
           const { etag } = collection;
           patchCollection(collectionId, etag, payload);
+
+          emitEvent(document.documentElement, EventNames.UPDATE_COLLECTION, {
+            collectionName : collectionName,
+            collectionId : collectionId,
+            assets: assetsArray,
+          });
         });
       resetDialogState();
     }
@@ -184,9 +205,11 @@ export async function addAddToCollectionModalHandler() {
   const items = [];
   selectedAssets.forEach((asset) => {
     const assetId = asset.getAttribute('data-item-id');
+    const assetName = asset.getAttribute('data-item-name');
     items.push(
       {
         id: assetId,
+        name: assetName,
         type: 'asset',
       },
     );
