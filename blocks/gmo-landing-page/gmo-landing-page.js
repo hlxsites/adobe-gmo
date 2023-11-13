@@ -1,6 +1,9 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 
 export default async function decorate(block) {
+    //console.log("decorating");
+    const signInMsg = await getSignInMsg(block);
+    //console.log(signInMsg);
     const config = readBlockConfig(block);
     block.innerHTML=`
     <div class="video-background">
@@ -24,12 +27,18 @@ export default async function decorate(block) {
             </a>
         </div>
         <div class="signin-notif">
-            <span>${config.signinnotif[0]}</span><br>
-            <span>${config.signinnotif[1]} 
-                <a href="mailto:${config.signincontact}">
-                    ${config.signincontact}
-                </a>
-            </span>
         </div>
     </div>`
+    let msgParent = block.querySelector(".signin-notif");
+    msgParent.append(signInMsg);
+}
+
+async function getSignInMsg(block) {
+    let msgDiv;
+    block.querySelectorAll(":scope > div").forEach((div) => {
+        if (div.innerText.includes("signInNotif")) {
+            msgDiv = div.children[1]; 
+        }
+    });
+    return msgDiv;
 }

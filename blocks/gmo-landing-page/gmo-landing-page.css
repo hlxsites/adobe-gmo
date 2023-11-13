@@ -74,6 +74,10 @@
     margin-top: 25px;
 }
 
+.gmo-landing-page .video-overlay .signin-notif p {
+    margin: 0;
+}
+
 @media screen and (max-width: 1380px) {
     .gmo-landing-page .video-overlay .button.sign-in {
         margin-top: 10%;
