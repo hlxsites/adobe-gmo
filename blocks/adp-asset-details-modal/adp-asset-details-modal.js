@@ -1,7 +1,8 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL, sortMetadata,
+  getAnchorVariable, createTag, addHashParamToWindowURL, sortMetadata,
 } from '../../scripts/scripts.js';
+import { closeModal, removeParamFromWindowURL } from '../../scripts/shared.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
   getAssetName, getAssetMimeType, getAssetTitle,
@@ -25,17 +26,6 @@ let format;
 let assetJSON;
 let originalAssetURL;
 let resultsManagerObj;
-
-export function closeModal(block) {
-  document.body.classList.remove('no-scroll');
-  const modal = block.querySelector('.modal-container');
-  modal.querySelector('#asset-details-next')?.classList.remove('hidden');
-  modal.querySelector('#asset-details-previous')?.classList.remove('hidden');
-  modal.querySelector('.divider.first')?.classList.remove('hidden');
-  modal.querySelector('iframe')?.remove();
-  removeParamFromWindowURL('assetId');
-  modal.close();
-}
 
 function updateZoomLevel(block) {
   let asset = block.querySelector('.modal-image img');
