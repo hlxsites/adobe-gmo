@@ -224,6 +224,12 @@ export default async function decorate(block) {
 
   if (avatarUrl) {
     userSwitcher.style = `background-image: url(${avatarUrl});`;
+  } else {
+    const userSwitcherEl = document.querySelector('.user-switcher');
+    const userSpanEl = document.createElement('span');
+    userSpanEl.classList.add('icon', 'icon-user');
+    userSwitcherEl.appendChild(userSpanEl);
+    decorateIcons(userSwitcherEl);
   }
 
   const dialog = nav.querySelector('.user-profile');
@@ -239,9 +245,10 @@ export default async function decorate(block) {
   const signout = nav.querySelector('.user-signout');
   signout.addEventListener('click', async (clickEvent) => {
     clickEvent.preventDefault();
+    const pathName = isUrlPathNonRoot() ? `${getBaseConfigPath()}/` : '';
     window.adobeIMS?.signOut(
       {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}${pathName}`,
       },
     );
   });
