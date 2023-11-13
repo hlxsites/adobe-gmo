@@ -4,7 +4,10 @@ import { getDownloadUrl } from './polaris.js';
 import { closeModal } from './shared.js';
 import { waitForDependency, logError } from './scripts.js';
 
-export let ccEverywhere;
+let ccEverywhere;
+export function getCCEverywhere() {
+  return ccEverywhere;
+}
 
 function buildHostInfo(clientId, appName) {
   const hostInfo = {

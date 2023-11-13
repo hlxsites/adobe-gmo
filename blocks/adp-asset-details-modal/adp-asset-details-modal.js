@@ -17,7 +17,7 @@ import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { addDownloadEventListener } from '../adp-download-modal/adp-download-modal.js';
 import { populateShareModalInfo } from '../adp-share-modal/adp-share-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
-import { addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
+import { addExpressEditorHandler, fileValidity, getCCEverywhere } from '../../scripts/express.js';
 
 let scale = 1;
 let assetId;
@@ -88,7 +88,7 @@ function createHeaderPanel(modal) {
   // ensure express button only shows for valid asset types
   const expressBtn = modal.querySelector('.action-edit-asset');
   const validCheck = fileValidity(format);
-  if (ccEverywhere && validCheck.isValid) {
+  if (getCCEverywhere() && validCheck.isValid) {
     expressBtn.classList.remove('hidden');
   } else if (!expressBtn.classList.contains('hidden')) {
     expressBtn.classList.add('hidden');
