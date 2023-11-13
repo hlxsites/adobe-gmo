@@ -163,6 +163,7 @@ export const EventNames = {
    * The event's detail will contain the following properties:
    * * email: Email address of the user.
    * * displayName: The user's full name.
+   * * authId: Authorization ID of the user, as provided by IMS.
    */
   SESSION_STARTED: 'session-started',
 

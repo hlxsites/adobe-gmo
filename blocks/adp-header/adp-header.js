@@ -216,6 +216,7 @@ export default async function decorate(block) {
     emitEvent(document.documentElement, EventNames.SESSION_STARTED, {
       email: userProfile.email,
       displayName: userProfile.displayName,
+      authId: userProfile.authId,
     });
   }
 

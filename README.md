@@ -276,10 +276,11 @@ The following are valid event names, along with the `detail` data for each:
 }
 ```
 
-* `session-started`: A user has started a new session. "Session" is defined as the browser's session, which is active for as long as a given browser window is
+* `session-started`: **_WARNING_: This event's detail contains Personally Identifiable Information (PII); please use care when consuming this event.** A user has started a new session. "Session" is defined as the browser's session, which is active for as long as a given browser window is
   open. Opening a new browser window or browser tab will trigger a new session.
   * `email`: Email address of the user starting the session.
   * `displayName`: Full display name of the user starting the session.
+  * `authId`: Authorization ID of the user, as provided by IMS.
 
 ```
 {
@@ -287,6 +288,7 @@ The following are valid event names, along with the `detail` data for each:
   detail: {
     email: 'noreply@adobe.com',
     displayName: 'Test User',
+    authId: '1234567@AdobeID'
   }
   ...
 }
