@@ -127,7 +127,6 @@ export default async function decorate(block) {
       <div class="user-container">
       <div class="user-name"></div>
       <div class="user-email"></div>
-        <a class="asset-metrics" href="/asset-metrics">Asset Metrics</a>
         <a class="user-signout" href="">Sign Out</a>
       </div>
     </dialog>
