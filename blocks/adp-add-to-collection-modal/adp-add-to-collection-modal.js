@@ -3,7 +3,6 @@ import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
 import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
-import { emitEvent, EventNames } from '../../scripts/events.js';
 
 function closeDialog(dialog) {
   dialog.close();
@@ -137,14 +136,15 @@ export async function openModal(items) {
     if (newCollectionRadio.checked) {
       const titleInput = dialog.querySelector('.new-collection-input');
       const title = titleInput.value;
-      createCollection(title, title, selectedItems);
-      resetDialogState();
 
-      emitEvent(document.documentElement, EventNames.CREATE_COLLECTION, {
+      const collectionDetails = {
         collectionName : title,
         collectionId : null,
         assets: assetsArray,
-      });
+      };
+
+      createCollection(title, title, selectedItems,collectionDetails);
+      resetDialogState();
 
     }
     // If "Add to Existing Collection" is selected, get the title from the dropdown
@@ -163,13 +163,15 @@ export async function openModal(items) {
       getCollection(collectionId)
         .then((collection) => {
           const { etag } = collection;
-          patchCollection(collectionId, etag, payload);
 
-          emitEvent(document.documentElement, EventNames.UPDATE_COLLECTION, {
+          const collectionDetails = {
             collectionName : collectionName,
             collectionId : collectionId,
             assets: assetsArray,
-          });
+          };
+
+          patchCollection(collectionDetails,collectionId, etag, payload);
+
         });
       resetDialogState();
     }

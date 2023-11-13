@@ -5,6 +5,8 @@ import {
 } from './polaris.js';
 import { getLastPartFromURL, logError } from './scripts.js';
 
+import { emitEvent, EventNames } from './events.js';
+
 export function getCollectionIdFromURL() {
   if (window.location.pathname.startsWith('/collection/')) {
     const collectionId = getLastPartFromURL();
@@ -103,7 +105,7 @@ export async function getCollection(collectionId) {
  * @returns {Promise<object>} A promise that resolves with the created collection.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-export async function createCollection(title, description, items) {
+export async function createCollection(title, description, items, collectionDetails) {
   try {
     const options = {
       method: 'POST',
@@ -117,6 +119,12 @@ export async function createCollection(title, description, items) {
     if (response.status === 200) {
       // Collection created successfully
       const responseBody = await response.json();
+
+      console.log(responseBody);
+      //Set collectionId
+      collectionDetails.collectionId = responseBody.id;
+      emitEvent(document.documentElement, EventNames.CREATE_COLLECTION, collectionDetails);
+
       return responseBody;
     } if (response.status === 400) {
       // Handle 400 error
@@ -192,7 +200,7 @@ export async function listCollection(limit = undefined, cursor = '') {
 * @returns {Promise<void>} A promise that resolves when the collection is updated.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-export async function patchCollection(collectionId, etag, addOperation = '', deleteOperation = '') {
+export async function patchCollection(collectionDetails, collectionId, etag, addOperation = '', deleteOperation = '') {
   try {
     const patchOperations = [];
     if (addOperation) {
@@ -216,6 +224,7 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
 
     if (response.status === 200) {
       const responseBody = await response.json();
+      emitEvent(document.documentElement, EventNames.UPDATE_COLLECTION, collectionDetails);
       return responseBody;
     } if (response.status === 400) {
       // Handle 400 error
