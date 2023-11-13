@@ -3,5 +3,7 @@ mountpoints:
 
 folders:
   /share/: /share/default
+  /qa/share/: /qa/share/default
   /collection/: /collection/default
+  /qa/collection/: /collection/default
 
