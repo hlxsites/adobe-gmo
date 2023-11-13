@@ -141,7 +141,7 @@ export async function openModal(items) {
       for (const item of selectedItems) {
         payload.push({
           value: item,
-          path: '/items',
+          path: '/items/-',
         });
       }
 

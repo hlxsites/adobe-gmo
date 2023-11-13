@@ -111,7 +111,7 @@ async function getCCCollabProfile() {
 
 export async function getAvatarUrl() {
   const ccProfile = await getCCCollabProfile();
-  return ccProfile.user.avatar;
+  return ccProfile?.user?.avatar;
 }
 
 async function getIMSOrgData() {
