@@ -1,5 +1,6 @@
 import { decorateIcons } from './lib-franklin.js';
 import { getOptimizedPreviewUrl } from './polaris.js';
+import { getSelectedAssetsFromInfiniteResultsBlock } from './scripts.js';
 
 /**
  * Create a single row for the table of multi selected assets
@@ -79,7 +80,7 @@ export default async function createMultiSelectedAssetsTable() {
   const table = tableContainer.querySelector('.multi-selected-assets-table');
   table.classList.add('multi-selected-assets-table');
 
-  const selectedAssets = [...document.querySelectorAll('.adp-infinite-results.block .adp-result-item.checked')];
+  const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
   selectedAssets.forEach((asset) => {
     const assetId = asset.getAttribute('data-item-id');
     const assetName = asset.getAttribute('data-item-name');

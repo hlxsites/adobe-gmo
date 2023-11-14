@@ -418,6 +418,10 @@ export function createTag(tag, attributes) {
   return element;
 }
 
+export function getSelectedAssetsFromInfiniteResultsBlock() {
+  return [...document.querySelectorAll('.adp-infinite-results.block .adp-result-item.checked')];
+}
+
 export function closeDialogEvent(dialog) {
   dialog.addEventListener('click', (event) => {
     // only react to clicks outside the dialog. https://stackoverflow.com/a/70593278/79461

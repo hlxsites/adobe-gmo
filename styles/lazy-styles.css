@@ -140,3 +140,75 @@
 }
 
 /* End styles for multi-selected-assets-table */
+
+
+/* Start confirm-dialog styles - see /scripts/confirm-dialog.js */
+.confirm-dialog-wrapper dialog {
+  width: 450px;
+  border-radius: 6px;
+  border: none;
+  padding: 0;
+  font-family: var(--body-font-family);
+  text-transform: initial;
+}
+
+.confirm-dialog-wrapper dialog .dialog-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 30px;
+  margin: 28px 35px;
+}
+
+.confirm-dialog-wrapper dialog .dialog-container .dialog-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.confirm-dialog-wrapper dialog .dialog-container .dialog-header span.icon {
+  display: flex;
+  align-items: center;
+}
+
+.confirm-dialog-wrapper dialog .dialog-container .dialog-header .dialog-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font: var(--bold-font-size-m);
+  text-transform: initial;
+}
+
+.confirm-dialog-wrapper dialog .dialog-container .dialog-header .dialog-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.confirm-dialog-wrapper dialog .dialog-container .dialog-body {
+  font: var(--stats-label-font);
+  padding-bottom: 30px;
+}
+
+.confirm-dialog-wrapper dialog .dialog-container .dialog-footer .actions-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  column-gap: 11px;
+  width: 100%;
+}
+
+.confirm-dialog-wrapper dialog .dialog-container .dialog-footer .actions-container button {
+  background-color: var(--button-focus-outline-color);
+  border-radius: 16px;
+  font: var(--bold-font-size-s);
+  color: var(--button-text-color);
+  height: 32px;
+  width: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: none;
+}
+
+/* End confirm-dialog styles */

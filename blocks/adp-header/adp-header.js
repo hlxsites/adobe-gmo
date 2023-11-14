@@ -5,11 +5,13 @@ import {
   getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
 } from '../../scripts/site-config.js';
 import { getUserProfile, getAvatarUrl } from '../../scripts/security.js';
-import { closeDialogEvent } from '../../scripts/scripts.js';
+import { closeDialogEvent, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
 import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
 import { addAddToCollectionModalHandler } from '../adp-add-to-collection-modal/adp-add-to-collection-modal.js';
+import { getCollection, getCollectionIdFromURL, patchCollection } from '../../scripts/collections.js';
+import createConfirmDialog from '../../scripts/confirm-dialog.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -144,6 +146,9 @@ export default async function decorate(block) {
     </div>
     <div class="banner-right">
       <div class="actions actions-add-to-collection"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
+      <div class="actions actions-remove-from-collection hidden">
+        <span class="icon icon-remove-from-collection"></span>Remove from collection
+      </div>
       <div class="actions actions-share"><span class="icon icon-share"></span>Share</div>
       <div class="actions actions-download"><span class="icon icon-download"></span>Download</div>
     </div>
@@ -157,10 +162,12 @@ export default async function decorate(block) {
     nav.querySelector('.banner .banner-right .actions-add-to-collection')?.classList.add('hidden');
   }
 
-  // Hide add to collection button on adp-infinite-results-collection block
   const collectionInfiniteResults = document.querySelector('.adp-infinite-results-collection.block');
   if (collectionInfiniteResults) {
+    // Hide add to collection button on adp-infinite-results-collection block
     nav.querySelector('.banner .banner-right .actions-add-to-collection')?.classList.add('hidden');
+    // Only show "Remove from collection" button on adp-infinite-results-collection block
+    nav.querySelector('.banner .banner-right .actions-remove-from-collection')?.classList.remove('hidden');
   }
 
   const navSections = nav.querySelector('.nav-sections');
@@ -309,6 +316,39 @@ export default async function decorate(block) {
   addToCollectionButton.addEventListener('click', async () => {
     await addAddToCollectionModalHandler();
   });
+
+  // Handle click for "Remove from collection" button on banner
+  const removeFromCollectionButton = nav.querySelector('.banner .banner-right .actions-remove-from-collection');
+  removeFromCollectionButton.addEventListener('click', async () => {
+    const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
+    await createConfirmDialog(
+      `Remove ${selectedAssets.length} asset${selectedAssets.length > 1 ? 's' : ''}`,
+      'Are you sure you want to remove the selected assets from this collection?',
+      () => {},
+      async () => {
+        await handleRemoveMultiSelectedAssetsFromCollection();
+      },
+      'Cancel',
+      'Proceed',
+    );
+  });
+}
+
+async function handleRemoveMultiSelectedAssetsFromCollection() {
+  const collectionId = getCollectionIdFromURL();
+  const collectionJSON = await getCollection(collectionId);
+  const collectionIndexes = {};
+  collectionJSON.items.forEach((item, index) => {
+    collectionIndexes[item.id] = index;
+  });
+  const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
+  const selectedAssetIds = selectedAssets.map((asset) => asset.getAttribute('data-item-id'));
+  const deleteOperation = selectedAssetIds.map((assetId) => ({
+    path: `/items/${collectionIndexes[assetId]}`,
+  }));
+  await patchCollection(collectionId, collectionJSON?.etag, null, deleteOperation);
+  // Refresh the page
+  window.location.reload();
 }
 
 function initQuickLinks() {

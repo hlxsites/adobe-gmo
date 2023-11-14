@@ -2,6 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
+import { getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 
 function closeDialog(dialog) {
@@ -180,7 +181,7 @@ export async function openModal(items) {
 export async function addAddToCollectionModalHandler() {
   const dialog = document.querySelector('.adp-add-to-collection-modal.block dialog');
   await populateMultiAssetView(dialog);
-  const selectedAssets = [...document.querySelectorAll('.adp-infinite-results.block .adp-result-item.checked')];
+  const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
   const items = [];
   selectedAssets.forEach((asset) => {
     const assetId = asset.getAttribute('data-item-id');
