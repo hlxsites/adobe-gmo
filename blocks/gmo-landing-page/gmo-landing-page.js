@@ -1,6 +1,10 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 
 export default async function decorate(block) {
+    //console.log(location.hostname);
+    const href = location.href;
+    const redirect = href.substring(0, (href.lastIndexOf("/")) + 1);
+    //console.log(redirect);
     const signInMsg = await getSignInMsg(block);
     const config = readBlockConfig(block);
     block.innerHTML=`
@@ -20,7 +24,7 @@ export default async function decorate(block) {
             <span>${config.herotext}</span>
         </div>
         <div class="button sign-in">
-            <a id="button" href="${config.signinbuttonlink}">
+            <a id="button" href="${redirect}">
                 <span class="button-text">${config.signinbtntext}</span>
             </a>
         </div>
