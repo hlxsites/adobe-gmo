@@ -11,10 +11,10 @@ import {
 import { disableActionButtons } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
-import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-config.js';
+import { getDetailViewConfig, getDetailViewSettings, getLicenseAgreementFlags } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
-import { addDownloadEventListener } from '../adp-download-modal/adp-download-modal.js';
+import { addDownloadEventListener, generateLicenseAgreement } from '../adp-download-modal/adp-download-modal.js';
 import { populateShareModalInfo } from '../adp-share-modal/adp-share-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 import { addExpressEditorHandler, fileValidity, getCCEverywhere } from '../../scripts/express.js';
@@ -26,6 +26,7 @@ let format;
 let assetJSON;
 let originalAssetURL;
 let resultsManagerObj;
+let isLicensed;
 
 function updateZoomLevel(block) {
   let asset = block.querySelector('.modal-image img');
@@ -123,6 +124,15 @@ export async function openAssetDetailsModal(id, resultsManager) {
     createMetadataPanel(modal, assetJSON);
     createHeaderPanel(modal, assetJSON, assetId);
     modal.showModal();
+
+    const licenseAgreementFlags = await getLicenseAgreementFlags();
+    isLicensed = false;
+    for (let i = 0; i < licenseAgreementFlags.length; i += 1) {
+      if (assetJSON.assetMetadata[licenseAgreementFlags[i]]) {
+        isLicensed = true;
+        break;
+      }
+    }
     emitEvent(document.body, EventNames.ASSET_DETAIL, {
       assetId,
       assetName: getAssetName(assetJSON),
@@ -171,6 +181,9 @@ function removeMetadataContainers(modalMetadata) {
   modalMetadata.querySelector('.metadata-container')?.remove();
   modalMetadata.querySelector('.rendition-container')?.remove();
   modalMetadata.querySelector('.adp-share-modal-details-container')?.remove();
+  modalMetadata.querySelector('.modal-metadata-heading')?.classList.remove('hidden');
+  modalMetadata.querySelector('.license-agreement-container')?.remove();
+  modalMetadata.querySelector('.license-agreement-radio-container')?.remove();
 }
 
 async function handleClickButton(block, button, textContent, callback) {
@@ -275,8 +288,6 @@ export default function decorate(block) {
   });
 
   async function generateRendtionDownloadHTML(modalMetadata) {
-    modalMetadata.querySelector('.metadata-container')?.remove();
-    modalMetadata.querySelector('.rendition-container')?.remove();
     modalMetadata.querySelector('.modal-metadata-heading').textContent = 'Download';
 
     // create select all checkbox
@@ -348,6 +359,12 @@ export default function decorate(block) {
     const assetContainer = block.querySelector('.modal-image');
     addRenditionSwitcherEventListener(renditionContainer, assetContainer);
     modalMetadata.appendChild(renditionContainer);
+
+    // generate license agreement if needed
+    if (isLicensed) {
+      const overlayClasses = ['.rendition-container', '.modal-metadata-heading'];
+      await generateLicenseAgreement(modalMetadata, overlayClasses);
+    }
   }
 
   // eslint-disable-next-line func-names

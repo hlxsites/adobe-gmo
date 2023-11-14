@@ -84,12 +84,14 @@ export default async function createMultiSelectedAssetsTable() {
   selectedAssets.forEach((asset) => {
     const assetId = asset.getAttribute('data-item-id');
     const assetName = asset.getAttribute('data-item-name');
+    const isLicensed = asset.getAttribute('data-is-licensed');
     const title = asset.querySelector('.title')?.textContent;
     const format = asset.querySelector('.thumbnail img')?.getAttribute('data-fileformat');
     const row = createAssetRow(assetId, assetName, title, format);
     row.setAttribute('data-asset-id', assetId);
     row.setAttribute('data-asset-name', assetName);
     row.setAttribute('data-fileformat', format);
+    row.setAttribute('data-is-licensed', isLicensed);
     table.appendChild(row);
   });
 

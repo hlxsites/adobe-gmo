@@ -125,7 +125,12 @@
 
 .adp-asset-details-modal.block .action-share-asset.hidden,
 .adp-asset-details-modal.block .modal-header .action-previous-asset.hidden,
-.adp-asset-details-modal.block .modal-header .action-next-asset.hidden {
+.adp-asset-details-modal.block .modal-header .action-next-asset.hidden,
+.adp-asset-details-modal.block .modal-metadata .modal-metadata-heading.hidden,
+.adp-asset-details-modal.block .modal-header .divider.hidden,
+.adp-asset-details-modal.block .rendition-container.hidden,
+.adp-asset-details-modal.block .license-agreement-container.hidden,
+.adp-asset-details-modal.block .license-agreement-radio-container.hidden {
   display: none;
 }
 
@@ -156,10 +161,6 @@
   height: 25px; 
   margin: 0 5px;
   opacity: 0.4;
-}
-
-.adp-asset-details-modal.block .modal-header .divider.hidden {
-  display: none;
 }
 
 .adp-asset-details-modal.block .rendition-container {
@@ -313,4 +314,23 @@
 
 button.action-edit-asset.hidden {
   display: none;
+}
+
+.adp-asset-details-modal.block .license-agreement-container {
+  padding-top: 21px;
+  padding-right: 22px;
+  padding-left: 22px;
+}
+
+.adp-asset-details-modal.block .license-agreement-container .license-agreement-header {
+  font: var(--bold-font-size-s);
+  padding-bottom: 15px;
+}
+
+.adp-asset-details-modal.block .license-agreement-container .license-agreement-text {
+  font: var(--metadata-font);
+}
+
+.adp-asset-details-modal.block .license-agreement-radio-container {
+  padding-right: 22px;
 }

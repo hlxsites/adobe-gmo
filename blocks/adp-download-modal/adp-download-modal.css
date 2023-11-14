@@ -159,6 +159,10 @@
   padding-top: 2px;
 }
 
+.adp-download-modal.block .renditions-container.hidden {
+  display: none;
+}
+
 .adp-download-modal.block .rendition .col1 {
   flex: 0 0 auto;
   margin-right: 7px;
@@ -214,6 +218,11 @@
   font: var(--metadata-font);
 }
 
+.adp-download-modal.block .modal-body-right .actions-container.hidden,
+.adp-download-modal.block .modal-body.multi-select .modal-body-right .actions-container.hidden {
+  display: none;
+}
+
 .adp-download-modal.block .modal-body-right .actions-container .download {
   width: 100%;
   background-color: var(--button-focus-outline-color);
@@ -231,6 +240,25 @@
 .adp-download-modal.block .rendition input[type='checkbox'] {
   width: 15px;
   height: 15px;
+}
+
+.adp-download-modal.block .license-agreement-radio-container {
+  width: 100%;
+}
+
+.adp-download-modal.block .license-agreement-radio-container.hidden,
+.adp-download-modal.block .license-agreement-container.hidden,
+.adp-download-modal.block .radio-container.hidden {
+  display: none;
+}
+
+.adp-download-modal.block .license-agreement-container .license-agreement-header {
+  font: var(--bold-font-size-s);
+  padding-bottom: 15px;
+}
+
+.adp-download-modal.block .license-agreement-container .license-agreement-text {
+  font: var(--metadata-font);
 }
 
 .adp-download-modal.block .action.download.disabled {
