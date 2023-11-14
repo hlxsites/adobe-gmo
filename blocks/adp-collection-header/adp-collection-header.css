@@ -1,8 +1,13 @@
-.section.adp-collection-header-container {
+.section.adp-collection-header-left-container {
     padding-right: 0;
 }
 
 .adp-collection-header {
+    display: flex;
+    height: 124px;
+}
+
+.adp-collection-header-left {
     display: flex;
     gap: 15px;
     align-items: center;
@@ -10,27 +15,42 @@
     font-size: var(--header-font-size);
     padding: 0;
     top: 0.01rem;
-    background: linear-gradient( to bottom, var(--assets-browser-background-color) 0 calc(100% - 2rem), transparent 100% );
     padding-top: 0.88rem;
     padding-bottom: 0.88rem;
     z-index: 1;
 }
 
-.adp-collection-header .back-button .text {
-    text-align: left;
-    letter-spacing: 0;
-    color: var(--text-color);
-    opacity: 1;
-    margin-left: 0.25em;
-    font-weight: bold;
+.adp-collection-header-left .adp-collection-title {
+    margin-bottom: 12px;
 }
 
-.adp-collection-header .back-button .icon {
-    height: 1rem;
-    width: 1rem;
+.adp-collection-stats {
+    border: #E6E6E6 1px solid;
+    border-radius: 6px;
+    font: 11px/14px var(--body-font-family);
+    padding: 6px 10px;
+    width: fit-content;
+}
+
+.adp-collection-header-left .back-button .icon {
+    height: 10px;
+    width: 18px;
     vertical-align: text-bottom;
 }
 
-.adp-collection-header  .collection-title {
-    font-size: var(--body-font-size-xs);
+.adp-collection-header .adp-collection-title {
+    font: var(--collection-heading-font);
+    width: 100%;
+}
+
+.adp-collection-header .actions .adp-action {
+    text-wrap: nowrap;
+    align-items: center;
+}
+
+.adp-collection-header .actions {
+    /* vertically align center */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

@@ -141,7 +141,6 @@
 
 /* End styles for multi-selected-assets-table */
 
-
 /* Start confirm-dialog styles - see /scripts/confirm-dialog.js */
 .confirm-dialog-wrapper dialog {
   width: 450px;
@@ -197,18 +196,10 @@
   width: 100%;
 }
 
-.confirm-dialog-wrapper dialog .dialog-container .dialog-footer .actions-container button {
-  background-color: var(--button-focus-outline-color);
-  border-radius: 16px;
-  font: var(--bold-font-size-s);
-  color: var(--button-text-color);
-  height: 32px;
-  width: 100px;
-  display: flex;
-  justify-content: center;
+.confirm-dialog-wrapper dialog .dialog-footer .adp-action {
+  text-wrap: nowrap;
   align-items: center;
-  text-align: center;
-  border: none;
+  width: 100%;
 }
 
 /* End confirm-dialog styles */
