@@ -68,7 +68,7 @@ function sortTable(header, table, ascending) {
  * Create a table of multi selected assets
  * @returns {HTMLDivElement}
  */
-export async function createMultiSelectedAssetsTable() {
+export default async function createMultiSelectedAssetsTable() {
   const tableContainer = document.createElement('div');
   tableContainer.classList.add('multi-selected-assets-table-container');
   tableContainer.innerHTML = `

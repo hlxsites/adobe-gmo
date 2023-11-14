@@ -7,7 +7,7 @@ import { getBearerToken } from '../../scripts/security.js';
 import { isPDF } from '../../scripts/filetypes.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';
 import { getAssetName, getAssetMimeType } from '../../scripts/metadata.js';
-import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
+import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 import { getDownloadRenditionConfig } from '../../scripts/site-config.js';
 
 export default function decorate(block) {

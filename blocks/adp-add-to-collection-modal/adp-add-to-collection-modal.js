@@ -2,7 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
-import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
+import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 
 function closeDialog(dialog) {
   dialog.close();
