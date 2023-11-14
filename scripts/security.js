@@ -58,7 +58,7 @@ async function getBearerTokenFromIMS(callWithToken) {
         } else {
           window.adobeIMS.reAuthenticate();
         }
-      }
+      },
     };
 
     // load ims.min.js
