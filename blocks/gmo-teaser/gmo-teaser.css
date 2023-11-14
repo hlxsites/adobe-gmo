@@ -54,9 +54,9 @@
         height: 250px;
     }
     .gmo-teaser .teaser .title {
-        font-size: 2.3vh;
+        font-size: var(--body-font-size-m);
     }
     .gmo-teaser .teaser .body {
-        font-size: 1.8vh;
+        font-size: var(--body-font-size-s);
     }
 }
