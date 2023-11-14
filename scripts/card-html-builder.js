@@ -150,15 +150,28 @@ function createCollectionThumbnail(card, collectionId, title) {
   getCollection(collectionId)?.then((collection) => {
     const images = collection.items.filter((item) => item.type === 'asset');
     const imagesToFetch = images.slice(0, 4);
-
+    // Set styles based on the current count of images
+    if (images.length === 1) {
+      imgContainer.classList.add('one-image');
+    }
+    if (images.length === 2) {
+      imgContainer.classList.add('two-image');
+    }
+    if (images.length === 3) {
+      imgContainer.classList.add('three-image');
+    }
     for (let index = 0; index < imagesToFetch.length; index += 1) {
       const item = imagesToFetch[index];
-      getOptimizedPreviewUrl(item.id, null, 120).then((url) => {
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = title;
-        imgContainer.appendChild(img);
-      });
+      getOptimizedPreviewUrl(item.id, null, 120)
+        .then((url) => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = title;
+          imgContainer.appendChild(img);
+        })
+        .catch((error) => {
+          console.error(`Image not found for asset ID: ${error}`);
+        });
     }
   });
 }

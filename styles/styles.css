@@ -686,6 +686,38 @@ input[type="checkbox"].intermediate {
   object-fit: cover;
 }
 
+.adp-result-item .preview-collection a.thumbnail.one-image {
+  display: flex;
+  grid-template-columns: 1fr;
+}
+
+.adp-result-item .preview-collection a.thumbnail.one-image > img {
+  width: 100%;
+  height: 184px;
+  object-fit: cover;
+}
+
+.adp-result-item .preview-collection a.thumbnail.two-image {
+  grid-template-columns: 1fr;
+}
+
+.adp-result-item .preview-collection a.thumbnail.two-image > img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.adp-result-item .preview-collection a.thumbnail.three-image {
+  justify-content: normal;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: none;
+}
+
+.adp-result-item .preview-collection a.thumbnail.three-image > img {
+  height: 62px;
+  width: 100%;
+  object-fit: cover;
+}
+
 /* Adjust the styling for the preview-overlay */
 .adp-result-item .preview-collection a.thumbnail > .preview-overlay {
   display: flex;

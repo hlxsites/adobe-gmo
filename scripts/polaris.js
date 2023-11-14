@@ -89,7 +89,18 @@ export async function authorizeURL(url) {
       Authorization: bearerToken,
     },
   };
+
   const response = await fetch(url, options);
+
+  if (!response.ok) {
+    // Handle specific HTTP errors
+    if (response.status === 404) {
+      throw new Error('Not Found (404)');
+    } else {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+  }
+
   const imageBlob = await response.blob();
   return URL.createObjectURL(imageBlob);
 }
