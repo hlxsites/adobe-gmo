@@ -724,6 +724,11 @@ input[type="checkbox"].intermediate {
   visibility: hidden;
 }
 
+.adp-sentinel {
+  visibility: hidden;
+  width: 0;
+}
+
 .loading-card {
   background: url("../../icons/progress.svg") no-repeat center center;
   background-size: 150px 150px;
@@ -860,3 +865,16 @@ START: blocks/adp-collection-header and blocks/adp-stats
 /**
 END: blocks/adp-collection-header and blocks/adp-stats
 */
+
+.license-agreement-container {
+  overflow: scroll;
+}
+
+.license-agreement-radio-container  {
+  display: flex;
+  font: var(--metadata-font);
+  gap: 20px;
+  padding-top: 25px;
+  padding-bottom: 35px;
+  justify-content: end;
+}

@@ -186,15 +186,10 @@ export async function getFilterSettings() {
  */
 export async function getDownloadRenditionConfig() {
   const response = await getConfig('site-config.json');
-  const result = [];
-  response['download-renditions']?.data.map((row) => {
-    const { Description, ...rest } = row;
-    result.push({
-      description: Description,
-      ...rest,
-    });
-  });
-  return result;
+  return response['download-renditions']?.data.map((row) => ({
+    description: row.Description,
+    ...row,
+  }));
 }
 
 /**
@@ -318,4 +313,34 @@ async function getConfig(filename) {
   } catch (error) {
     throw new Error(`Error fetching ${filename}: ${error}`, error);
   }
+}
+
+/**
+ * @return {Promise<String[]>} e.g. ['xmpRights:WebStatement', 'adobe_dam:restrictions']
+ */
+export async function getLicenseAgreementFlags() {
+  let flags = [];
+  const response = await getConfig('site-config.json');
+  response['license-agreement']?.data.forEach((row) => {
+    if (row.Description === 'Flag' && row.Value) {
+      flags = row.Value.split(',').map((item) => item.trim());
+    }
+  });
+  return flags;
+}
+
+/**
+ * @return {Promise<Object>} e.g. { header: 'License Agreement', text: 'This is the license agreement text'}
+ */
+export async function getLicenseAgreementText() {
+  const licenseAgreement = {};
+  const response = await getConfig('site-config.json');
+  response['license-agreement']?.data.forEach((row) => {
+    if (row.Description === 'Header' && row.Value) {
+      licenseAgreement.header = row.Value;
+    } else if (row.Description === 'Text' && row.Value) {
+      licenseAgreement.text = row.Value;
+    }
+  });
+  return licenseAgreement;
 }

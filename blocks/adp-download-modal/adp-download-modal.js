@@ -7,8 +7,8 @@ import { getBearerToken } from '../../scripts/security.js';
 import { isPDF } from '../../scripts/filetypes.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';
 import { getAssetName, getAssetMimeType } from '../../scripts/metadata.js';
-import { createMultiSelectedAssetsTable } from '../../scripts/multi-selected-assets-table.js';
-import { getDownloadRenditionConfig } from '../../scripts/site-config.js';
+import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
+import { getDownloadRenditionConfig, getLicenseAgreementText } from '../../scripts/site-config.js';
 
 export default function decorate(block) {
   block.innerHTML = `<dialog>
@@ -139,8 +139,10 @@ export function addDownloadEventListener(container) {
         })
         .catch((e) => logError(`Unable to download file ${item.name}`, e));
     });
-    emitEvent(b.target, EventNames.DOWNLOAD, {
-      downloads: downloadFiles,
+    Promise.all(downloadFiles).then(() => {
+      emitEvent(b.target, EventNames.DOWNLOAD, {
+        downloads: downloadFiles,
+      });
     });
   });
 }
@@ -236,10 +238,65 @@ function generateRenditionList(renditions, container) {
   addDownloadEventListener(container);
 }
 
-function generateRenditionHTML(renditions, container) {
+export async function generateLicenseAgreement(container, overlayClasses) {
+  container.querySelector('.license-agreement-container')?.remove();
+  container.querySelector('.license-agreement-radio-container')?.remove();
+  const licenseAgreement = await getLicenseAgreementText();
+  const licenseAgreementContainer = createTag('div', { class: 'license-agreement-container' });
+  const licenseAgreementHeader = createTag('div', { class: 'license-agreement-header initial-format' });
+  licenseAgreementHeader.textContent = licenseAgreement.header ? licenseAgreement.header : 'License Agreement';
+  licenseAgreementContainer.appendChild(licenseAgreementHeader);
+  const licenseAgreementText = createTag('div', { class: 'license-agreement-text initial-format' });
+  licenseAgreementText.textContent = licenseAgreement.text ? licenseAgreement.text : '';
+  licenseAgreementContainer.appendChild(licenseAgreementText);
+  container.appendChild(licenseAgreementContainer);
+
+  const radioContainer = createTag('div', { class: 'license-agreement-radio-container' });
+  const licenseOption1 = createTag('div', { class: 'license-option' });
+  const label1 = createTag('label', { for: 'license-agree' });
+  const radioAgree = createTag('input', {
+    type: 'radio', name: 'license-selection', value: 'agree', id: 'license-agree',
+  });
+  const span1 = createTag('span', { class: 'license-option-span' });
+  span1.textContent = 'Agree';
+  label1.appendChild(radioAgree);
+  label1.appendChild(span1);
+  licenseOption1.appendChild(label1);
+  const licenseOption2 = createTag('div', { class: 'license-option' });
+  const label2 = createTag('label', { for: 'license-disagree' });
+  const radioRendition = createTag('input', {
+    type: 'radio', name: 'license-selection', value: 'disagree', id: 'license-disagree', checked: true,
+  });
+  const span2 = createTag('span', { class: 'license-option-span' });
+  span2.textContent = 'Disagree';
+  label2.appendChild(radioRendition);
+  label2.appendChild(span2);
+  licenseOption2.appendChild(label2);
+  radioContainer.appendChild(licenseOption1);
+  radioContainer.appendChild(licenseOption2);
+  container.appendChild(radioContainer);
+
+  overlayClasses.forEach((overlayClass) => {
+    container.querySelector(overlayClass).classList.add('hidden');
+  });
+  radioAgree.addEventListener('change', () => {
+    radioContainer.classList.add('hidden');
+    licenseAgreementContainer.classList.add('hidden');
+    overlayClasses.forEach((overlayClass) => {
+      container.querySelector(overlayClass).classList.remove('hidden');
+    });
+  });
+}
+
+async function generateRenditionHTML(renditions, container, assetId) {
   container.querySelector('.renditions-container')?.remove();
   container.querySelector('.actions-container')?.remove();
   generateRenditionList(renditions, container);
+  const isLicensed = document.querySelector(`.adp-result-item[data-item-id="${assetId}"]`)?.getAttribute('data-is-licensed');
+  if (isLicensed === 'true') {
+    const overlayClasses = ['.renditions-container', '.actions-container'];
+    await generateLicenseAgreement(container, overlayClasses);
+  }
 }
 
 async function getRenditions(assetId, repoName, format) {
@@ -273,7 +330,7 @@ export async function openDownloadModal(assetId) {
   const bodyRight = dialog.querySelector('.modal-body-right');
   const newBodyRight = bodyRight.cloneNode(false);
   body.replaceChild(newBodyRight, bodyRight);
-  generateRenditionHTML(renditions, newBodyRight);
+  generateRenditionHTML(renditions, newBodyRight, assetId);
   dialog.showModal();
   document.querySelector('.adp-download-modal.block .action-close').blur();
 }
@@ -376,8 +433,10 @@ export async function openMultiSelectDownloadModal() {
           .catch((e) => logError(`Unable to download file ${item.name}`, e));
       });
     });
-    emitEvent(b.target, EventNames.DOWNLOAD, {
-      downloads: downloadFiles,
+    Promise.all(downloadFiles).then(() => {
+      emitEvent(b.target, EventNames.DOWNLOAD, {
+        downloads: downloadFiles,
+      });
     });
   });
 
@@ -396,4 +455,18 @@ export async function openMultiSelectDownloadModal() {
   const observer = new MutationObserver(handleChanges);
   const config = { childList: true };
   observer.observe(assetTable, config);
+
+  // create license agreement if needed
+  const assetRows = multiAssetsTable.querySelectorAll('.asset-row');
+  let isLicensed = false;
+  for (let i = 0; i < assetRows.length; i += 1) {
+    if (assetRows[i].getAttribute('data-is-licensed') === 'true') {
+      isLicensed = true;
+      break;
+    }
+  }
+  if (isLicensed) {
+    const overlayClasses = ['.actions-container', '.radio-container'];
+    await generateLicenseAgreement(newBodyRight, overlayClasses);
+  }
 }

@@ -388,31 +388,6 @@ export function setLastPartofURL(newLastPart, redirect = false) {
   }
 }
 
-export function removeParamFromUrl(url, paramName) {
-  const urlObject = new URL(url);
-  const params = new URLSearchParams(urlObject.search);
-  const hashParams = new URLSearchParams(urlObject.hash.replace('#', ''));
-
-  // Remove paramName from query parameters
-  if (params.has(paramName)) {
-    params.delete(paramName);
-    urlObject.search = params.toString();
-  }
-
-  // Remove paramName from hash parameters
-  if (hashParams.has(paramName)) {
-    hashParams.delete(paramName);
-    urlObject.hash = hashParams.toString();
-  }
-
-  return urlObject.toString();
-}
-
-export function removeParamFromWindowURL(paramName) {
-  const newURL = removeParamFromUrl(window.location.href, paramName);
-  window.history.replaceState({}, '', newURL);
-}
-
 function setParamInHashParams(url, paramName, paramValue) {
   const urlObject = new URL(url);
   const params = new URLSearchParams(urlObject.hash.replace('#', ''));
@@ -447,6 +422,10 @@ export function createTag(tag, attributes) {
     });
   }
   return element;
+}
+
+export function getSelectedAssetsFromInfiniteResultsBlock() {
+  return [...document.querySelectorAll('.adp-infinite-results.block .adp-result-item.checked')];
 }
 
 export function closeDialogEvent(dialog) {

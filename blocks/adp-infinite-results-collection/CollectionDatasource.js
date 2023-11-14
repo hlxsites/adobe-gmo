@@ -3,8 +3,9 @@ import {
 } from '../../scripts/collections.js';
 import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 import {
-  getLastPartFromURL, getAnchorVariable, getQueryVariable, removeParamFromWindowURL, setHashParamInWindowURL,
+  getLastPartFromURL, getAnchorVariable, getQueryVariable, setHashParamInWindowURL,
 } from '../../scripts/scripts.js';
+import { removeParamFromWindowURL } from '../../scripts/shared.js';
 import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';

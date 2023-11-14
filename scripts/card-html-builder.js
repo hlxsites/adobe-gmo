@@ -11,6 +11,10 @@ import { openDownloadModal } from '../blocks/adp-download-modal/adp-download-mod
 import { getCollection, getCollectionID, getCollectionTitle } from './collections.js';
 import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share-modal.js';
 import { closeAssetDetailsPanel } from '../blocks/adp-asset-details-panel/adp-asset-details-panel.js';
+import { getLicenseAgreementFlags } from './site-config.js';
+
+const licenseAgreementFlags = await getLicenseAgreementFlags();
+let assetObj;
 
 function getVideoOverlayCSSClass(format) {
   if (isVideo(format)) {
@@ -25,6 +29,7 @@ function createAssetThumbnail(card, id, name, title, mimeType) {
     const img = document.createElement('img');
     img.src = url;
     img.alt = title;
+    img.dataset.fileformat = mimeType;
     previewElem.appendChild(img);
   });
   // if it's a video, add the video play icon over the middle of the thumbnail
@@ -104,6 +109,7 @@ export function createAssetCardElement(
   const repoName = getAssetName(asset);
   const title = getAssetTitle(asset);
   const mimeType = getAssetMimeType(asset);
+  assetObj = asset;
   // Add default thumbnail handler if not provided
   if (!options.createThumbnailHandler) {
     options.createThumbnailHandler = createAssetThumbnail;
@@ -228,6 +234,25 @@ function createCardElement(
   titleDiv.title = title;
   titleDiv.textContent = title;
   handleImageFailures(card);
+  if (assetObj) {
+    let isLicensed = false;
+    if (assetObj.assetMetadata) {
+      for (let i = 0; i < licenseAgreementFlags.length; i += 1) {
+        if (assetObj.assetMetadata[licenseAgreementFlags[i]]) {
+          isLicensed = true;
+          break;
+        }
+      }
+    } else {
+      for (let i = 0; i < licenseAgreementFlags.length; i += 1) {
+        if (assetObj[licenseAgreementFlags[i].replace(/:/g, '-')]) {
+          isLicensed = true;
+          break;
+        }
+      }
+    }
+    card.dataset.isLicensed = isLicensed;
+  }
 
   // if we support multi-selection, add checkbox to card
   if (options.addAddToMultiSelectionHandler && options.removeItemFromMultiSelectionHandler) {

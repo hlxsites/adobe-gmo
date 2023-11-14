@@ -39,31 +39,33 @@ async function getBearerTokenFromIMS(callWithToken) {
     callWithToken(window.adobeIMS.getReauthAccessToken().token);
     return;
   }
-  window.adobeid = {
-    client_id: IMS_CONFIG.xApiKey,
-    scope: IMS_CONFIG.scope,
-    locale: 'en_US',
-    autoValidateToken: true,
-    uses_redirect_mode: true,
-    environment,
-    onReady() {
-      if (window.adobeIMS.isSignedInUser()) {
-        let tokenDetails = window.adobeIMS?.getAccessToken();
-        if (!tokenDetails) {
-          tokenDetails = window.adobeIMS?.getReauthAccessToken();
-        }
-        const token = tokenDetails && tokenDetails.token;
-        callWithToken(token);
-      } else {
-        window.adobeIMS.reAuthenticate();
-      }
-    },
-  };
-
   if (!isIMSInitialized) {
+    window.adobeid = {
+      client_id: IMS_CONFIG.xApiKey,
+      scope: IMS_CONFIG.scope,
+      locale: 'en_US',
+      autoValidateToken: true,
+      uses_redirect_mode: true,
+      environment,
+      onReady() {
+        if (window.adobeIMS.isSignedInUser()) {
+          let tokenDetails = window.adobeIMS?.getAccessToken();
+          if (!tokenDetails) {
+            tokenDetails = window.adobeIMS?.getReauthAccessToken();
+          }
+          const token = tokenDetails && tokenDetails.token;
+          callWithToken(token);
+        } else {
+          window.adobeIMS.reAuthenticate();
+        }
+      }
+    };
+
     // load ims.min.js
     await loadScript(IMS_CONFIG.urls[environment]);
     isIMSInitialized = true;
+  } else {
+    window.adobeIMS.reAuthenticate();
   }
 }
 

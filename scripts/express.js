@@ -1,11 +1,13 @@
 import { getAdminConfig } from './site-config.js';
 import { getBearerToken, getUserProfile } from './security.js';
 import { getDownloadUrl } from './polaris.js';
-// eslint-disable-next-line import/no-cycle
-import { closeModal } from '../blocks/adp-asset-details-modal/adp-asset-details-modal.js';
+import { closeModal } from './shared.js';
 import { waitForDependency, logError } from './scripts.js';
 
-export let ccEverywhere;
+let ccEverywhere;
+export function getCCEverywhere() {
+  return ccEverywhere;
+}
 
 function buildHostInfo(clientId, appName) {
   const hostInfo = {

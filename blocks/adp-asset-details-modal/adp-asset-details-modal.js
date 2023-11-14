@@ -1,7 +1,8 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getAnchorVariable, createTag, removeParamFromWindowURL, addHashParamToWindowURL, sortMetadata,
+  getAnchorVariable, createTag, addHashParamToWindowURL, sortMetadata,
 } from '../../scripts/scripts.js';
+import { closeModal, removeParamFromWindowURL } from '../../scripts/shared.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
   getAssetName, getAssetMimeType, getAssetTitle,
@@ -10,13 +11,13 @@ import {
 import { disableActionButtons } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import { getFileTypeCSSClass } from '../../scripts/filetypes.js';
-import { getDetailViewConfig, getDetailViewSettings } from '../../scripts/site-config.js';
+import { getDetailViewConfig, getDetailViewSettings, getLicenseAgreementFlags } from '../../scripts/site-config.js';
 import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
-import { addDownloadEventListener } from '../adp-download-modal/adp-download-modal.js';
+import { addDownloadEventListener, generateLicenseAgreement } from '../adp-download-modal/adp-download-modal.js';
 import { populateShareModalInfo } from '../adp-share-modal/adp-share-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
-import { addExpressEditorHandler, fileValidity, ccEverywhere } from '../../scripts/express.js';
+import { addExpressEditorHandler, fileValidity, getCCEverywhere } from '../../scripts/express.js';
 
 let scale = 1;
 let assetId;
@@ -25,17 +26,7 @@ let format;
 let assetJSON;
 let originalAssetURL;
 let resultsManagerObj;
-
-export function closeModal(block) {
-  document.body.classList.remove('no-scroll');
-  const modal = block.querySelector('.modal-container');
-  modal.querySelector('#asset-details-next')?.classList.remove('hidden');
-  modal.querySelector('#asset-details-previous')?.classList.remove('hidden');
-  modal.querySelector('.divider.first')?.classList.remove('hidden');
-  modal.querySelector('iframe')?.remove();
-  removeParamFromWindowURL('assetId');
-  modal.close();
-}
+let isLicensed;
 
 function updateZoomLevel(block) {
   let asset = block.querySelector('.modal-image img');
@@ -98,7 +89,7 @@ function createHeaderPanel(modal) {
   // ensure express button only shows for valid asset types
   const expressBtn = modal.querySelector('.action-edit-asset');
   const validCheck = fileValidity(format);
-  if (ccEverywhere && validCheck.isValid) {
+  if (getCCEverywhere() && validCheck.isValid) {
     expressBtn.classList.remove('hidden');
   } else if (!expressBtn.classList.contains('hidden')) {
     expressBtn.classList.add('hidden');
@@ -133,6 +124,15 @@ export async function openAssetDetailsModal(id, resultsManager) {
     createMetadataPanel(modal, assetJSON);
     createHeaderPanel(modal, assetJSON, assetId);
     modal.showModal();
+
+    const licenseAgreementFlags = await getLicenseAgreementFlags();
+    isLicensed = false;
+    for (let i = 0; i < licenseAgreementFlags.length; i += 1) {
+      if (assetJSON.assetMetadata[licenseAgreementFlags[i]]) {
+        isLicensed = true;
+        break;
+      }
+    }
     emitEvent(document.body, EventNames.ASSET_DETAIL, {
       assetId,
       assetName: getAssetName(assetJSON),
@@ -181,6 +181,9 @@ function removeMetadataContainers(modalMetadata) {
   modalMetadata.querySelector('.metadata-container')?.remove();
   modalMetadata.querySelector('.rendition-container')?.remove();
   modalMetadata.querySelector('.adp-share-modal-details-container')?.remove();
+  modalMetadata.querySelector('.modal-metadata-heading')?.classList.remove('hidden');
+  modalMetadata.querySelector('.license-agreement-container')?.remove();
+  modalMetadata.querySelector('.license-agreement-radio-container')?.remove();
 }
 
 async function handleClickButton(block, button, textContent, callback) {
@@ -285,8 +288,6 @@ export default function decorate(block) {
   });
 
   async function generateRendtionDownloadHTML(modalMetadata) {
-    modalMetadata.querySelector('.metadata-container')?.remove();
-    modalMetadata.querySelector('.rendition-container')?.remove();
     modalMetadata.querySelector('.modal-metadata-heading').textContent = 'Download';
 
     // create select all checkbox
@@ -315,6 +316,8 @@ export default function decorate(block) {
         'data-url': `${rendition.url}`,
         id: `${rendition.fileName}`,
         'data-format': `${rendition.format}`,
+        'data-asset-id': assetId,
+        'data-asset-name': assetName,
       });
       const textContainer = createTag('div', { class: 'text-container' });
       const fileName = createTag('div', { class: 'file-name' });
@@ -356,6 +359,12 @@ export default function decorate(block) {
     const assetContainer = block.querySelector('.modal-image');
     addRenditionSwitcherEventListener(renditionContainer, assetContainer);
     modalMetadata.appendChild(renditionContainer);
+
+    // generate license agreement if needed
+    if (isLicensed) {
+      const overlayClasses = ['.rendition-container', '.modal-metadata-heading'];
+      await generateLicenseAgreement(modalMetadata, overlayClasses);
+    }
   }
 
   // eslint-disable-next-line func-names
