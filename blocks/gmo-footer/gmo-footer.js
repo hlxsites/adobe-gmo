@@ -1,3 +1,3 @@
 export default function decorate(block) {
-    console.log("decorating footer");
+    block.children[0].classList.add("copyright");
 }

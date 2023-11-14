@@ -8,3 +8,7 @@
     height: 40px;
     text-transform: none;
 }
+
+.gmo-footer .copyright {
+    padding-right: 25px;
+}
