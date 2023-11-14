@@ -18,7 +18,7 @@ let shareLinkExpiryDate = null;
 let shareLinkUrl = '';
 
 function generateLinkShareUrl(linkId) {
-  return `${window.location.protocol}//${window.location.host}${window.location.pathname}share/${linkId}`;
+  return `${window.location.protocol}//${window.location.host}/share/${linkId}`;
 }
 
 /**
