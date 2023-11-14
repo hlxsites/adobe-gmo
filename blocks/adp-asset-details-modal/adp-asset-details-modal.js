@@ -305,6 +305,8 @@ export default function decorate(block) {
         'data-url': `${rendition.url}`,
         id: `${rendition.fileName}`,
         'data-format': `${rendition.format}`,
+        'data-asset-id': assetId,
+        'data-asset-name': assetName,
       });
       const textContainer = createTag('div', { class: 'text-container' });
       const fileName = createTag('div', { class: 'file-name' });

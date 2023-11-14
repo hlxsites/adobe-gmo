@@ -139,8 +139,10 @@ export function addDownloadEventListener(container) {
         })
         .catch((e) => logError(`Unable to download file ${item.name}`, e));
     });
-    emitEvent(b.target, EventNames.DOWNLOAD, {
-      downloads: downloadFiles,
+    Promise.all(downloadFiles).then(() => {
+      emitEvent(b.target, EventNames.DOWNLOAD, {
+        downloads: downloadFiles,
+      });
     });
   });
 }
@@ -376,8 +378,10 @@ export async function openMultiSelectDownloadModal() {
           .catch((e) => logError(`Unable to download file ${item.name}`, e));
       });
     });
-    emitEvent(b.target, EventNames.DOWNLOAD, {
-      downloads: downloadFiles,
+    Promise.all(downloadFiles).then(() => {
+      emitEvent(b.target, EventNames.DOWNLOAD, {
+        downloads: downloadFiles,
+      });
     });
   });
 
