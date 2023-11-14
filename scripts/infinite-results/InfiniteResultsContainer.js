@@ -63,35 +63,20 @@ export default class InfiniteResultsContainer {
   }
 
   #bindScrollHandler(container, showMoreCallback, isLastPageCallback) {
-    // Use event on scroll instead to pre-emptively load the next page of results as
-    // an IntersectionObserver doesn't fire before the user reaches the bottom of the page.
-    // Using a scroll caclulation gives a smoother infinite scroll experience.
-    window.addEventListener('scroll', () => {
-      const scrollContainer = this.#getScrollParent(container);
-      if (!scrollContainer) {
-        return;
-      }
-      const {
-        scrollTop,
-        scrollHeight,
-        clientHeight,
-      } = scrollContainer;
-      // newScrollDistance is the distance from the top of the page to the
-      // "page fold" (bottom of the viewport)
-      const newScrollDistance = scrollTop + clientHeight;
-
-      // If the user has scrolled 75% of the way through the currently loaded results
-      // and we are not on the last page of results, then load the next page of results.
-      // * scrollHeight - is the total height of the page (with current results loaded)
-      // * scrollTop - is the current scroll position from the top of the page
-      // * clientHeight - is the height of the browser window (viewport)
-      if (newScrollDistance >= scrollHeight - (scrollHeight * 0.75)
-            && newScrollDistance > this.#lastScrollDistance + (scrollHeight - scrollTop)
-            && !isLastPageCallback()) {
-        this.#lastScrollDistance = scrollTop + clientHeight;
-        showMoreCallback();
-      }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !isLastPageCallback()) {
+          // remove sentinel
+          observer.unobserve(entry.target);
+          showMoreCallback();
+        }
+      }, { threshold: 0.5 });
     });
+    if (container.querySelector('.adp-sentinel')) {
+      // move sentinel before the first .placeholder-card
+      container.querySelector('.placeholder-card').before(container.querySelector('.adp-sentinel'));
+      observer.observe(container.querySelector('.adp-sentinel'));
+    }
   }
 
   /**
@@ -99,15 +84,23 @@ export default class InfiniteResultsContainer {
    * @param {HTMLElement} cardsContainer - cards container element
    */
   static removePlaceholderCards(cardsContainer) {
-    cardsContainer.querySelectorAll('.placeholder-card').forEach((el) => {
-      el.remove();
-    });
+    const placeholders = cardsContainer.querySelectorAll('.placeholder-card');
+    Array.from(placeholders)
+      .forEach((el) => {
+        el.remove();
+      });
   }
 
   static createPlaceholderCardElement() {
     const card = document.createElement('div');
     card.className = 'adp-result-item placeholder-card';
     return card;
+  }
+
+  static createSentinelElement() {
+    const sentinel = document.createElement('div');
+    sentinel.className = 'adp-sentinel adp-result-item placeholder-card';
+    return sentinel;
   }
 
   /**
@@ -121,6 +114,7 @@ export default class InfiniteResultsContainer {
       const card = InfiniteResultsContainer.createPlaceholderCardElement();
       arrayOfCards.push(card);
     }
+    arrayOfCards.push(InfiniteResultsContainer.createSentinelElement());
   }
 
   /**
@@ -401,12 +395,6 @@ export default class InfiniteResultsContainer {
    *  (called before showMore to check if we need to load more results)
    */
   async resultsCallback(container, items, showMoreCallback, pageNumber, isFirstRender, isNewSearch, lastPageCallback) {
-    if (isFirstRender) {
-      const scrollHandler = () => {
-        showMoreCallback();
-      };
-      this.#bindScrollHandler(container, scrollHandler, lastPageCallback);
-    }
     const page = pageNumber || 0;
     const cards = this.#container;
     // if it's a new search then reset the tracking variables
@@ -456,14 +444,20 @@ export default class InfiniteResultsContainer {
           this.selectItem(assetCard);
         }
       }
+
       // If the items don't fill the viewport then we need to load more
       // results to make sure the item is in the viewport.
       if (!lastPageCallback()) {
         const rect = this.#container
-          .querySelector(`.adp-result-item:nth-last-child(${NUMBER_OF_PLACEHOLDERS + 1})`)
+          .querySelector('.placeholder-card')
           ?.getBoundingClientRect();
         if (rect && rect.top < window.innerHeight) {
           await showMoreCallback();
+        } else {
+          const scrollHandler = () => {
+            showMoreCallback();
+          };
+          this.#bindScrollHandler(container, scrollHandler, lastPageCallback, isNewSearch);
         }
       }
     }

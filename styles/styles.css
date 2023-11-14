@@ -724,6 +724,11 @@ input[type="checkbox"].intermediate {
   visibility: hidden;
 }
 
+.adp-sentinel {
+  visibility: hidden;
+  width: 0;
+}
+
 .loading-card {
   background: url("../../icons/progress.svg") no-repeat center center;
   background-size: 150px 150px;
