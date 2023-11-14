@@ -130,6 +130,15 @@ export async function openModal(items) {
     if (newCollectionRadio.checked) {
       const titleInput = dialog.querySelector('.new-collection-input');
       const title = titleInput.value;
+
+      // Add input validation
+      if (!title.trim()) {
+        const errorMessage = document.createElement('div');
+        errorMessage.textContent = 'Collection name cannot be empty.';
+        errorMessage.classList.add('error-message');
+        titleInput.parentElement.appendChild(errorMessage);
+        return;
+      }
       createCollection(title, title, selectedItems);
       resetDialogState();
     }
