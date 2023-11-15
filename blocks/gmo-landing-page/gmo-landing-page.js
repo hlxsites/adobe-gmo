@@ -1,10 +1,13 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 
 export default async function decorate(block) {
-    const href = location.href;
-    const redirect = href.substring(0, (href.lastIndexOf("/")) + 1);
-    const signInMsg = await getSignInMsg(block);
+    const host = location.origin;
+    const signInMsg = getSignInMsg(block);
     const config = readBlockConfig(block);
+    console.log(config);
+    const redirect = host + config?.mainpage;
+    console.log(redirect);
+
     block.innerHTML=`
     <div class="video-background">
         <video autoplay loop muted playsinline class="desktop">
@@ -33,7 +36,7 @@ export default async function decorate(block) {
     msgParent.append(signInMsg);
 }
 
-async function getSignInMsg(block) {
+function getSignInMsg(block) {
     let msgDiv;
     block.querySelectorAll(":scope > div").forEach((div) => {
         if (div.innerText.includes("signInNotif")) {
