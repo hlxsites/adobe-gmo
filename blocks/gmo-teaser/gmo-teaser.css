@@ -1,0 +1,62 @@
+.gmo-teaser {
+    background-color: #101010;
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 250px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    text-transform: none;
+}
+
+.gmo-teaser .teaser {
+    background-color: #292929;
+    color: #efefef;
+    width: 20%;
+    border-radius: 1pc;
+    padding: 30px;
+}
+
+.gmo-teaser .teaser .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.gmo-teaser .teaser .body {
+    font-size: 16px;
+}
+
+@media screen and (max-width: 1380px) {
+    .gmo-teaser {
+        height: fit-content;
+    }
+    .gmo-teaser .teaser {
+        width: 18%;
+    }
+}
+
+@media screen and (max-width: 1050px) {
+    .gmo-teaser {
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+    .gmo-teaser .teaser {
+        width: 39%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .gmo-teaser {
+        row-gap: 20px;
+    }
+    .gmo-teaser .teaser {
+        width: 82%;
+        height: 250px;
+    }
+    .gmo-teaser .teaser .title {
+        font-size: var(--body-font-size-m);
+    }
+    .gmo-teaser .teaser .body {
+        font-size: var(--body-font-size-s);
+    }
+}
