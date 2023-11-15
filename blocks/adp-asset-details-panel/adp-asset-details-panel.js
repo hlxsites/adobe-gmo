@@ -17,7 +17,7 @@ import { EventNames, emitEvent } from '../../scripts/events.js';
 // eslint-disable-next-line import/no-cycle
 import { addShareModalHandler } from '../adp-share-modal/adp-share-modal.js';
 import {
-  startCCE, addExpressEditorHandler, fileValidity, isCCEInitialized,
+  startCCE, addExpressEditorHandler, fileValidity, getCCEverywhere,
 } from '../../scripts/express.js';
 
 let resultsManager;
@@ -74,7 +74,7 @@ export async function openAssetDetailsPanel(assetId, resultsManagerObj) {
   // ensure express button only shows for valid asset types
   const expressBtn = assetDetailsPanel.querySelector('.action-edit-asset');
   const validCheck = fileValidity(fileFormat);
-  if (isCCEInitialized() && validCheck.isValid) {
+  if (getCCEverywhere() && validCheck.isValid) {
     expressBtn.classList.remove('hidden');
   } else if (!expressBtn.classList.contains('hidden')) {
     expressBtn.classList.add('hidden');
@@ -196,6 +196,6 @@ export default async function decorate(block) {
     const { assetId } = block.dataset;
     openAssetDetailsModal(assetId, resultsManager);
   });
-  // start CCE, but let it start asynchronously
-  startCCE();
+  await window.adobeIMS?.refreshToken();
+  await startCCE();
 }

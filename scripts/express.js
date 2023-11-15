@@ -5,6 +5,9 @@ import { closeModal } from './shared.js';
 import { waitForDependency, logError } from './scripts.js';
 
 let ccEverywhere;
+export function getCCEverywhere() {
+  return ccEverywhere;
+}
 
 function buildHostInfo(clientId, appName) {
   const hostInfo = {
@@ -95,18 +98,31 @@ export async function getJumpToken() {
   return jumpToken;
 }
 
+function adjustZIndex(isOpening) {
+  const headerWrapper = document.getElementsByTagName('header')[0].getElementsByClassName('nav-wrapper')[0];
+  const refinementWrapper = document.getElementsByClassName('refinement-wrapper open')[0];
+
+  if (isOpening) {
+    headerWrapper.style.zIndex = 'unset';
+    if (refinementWrapper) {
+      refinementWrapper.style.zIndex = 'unset';
+    }
+  } else {
+    headerWrapper.style.zIndex = '2';
+    if (refinementWrapper) {
+      refinementWrapper.style.zIndex = '1';
+    }
+  }
+}
+
 function createFromAEMCallback() {
   // https://developer.adobe.com/express/embed-sdk/docs/reference/types/#callbacks
   const callback = {
     onCancel: () => {
+      adjustZIndex(false);
     },
     onLoadStart: () => {
       // take action once iframe starts loading
-      const host = Array.from(document.body.childNodes)
-        .filter((node) => node.nodeType === Node.ELEMENT_NODE && node.tagName.toLowerCase().startsWith('cc-everywhere'));
-      const style = document.createElement('style');
-      style.innerHTML = '.cc-everywhere-root { z-index: 3; }';
-      host.forEach((childElem) => { childElem.shadowRoot.appendChild(style); });
     },
     onPublish: (/* publishParams */) => {
       /*
@@ -145,45 +161,32 @@ export function fileValidity(fileFormat) {
   return validity;
 }
 
-function isCCESupported() {
-  const { userAgent } = navigator;
-  const isSupported = /chrome|safari|edge/i.test(userAgent);
-  return isSupported;
-}
-
-export function isCCEInitialized() {
-  return (ccEverywhere !== undefined);
-}
-
 export async function startCCE() {
-  if (isCCESupported()) {
-    // create static config objects
-    // todo check if clientid and appname values are null/missing
-    const adminInfo = await getAdminConfig();
-    const clientId = adminInfo.adobeExpressClientId;
-    const appName = adminInfo.adobeExpressAppName;
+  await waitForDependency('CCEverywhere');
+  // create static config objects
+  // todo check if clientid and appname values are null/missing
+  const adminInfo = await getAdminConfig();
+  const clientId = adminInfo.adobeExpressClientId;
+  const appName = adminInfo.adobeExpressAppName;
 
-    if (clientId && appName) {
-      await waitForDependency('CCEverywhere');
+  if (clientId && appName) {
+    const hostInfo = buildHostInfo(clientId, appName);
+    const configParams = buildConfigParams();
+    const userInfo = await buildUserInfo();
+    const authInfo = await buildAuthInfo();
 
-      const hostInfo = buildHostInfo(clientId, appName);
-      const configParams = buildConfigParams();
-      const userInfo = await buildUserInfo();
-      const authInfo = await buildAuthInfo();
-
-      ccEverywhere = await window.CCEverywhere.initialize(hostInfo, configParams, userInfo, authInfo);
-
-      // eslint-disable-next-line no-console
-      console.log('CCE Initialized');
-    } else {
-      // eslint-disable-next-line no-console
-      console.log('Missing CCE parameters.');
-    }
+    ccEverywhere = await window.CCEverywhere.initialize(hostInfo, configParams, userInfo, authInfo);
+    // eslint-disable-next-line no-console
+    console.log('CCE Initialized');
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('Missing CCE parameters.');
   }
 }
 
 export async function addExpressEditorHandler(editorElement, assetId, repoName, assetHeight, assetWidth, assetType, detailsModal) {
   editorElement.addEventListener('click', async () => {
+    adjustZIndex(true);
     if (detailsModal) {
       closeModal(detailsModal);
     }
