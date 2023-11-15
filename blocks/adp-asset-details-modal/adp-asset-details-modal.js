@@ -19,7 +19,7 @@ import { populateShareModalInfo } from '../adp-share-modal/adp-share-modal.js';
 import { EventNames, emitEvent } from '../../scripts/events.js';
 // eslint-disable-next-line import/no-cycle
 import {
-  addExpressEditorHandler, fileValidity, isCCEInitialized,
+  addExpressEditorHandler, fileValidity, isCCEConfigured,
 } from '../../scripts/express.js';
 
 let scale = 1;
@@ -92,7 +92,7 @@ function createHeaderPanel(modal) {
   // ensure express button only shows for valid asset types
   const expressBtn = modal.querySelector('.action-edit-asset');
   const validCheck = fileValidity(format);
-  if (isCCEInitialized() && validCheck.isValid) {
+  if (isCCEConfigured() && validCheck.isValid) {
     expressBtn.classList.remove('hidden');
   } else if (!expressBtn.classList.contains('hidden')) {
     expressBtn.classList.add('hidden');
