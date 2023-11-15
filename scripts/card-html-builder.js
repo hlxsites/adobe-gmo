@@ -24,6 +24,19 @@ function getVideoOverlayCSSClass(format) {
   return '';
 }
 
+export function createFailedImageReplacement(previewElem, imgElem, mimeType) {
+  imgElem.remove();
+  const div = document.createElement('div');
+  div.className = 'preview-overlay';
+  const span = document.createElement('span');
+  span.className = `icon icon-${getFileType(mimeType)}`;
+  previewElem.appendChild(span);
+  div.appendChild(span);
+  previewElem.appendChild(div);
+  previewElem.classList.add('placeholder-img-not-found');
+  decorateIcons(previewElem);
+}
+
 function createAssetThumbnail(card, id, name, title, mimeType) {
   const previewElem = card.querySelector('.preview .thumbnail');
   getOptimizedPreviewUrl(id, name, 350).then((url) => {
@@ -31,6 +44,9 @@ function createAssetThumbnail(card, id, name, title, mimeType) {
     img.src = url;
     img.alt = title;
     img.dataset.fileformat = mimeType;
+    img.onerror = () => {
+      createFailedImageReplacement(previewElem, img, mimeType);
+    };
     previewElem.appendChild(img);
   });
   // if it's a video, add the video play icon over the middle of the thumbnail

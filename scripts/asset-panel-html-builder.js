@@ -34,6 +34,7 @@ export async function addAssetToContainer(
     videoElem.frameborder = '0';
     // eslint-disable-next-line func-names
     videoElem.onerror = function () {
+      this.classList.add('adp-failed-placeholder-img');
       this.src = getFailedPlaceholderImgSrc(fileFormat);
     };
     container.appendChild(videoElem);
@@ -58,6 +59,7 @@ export async function addAssetToContainer(
     imgElem.alt = altAttrib;
     // eslint-disable-next-line func-names
     imgElem.onerror = function () {
+      this.classList.add('adp-failed-placeholder-img');
       this.src = getFailedPlaceholderImgSrc(fileFormat);
     };
     container.appendChild(imgElem);
