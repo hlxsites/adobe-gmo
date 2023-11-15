@@ -324,12 +324,12 @@ export default async function decorate(block) {
     await createConfirmDialog(
       `Remove ${selectedAssets.length} asset${selectedAssets.length > 1 ? 's' : ''}`,
       'Are you sure you want to remove the selected assets from this collection?',
-      () => {},
       async () => {
         await handleRemoveMultiSelectedAssetsFromCollection();
       },
-      'Cancel',
       'Proceed',
+      () => {},
+      'Cancel',
     );
   });
 }

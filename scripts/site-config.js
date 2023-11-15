@@ -186,10 +186,15 @@ export async function getFilterSettings() {
  */
 export async function getDownloadRenditionConfig() {
   const response = await getConfig('site-config.json');
-  return response['download-renditions']?.data.map((row) => ({
-    description: row.Description,
-    ...row,
-  }));
+  const result = [];
+  response['download-renditions']?.data.forEach((row) => {
+    const { Description, ...rest } = row;
+    result.push({
+      description: Description,
+      ...rest,
+    });
+  });
+  return result;
 }
 
 /**

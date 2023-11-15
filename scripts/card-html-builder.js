@@ -12,6 +12,7 @@ import { getCollection, getCollectionID, getCollectionTitle } from './collection
 import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share-modal.js';
 import { closeAssetDetailsPanel } from '../blocks/adp-asset-details-panel/adp-asset-details-panel.js';
 import { getLicenseAgreementFlags } from './site-config.js';
+import { logError } from './scripts.js';
 
 const licenseAgreementFlags = await getLicenseAgreementFlags();
 let assetObj;
@@ -23,6 +24,19 @@ function getVideoOverlayCSSClass(format) {
   return '';
 }
 
+export function createFailedImageReplacement(previewElem, imgElem, mimeType) {
+  imgElem.remove();
+  const div = document.createElement('div');
+  div.className = 'preview-overlay';
+  const span = document.createElement('span');
+  span.className = `icon icon-${getFileType(mimeType)}`;
+  previewElem.appendChild(span);
+  div.appendChild(span);
+  previewElem.appendChild(div);
+  previewElem.classList.add('placeholder-img-not-found');
+  decorateIcons(previewElem);
+}
+
 function createAssetThumbnail(card, id, name, title, mimeType) {
   const previewElem = card.querySelector('.preview .thumbnail');
   getOptimizedPreviewUrl(id, name, 350).then((url) => {
@@ -30,6 +44,9 @@ function createAssetThumbnail(card, id, name, title, mimeType) {
     img.src = url;
     img.alt = title;
     img.dataset.fileformat = mimeType;
+    img.onerror = () => {
+      createFailedImageReplacement(previewElem, img, mimeType);
+    };
     previewElem.appendChild(img);
   });
   // if it's a video, add the video play icon over the middle of the thumbnail
@@ -150,15 +167,28 @@ function createCollectionThumbnail(card, collectionId, title) {
   getCollection(collectionId)?.then((collection) => {
     const images = collection.items.filter((item) => item.type === 'asset');
     const imagesToFetch = images.slice(0, 4);
-
+    // Set styles based on the current count of images
+    if (images.length === 1) {
+      imgContainer.classList.add('one-image');
+    }
+    if (images.length === 2) {
+      imgContainer.classList.add('two-image');
+    }
+    if (images.length === 3) {
+      imgContainer.classList.add('three-image');
+    }
     for (let index = 0; index < imagesToFetch.length; index += 1) {
       const item = imagesToFetch[index];
-      getOptimizedPreviewUrl(item.id, null, 120).then((url) => {
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = title;
-        imgContainer.appendChild(img);
-      });
+      getOptimizedPreviewUrl(item.id, null, 120)
+        .then((url) => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = title;
+          imgContainer.appendChild(img);
+        })
+        .catch((error) => {
+          logError(`Image not found for asset ID: ${error}`);
+        });
     }
   });
 }

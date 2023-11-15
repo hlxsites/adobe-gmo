@@ -189,3 +189,10 @@
   color: var(--heading-color);
   font: var(--bold-font-size-s);
 }
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-right .new-collection-input-container .error-message {
+  width: 80%;
+  margin-left: 30px;
+  margin-bottom: 10px;
+  color: red;
+}

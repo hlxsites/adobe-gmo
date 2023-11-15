@@ -51,6 +51,9 @@
   --button-focus-outline-offset: 2px;
   --button-active-color: #d5d5d5;
   --button-text-color: white;
+  --button-danger-background-color: #D31510;
+  --button-danger-hover-background-color: #E01B16;
+  --button-danger-text-color: #FFF;
 
   /* fonts */
   --body-font-family: 'adobe clean', 'helvetica neue', helvetica, ubuntu, roboto, noto, sans-serif;
@@ -77,11 +80,12 @@
   --stats-value-font: normal normal bold 16px/20px var(--body-font-family);
   --current-refinement-font: normal normal normal 12px/15px var(--body-font-family);
   --share-modal-font: var(--metadata-font);
-
+ 
   /* heading sizes */
   --header-font-size: 14px;
   --heading-font-size-s: 20px;
-
+  --collection-heading-font: normal normal bold var(--heading-font-size-xs)/27px var(--heading-font-family);
+ 
   /* nav height */
   --nav-height: 123px;
   --banner-height: 60px;
@@ -278,7 +282,8 @@ main input {
 
 main input:hover {
   border: 1px solid var(--text-color);
-}*/
+}
+*/
 
 main blockquote {
   font-style: italic;
@@ -312,6 +317,11 @@ main img {
 .icon svg {
   height: 100%;
   width: 100%;
+}
+
+button span.icon.icon-delete {
+  height: 14.22px;
+  width: 13.33px;
 }
 
 .video-container {
@@ -474,7 +484,13 @@ START: Common blocks/*-infinite-results block styling
     "infinite-results infinite-results infinite-results asset-details";
 }
 
-.adp-infinite-results-container.has-multi-selection .adp-result-item .actions {
+.adp-result-item .actions {
+  display: flex;
+  border-top: 1px solid #e6e6e6;
+  padding-top: 6px;
+}
+
+.adp-infinite-results-container.has-multi-selection .actions {
   display: none;
 }
 
@@ -636,7 +652,7 @@ input[type="checkbox"].intermediate {
   border-radius: 8px;
 }
 
-.adp-result-item .actions span.icon svg {
+.actions span.icon svg {
   height: 100%;
   width: 100%;
 }
@@ -667,6 +683,38 @@ input[type="checkbox"].intermediate {
 .adp-result-item .preview-collection a.thumbnail > img {
   width: 100%;
   height: 91px; /* since we have a fixed height for thumbnail */
+  object-fit: cover;
+}
+
+.adp-result-item .preview-collection a.thumbnail.one-image {
+  display: flex;
+  grid-template-columns: 1fr;
+}
+
+.adp-result-item .preview-collection a.thumbnail.one-image > img {
+  width: 100%;
+  height: 184px;
+  object-fit: cover;
+}
+
+.adp-result-item .preview-collection a.thumbnail.two-image {
+  grid-template-columns: 1fr;
+}
+
+.adp-result-item .preview-collection a.thumbnail.two-image > img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.adp-result-item .preview-collection a.thumbnail.three-image {
+  justify-content: normal;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: none;
+}
+
+.adp-result-item .preview-collection a.thumbnail.three-image > img {
+  height: 62px;
+  width: 100%;
   object-fit: cover;
 }
 
@@ -796,13 +844,7 @@ input[type="checkbox"].intermediate {
   text-overflow: ellipsis;
 }
 
-.adp-result-item .actions {
-  display: flex;
-  border-top: 1px solid #e6e6e6;
-  padding-top: 6px;
-}
-
-.adp-result-item .actions :is(button, a) {
+.actions :is(button, a) {
   border: none;
   background-color: transparent;
   margin-top: 0;
@@ -812,29 +854,29 @@ input[type="checkbox"].intermediate {
   color: black;
   font-weight: normal;
   border-radius: 8px;
-  padding: 6px 12px !important;
+  padding: 6px 12px;
   display: flex; /* align icon and text vertically */
   align-items: center;
 }
 
-.adp-result-item .actions :is(a:hover, button:hover) {
+.actions :is(a:hover, button:hover) {
   background-color: var(--button-hover-color);
   text-decoration: none;
 }
 
-.adp-result-item .actions :is(a:focus, button:focus) {
+.actions :is(a:focus, button:focus) {
   background-color: var(--button-focus-color);
   outline-color: var(--button-focus-outline-color);
   outline-offset: var(--button-focus-outline-offset);
   text-decoration: none;
 }
 
-.adp-result-item .actions :is(a:active, button:active) {
+.actions :is(a:active, button:active) {
   background-color: var(--button-active-color);
   text-decoration: none;
 }
 
-.adp-result-item .actions span.icon {
+.actions span.icon {
   height: 0.8em;
   width: 1em;
   line-height: 0.2em;
@@ -844,6 +886,40 @@ input[type="checkbox"].intermediate {
 /*
 END: common blocks/*-infinite-results block styling
 */
+
+.adp-action {
+  cursor: pointer;
+}
+
+button.adp-action {
+  background-color: var(--button-focus-outline-color);
+  border-radius: 16px;
+  font: var(--bold-font-size-s);
+  color: var(--button-text-color);
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: none;
+}
+
+button.adp-action.adp-cancel {
+  background-color: #808080;
+}
+
+button.adp-action.adp-cancel:hover {
+  background-color: #909090;
+}
+
+button.adp-action.adp-danger {
+  background: var(--button-danger-background-color);
+  color: var(--button-danger-text-color);
+}
+
+button.adp-action.adp-danger:hover {
+  background: var(--button-danger-hover-background-color);
+}
 
 /**
 START: blocks/adp-collection-header and blocks/adp-stats

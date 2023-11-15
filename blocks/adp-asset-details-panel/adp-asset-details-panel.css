@@ -75,6 +75,10 @@
   max-height: 377px;
 }
 
+.adp-asset-details-panel #asset-details-image-panel img.adp-failed-placeholder-img {
+  height: 150px;
+}
+
 #asset-details-metadata-container {
   padding-left: 16px;
   padding-right: 16px;
