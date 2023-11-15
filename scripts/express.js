@@ -5,7 +5,6 @@ import { closeModal } from './shared.js';
 import { waitForDependency, logError } from './scripts.js';
 
 let ccEverywhere;
-const adminConfig = await getAdminConfig();
 
 function buildHostInfo(clientId, appName) {
   const hostInfo = {
@@ -152,10 +151,6 @@ function isCCESupported() {
   return isSupported;
 }
 
-export function isCCEConfigured() {
-  return isCCESupported() && (adminConfig.adobeExpressClientId !== undefined) && (adminConfig.adobeExpressAppName !== undefined);
-}
-
 export function isCCEInitialized() {
   return (ccEverywhere !== undefined);
 }
@@ -164,8 +159,9 @@ export async function startCCE() {
   if (isCCESupported()) {
     // create static config objects
     // todo check if clientid and appname values are null/missing
-    const clientId = adminConfig.adobeExpressClientId;
-    const appName = adminConfig.adobeExpressAppName;
+    const adminInfo = await getAdminConfig();
+    const clientId = adminInfo.adobeExpressClientId;
+    const appName = adminInfo.adobeExpressAppName;
 
     if (clientId && appName) {
       await waitForDependency('CCEverywhere');
@@ -201,11 +197,6 @@ export async function addExpressEditorHandler(editorElement, assetId, repoName, 
 }
 
 export async function openInExpress(base64Blob, assetHeight, assetWidth, assetType) {
-  if (!isCCEInitialized()) {
-    // refresh token on-demand to resolve an issue where token is not used by CCE
-    await window.adobeIMS?.refreshToken();
-    await startCCE();
-  }
   // todo fix video
   const userInfo = await buildUserInfo();
   const authInfo = await buildAuthInfo();
