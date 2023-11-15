@@ -55,13 +55,18 @@ export async function addAssetToContainer(
     getOptimizedDeliveryUrl(assetId, assetName, 1024).then((url) => {
       imgElem.src = url;
       imgElem.style.visibility = '';
+      // eslint-disable-next-line func-names
+      imgElem.onerror = function () {
+        this.classList.add('adp-failed-placeholder-img');
+        this.src = getFailedPlaceholderImgSrc(fileFormat);
+      };
+    }).catch(() => {
+      imgElem.classList.add('adp-failed-placeholder-img');
+      imgElem.src = getFailedPlaceholderImgSrc(fileFormat);
+      imgElem.style.visibility = '';
     });
     imgElem.alt = altAttrib;
-    // eslint-disable-next-line func-names
-    imgElem.onerror = function () {
-      this.classList.add('adp-failed-placeholder-img');
-      this.src = getFailedPlaceholderImgSrc(fileFormat);
-    };
+
     container.appendChild(imgElem);
   }
 }

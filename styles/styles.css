@@ -762,6 +762,7 @@ input[type="checkbox"].intermediate {
   width: 75%;
   height: 75%;
   margin: auto;
+  object-fit: fill;
 }
 
 /** card placeholders to make sure the cards are the same size **/

@@ -29,6 +29,11 @@
   transition: transform 0.2s ease;
 }
 
+.adp-asset-details-modal.block .modal-image img.adp-failed-placeholder-img {
+  height: 150px;
+  padding: 15px;
+}
+
 .adp-asset-details-modal.block .modal-right-panel {
   display: flex;
   flex-direction: column;

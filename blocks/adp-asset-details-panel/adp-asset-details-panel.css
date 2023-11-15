@@ -77,6 +77,7 @@
 
 .adp-asset-details-panel #asset-details-image-panel img.adp-failed-placeholder-img {
   height: 150px;
+  padding: 15px;
 }
 
 #asset-details-metadata-container {

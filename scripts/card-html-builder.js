@@ -25,16 +25,8 @@ function getVideoOverlayCSSClass(format) {
 }
 
 export function createFailedImageReplacement(previewElem, imgElem, mimeType) {
-  imgElem.remove();
-  const div = document.createElement('div');
-  div.className = 'preview-overlay';
-  const span = document.createElement('span');
-  span.className = `icon icon-${getFileType(mimeType)}`;
-  previewElem.appendChild(span);
-  div.appendChild(span);
-  previewElem.appendChild(div);
-  previewElem.classList.add('placeholder-img-not-found');
-  decorateIcons(previewElem);
+  imgElem.src = getFailedPlaceholderImgSrc(mimeType);
+  previewElem.closest('.preview').classList.add('placeholder-img-not-found');
 }
 
 function createAssetThumbnail(card, id, name, title, mimeType) {
@@ -48,6 +40,12 @@ function createAssetThumbnail(card, id, name, title, mimeType) {
       createFailedImageReplacement(previewElem, img, mimeType);
     };
     previewElem.appendChild(img);
+  }).catch(() => {
+    const img = document.createElement('img');
+    img.alt = title;
+    img.dataset.fileformat = mimeType;
+    createFailedImageReplacement(previewElem, img, mimeType);
+    previewElem.appendChild(img);
   });
   // if it's a video, add the video play icon over the middle of the thumbnail
   if (isVideo(mimeType)) {
@@ -59,22 +57,6 @@ function createAssetThumbnail(card, id, name, title, mimeType) {
     previewElem.appendChild(div);
     span.className = getVideoOverlayCSSClass(mimeType);
   }
-}
-
-/**
- * In case the preview image fails to load, we replace it with a placeholder image
- * @param {HTMLElement} cardElement - card element
- */
-function handleImageFailures(cardElement) {
-  cardElement.querySelectorAll('.thumbnail > img').forEach((el) => {
-    el.addEventListener('error', (e) => {
-      e.target.src = getFailedPlaceholderImgSrc(e.target.dataset.fileformat);
-      const parentElem = e.target.closest('.preview');
-      if (parentElem) {
-        parentElem.classList.add('placeholder-img-not-found');
-      }
-    });
-  });
 }
 
 function createActionButton(action, label, clickHandler, iconClass) {
@@ -263,7 +245,6 @@ function createCardElement(
   const titleDiv = card.querySelector('.title');
   titleDiv.title = title;
   titleDiv.textContent = title;
-  handleImageFailures(card);
   if (assetObj) {
     let isLicensed = false;
     if (assetObj.assetMetadata) {
