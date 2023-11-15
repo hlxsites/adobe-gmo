@@ -12,6 +12,7 @@ import { getCollection, getCollectionID, getCollectionTitle } from './collection
 import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share-modal.js';
 import { closeAssetDetailsPanel } from '../blocks/adp-asset-details-panel/adp-asset-details-panel.js';
 import { getLicenseAgreementFlags } from './site-config.js';
+import { logError } from './scripts.js';
 
 const licenseAgreementFlags = await getLicenseAgreementFlags();
 let assetObj;
@@ -170,7 +171,7 @@ function createCollectionThumbnail(card, collectionId, title) {
           imgContainer.appendChild(img);
         })
         .catch((error) => {
-          console.error(`Image not found for asset ID: ${error}`);
+          logError(`Image not found for asset ID: ${error}`);
         });
     }
   });

@@ -114,35 +114,33 @@ export function addDownloadEventListener(container) {
         });
       }
     });
-    const downloadFiles = [];
+
     // Loop through each item in the array
-    items.forEach((item) => {
-      fetch(item.url, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      })
-        .then((resp) => resp.blob())
-        .then((blob) => {
-          if (isPDF(item.format)) {
-            openPDF(blob);
-          } else {
-            downloadAsset(blob, item.name);
-          }
-          downloadFiles.push(
-            {
-              assetId: item.assetId,
-              assetName: item.assetName,
-              renditionName: item.renditionName,
-            },
-          );
-        })
-        .catch((e) => logError(`Unable to download file ${item.name}`, e));
-    });
-    Promise.all(downloadFiles).then(() => {
-      emitEvent(b.target, EventNames.DOWNLOAD, {
-        downloads: downloadFiles,
-      });
+    const downloadFiles = await Promise.all(items.map(async (item) => {
+      try {
+        const resp = await fetch(item.url, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        const blob = await resp.blob();
+        if (isPDF(item.format)) {
+          openPDF(blob);
+        } else {
+          downloadAsset(blob, item.name);
+        }
+        return {
+          assetId: item.assetId,
+          assetName: item.assetName,
+          renditionName: item.renditionName,
+        };
+      } catch (e) {
+        logError(`Unable to download file ${item.name}`, e);
+        return {};
+      }
+    }));
+    emitEvent(b.target, EventNames.DOWNLOAD, {
+      downloads: downloadFiles,
     });
   });
 }
@@ -403,40 +401,39 @@ export async function openMultiSelectDownloadModal() {
     const checkedRadio = radioContainer.querySelector('input[name="multi-select-download"]:checked');
     const token = await getBearerToken();
 
-    const downloadFiles = [];
-    rows.forEach(async (row) => {
-      const data = await getAvailableRenditions(
-        row.getAttribute('data-asset-id'),
-        row.getAttribute('data-asset-name'),
-        row.getAttribute('data-fileformat'),
-      );
-      data.forEach((item) => {
-        if (checkedRadio.value === 'Original' && item.name !== 'Original') {
-          return;
-        }
-        fetch(item.url, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        })
-          .then((resp) => resp.blob())
-          .then((blob) => {
-            downloadAsset(blob, item.fileName);
-            downloadFiles.push(
-              {
-                assetId: item.assetId,
-                assetName: item.assetName,
-                renditionName: item.name,
+    const downloadFiles = await Promise.all(
+      Array.from(rows).map(async (row) => {
+        const data = await getAvailableRenditions(
+          row.getAttribute('data-asset-id'),
+          row.getAttribute('data-asset-name'),
+          row.getAttribute('data-fileformat'),
+        );
+        return await Promise.all(data.map(async (item) => {
+          try {
+            if (checkedRadio.value === 'Original' && item.name !== 'Original') {
+              return {};
+            }
+            const resp = await fetch(item.url, {
+              headers: {
+                Authorization: `${token}`,
               },
-            );
-          })
-          .catch((e) => logError(`Unable to download file ${item.name}`, e));
-      });
-    });
-    Promise.all(downloadFiles).then(() => {
-      emitEvent(b.target, EventNames.DOWNLOAD, {
-        downloads: downloadFiles,
-      });
+            });
+            const blob = await resp.blob();
+            downloadAsset(blob, item.fileName);
+            return {
+              assetId: item.assetId,
+              assetName: item.assetName,
+              renditionName: item.name,
+            };
+          } catch (e) {
+            logError(`Unable to download file ${item.name}`, e);
+            return {};
+          }
+        }));
+      }),
+    );
+    emitEvent(b.target, EventNames.DOWNLOAD, {
+      downloads: downloadFiles.flat(Infinity),
     });
   });
 
