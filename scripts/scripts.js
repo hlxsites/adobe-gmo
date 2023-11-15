@@ -260,7 +260,9 @@ async function loadLazy(doc) {
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  loadHeader(doc.querySelector('header'), 'adp-header');
+  if (!(document.querySelector('head meta[name="hide-header"]')?.getAttribute('content') === 'true')) {
+    loadHeader(doc.querySelector('header'), 'adp-header');
+  }
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   sampleRUM('lazy');
