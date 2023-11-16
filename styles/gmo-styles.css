@@ -12,3 +12,7 @@ header:empty {
   display: none;
   visibility: hidden;
 }
+
+header nav .nav-brand img {
+  min-height: 42px;
+}
