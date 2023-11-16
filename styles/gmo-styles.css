@@ -13,6 +13,6 @@ header:empty {
   visibility: hidden;
 }
 
-header nav .nav-brand img {
+header nav .nav-brand .adp-logo img {
   min-height: 42px;
 }
