@@ -108,13 +108,6 @@
   padding: 19px 16px 17px;
 }
 
-button.action {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
 .asset-details-header .top-left {
   width: 111px;
   display: flex;

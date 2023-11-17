@@ -13,7 +13,7 @@ import {
 } from './lib-franklin.js';
 import { getAdminConfig, getBrandingConfig } from './site-config.js';
 // eslint-disable-next-line import/no-cycle
-import { getBearerToken, checkUserAccess } from './security.js';
+import { getBearerToken, checkUserAccess, isPublicPage } from './security.js';
 import {
   getSearchIndex,
   getBackendApiKey,
@@ -21,11 +21,12 @@ import {
   initDeliveryEnvironment,
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
+import { showNextPageToast } from './toast-message.js';
 
 // Load a list of dependencies the site needs
-let dependenciesJSON = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`).then((res) => res.json());
-dependenciesJSON.then(loadDependencies);
-getBearerToken();
+const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
+  .then((res) => res.json())
+  .then(loadDependencies);
 // Pre-emptively load the configs in parallel
 getAdminConfig();
 getBrandingConfig();
@@ -244,42 +245,46 @@ async function loadLazy(doc) {
     url: cleanUrl(window.location),
   });
   const main = doc.querySelector('main');
-  if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
-    if (!await checkUserAccess()) {
-      window.location.href = NO_ACCESS_PATH;
-      return;
+  if (!isPublicPage()) {
+    if (!window.location.pathname.includes(NO_ACCESS_PATH)) {
+      if (!await checkUserAccess()) {
+        window.location.href = NO_ACCESS_PATH;
+        return;
+      }
+      // This is a dev only service worker that caches the algolia JS SDK
+      // check if we are on localhost
+      await initializeServiceWorkers();
+      // Make sure all dependencies are loaded before initializing search
+      // - we load them in parallel by leveraging the promise
     }
-    // This is a dev only service worker that caches the algolia JS SDK
-    // check if we are on localhost
-    await initializeServiceWorkers();
-    // Make sure all dependencies are loaded before initializing search
-    // - we load them in parallel by leveraging the promise
+    await waitForDependency('search');
+    await initDeliveryEnvironment();
+    await initSearch();
   }
-  await waitForDependency('search');
-  await initDeliveryEnvironment();
-  await initSearch();
+  if (!(document.querySelector('head meta[name="hide-header"]')?.getAttribute('content') === 'true')) {
+    loadHeader(doc.querySelector('header'), 'adp-header');
+  } else {
+    document.querySelector('header').classList.add('hidden');
+  }
   await loadBlocks(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  if (!(document.querySelector('head meta[name="hide-header"]')?.getAttribute('content') === 'true')) {
-    loadHeader(doc.querySelector('header'), 'adp-header');
-  }
-
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   sampleRUM('lazy');
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
   sampleRUM.observe(main.querySelectorAll('picture > img'));
+
+  showNextPageToast();
 }
 
 /**
  * Loads all dependencies in an async way so we can leverage
  * the browser's ability to load multiple resources in parallel.
  */
-async function loadDependencies() {
-  dependenciesJSON = await dependenciesJSON;
+async function loadDependencies(dependenciesJSON) {
   dependenciesJSON.forEach((dependency) => {
     if (dependency.type === 'js') {
       if (!dependency.attrs || !dependency.attrs.find((attr) => attr === 'async')) {
@@ -298,6 +303,8 @@ async function loadDependencies() {
 }
 
 export async function waitForDependency(dependencyCategory) {
+  // make sure dependencies have been initialized
+  await loadDependenciesPromise;
   const dependencies = dependencyScripts.filter((d) => d.category === dependencyCategory);
   if (dependencies && dependencies.length > 0) {
     return await Promise.all(dependencies.map((d) => d.script));

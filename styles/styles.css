@@ -140,6 +140,10 @@ header {
   height: var(--nav-height);
 }
 
+header.hidden {
+  display: none;
+}
+
 h1,
 h2,
 h3,
@@ -452,6 +456,126 @@ input[type="text"], textarea, select {
   outline: none;
   border: solid 2px var(--assets-browser-selected-border-color);
 }
+
+button.action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/** Start Toast styles */
+.adp-toast {
+  visibility: hidden;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  color: white;
+  text-align: center;
+  font: 14px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.adp-toast.show {
+  visibility: visible;
+  animation: adp-toast-fadein 0.5s;
+}
+
+.adp-toast.adp-toast-fadeout {
+  visibility: visible;
+  animation: adp-toast-fadeout 0.5s;
+}
+
+.adp-toast .adp-toast-message {
+  margin-bottom: 14px;
+  margin-top: 14px;
+  line-height: 17px;
+  font-size: 14px;
+}
+
+.adp-divider {
+  display: flex;
+  width: 1px;
+}
+
+.adp-toast.success {
+  background-color: #007A4D;
+}
+
+.adp-toast.info {
+  background-color: #888;
+}
+
+.adp-toast.warn {
+  background-color: #FFA500;
+}
+
+.adp-toast.failure {
+  background-color: #D25455;
+}
+
+.adp-toast .adp-close-button .icon svg {
+  stroke: none;
+  stroke-width: 0;
+  fill: #fff;
+}
+
+.adp-toast.success .adp-divider .icon svg {
+  stroke: #519B7A;
+  fill: #519B7A;
+}
+
+.adp-toast.info .adp-divider .icon svg {
+  stroke: #fff;
+  fill: #fff;
+}
+
+.adp-toast.warn .adp-divider .icon svg {
+  stroke: #fff;
+  fill: #fff;
+}
+
+.adp-toast.failure .adp-divider .icon svg {
+  stroke: darkred;
+  fill: darkred;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.adp-toast .adp-close-button .icon {
+  height: 12px;
+  width: 12px;
+  cursor: pointer;
+}
+
+.adp-toast .action-close {
+  display: flex;
+  align-items: center;
+}
+
+.adp-toast .adp-close-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+@keyframes adp-toast-fadein {
+  from {top: 0; opacity: 0;}
+  to {top: 20px; opacity: 1;}
+}
+@keyframes adp-toast-fadeout {
+  from {top: 20px; opacity: 1;}
+  to {top: 0; opacity: 0;}
+}
+
+/** End Toast styles */
 
 /*
 START: Common blocks/*-infinite-results block styling

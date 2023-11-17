@@ -95,7 +95,7 @@ export async function getBearerToken() {
 
 export async function getUserProfile() {
   await getBearerToken();
-  return await window.adobeIMS.getProfile();
+  return await window.adobeIMS?.getProfile();
 }
 
 async function getCCCollabProfile() {
@@ -145,7 +145,14 @@ async function isUserInSecurityGroup(securityGroup) {
   return securityGroupMemberships.find((elem) => elem.groupName === securityGroup) !== undefined;
 }
 
+export function isPublicPage() {
+  return document.querySelector('head meta[name="public-access"]')?.getAttribute('content').toLowerCase() === 'true';
+}
+
 export async function checkUserAccess() {
+  if (isPublicPage()) {
+    return true;
+  }
   await getBearerToken();
   return await isUserInSecurityGroup(imsUserGroup);
 }
