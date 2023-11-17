@@ -174,6 +174,53 @@ export const EventNames = {
    * * url: Full URL of the page that was loaded.
    */
   PAGE_VIEW: 'page-view',
+
+  /*
+   * Sent when assets are added to new collection.
+   *
+   * The event's detail will contain the following properties:
+   * * collectionName
+   * * collectionId
+   * * assets : Array of the collections assets. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was shared.
+   *   * assetName: Name of the asset that was shared.
+  */
+  CREATE_COLLECTION: 'create-collection',
+
+  /*
+   * Sent when assets are added to an existing collection.
+   *
+   * The event's detail will contain the following properties:
+   * * collectionName
+   * * collectionId
+   * * assets : Array of the collections assets added to collection. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was added.
+   *   * assetName: Name of the asset that was added.
+
+  */
+  ADD_TO_COLLECTION: 'add-to-collection',
+
+  /*
+   * Sent when assets are deleted from an existing collection.
+   *
+   * The event's detail will contain the following properties:
+   * * collectionName
+   * * collectionId
+   * * assets : Array of the collections assets added to collection. Each item in the array will contain the following:
+   *   * assetId: ID of the asset that was deleted.
+   *   * assetName: Name of the asset that was deleted.
+
+  */
+  DELETE_FROM_COLLECTION: 'delete-from-collection',
+
+  /*
+   * Sent when a collection is deleted.
+   *
+   * The event's detail will contain the following properties:
+   * * collectionName
+   * * collectionId
+  */
+  DELETE_COLLECTION: 'delete-collection',
 };
 
 /**

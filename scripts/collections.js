@@ -4,6 +4,7 @@ import {
   getDeliveryEnvironment,
 } from './polaris.js';
 import { getLastPartFromURL, logError } from './scripts.js';
+import { emitEvent, EventNames } from './events.js';
 
 export function getCollectionIdFromURL() {
   if (window.location.pathname.startsWith('/collection/')) {
@@ -100,6 +101,7 @@ export async function getCollection(collectionId) {
  * @param {string} title - The title of the new collection.
  * @param {string} description - The description of the new collection (optional).
  * @param {Array<object>} items - An array of items to include in the collection (optional).
+ * @param {object} collectionDetails - From the collection modal to be used by emitEvent
  * @returns {Promise<object>} A promise that resolves with the created collection.
  * @throws {Error} If an HTTP error or network error occurs.
  */
@@ -117,6 +119,17 @@ export async function createCollection(title, description, items) {
     if (response.status === 200) {
       // Collection created successfully
       const responseBody = await response.json();
+
+      const assetsArray = items.map((obj) => ({ assetId: obj.id, assetName: obj.name }));
+
+      const collectionDetails = {
+        collectionName: title,
+        collectionId: responseBody.id,
+        assets: assetsArray,
+      };
+      // Emit create creation event
+      emitEvent(document.documentElement, EventNames.CREATE_COLLECTION, collectionDetails);
+
       return responseBody;
     } if (response.status === 400) {
       // Handle 400 error
@@ -216,6 +229,21 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
 
     if (response.status === 200) {
       const responseBody = await response.json();
+
+      const assetsArray = responseBody.items.map((obj) => ({ assetId: obj.id, assetName: obj.name }));
+
+      const collectionDetails = {
+        collectionName: responseBody.title,
+        collectionId: responseBody.id,
+        assets: assetsArray,
+      };
+
+      if (addOperation) {
+        emitEvent(document.documentElement, EventNames.ADD_TO_COLLECTION, collectionDetails);
+      } else if (deleteOperation) {
+        emitEvent(document.documentElement, EventNames.DELETE_FROM_COLLECTION, collectionDetails);
+      }
+
       return responseBody;
     } if (response.status === 400) {
       // Handle 400 error
@@ -245,7 +273,7 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
  * @returns {Promise<void>} A promise that resolves when the collection is updated.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-export async function deleteCollection(collectionId) {
+export async function deleteCollection(collectionId, collectionName) {
   try {
     const options = {
       method: 'DELETE',
@@ -257,6 +285,13 @@ export async function deleteCollection(collectionId) {
     if (response.status !== 204) {
       throw new Error(`Failed to delete collection: ${response.status} ${response.statusText}`);
     }
+
+    const collectionDetails = {
+      collectionId,
+      collectionName,
+    };
+    // Emit delete creation event
+    emitEvent(document.documentElement, EventNames.DELETE_COLLECTION, collectionDetails);
   } catch (error) {
     logError('deleteCollection', error);
     throw error;

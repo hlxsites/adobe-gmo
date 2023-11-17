@@ -117,10 +117,7 @@ export async function openModal(items) {
   const selectedItems = [];
   // Store the selected items in the array
   items.forEach((item) => {
-    selectedItems.push({
-      id: item.id,
-      type: item.type,
-    });
+    selectedItems.push(item);
   });
 
   // Event listener for the "Submit" button click
@@ -139,7 +136,9 @@ export async function openModal(items) {
         titleInput.parentElement.appendChild(errorMessage);
         return;
       }
+
       createCollection(title, title, selectedItems);
+
       resetDialogState();
     }
     // If "Add to Existing Collection" is selected, get the title from the dropdown
@@ -194,9 +193,11 @@ export async function addAddToCollectionModalHandler() {
   const items = [];
   selectedAssets.forEach((asset) => {
     const assetId = asset.getAttribute('data-item-id');
+    const assetName = asset.getAttribute('data-item-name');
     items.push(
       {
         id: assetId,
+        name: assetName,
         type: 'asset',
       },
     );
@@ -239,7 +240,7 @@ export default async function decorate(block) {
           </button>
         </div>
       </div>
-      
+
       <div class='dialog-body'>
         <div class='dialog-body-left'></div>
         <div class='dialog-body-right'>
