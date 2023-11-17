@@ -21,6 +21,7 @@ import {
   initDeliveryEnvironment,
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
+import { showNextPageToast } from './toast-message.js';
 
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
@@ -269,6 +270,8 @@ async function loadLazy(doc) {
   sampleRUM('lazy');
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
   sampleRUM.observe(main.querySelectorAll('picture > img'));
+
+  showNextPageToast();
 }
 
 /**
