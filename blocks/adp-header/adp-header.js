@@ -4,7 +4,7 @@ import {
 import {
   getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
 } from '../../scripts/site-config.js';
-import { getUserProfile, getAvatarUrl } from '../../scripts/security.js';
+import { getUserProfile, getAvatarUrl, isPublicPage } from '../../scripts/security.js';
 import { closeDialogEvent, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
@@ -114,8 +114,6 @@ export default async function decorate(block) {
       <a class="adp-logo" href="/"></a>
       <div></div>
     </div>
-    <div class="nav-search" id="searchbox">
-    </div>
     <div class="nav-sections">
       <!--  <ul>-->
       <!--    <li><a href="#">link 1</a></li>-->
@@ -205,17 +203,43 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
+
+  getBrandingConfig().then((brandingConfig) => {
+    if (brandingConfig.logo) {
+      const logoContainer = nav.querySelector('.nav-brand .adp-logo');
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.src = brandingConfig.logo;
+      img.alt = brandingConfig.brandText;
+      logoContainer.appendChild(img);
+    }
+    if (brandingConfig.brandText) {
+      nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+      document.title = brandingConfig.brandText;
+    }
+  });
+
+  if (!isPublicPage()) {
+    loadSearchField(nav);
+    await createUserInfo(nav);
+  }
+}
+
+function loadSearchField(nav) {
+  const divEl = document.createElement('div');
+  divEl.className = 'nav-search';
+  divEl.id = 'searchbox';
+  const navTopEl = document.querySelector('.nav-top');
+  navTopEl.insertBefore(divEl, nav.querySelector('.nav-sections'));
+
   const searchField = buildBlock('adp-search-field', '');
   nav.querySelector('.nav-search').appendChild(searchField);
   decorateBlock(searchField);
   loadBlock(searchField);
+}
 
+async function createUserInfo(nav) {
   const userProfile = await getUserProfile();
-  if (!userProfile) { // stop here for non-authenticated users
-    return;
-  }
-
-  const avatarUrl = await getAvatarUrl();
 
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
     window.sessionStorage.setItem(SESSION_STARTED_KEY, 'true');
@@ -229,6 +253,7 @@ export default async function decorate(block) {
   // decorate user switcher
   const userSwitcher = nav.querySelector('.user-switcher');
 
+  const avatarUrl = await getAvatarUrl();
   if (avatarUrl) {
     userSwitcher.style = `background-image: url(${avatarUrl});`;
   } else {
@@ -258,21 +283,6 @@ export default async function decorate(block) {
         redirect_uri: `${window.location.origin}${pathName}`,
       },
     );
-  });
-
-  getBrandingConfig().then((brandingConfig) => {
-    if (brandingConfig.logo) {
-      const logoContainer = nav.querySelector('.nav-brand .adp-logo');
-      const img = document.createElement('img');
-      img.loading = 'lazy';
-      img.src = brandingConfig.logo;
-      img.alt = brandingConfig.brandText;
-      logoContainer.appendChild(img);
-    }
-    if (brandingConfig.brandText) {
-      nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
-      document.title = brandingConfig.brandText;
-    }
   });
 
   initQuickLinks();

@@ -140,6 +140,10 @@ header {
   height: var(--nav-height);
 }
 
+header.hidden {
+  display: none;
+}
+
 h1,
 h2,
 h3,
