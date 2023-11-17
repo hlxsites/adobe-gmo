@@ -23,8 +23,9 @@ import {
 import { EventNames, emitEvent } from './events.js';
 
 // Load a list of dependencies the site needs
-let dependenciesJSON = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`).then((res) => res.json());
-dependenciesJSON.then(loadDependencies);
+const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
+  .then((res) => res.json())
+  .then(loadDependencies);
 getBearerToken();
 // Pre-emptively load the configs in parallel
 getAdminConfig();
@@ -274,8 +275,7 @@ async function loadLazy(doc) {
  * Loads all dependencies in an async way so we can leverage
  * the browser's ability to load multiple resources in parallel.
  */
-async function loadDependencies() {
-  dependenciesJSON = await dependenciesJSON;
+async function loadDependencies(dependenciesJSON) {
   dependenciesJSON.forEach((dependency) => {
     if (dependency.type === 'js') {
       if (!dependency.attrs || !dependency.attrs.find((attr) => attr === 'async')) {
@@ -294,6 +294,8 @@ async function loadDependencies() {
 }
 
 export async function waitForDependency(dependencyCategory) {
+  // make sure dependencies have been initialized
+  await loadDependenciesPromise;
   const dependencies = dependencyScripts.filter((d) => d.category === dependencyCategory);
   if (dependencies && dependencies.length > 0) {
     return await Promise.all(dependencies.map((d) => d.script));
