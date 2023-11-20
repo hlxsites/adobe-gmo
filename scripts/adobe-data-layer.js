@@ -21,6 +21,10 @@ export function loadDataLayer() {
   document.addEventListener(EventNames.CLOSE_BANNER, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.SHARE_LINK, (e) => addDataLayer(e,e.detail));
   document.addEventListener(EventNames.PAGE_VIEW, (e) => addDataLayer(e,e.detail));
+  document.addEventListener(EventNames.CREATE_COLLECTION, (e) => addDataLayer(e,e.detail));
+  document.addEventListener(EventNames.ADD_TO_COLLECTION, (e) => addDataLayer(e,e.detail));
+  document.addEventListener(EventNames.DELETE_FROM_COLLECTION, (e) => addDataLayer(e,e.detail));
+  document.addEventListener(EventNames.DELETE_COLLECTION, (e) => addDataLayer(e,e.detail));
 }
 
 //Generic function to add to the adobeDataLayer
