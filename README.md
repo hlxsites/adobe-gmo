@@ -298,7 +298,6 @@ The following are valid event names, along with the `detail` data for each:
   * `shares`: An array of information about each shared item. Each item in the array will have these properties:
     * `assetId`: ID of the asset that was shared.
     * `assetName`: Name of the asset that was shared.
-
 ```
 {
   ...
@@ -312,7 +311,87 @@ The following are valid event names, along with the `detail` data for each:
     }]
   }
 }
+
 ```
+* `create-collection`: Sent when assets are added to new collection.    
+   * `collectionName` : Collection name
+   * `collectionId` : Collection Id
+   * `assets` : Array of the collections assets. Each item in the array will contain the following:
+        * `assetId`: ID of the asset that was shared.
+        * `assetName`: Name of the asset that was shared.
+```
+{
+  ...
+  detail: {
+    collectionName: 'Name of Collection',
+    collectionId: 'id-of-collection',
+    assets:[{
+      assetId: 'id-of-an-asset',
+      assetName: 'My test asset.jpg',
+    }, {
+      assetId: 'id-of-another-asset',
+      assetName: 'My other asset.jpg',
+    }]
+  }
+}
+
+```
+* `add-to-collection`: Sent when assets are added to an existing collection.    
+   * `collectionName` : Collection name
+   * `collectionId` : Collection Id
+   * `assets` : Array of the collections assets. Each item in the array will contain the following:
+        * `assetId`: ID of the asset that was shared.
+        * `assetName`: Name of the asset that was shared.
+```
+{
+  ...
+  detail: {
+    collectionName: 'Name of Collection',
+    collectionId: 'id-of-collection',
+    assets:[{
+      assetId: 'id-of-an-asset',
+      assetName: 'My test asset.jpg',
+    }, {
+      assetId: 'id-of-another-asset',
+      assetName: 'My other asset.jpg',
+    }]
+  }
+}
+```
+
+* `delete-from-collection`: Sent when assets are deleted from an existing collection.    
+   * `collectionName` : Collection name
+   * `collectionId` : Collection Id
+   * `assets` : Array of the collections assets. Each item in the array will contain the following:
+        * `assetId`: ID of the asset that was shared.
+        * `assetName`: Name of the asset that was shared.
+```
+{
+  ...
+  detail: {
+    collectionName: 'Name of Collection',
+    collectionId: 'id-of-collection',
+    assets:[{
+      assetId: 'id-of-an-asset',
+      assetName: 'My test asset.jpg',
+    }, {
+      assetId: 'id-of-another-asset',
+      assetName: 'My other asset.jpg',
+    }]
+  }
+}
+```
+
+* `delete-collection`: Sent when a collection is deleted.    
+   * `collectionName` : Collection name
+   * `collectionId` : Collection Id
+```
+{
+  collectionName:'collection name',
+  collectionId:'collection Id',
+}
+```
+
 
 * `page-view`: A page has loaded on the site. This will be triggered by any action that loads a portal URL, including but not limited to: users typing one of the site's URLs into the browser address bar,
  users clicking links, users navigating to browser favorites, redirects to the site, etc. The event will be fired for _any_ page on the portal, including pages from individual implementations.

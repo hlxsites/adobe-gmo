@@ -356,6 +356,7 @@ async function handleRemoveMultiSelectedAssetsFromCollection() {
   const deleteOperation = selectedAssetIds.map((assetId) => ({
     path: `/items/${collectionIndexes[assetId]}`,
   }));
+
   await patchCollection(collectionId, collectionJSON?.etag, null, deleteOperation);
   // Refresh the page
   window.location.reload();

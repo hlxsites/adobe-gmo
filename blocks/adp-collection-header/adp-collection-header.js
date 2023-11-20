@@ -32,7 +32,7 @@ function createCollectionInfoHeader(collectionInfoHeader, collection) {
         'Delete collection',
         `Are you sure you want to delete the collection "${collection.title}"?`,
         async () => {
-          await deleteCollection(collectionId);
+          await deleteCollection(collectionId, collection.title);
           window.location.href = '/collections';
         },
         'Proceed',
