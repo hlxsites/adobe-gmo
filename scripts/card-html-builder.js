@@ -64,6 +64,11 @@ function createActionButton(action, label, clickHandler, iconClass) {
   const a = document.createElement('a');
   a.className = `action-${action}`;
 
+  const spanTooltip = document.createElement('span');
+  spanTooltip.className = 'adp-tooltip';
+  spanTooltip.textContent = label;
+  a.appendChild(spanTooltip);
+
   // Create the 'span' element
   const span = document.createElement('span');
   span.className = `icon icon-${(iconClass) ? toCamelCase(iconClass) : toCamelCase(action)}`;
@@ -71,9 +76,6 @@ function createActionButton(action, label, clickHandler, iconClass) {
   // Append the 'span' to the 'a'
   a.appendChild(span);
 
-  // Add the text node "Download" to the 'a'
-  const downloadText = document.createTextNode(label);
-  a.appendChild(downloadText);
   decorateIcons(a);
   // Add the click handler
   a.addEventListener('click', (e) => {

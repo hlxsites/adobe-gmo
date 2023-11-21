@@ -27,6 +27,8 @@
   --banner-text-color: white;
   --label-color: #464646;
   --checkbox-border-color: #222;
+  --tooltip-background-color: #222;
+  --tooltip-text-color: #fff;
   --heading-color: #757575;
   --assets-browser-background-color: #f8f8f8;
   --asset-details-image-background-color: #e1e1e1;
@@ -126,6 +128,7 @@ body {
   color: var(--text-color);
   background-color: var(--white-background-color);
   display: none;
+  text-transform: capitalize;
 }
 
 body.appear {
@@ -364,9 +367,6 @@ main .section.highlight {
   background-color: var(--highlight-background-color);
 }
 
-body {
-  text-transform: capitalize;
-}
 
 .title,
 .metadata-filename,
@@ -462,6 +462,11 @@ button.action {
   border: none;
   cursor: pointer;
   padding: 0;
+}
+
+.actions span.icon svg {
+  height: 100%;
+  width: 100%;
 }
 
 /** Start Toast styles */
@@ -612,6 +617,7 @@ START: Common blocks/*-infinite-results block styling
   display: flex;
   border-top: 1px solid #e6e6e6;
   padding-top: 6px;
+  gap: 8px;
 }
 
 .adp-infinite-results-container.has-multi-selection .actions {
@@ -776,10 +782,6 @@ input[type="checkbox"].intermediate {
   border-radius: 8px;
 }
 
-.actions span.icon svg {
-  height: 100%;
-  width: 100%;
-}
 
 .adp-result-item .preview div.filetype-icon-overlay .icon svg {
   width: 20px;
@@ -982,11 +984,71 @@ input[type="checkbox"].intermediate {
   padding: 6px 12px;
   display: flex; /* align icon and text vertically */
   align-items: center;
+  }
+
+/* card action button */
+.adp-result-item .actions :is(button, a) {
+  border: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex; /* align icon and text vertically */
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.actions span.icon {
+  height: 0.8em;
+  width: 1em;
+  line-height: 0.2em;
+  margin-right: 5px;
+}
+
+/* card action button icon */
+.adp-result-item .actions span.icon {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+/* tooltip text */
+.adp-result-item .actions span.adp-tooltip {
+  display: none;
+  position: absolute;
+  background: var(--tooltip-background-color);
+  color: var(--tooltip-text-color);
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 6px;
+  z-index: 1;
+  top: 100%;
+}
+
+/* tooltip arrow */
+.adp-result-item .actions span.adp-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -4px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: transparent transparent var(--tooltip-background-color);
 }
 
 .actions :is(a:hover, button:hover) {
   background-color: var(--button-hover-color);
   text-decoration: none;
+}
+
+.adp-result-item .actions a:hover span.adp-tooltip {
+  display: inline-block;
 }
 
 .actions :is(a:focus, button:focus) {
@@ -1001,12 +1063,6 @@ input[type="checkbox"].intermediate {
   text-decoration: none;
 }
 
-.actions span.icon {
-  height: 0.8em;
-  width: 1em;
-  line-height: 0.2em;
-  margin-right: 5px;
-}
 
 /*
 END: common blocks/*-infinite-results block styling
