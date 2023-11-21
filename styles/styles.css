@@ -593,12 +593,12 @@ START: Common blocks/*-infinite-results block styling
 .section.adp-infinite-results-instantsearch-container, .section.adp-infinite-results-collections-container {
   padding-top: 10px;
   display: grid;
-  grid-template-columns: min-content max-content auto min-content;
+  grid-template-columns: min-content max-content max-content auto min-content;
   grid-template-rows: auto auto;
   /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
   grid-template-areas:
-      "refinements stats current-refinements current-refinements"
-      "refinements infinite-results infinite-results asset-details";
+    "refinements selection-items stats current-refinements asset-details"
+    "refinements infinite-results infinite-results infinite-results asset-details";
   align-items: start;
   background-color: var(--assets-browser-background-color);
   border-top: solid #F1F1F1 2px;
@@ -607,10 +607,10 @@ START: Common blocks/*-infinite-results block styling
 }
 
 .section.adp-infinite-results-instantsearch-container.closed, .section.adp-infinite-results-collections-container.closed {
-  grid-template-columns: min-content max-content auto min-content;
+  grid-template-columns: min-content max-content max-content auto min-content;
   grid-template-areas:
-    "refinements stats current-refinements current-refinements"
-    "infinite-results infinite-results infinite-results asset-details";
+    "refinements selection-items stats current-refinements asset-details"
+    "infinite-results infinite-results infinite-results infinite-results asset-details";
 }
 
 .adp-result-item .actions {
@@ -749,7 +749,8 @@ input[type="checkbox"]:checked {
   border: 2px solid var(--checkbox-checked-background-color);
 }
 
-input[type="checkbox"].intermediate {
+input[type="checkbox"].intermediate,
+input[type="checkbox"]:indeterminate {
   background: url("/icons/intermediate-checkmark.svg") center center no-repeat padding-box border-box var(--checkbox-checked-background-color);
   border: 2px solid var(--checkbox-checked-background-color);
 }

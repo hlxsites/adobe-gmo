@@ -17,3 +17,23 @@ export default async function decorate(block) {
     infiniteResultsContainer.clearAllSelections();
   });
 }
+
+export function selectAllAssets() {
+  infiniteResultsContainer.selectAllItems();
+}
+
+export function deselectAllAssets() {
+  infiniteResultsContainer.deselectAllItems();
+}
+
+export function hasAllAssetsSelected() {
+  return infiniteResultsContainer.hasAllItemsSelected();
+}
+
+export function selectedAssetsCount(){
+  return infiniteResultsContainer.getSelectedItemsCount();
+}
+
+export function allAssetsCount(){
+  return infiniteResultsContainer.getAllItemsCount();
+}

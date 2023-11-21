@@ -1,5 +1,23 @@
 export const EventNames = {
   /**
+   * Sent whenever a user selects all assets in the infinite results container
+   * via the "Select All" checkbox
+   * 
+   * The event's detail will contain the following properties:
+   * * selections: Array of the selected ids.
+   */
+  SELECT_ALL_ITEMS: 'select-all-items',
+
+  /**
+   * Sent whenever a user deselects all assets in the infinite results container
+   *  via the "Select All" checkbox
+   * 
+   * The event's detail will contain the following properties:
+   * * selections: Array of the selected ids.
+   */
+  DESELECT_ALL_ITEMS: 'deselect-all-items',
+  
+  /**
    * Sent whenever a user selects an asset in the infinite results panel.
    *
    * The event's detail will contain the following properties:
