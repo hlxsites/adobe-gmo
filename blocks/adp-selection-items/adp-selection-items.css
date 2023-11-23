@@ -19,6 +19,7 @@
 
 .selection-text-label{
   margin-right: 10px;
+  cursor: pointer;
 }
 
 .selection-counter-text{

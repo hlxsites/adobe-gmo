@@ -11,10 +11,12 @@ export default function decorate(block) {
   checkbox.dataset.isChecked = checkbox.checked;
   block.appendChild(checkbox);
 
-  const textContainer = document.createElement('div');
-  textContainer.classList.add('selection-text-label');
-  textContainer.innerText = 'Select All';
-  block.appendChild(textContainer);
+  const textLabel = document.createElement('label');
+  textLabel.classList.add('selection-text-label');
+  textLabel.innerText = 'Select All';
+  textLabel.title = 'Deselect all';
+  textLabel.setAttribute('for', 'select-all')
+  block.appendChild(textLabel);
 
   const counterContainer = document.createElement('div');
   counterContainer.classList.add('selection-counter-text');
@@ -22,7 +24,7 @@ export default function decorate(block) {
   block.appendChild(counterContainer);
 
   // hide selection items on page load; only load when multi-select is initiated
-  hideSelectionItems(checkbox, textContainer, counterContainer);
+  hideSelectionItems(checkbox, textLabel, counterContainer);
 
   checkbox.addEventListener('click', (e) => {
     if (e.target.checked) {
@@ -36,7 +38,7 @@ export default function decorate(block) {
   addEventListener(EventNames.ADD_ITEM_MULTISELECT, () => {
     if (selectedAssetsCount()){
       checkbox.style.display = 'inline-block';
-      textContainer.style.display = 'inline-flex';
+      textLabel.style.display = 'inline-flex';
       counterContainer.style.display = 'inline-flex';
     }
     updateCheckbox(checkbox);
@@ -47,19 +49,19 @@ export default function decorate(block) {
     if(selectedAssetsCount()) {
       renderCounterText(counterContainer);
     } else { //once no assets are selected
-      hideSelectionItems(checkbox, textContainer, counterContainer);
+      hideSelectionItems(checkbox, textLabel, counterContainer);
     }
   });
   addEventListener(EventNames.SEARCH_RESULTS_CHANGED, () => {
     updateCheckbox(checkbox);
-    hideSelectionItems(checkbox, textContainer, counterContainer);
+    hideSelectionItems(checkbox, textLabel, counterContainer);
   });
   addEventListener(EventNames.SEARCH_PAGED, () => {
     updateCheckbox(checkbox);
     renderCounterText(counterContainer);
   });
   addEventListener(EventNames.FACET, () => {
-    hideSelectionItems(checkbox, textContainer, counterContainer);
+    hideSelectionItems(checkbox, textLabel, counterContainer);
   })
 }
 
@@ -76,9 +78,9 @@ function updateCheckbox(checkbox) {
   }
 }
 
-function hideSelectionItems(checkbox, textContainer, counterContainer){
+function hideSelectionItems(checkbox, textLabel, counterContainer){
   checkbox.style.display = 'none';
-  textContainer.style.display = 'none';
+  textLabel.style.display = 'none';
   counterContainer.style.display = 'none';
   counterContainer.innerText = ''; 
 }
