@@ -1,11 +1,11 @@
-# Assets Distribution Portal
+# Assets Contenthub
 
 The Assets Distribution Portal allows authors to create custom yet performant search portals into their assets.  This allows companies to expose assets and their metadata to target users.
 It is designed to help users find, download and share assets. Users can browse across assets using our card view and search using facets and filters. The portal is customizable so that companies can configure it with their own branding.
 
 ## Environments
-- Preview: https://main--assets-distribution-portal--adobe.hlx.page/
-- Live: https://main--assets-distribution-portal--adobe.hlx.live/
+- Preview: https://main--assets-contenthub--adobe-rnd.hlx.page/
+- Live: https://main--assets-contenthub--adobe-rnd.hlx.live/
 
 ## Installation
 
