@@ -136,10 +136,10 @@ export async function openAssetDetailsModal(id, resultsManager) {
         break;
       }
     }
-    emitEvent(document.body, EventNames.ASSET_DETAIL, {
+    emitEvent(document.body, EventNames.ASSET_DETAIL, [{
       assetId,
       assetName: getAssetName(assetJSON),
-    });
+    }]);
   }
 }
 

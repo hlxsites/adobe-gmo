@@ -242,7 +242,7 @@ export function addFavIcon(href) {
  */
 async function loadLazy(doc) {
   emitEvent(document.documentElement, EventNames.PAGE_VIEW, {
-    url: cleanUrl(window.location),
+    url: cleanUrl(window.location), pageName: doc.title,
   });
   const main = doc.querySelector('main');
   if (!isPublicPage()) {

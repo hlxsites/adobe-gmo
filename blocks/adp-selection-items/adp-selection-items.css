@@ -1,0 +1,32 @@
+.adp-selection-items-wrapper{
+  grid-area: selection-items;
+  padding-top: 15px;
+  padding-bottom: 11px;
+}
+
+.adp-selection-items{
+  font-size: var(--header-font-size);
+  word-break: keep-all;
+}
+
+.selection-text-label, .selection-counter-text{
+  display: inline-flex;
+	text-align: left;
+	vertical-align: middle;
+  letter-spacing: 0;
+  color: var(--stats-label-color);
+}
+
+.selection-text-label{
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.selection-counter-text{
+  font-weight: bold;
+}
+
+input[type="checkbox"].selection-checkbox{
+	vertical-align: middle;
+	margin-right: 10px;
+}

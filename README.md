@@ -406,3 +406,39 @@ The following are valid event names, along with the `detail` data for each:
   ...
 }
 ```
+
+* `select-all-items`: Sent whenever a user selects all asset items via the "Select All" checkbox. Only the loaded asset items (non-placeholders) contained in the infinite results container are selected.
+  * `selection`: An array containing information of each item selected. Each item in the array will have the property:
+    * `assetId`: ID of the asset that was selected.
+
+```
+{
+  ...
+  detail: {
+    selections: {
+      selectedItems: [
+        assetId: 'id-of-an-asset'
+      ]
+    }
+  }
+  ...
+}
+```
+
+* `deselect-all-items`: Sent whenever a user deselects all asset items via the "Select All" checkbox.
+  * `selection`: An array containing information of each item still selected. Each item in the array will have the property:
+    * `assetId`: ID of the asset that was selected.
+
+```
+{
+  ...
+  detail: {
+    selections: {
+      selectedItems: [
+        assetId: 'id-of-an-asset'
+      ]
+    }
+  }
+  ...
+}
+```

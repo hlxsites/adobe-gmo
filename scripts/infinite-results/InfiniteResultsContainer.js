@@ -20,6 +20,8 @@ export default class InfiniteResultsContainer {
 
   #selectedItems = [];
 
+  #itemCount = 0;
+
   constructor(block, datasource) {
     this.datasource = datasource;
     this.#block = block;
@@ -172,17 +174,18 @@ export default class InfiniteResultsContainer {
    */
   addItemToMultiSelection(item) {
     const itemCard = this.#getItem(item);
-    if (itemCard) {
+    if (itemCard && !itemCard.classList.contains('checked')) {
       itemCard.classList.add('checked');
       itemCard.attributes['aria-selected'] = true;
+      itemCard.querySelector('input[type="checkbox"]').checked = true;
       this.#selectedItems = [...this.#selectedItems, itemCard];
+      this.#container.classList.add('has-multi-selection');
+      emitEvent(itemCard, EventNames.ADD_ITEM_MULTISELECT, {
+        id: itemCard.dataset.itemId,
+        name: itemCard.dataset.itemName,
+        selections: this.#getIdsFromSelection(),
+      });
     }
-    this.#container.classList.add('has-multi-selection');
-    emitEvent(itemCard, EventNames.ADD_ITEM_MULTISELECT, {
-      id: itemCard.dataset.itemId,
-      name: itemCard.dataset.itemName,
-      selections: this.#getIdsFromSelection(),
-    });
   }
 
   /**
@@ -191,7 +194,7 @@ export default class InfiniteResultsContainer {
    */
   removeItemFromMultiSelection(item) {
     const itemCard = this.#getItem(item);
-    if (itemCard) {
+    if (itemCard && itemCard.classList.contains('checked')) {
       itemCard.classList.remove('checked');
       itemCard.removeAttribute('aria-selected');
       itemCard.querySelector('input[type="checkbox"]').checked = false;
@@ -199,12 +202,64 @@ export default class InfiniteResultsContainer {
       if (this.#selectedItems.length === 0) {
         this.#container.classList.remove('has-multi-selection');
       }
+      emitEvent(itemCard, EventNames.REMOVE_ITEM_MULTISELECT, {
+        id: itemCard.dataset.itemId,
+        name: itemCard.dataset.itemName,
+        selections: this.#getIdsFromSelection(),
+      });
     }
-    emitEvent(itemCard, EventNames.REMOVE_ITEM_MULTISELECT, {
-      id: itemCard.dataset.itemId,
-      name: itemCard.dataset.itemName,
+  }
+
+  #getAllItems() {
+    return Array.from(this.#container.querySelectorAll('.adp-result-item'))
+      .filter((item) => !item.classList.contains('placeholder-card'));
+  }
+
+  /**
+   * Selects all items in the multi-selection
+   */
+  selectAllItems() {
+    this.#getAllItems().forEach((item) => {
+      this.addItemToMultiSelection(item);
+    });
+    emitEvent(this.#container, EventNames.SELECT_ALL_ITEMS, {
       selections: this.#getIdsFromSelection(),
     });
+    this.datasource.onSelectAllItems?.();
+  }
+
+  /**
+   * Checks if all assets in the infininte results container have been selected via card checkbox
+   */
+  hasAllItemsSelected() {
+    if (this.#selectedItems.length) return this.#itemCount === this.#selectedItems.length;
+  }
+
+  /**
+   * Returns the amount of assets contained in multi-select
+   */
+  getSelectedItemsCount() {
+    return this.#selectedItems.length;
+  }
+
+  /**
+   * Returns the amount of assets in the infinite results container (excluding placeholder cards)
+   */
+  getAllItemsCount() {
+    return this.#getAllItems().length;
+  }
+
+  /**
+   * Deselects all items from the multi-selection
+   */
+  deselectAllItems() {
+    this.#getAllItems().forEach((item) => {
+      this.removeItemFromMultiSelection(item);
+    });
+    emitEvent(this.#container, EventNames.DESELECT_ALL_ITEMS, {
+      selections: this.#getIdsFromSelection(),
+    });
+    this.datasource.onDeselectAllItems?.();
   }
 
   /**
@@ -344,6 +399,7 @@ export default class InfiniteResultsContainer {
     this.#lastPage = null;
     this.#lastScrollDistance = 0;
     this.#selectedItems = [];
+    this.#itemCount = 0;
   }
 
   /**
@@ -434,6 +490,7 @@ export default class InfiniteResultsContainer {
       newCards = await Promise.all(newCards);
 
       InfiniteResultsContainer.removePlaceholderCards(cards);
+      this.#itemCount += newCards.length;
       InfiniteResultsContainer.addPlaceholderCards(cards, newCards);
       cards.append(...newCards);
 
