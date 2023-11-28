@@ -226,16 +226,19 @@ export default async function decorate(block) {
 }
 
 function loadSearchField(nav) {
-  const divEl = document.createElement('div');
-  divEl.className = 'nav-search';
-  divEl.id = 'searchbox';
-  const navTopEl = document.querySelector('.nav-top');
-  navTopEl.insertBefore(divEl, nav.querySelector('.nav-sections'));
+  // add search field to header only when block is requested
+  if (document.querySelector('head meta[name="show-search-field"]')?.getAttribute('content').toLowerCase() === 'true') {
+    const divEl = document.createElement('div');
+    divEl.className = 'nav-search';
+    divEl.id = 'searchbox';
+    const navTopEl = document.querySelector('.nav-top');
+    navTopEl.insertBefore(divEl, nav.querySelector('.nav-sections'));
 
-  const searchField = buildBlock('adp-search-field', '');
-  nav.querySelector('.nav-search').appendChild(searchField);
-  decorateBlock(searchField);
-  loadBlock(searchField);
+    const searchField = buildBlock('adp-search-field', '');
+    nav.querySelector('.nav-search').appendChild(searchField);
+    decorateBlock(searchField);
+    loadBlock(searchField);
+  }
 }
 
 async function createUserInfo(nav) {
