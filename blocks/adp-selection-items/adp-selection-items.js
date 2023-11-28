@@ -1,5 +1,7 @@
 import { EventNames, addEventListener } from '../../scripts/events.js';
-import { selectAllAssets, deselectAllAssets, hasAllAssetsSelected, selectedAssetsCount, allAssetsCount } from '../adp-infinite-results-instantsearch/adp-infinite-results-instantsearch.js';
+import {
+  selectAllAssets, deselectAllAssets, hasAllAssetsSelected, selectedAssetsCount, allAssetsCount,
+} from '../adp-infinite-results-instantsearch/adp-infinite-results-instantsearch.js';
 
 export default function decorate(block) {
   block.innerHTML = '';
@@ -15,7 +17,7 @@ export default function decorate(block) {
   textLabel.classList.add('selection-text-label');
   textLabel.innerText = 'Select All';
   textLabel.title = 'Deselect all';
-  textLabel.setAttribute('for', 'select-all')
+  textLabel.setAttribute('for', 'select-all');
   block.appendChild(textLabel);
 
   const counterContainer = document.createElement('div');
@@ -36,7 +38,7 @@ export default function decorate(block) {
   });
 
   addEventListener(EventNames.ADD_ITEM_MULTISELECT, () => {
-    if (selectedAssetsCount()){
+    if (selectedAssetsCount()) {
       checkbox.style.display = 'inline-block';
       textLabel.style.display = 'inline-flex';
       counterContainer.style.display = 'inline-flex';
@@ -46,9 +48,9 @@ export default function decorate(block) {
   });
   addEventListener(EventNames.REMOVE_ITEM_MULTISELECT, () => {
     updateCheckbox(checkbox);
-    if(selectedAssetsCount()) {
+    if (selectedAssetsCount()) {
       renderCounterText(counterContainer);
-    } else { //once no assets are selected
+    } else { // once no assets are selected
       hideSelectionItems(checkbox, textLabel, counterContainer);
     }
   });
@@ -62,29 +64,29 @@ export default function decorate(block) {
   });
   addEventListener(EventNames.FACET, () => {
     hideSelectionItems(checkbox, textLabel, counterContainer);
-  })
+  });
 }
 
 function updateCheckbox(checkbox) {
   if (hasAllAssetsSelected()) {
     checkbox.checked = true;
     checkbox.indeterminate = false;
-  } else if (!hasAllAssetsSelected() && selectedAssetsCount()){ //if some assets are selected
+  } else if (!hasAllAssetsSelected() && selectedAssetsCount()) { // if some assets are selected
     checkbox.checked = false;
     checkbox.indeterminate = true;
-  } else { //if no assets are selected
+  } else { // if no assets are selected
     checkbox.checked = false;
     checkbox.indeterminate = false;
   }
 }
 
-function hideSelectionItems(checkbox, textLabel, counterContainer){
+function hideSelectionItems(checkbox, textLabel, counterContainer) {
   checkbox.style.display = 'none';
   textLabel.style.display = 'none';
   counterContainer.style.display = 'none';
-  counterContainer.innerText = ''; 
+  counterContainer.innerText = '';
 }
 
-function renderCounterText(counterContainer){
+function renderCounterText(counterContainer) {
   counterContainer.innerText = `Selected ${selectedAssetsCount().toString()} out of ${allAssetsCount().toString()} assets`;
 }
