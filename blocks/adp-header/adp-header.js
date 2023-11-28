@@ -226,16 +226,19 @@ export default async function decorate(block) {
 }
 
 function loadSearchField(nav) {
-  const divEl = document.createElement('div');
-  divEl.className = 'nav-search';
-  divEl.id = 'searchbox';
-  const navTopEl = document.querySelector('.nav-top');
-  navTopEl.insertBefore(divEl, nav.querySelector('.nav-sections'));
+  // add search field to header only when block is requested
+  if (document.querySelector('head meta[name="show-search-field"]')?.getAttribute('content').toLowerCase() === 'true') {
+    const divEl = document.createElement('div');
+    divEl.className = 'nav-search';
+    divEl.id = 'searchbox';
+    const navTopEl = document.querySelector('.nav-top');
+    navTopEl.insertBefore(divEl, nav.querySelector('.nav-sections'));
 
-  const searchField = buildBlock('adp-search-field', '');
-  nav.querySelector('.nav-search').appendChild(searchField);
-  decorateBlock(searchField);
-  loadBlock(searchField);
+    const searchField = buildBlock('adp-search-field', '');
+    nav.querySelector('.nav-search').appendChild(searchField);
+    decorateBlock(searchField);
+    loadBlock(searchField);
+  }
 }
 
 async function createUserInfo(nav) {
@@ -367,30 +370,7 @@ function initQuickLinks() {
     return;
   }
 
-  const allAssetsDiv = document.createElement('div');
-  allAssetsDiv.classList.add('item', 'all-assets');
-  const allAssetsLink = document.createElement('a');
-  allAssetsLink.href = '/';
-  allAssetsLink.textContent = 'All Assets';
-  allAssetsDiv.appendChild(allAssetsLink);
-
-  const collectionsDiv = document.createElement('div');
-  collectionsDiv.classList.add('item', 'collections');
-  const collectionsLink = document.createElement('a');
-  collectionsLink.href = '/collections';
-  collectionsLink.textContent = 'Collections';
-  collectionsDiv.appendChild(collectionsLink);
-
   const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
-  quickLinks.append(allAssetsDiv);
-  quickLinks.append(collectionsDiv);
-
-  // append drafts path if needed
-  quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (isUrlPathNonRoot()) {
-      item.querySelector('a').href = getBaseConfigPath() + item.querySelector('a').getAttribute('href');
-    }
-  });
   // decorate quick links
   quickLinksConfig.forEach((item) => {
     const itemEl = document.createElement('div');

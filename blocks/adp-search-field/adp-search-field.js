@@ -221,8 +221,7 @@ export default async function decorate(block) {
   const querySuggestionsPlugin = createSuggestionsPlugin(recentSearchesPlugin);
   await waitForDependency('search-autocomplete');
   const { autocomplete } = window['@algolia/autocomplete-js'];
-  const isRoot = (!window.location.pathname) || (window.location.pathname === '/');
-  if (window.search && autocomplete && isRoot) {
+  if (window.search && autocomplete) {
     const searchField = document.createElement('div');
     block.appendChild(searchField);
     const virtualSearchBox = window.instantsearch.connectors.connectSearchBox(() => {});
