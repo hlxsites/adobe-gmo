@@ -370,30 +370,7 @@ function initQuickLinks() {
     return;
   }
 
-  const allAssetsDiv = document.createElement('div');
-  allAssetsDiv.classList.add('item', 'all-assets');
-  const allAssetsLink = document.createElement('a');
-  allAssetsLink.href = '/';
-  allAssetsLink.textContent = 'All Assets';
-  allAssetsDiv.appendChild(allAssetsLink);
-
-  const collectionsDiv = document.createElement('div');
-  collectionsDiv.classList.add('item', 'collections');
-  const collectionsLink = document.createElement('a');
-  collectionsLink.href = '/collections';
-  collectionsLink.textContent = 'Collections';
-  collectionsDiv.appendChild(collectionsLink);
-
   const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
-  quickLinks.append(allAssetsDiv);
-  quickLinks.append(collectionsDiv);
-
-  // append drafts path if needed
-  quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (isUrlPathNonRoot()) {
-      item.querySelector('a').href = getBaseConfigPath() + item.querySelector('a').getAttribute('href');
-    }
-  });
   // decorate quick links
   quickLinksConfig.forEach((item) => {
     const itemEl = document.createElement('div');
