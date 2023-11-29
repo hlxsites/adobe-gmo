@@ -232,7 +232,7 @@ export default class InfiniteResultsContainer {
    * Checks if all assets in the infininte results container have been selected via card checkbox
    */
   hasAllItemsSelected() {
-    if (this.#selectedItems.length) return this.#itemCount === this.#selectedItems.length;
+    return this.#selectedItems.length && this.#itemCount === this.#selectedItems.length;
   }
 
   /**

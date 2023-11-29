@@ -35,7 +35,6 @@
     "fs": "^0.0.1-security",
     "sinon": "15.0.1",
     "stylelint": "15.2.0",
-    "stylelint-config-prettier": "9.0.4",
     "stylelint-config-standard": "30.0.1",
     "webpack-cli": "^5.1.4"
   },

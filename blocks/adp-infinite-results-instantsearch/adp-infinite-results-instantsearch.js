@@ -30,10 +30,10 @@ export function hasAllAssetsSelected() {
   return infiniteResultsContainer.hasAllItemsSelected();
 }
 
-export function selectedAssetsCount(){
+export function selectedAssetsCount() {
   return infiniteResultsContainer.getSelectedItemsCount();
 }
 
-export function allAssetsCount(){
+export function allAssetsCount() {
   return infiniteResultsContainer.getAllItemsCount();
 }
