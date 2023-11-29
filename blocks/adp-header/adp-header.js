@@ -356,7 +356,9 @@ async function handleRemoveMultiSelectedAssetsFromCollection() {
   });
   const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
   const selectedAssetIds = selectedAssets.map((asset) => asset.getAttribute('data-item-id'));
+
   const deleteOperation = selectedAssetIds.map((assetId) => ({
+    value: collectionJSON.items[collectionIndexes[assetId]],
     path: `/items/${collectionIndexes[assetId]}`,
   }));
 

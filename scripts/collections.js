@@ -230,17 +230,21 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
     if (response.status === 200) {
       const responseBody = await response.json();
 
-      const assetsArray = responseBody.items.map((obj) => ({ assetId: obj.id, assetName: obj.name }));
-
-      const collectionDetails = {
-        collectionName: responseBody.title,
-        collectionId: responseBody.id,
-        assets: assetsArray,
-      };
-
       if (addOperation) {
+        const assetsArray = addOperation.map((obj) => ({ assetId: obj.value.id, assetName: obj.value.name }));
+        const collectionDetails = {
+          collectionName: responseBody.title,
+          collectionId: responseBody.id,
+          assets: assetsArray,
+        };
         emitEvent(document.documentElement, EventNames.ADD_TO_COLLECTION, collectionDetails);
       } else if (deleteOperation) {
+        const assetsArray = deleteOperation.map((obj) => ({ assetId: obj.value.id, assetName: obj.value.name }));
+        const collectionDetails = {
+          collectionName: responseBody.title,
+          collectionId: responseBody.id,
+          assets: assetsArray,
+        };
         emitEvent(document.documentElement, EventNames.DELETE_FROM_COLLECTION, collectionDetails);
       }
 
