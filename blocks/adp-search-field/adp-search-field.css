@@ -103,12 +103,12 @@ svg.aa-ClearIcon {
     text-decoration: none;
  }
 
- .aa-Item:hover {
-    background-color: var(--overlay-background-color);
- }
-
  .aa-Item {
     min-height: 32px;
+ }
+
+ .aa-Item:hover {
+    background-color: var(--overlay-background-color);
  }
 
  .aa-ItemIcon {

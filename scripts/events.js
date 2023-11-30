@@ -2,7 +2,7 @@ export const EventNames = {
   /**
    * Sent whenever a user selects all assets in the infinite results container
    * via the "Select All" checkbox
-   * 
+   *
    * The event's detail will contain the following properties:
    * * selections: Array of the selected ids.
    */
@@ -11,12 +11,12 @@ export const EventNames = {
   /**
    * Sent whenever a user deselects all assets in the infinite results container
    *  via the "Select All" checkbox
-   * 
+   *
    * The event's detail will contain the following properties:
    * * selections: Array of the selected ids.
    */
   DESELECT_ALL_ITEMS: 'deselect-all-items',
-  
+
   /**
    * Sent whenever a user selects an asset in the infinite results panel.
    *
@@ -211,7 +211,7 @@ export const EventNames = {
    * The event's detail will contain the following properties:
    * * collectionName
    * * collectionId
-   * * assets : Array of the collections assets added to collection. Each item in the array will contain the following:
+   * * assets : Array of the assets that were added to collection. Each item in the array will contain the following:
    *   * assetId: ID of the asset that was added.
    *   * assetName: Name of the asset that was added.
 
@@ -224,7 +224,7 @@ export const EventNames = {
    * The event's detail will contain the following properties:
    * * collectionName
    * * collectionId
-   * * assets : Array of the collections assets added to collection. Each item in the array will contain the following:
+   * * assets : Array of the assets that were deleted from the collection. Each item in the array will contain the following:
    *   * assetId: ID of the asset that was deleted.
    *   * assetName: Name of the asset that was deleted.
 

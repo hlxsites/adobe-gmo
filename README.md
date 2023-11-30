@@ -338,7 +338,7 @@ The following are valid event names, along with the `detail` data for each:
 * `add-to-collection`: Sent when assets are added to an existing collection.    
    * `collectionName` : Collection name
    * `collectionId` : Collection Id
-   * `assets` : Array of the collections assets. Each item in the array will contain the following:
+   * `assets` : Array of the assets that were added to the collection. Each item in the array will contain the following:
         * `assetId`: ID of the asset that was shared.
         * `assetName`: Name of the asset that was shared.
 ```
@@ -361,7 +361,7 @@ The following are valid event names, along with the `detail` data for each:
 * `delete-from-collection`: Sent when assets are deleted from an existing collection.    
    * `collectionName` : Collection name
    * `collectionId` : Collection Id
-   * `assets` : Array of the collections assets. Each item in the array will contain the following:
+   * `assets` : Array of the assets that were deleted from the collection. Each item in the array will contain the following:
         * `assetId`: ID of the asset that was shared.
         * `assetName`: Name of the asset that was shared.
 ```
