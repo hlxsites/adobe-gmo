@@ -575,6 +575,7 @@ button.action {
   from {top: 0; opacity: 0;}
   to {top: 20px; opacity: 1;}
 }
+
 @keyframes adp-toast-fadeout {
   from {top: 20px; opacity: 1;}
   to {top: 0; opacity: 0;}

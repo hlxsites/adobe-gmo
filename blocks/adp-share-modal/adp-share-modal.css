@@ -15,10 +15,10 @@
 
 .adp-share-modal.block .dialog-header {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr;
   padding: 28px 34px 0 35px;
-  grid-template-areas: 'dialog-header-left dialog-header-right';
+  grid-template:
+    'dialog-header-left dialog-header-right' 1fr
+    / 1fr 1fr;
 }
 
 .adp-share-modal.block .dialog-header span.icon {
@@ -44,9 +44,9 @@
 
 .adp-share-modal.block .dialog-body {
   display: grid;
-  grid-template-columns: auto auto;
-  grid-template-rows: 1fr;
-  grid-template-areas: 'share-link-body-left share-link-body-right';
+  grid-template:
+    'share-link-body-left share-link-body-right' 1fr
+    / auto auto;
   column-gap: 40px;
   font-size: 14px;
   font-family: var(--body-font-family);
