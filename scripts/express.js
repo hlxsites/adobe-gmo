@@ -6,6 +6,7 @@ import { waitForDependency, logError } from './scripts.js';
 
 let ccEverywhere;
 const adminConfig = await getAdminConfig();
+const userProfile = await getUserProfile();
 
 function buildHostInfo(clientId, appName) {
   const hostInfo = {
@@ -153,17 +154,33 @@ function isCCESupported() {
 }
 
 export function isCCEConfigured() {
-  return isCCESupported() && (adminConfig.adobeExpressClientId !== undefined) && (adminConfig.adobeExpressAppName !== undefined);
+  return isCCESupported() && hasEntitlement() && (adminConfig.adobeExpressClientId !== undefined)
+    && (adminConfig.adobeExpressAppName !== undefined);
 }
 
 export function isCCEInitialized() {
   return (ccEverywhere !== undefined);
 }
 
+function hasEntitlement() {
+  let sparkCtx;
+  const productContext = userProfile.projectedProductContext;
+
+  productContext.forEach((context) => {
+    if (context.prodCtx.serviceCode === 'spark') {
+      sparkCtx = context.prodCtx;
+    }
+  });
+
+  if (!(sparkCtx === undefined) && (sparkCtx.statusCode === 'ACTIVE')) {
+    return true;
+  }
+  return false;
+}
+
 export async function startCCE() {
   if (isCCESupported()) {
     // create static config objects
-    // todo check if clientid and appname values are null/missing
     const clientId = adminConfig.adobeExpressClientId;
     const appName = adminConfig.adobeExpressAppName;
 
@@ -206,7 +223,7 @@ export async function openInExpress(base64Blob, assetHeight, assetWidth, assetTy
     await window.adobeIMS?.refreshToken();
     await startCCE();
   }
-  // todo fix video
+
   const userInfo = await buildUserInfo();
   const authInfo = await buildAuthInfo();
   ccEverywhere.createDesign({
