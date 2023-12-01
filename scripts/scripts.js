@@ -22,6 +22,7 @@ import {
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
+import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
 
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
@@ -110,7 +111,10 @@ async function applySiteBranding() {
   addFavIcon(brandingConfig.favicon);
 }
 
-export async function loadScript(url, attrs) {
+/**
+ * @deprecated duplicate of loadScript in lib-franklin.js
+ */
+async function loadScript(url, attrs) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = url;
@@ -307,6 +311,7 @@ export async function waitForDependency(dependencyCategory) {
   }
   return Promise.resolve();
 }
+
 /**
  * Loads everything that happens a lot later,
  * without impacting the user experience.
@@ -319,6 +324,7 @@ function loadDelayed() {
 
 async function loadPage() {
   await loadEager(document);
+  await bootstrapUnifiedShell();
   await loadLazy(document);
   loadDelayed();
 }
@@ -383,7 +389,10 @@ export function setLastPartofURL(newLastPart, redirect = false) {
     // replace :'s with _'s as : isn't valid in a Franklin folder URL
     parts[parts.length - 1] = newLastPart.replaceAll(':', '_');
     url.pathname = parts.join('/');
-    if (redirect) {
+
+    if (window.unifiedShellRuntime) {
+      window.location.href = window.unifiedShellRuntime.generateShellUrl({ path: url.pathname });
+    } else if (redirect) {
       window.location.href = url.toString();
     } else {
       window.history.replaceState({}, '', url.toString());
@@ -413,8 +422,13 @@ function addParamToHashParams(url, paramName, paramValue) {
 }
 
 export function addHashParamToWindowURL(paramName, paramValue) {
-  const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
-  window.history.replaceState({}, '', newURL);
+  if (window.unifiedShellRuntime) {
+    const newURL = `/${paramName}/${paramValue}`;
+    window.history.replaceState({}, '', newURL);
+  } else {
+    const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
+    window.history.replaceState({}, '', newURL);
+  }
 }
 
 export function createTag(tag, attributes) {

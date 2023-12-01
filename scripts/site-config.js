@@ -19,6 +19,8 @@ function parseValue(value) {
  * @property {string} imsOrg
  * @property {string} imsUserGroup
  * @property {string} apiKey
+ * @property {string} adobeExpressClientId
+ * @property {string} adobeExpressAppName
  * @property {'prod'|'stage'|undefined} imsEnvironment (Optional)
  */
 

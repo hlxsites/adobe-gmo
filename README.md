@@ -44,18 +44,11 @@ npm test
 5. Double-click the cert in the list -> expand **Trust** and select "When using this certificate:" **Always Trust**
    ![image](https://github.com/adobe/assets-distribution-portal/assets/2372994/d6375f2d-8ffd-4636-aa1a-91f62b8dd76d)
 6. Close **Keychain Access** so it saves the configurations
-7. Create a file in the root of this project's directory called `.env`:
+8. Now start the local aem cli (https://github.com/adobe/helix-cli)
    ```bash
-   AEM_TLS_CERT=env/server.crt
-   AEM_TLS_KEY=env/server.key
-   AEM_OPEN=/
-   AEM_PORT=443
+   aem up
    ```
-8. Now start the local aem cli (helix-cli) - note we use sudo so we can use port 443
-   ```bash
-   sudo aem up
-   ```
-9. Using Chrome browser, go to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
+9. Using Chrome browser, go to <https://localhost.corp.adobe.com:8443>
 10. If you would also like to use Mozilla Firefox instead of Chrome then:
     1. Open Firefox
     2. Enter `about:config` in the address bar, hit `[Enter]`
@@ -90,21 +83,14 @@ npm test
 4. In the Start Menu, type `Manage computer certificates` and click to open the Local computer certificates storehouse. You will need admin permission to complete the process.
 5. Navigate to Certificates – Local Computer > Personal > Certificates. This place stores all the local certificate that is created on the computer. Find the certificate you have created that contains `localhost.corp.adobe.com` in the `Issued To` and `Issued From` columns.
 6. Next, on the left panel, expand Trusted Root Certification Authorities > Certificates. Drag and drop the local certificate and drop into this folder. You can also copy and paste it.
-7. Create a file in the root of this project's directory called `.env` and use a text editor to modify its contents to the following:
-   ```
-   AEM_TLS_CERT=env/server.crt
-   AEM_TLS_KEY=env/server.key
-   AEM_OPEN=/
-   AEM_PORT=443
-   ```
-8. Create a batch file to start the local aem cli (helix cli). Create a file on the desktop with the file extention `.bat` and use a text editor to modify its contents with the following, while making sure to change the directory in the `cd` command to the root directory of the project:
+7. Create a batch file to start the local aem cli (helix cli). Create a file on the desktop with the file extention `.bat` and use a text editor to modify its contents with the following, while making sure to change the directory in the `cd` command to the root directory of the project:
    ```
    @echo off
    %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command "Start-Process PowerShell -Verb RunAs -ArgumentList '-NoProfile', '-ExecutionPolicy Bypass', '-Command', 'cd Change-me-to-the-Root-Directory-of-the-Project; aem up --tls-cert env/server.crt --tls-key env/server.key'"
    ```
    Test your batch file. If all has been configured correctly, User Account Control prompt for permission to open Powershell as Administrator. Click yes. Powershell should then open and start the local aem cli.
-9. Using Chrome browser, go to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
-10. If you would also like to use Mozilla Firefox instead of Chrome then:
+8. Using Chrome browser, go to [https://localhost.corp.adobe.com](https://localhost.corp.adobe.com)
+9. If you would also like to use Mozilla Firefox instead of Chrome then:
     1. Open Firefox
     2. Enter `about:config` in the address bar, hit `[Enter]`
     3. Click **Accept the Risk and Continue**
@@ -123,6 +109,38 @@ To update the dependencies under [scripts/libs](scripts/libs) with newer version
 5. Run `npm run update-dependencies`, this will update the dependencies under [scripts/libs](scripts/libs) and add them to [dependencies.json)
 6. Run `sudo aem up` and test https://localhost.corp.adobe.com/ to make sure everything still works with the updated dependency versions.
 7. Run `git add scripts/libs package.json`, `git commit -m "Update dependencies"` to commit the new updated dependencies.
+
+## Test with Unified Shell 
+
+To test code on the main branch, use stage: https://experience-stage.adobe.com/?shell_ims=prod&shell_source=stage#/@skylineprodtest017/content-hub
+
+To test code locally, open https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/content-hub
+
+To test different Unified Shell settings, you can override the shell configuration locally: 
+1. open https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/content-hub
+2. In the same browser window, open the Dev Tools Javascript console and run this code to add a localStorage entry for testing with Unified Shell:
+```js
+window.localStorage.setItem('unifiedShellConfig', JSON.stringify({
+  devmodeEnabled: true,
+  solutions: {
+    contenthub: {
+      name: 'Content Hub',
+      appId: 'content-hub',
+      path: '/content-hub',
+      permissionsPolicy: ['clipboard-write'],
+      sandbox: {
+        history: 'SERVER',
+        sources: {
+          dev: 'https://localhost.corp.adobe.com:8443/',
+          stage: 'https://shell--assets-contenthub--adobe-rnd.hlx.live/',
+        }
+      }
+    }
+  }
+}));
+```
+3. Remember to remove the override when you're done testing.
+
 
 ## Authentication
 By default, users are redirected for IMS authentication. e.g. when you visit the base URL you will be prompted for IMS auth. e.g. https://main--assets-distribution-portal--adobe.hlx.page
