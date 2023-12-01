@@ -219,6 +219,7 @@ function createCardElement(
 
   const card = document.createElement('div');
   card.classList.add(`filetype-${fileType}`);
+  card.setAttribute('data-item-name', name);
 
   card.innerHTML = `
     <div class="preview preview-${toClassName(getFileType(mimeType))}">
