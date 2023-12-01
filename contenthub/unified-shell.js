@@ -42,10 +42,11 @@ async function loadUnifiedShellRuntime() {
 export async function bootstrapUnifiedShell() {
   await loadUnifiedShellRuntime();
   // eslint-disable-next-line no-console
-  console.debug('UnifiedShell runtime ready');
   window.unifiedShellRuntime = excApp();
 
-  page.done();
+  console.debug('UnifiedShell runtime loaded');
+  await page.done();
+  console.debug('UnifiedShell app starting');
 
   // for debugging:
   window.unifiedShellRuntime.on('ready', (config) => {

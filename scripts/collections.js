@@ -1,7 +1,6 @@
 import { getBearerToken } from './security.js';
 import {
-  getAssetHandlerApiKey,
-  getDeliveryEnvironment,
+  getAssetHandlerApiKey, getDeliveryEnvironment,
 } from './polaris.js';
 import { getLastPartFromURL, logError } from './scripts.js';
 import { emitEvent, EventNames } from './events.js';

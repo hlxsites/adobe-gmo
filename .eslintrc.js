@@ -21,6 +21,7 @@ module.exports = {
     'no-use-before-define': 'off',
     'no-return-await': 'off',
     'no-restricted-syntax': 'off',
+    'no-else-return': 'off',
     'import/prefer-default-export': 'off',
     'max-len': ['warn', { code: 140 }],
   },

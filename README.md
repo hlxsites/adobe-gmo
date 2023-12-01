@@ -112,9 +112,9 @@ To update the dependencies under [scripts/libs](scripts/libs) with newer version
 
 ## Test with Unified Shell 
 
-To test code on the main branch, use stage: https://experience-stage.adobe.com/?shell_ims=prod&shell_source=stage#/@skylineprodtest017/content-hub
+To test code on the main branch, use stage: https://experience-stage.adobe.com/?shell_ims=prod&shell_source=stage#/@skylineprodtest017/contenthub
 
-To test code locally, open https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/content-hub
+To test code locally, open https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/contenthub
 
 To test different Unified Shell settings, you can override the shell configuration locally: 
 1. open https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/content-hub
