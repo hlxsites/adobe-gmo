@@ -1,4 +1,4 @@
-Please always provide the [JIRA issue(s)]([../issues](https://jira.corp.adobe.com/)) your PR is for, as well as a description of your changes:
+Please always provide the [JIRA issue(s)](https://jira.corp.adobe.com/) your PR is for, as well as a description of your changes:
 
 JIRA: ASSETS-00000
 

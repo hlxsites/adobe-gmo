@@ -4,7 +4,7 @@ header .nav-wrapper {
   position: fixed;
   width: 100%;
   border-bottom: #d5d5d5 0.2px solid;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 4px rgba(0 0 0 / 5%);
 }
 
 header nav .nav-top{
@@ -18,6 +18,7 @@ header nav .nav-top{
   color: var(--header-text-color);
   background-color: var(--header-background-color);
   width: 100%;
+  grid-area: nav-top;
 }
 
 header nav a.user-switcher {
@@ -31,7 +32,7 @@ header nav dialog.user-profile {
   margin-right: 24px;
   width: 200px;
   border: 1px solid #d5d5d5;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 4px rgba(0 0 0 / 5%);
   padding: 0;
   border-radius: 6px;
 }
@@ -62,6 +63,14 @@ header nav dialog .user-container .user-email {
   border-bottom: 2px solid #d5d5d5;
 }
 
+header nav a:any-link {
+  color: currentcolor;
+}
+
+header nav .nav-tools a {
+  margin-right: 10px;
+}
+
 header nav dialog .user-container a {
   width: 100%;
   padding-top: 10px;
@@ -70,7 +79,6 @@ header nav dialog .user-container a {
 header nav dialog .user-container a:hover{
   text-decoration: none;
 }
-
 
 header nav[aria-expanded="true"] .nav-top {
   overflow-y: auto;
@@ -140,6 +148,11 @@ header .nav-wrapper .banner .banner-right .icon svg {
   fill: white;
 }
 
+header nav .icon {
+  fill: var(--header-text-color);
+  color: var(--header-text-color);
+}
+
 header .nav-wrapper .banner .icon {
   width: 32px;
   height: 32px;
@@ -187,16 +200,13 @@ header nav p {
   line-height: 1;
 }
 
-header nav a:any-link {
-  color: currentcolor;
-}
-
 /* hamburger */
 header nav .nav-hamburger {
   grid-area: hamburger;
   height: 22px;
-  display: flex;
+  width: 22px;
   align-items: center;
+
   /* disable hamburger since there is no use currently */
   display: none;
   visibility: hidden;
@@ -212,24 +222,12 @@ header nav .nav-hamburger button {
   overflow: initial;
   text-overflow: initial;
   white-space: initial;
-}
-
-header nav .icon {
-  fill: var(--header-text-color);
-  color: var(--header-text-color);
+  background: transparent !important;
 }
 
 header nav .nav-search {
   grid-area: search;
   width: 550px;
-}
-
-header nav .nav-hamburger {
-  width: 22px;
-}
-
-header nav .nav-hamburger button {
-  background: transparent !important;
 }
 
 header nav .nav-hamburger-icon,
@@ -245,7 +243,6 @@ header nav .nav-hamburger-icon::before,
 header nav .nav-hamburger-icon::after {
   content: '';
   position: absolute;
-  /*background: currentcolor;*/
 }
 
 header nav[aria-expanded="false"] .nav-hamburger-icon,
@@ -460,10 +457,6 @@ header nav .nav-tools div {
   font-size: 0.8em;
 }
 
-header nav .nav-tools a {
-  margin-right: 10px;
-}
-
 header nav .quick-links {
   display: flex;
   flex-flow: row nowrap;
@@ -475,7 +468,7 @@ header nav .quick-links .item {
   padding-bottom: 11px;
   text-align: left;
   font: normal normal normal 16px/20px var(--body-font-family);
-  letter-spacing: 0px;
+  letter-spacing: 0;
   color: var(--label-color);
   opacity: 1;
   margin: 10px;
@@ -491,10 +484,6 @@ header nav .quick-links .item[aria-selected="true"] {
   opacity: 1;
   text-decoration: underline;
   text-underline-offset: 24px;
-}
-
-header nav .nav-top {
-  grid-area: nav-top;
 }
 
 header nav .nav-bottom {

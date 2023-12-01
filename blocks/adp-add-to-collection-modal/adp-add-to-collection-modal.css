@@ -16,10 +16,10 @@
 
 .adp-add-to-collection-modal-container .dialog-header {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr;
   padding: 28px 34px 0 35px;
-  grid-template-areas: 'dialog-header-left dialog-header-right';
+  grid-template:
+    'dialog-header-left dialog-header-right' 1fr
+    / 1fr 1fr;
 }
 
 .adp-add-to-collection-modal-container .dialog-header span.icon {
@@ -45,9 +45,9 @@
 
 .adp-add-to-collection-modal-container .dialog-body {
   display: grid;
-  grid-template-columns: auto auto;
-  grid-template-rows: 1fr;
-  grid-template-areas: 'dialog-body-left dialog-body-right';
+  grid-template:
+    'dialog-body-left dialog-body-right' 1fr
+    / auto auto;
   column-gap: 40px;
   font-size: 14px;
   font-family: var(--body-font-family);
@@ -180,7 +180,7 @@
   margin-bottom: 10px;
   text-indent: 11px;
   appearance: none;
-  background-image: url(../../icons/chevronDown.svg);
+  background-image: url("../../icons/chevronDown.svg");
   background-repeat: no-repeat;
   background-position: center right 7px;
 }

@@ -12,6 +12,6 @@ jobs:
       with:
         node-version: '16' #required for npm 8 or later.
     - run: npm install
-    - run: npm run lint:js
+    - run: npm run lint
       env:
         CI: true

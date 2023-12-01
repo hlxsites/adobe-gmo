@@ -1,10 +1,9 @@
 .section.adp-infinite-results-linkshare-container {
     padding-top: 24px;
     display: grid;
-    grid-template-columns: auto min-content;
-    grid-template-rows: auto auto;
-    grid-template-areas:
-        "infinite-results asset-details";
+    grid-template:
+        "infinite-results asset-details" auto
+        / auto min-content;
     align-items: start;
     background-color: var(--assets-browser-background-color);
     border-top: solid #F1F1F1 2px;
