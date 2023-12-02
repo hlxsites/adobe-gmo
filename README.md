@@ -117,30 +117,38 @@ To test code on the main branch, use stage: https://experience-stage.adobe.com/?
 To test code locally, open https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/contenthub
 
 To test different Unified Shell settings, you can override the shell configuration locally: 
-1. open https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/content-hub
-2. In the same browser window, open the Dev Tools Javascript console and run this code to add a localStorage entry for testing with Unified Shell:
+1. open https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/contenthub
+2. In the same browser window, open the Dev Tools Javascript console
+3. run `window.shellDev.getConfig()` and then paste the output into the code snippet below 
+4. Make any desired changes and run the snippet below to add a localStorage entry for testing with Unified Shell.:
 ```js
 window.localStorage.setItem('unifiedShellConfig', JSON.stringify({
-  devmodeEnabled: true,
-  solutions: {
-    contenthub: {
-      name: 'Content Hub',
-      appId: 'content-hub',
-      path: '/content-hub',
-      permissionsPolicy: ['clipboard-write'],
-      sandbox: {
-        history: 'SERVER',
-        sources: {
-          dev: 'https://localhost.corp.adobe.com:8443/',
-          stage: 'https://shell--assets-contenthub--adobe-rnd.hlx.live/',
+  "devmodeEnabled": true,
+  "solutions": {
+    "contentHub": {
+      "appId": "contentHub",
+      "path": "/contenthub",
+      "permissionsPolicy": [
+        "clipboard-write"
+      ],
+      "sandbox": {
+        "history": "HISTORY",
+        "sources": {
+          "dev": "https://localhost.corp.adobe.com:8443",
+          "qa": "https://main--assets-contenthub--adobe-rnd.hlx.page",
+          "stage": "https://contenthub.adobe.com",
+          "prod": "https://contenthub.adobe.com"
         }
-      }
+      },
+      "exportName": "contentHub"
     }
   }
 }));
+
 ```
 3. Remember to remove the override when you're done testing.
 
+See docs: https://git.corp.adobe.com/pages/exc/unified-shell-docs/docs/development/intro
 
 ## Authentication
 By default, users are redirected for IMS authentication. e.g. when you visit the base URL you will be prompted for IMS auth. e.g. https://main--assets-distribution-portal--adobe.hlx.page
