@@ -147,6 +147,9 @@ window.localStorage.setItem('unifiedShellConfig', JSON.stringify({
 
 ```
 3. Remember to remove the override when you're done testing.
+```js
+localStorage.removeItem("unifiedShellConfig");
+```
 
 See docs: https://git.corp.adobe.com/pages/exc/unified-shell-docs/docs/development/intro
 
