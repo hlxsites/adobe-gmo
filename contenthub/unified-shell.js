@@ -5,6 +5,8 @@ import { loadScript } from '../scripts/lib-franklin.js';
 
 export { page, user, shell };
 
+let initialImsOrg;
+
 export function isUnifiedShellRuntimeAvailable() {
   return window.unifiedShellRuntime;
 }
@@ -48,13 +50,24 @@ export async function bootstrapUnifiedShell() {
   await page.done();
   console.debug('UnifiedShell app starting');
 
-  // for debugging:
   window.unifiedShellRuntime.on('ready', (config) => {
+    initialImsOrg = config.imsOrg;
+
+    // for debugging:
     // eslint-disable-next-line no-console
     console.debug('UnifiedShell: received "ready" event', config);
   });
+
   user.on('change:imsOrg', (config) => {
     // eslint-disable-next-line no-console
     console.debug('UnifiedShell: received "change:imsOrg" event', config);
+    if (!initialImsOrg) {
+      // Sometimes this event is sent before the 'ready' event, and we can ignore it.
+    } else if (config.imsOrg !== initialImsOrg) {
+      // eslint-disable-next-line no-console
+      console.debug('UnifiedShell: imsOrg changed, reloading page');
+      document.body.classList.remove('appear');
+      window.location.reload();
+    }
   });
 }
