@@ -6,7 +6,6 @@ initLegalNotice();
 
 async function initLegalNotice() {
     const config = await getBrandingConfig();
-    console.log(config);
     document.addEventListener(EventNames.SESSION_STARTED, function() {
       showLegalNotice(config);
     });
