@@ -24,10 +24,10 @@ async function findContentHubRepostiory() {
     return aemSolutions?.includes?.('contenthub');
   }
 
-  function isAssetsEssentialsEnvironment(env) {
+  function isServiceCodeForContentHub(env) {
     // eslint-disable-next-line no-underscore-dangle
     const aemSolutions = env._embedded?.['http://ns.adobe.com/adobecloud/rel/repository']?.['aem:serviceCode'];
-    return aemSolutions === 'dma_media_library';
+    return aemSolutions === 'dma_aem_contenthub';
   }
 
   const aemDiscoveryInfo = await getAEMDiscoveryInfo();
@@ -36,13 +36,13 @@ async function findContentHubRepostiory() {
     return null;
   }
 
-  let result = environments.find((env) => isAssetsEssentialsEnvironment(env) && isContentHubEnvironment(env));
+  let result = environments.find((env) => isServiceCodeForContentHub(env) && isContentHubEnvironment(env));
   if (result) {
     return result;
   }
 
   // fallback until aem:solutions is available.
-  result = environments.find((env) => isAssetsEssentialsEnvironment(env));
+  result = environments.find((env) => isServiceCodeForContentHub(env));
   if (result) {
     return result;
   }
