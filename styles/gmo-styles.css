@@ -16,3 +16,7 @@ header:empty {
 header nav .nav-brand .adp-logo img {
   min-height: 42px;
 }
+
+.adp-toast {
+  text-transform: none;
+}
