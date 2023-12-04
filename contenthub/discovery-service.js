@@ -1,6 +1,7 @@
 import { getBearerToken } from '../scripts/security.js';
 import { fetchCached } from '../scripts/fetch-util.js';
 
+/* eslint-disable no-underscore-dangle */
 export async function getAEMDiscoveryInfo() {
   const token = await getBearerToken();
   const value = await fetchCached(
@@ -19,13 +20,11 @@ export async function getAEMDiscoveryInfo() {
 
 async function findContentHubRepostiory() {
   function isContentHubEnvironment(env) {
-    // eslint-disable-next-line no-underscore-dangle
     const aemSolutions = env._embedded?.['http://ns.adobe.com/adobecloud/rel/repository']?.['aem:solutions'];
     return aemSolutions?.includes?.('contenthub');
   }
 
   function isServiceCodeForContentHub(env) {
-    // eslint-disable-next-line no-underscore-dangle
     const aemSolutions = env._embedded?.['http://ns.adobe.com/adobecloud/rel/repository']?.['aem:serviceCode'];
     return aemSolutions === 'dma_aem_contenthub';
   }
@@ -49,9 +48,8 @@ async function findContentHubRepostiory() {
 
   // fallback until aem:serviceCode and aem:solutions are available. TODO: remove this case when ready.
   return environments.find((env) => {
-    // eslint-disable-next-line no-underscore-dangle
     const repoId = env._embedded?.['http://ns.adobe.com/adobecloud/rel/repository']?.['repo:repositoryId'];
-    return repoId === 'author-p103362-e974988.adobeaemcloud.com';
+    return repoId === 'delivery-p103362-e974988.adobeaemcloud.com';
   });
 }
 
@@ -60,11 +58,7 @@ function getDeliveryServiceUrl(repository) {
     return null;
   }
 
-  // TODO: when discovery service provides it, use a link specifically for the delivery service.
-
-  // eslint-disable-next-line no-underscore-dangle
-  const authorDomain = repository._embedded?.['http://ns.adobe.com/adobecloud/rel/repository']?.['repo:repositoryId'];
-  const deliveryDomain = authorDomain.replace('author-', 'delivery-');
+  const deliveryDomain = repository._embedded?.['http://ns.adobe.com/adobecloud/rel/repository']?.['repo:repositoryId'];
   return `https://${deliveryDomain}`;
 }
 
