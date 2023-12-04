@@ -12,7 +12,6 @@ import {
   loadCSS,
 } from './lib-franklin.js';
 import { getAdminConfig, getBrandingConfig } from './site-config.js';
-// eslint-disable-next-line import/no-cycle
 import { getBearerToken, checkUserAccess, isPublicPage } from './security.js';
 import {
   getSearchIndex,
