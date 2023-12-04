@@ -257,7 +257,9 @@ async function loadLazy(doc) {
       // - we load them in parallel by leveraging the promise
     }
     await waitForDependency('search');
-    await initDeliveryEnvironment();
+    if (!await initDeliveryEnvironment()) {
+      throw new Error('User is not authorized for any delivery environment');
+    }
     await initSearch();
   }
   if (!(document.querySelector('head meta[name="hide-header"]')?.getAttribute('content') === 'true')) {
