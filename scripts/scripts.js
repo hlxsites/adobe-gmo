@@ -324,7 +324,9 @@ function loadDelayed() {
 
 async function loadPage() {
   await loadEager(document);
-  await bootstrapUnifiedShell();
+  if (!window.isErrorPage) {
+    await bootstrapUnifiedShell();
+  }
   await loadLazy(document);
   loadDelayed();
 }
