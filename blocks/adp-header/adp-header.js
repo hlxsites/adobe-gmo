@@ -222,6 +222,7 @@ export default async function decorate(block) {
   if (!isPublicPage()) {
     loadSearchField(nav);
     await createUserInfo(nav);
+    initQuickLinks(nav);
   }
 }
 
@@ -287,8 +288,59 @@ async function createUserInfo(nav) {
       },
     );
   });
+}
 
-  initQuickLinks();
+async function handleRemoveMultiSelectedAssetsFromCollection() {
+  const collectionId = getCollectionIdFromURL();
+  const collectionJSON = await getCollection(collectionId);
+  const collectionIndexes = {};
+  collectionJSON.items.forEach((item, index) => {
+    collectionIndexes[item.id] = index;
+  });
+  const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
+  const selectedAssetIds = selectedAssets.map((asset) => asset.getAttribute('data-item-id'));
+
+  const deleteOperation = selectedAssetIds.map((assetId) => ({
+    value: collectionJSON.items[collectionIndexes[assetId]],
+    path: `/items/${collectionIndexes[assetId]}`,
+  }));
+
+  await patchCollection(collectionId, collectionJSON?.etag, null, deleteOperation);
+  // Refresh the page
+  window.location.reload();
+}
+
+function initQuickLinks(nav) {
+  if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
+    return;
+  }
+
+  const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
+  // decorate quick links
+  quickLinksConfig.forEach((item) => {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'item';
+    const itemLinkEl = document.createElement('a');
+    if (item.page.startsWith('/') && isUrlPathNonRoot()) {
+      itemLinkEl.href = getBaseConfigPath() + item.page;
+    } else {
+      itemLinkEl.href = item.page;
+    }
+    if (item.page.startsWith('http')) {
+      itemLinkEl.target = '_blank';
+      itemLinkEl.rel = 'noopener';
+    }
+    itemLinkEl.textContent = item.title;
+    itemEl.append(itemLinkEl);
+    quickLinks.append(itemEl);
+  });
+
+  // set aria-selected on quick links
+  quickLinks.querySelectorAll('.item').forEach((item) => {
+    if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
+      item.setAttribute('aria-selected', 'true');
+    }
+  });
 
   const closeBanner = nav.querySelector('.banner .action-close');
   closeBanner.addEventListener('click', () => {
@@ -344,59 +396,6 @@ async function createUserInfo(nav) {
       () => {},
       'Cancel',
     );
-  });
-}
-
-async function handleRemoveMultiSelectedAssetsFromCollection() {
-  const collectionId = getCollectionIdFromURL();
-  const collectionJSON = await getCollection(collectionId);
-  const collectionIndexes = {};
-  collectionJSON.items.forEach((item, index) => {
-    collectionIndexes[item.id] = index;
-  });
-  const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
-  const selectedAssetIds = selectedAssets.map((asset) => asset.getAttribute('data-item-id'));
-
-  const deleteOperation = selectedAssetIds.map((assetId) => ({
-    value: collectionJSON.items[collectionIndexes[assetId]],
-    path: `/items/${collectionIndexes[assetId]}`,
-  }));
-
-  await patchCollection(collectionId, collectionJSON?.etag, null, deleteOperation);
-  // Refresh the page
-  window.location.reload();
-}
-
-function initQuickLinks() {
-  if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
-    return;
-  }
-
-  const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
-  // decorate quick links
-  quickLinksConfig.forEach((item) => {
-    const itemEl = document.createElement('div');
-    itemEl.className = 'item';
-    const itemLinkEl = document.createElement('a');
-    if (item.page.startsWith('/') && isUrlPathNonRoot()) {
-      itemLinkEl.href = getBaseConfigPath() + item.page;
-    } else {
-      itemLinkEl.href = item.page;
-    }
-    if (item.page.startsWith('http')) {
-      itemLinkEl.target = '_blank';
-      itemLinkEl.rel = 'noopener';
-    }
-    itemLinkEl.textContent = item.title;
-    itemEl.append(itemLinkEl);
-    quickLinks.append(itemEl);
-  });
-
-  // set aria-selected on quick links
-  quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
-      item.setAttribute('aria-selected', 'true');
-    }
   });
 }
 
