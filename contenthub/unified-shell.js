@@ -1,9 +1,11 @@
 import excApp, {
-  init, page, user, shell,
+  init, page, user, shell, topbar,
 } from '../scripts/libs/exc-app/exc-app.js';
 import { loadScript } from '../scripts/lib-franklin.js';
 
-export { page, user, shell };
+export {
+  page, user, shell, topbar,
+};
 
 let initialImsOrg;
 
@@ -48,7 +50,19 @@ export async function bootstrapUnifiedShell() {
 
   console.debug('UnifiedShell runtime loaded');
   await page.done();
-  console.debug('UnifiedShell app starting');
+  console.debug('sent "done" to UnifiedShell');
+
+  topbar.onHeroClick(() => {
+    window.location.pathname = '/';
+  });
+
+  window.unifiedShellRuntime.on('history', ({ type, path }) => {
+    const cleanedPath = path[0] === '/' ? path : `/${path}`;
+    console.log('history', { type, path });
+    if (type === 'external' && window.location.pathname !== cleanedPath) {
+      window.location.pathname = cleanedPath;
+    }
+  });
 
   window.unifiedShellRuntime.on('ready', (config) => {
     initialImsOrg = config.imsOrg;
