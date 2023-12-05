@@ -67,7 +67,7 @@ export async function bootstrapUnifiedShell() {
       // eslint-disable-next-line no-console
       console.debug('UnifiedShell: imsOrg changed, reloading page');
       page.spinner = true;
-      window.location.reload();
+      page.iframeReload(false);
     }
   });
 }
