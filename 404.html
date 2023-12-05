@@ -14,10 +14,14 @@
   <script src="/scripts/scripts.js" type="module" crossorigin="use-credentials"></script>
   <script type="module">
     import { sampleRUM } from '/scripts/lib-franklin.js';
+    import { bootstrapUnifiedShell, page } from '/contenthub/unified-shell.js';
 
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
+      await bootstrapUnifiedShell();
+      page.notFound();
+
       if (document.referrer) {
-        const { origin, pathname } = new URL(document.referrer);
+        const {origin, pathname} = new URL(document.referrer);
         if (origin === window.location.origin) {
           const backBtn = document.createElement('a');
           backBtn.classList.add('button', 'error-button-back');
@@ -28,7 +32,7 @@
           btnContainer.append(backBtn);
         }
       }
-      sampleRUM('404', { source: document.referrer, target: window.location.href });
+      sampleRUM('404', {source: document.referrer, target: window.location.href});
     });
   </script>
   <link rel="stylesheet" href="/styles/styles.css">
