@@ -204,24 +204,28 @@ export default async function decorate(block) {
   navWrapper.append(nav);
   block.append(navWrapper);
 
-  getBrandingConfig().then((brandingConfig) => {
-    if (brandingConfig.logo) {
-      const logoContainer = nav.querySelector('.nav-brand .adp-logo');
-      const img = document.createElement('img');
-      img.loading = 'lazy';
-      img.src = brandingConfig.logo;
-      img.alt = brandingConfig.brandText;
-      logoContainer.appendChild(img);
-    }
-    if (brandingConfig.brandText) {
-      nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
-      document.title = brandingConfig.brandText;
-    }
-  });
+  if (!window.unifiedShellRuntime) {
+    getBrandingConfig().then((brandingConfig) => {
+      if (brandingConfig.logo) {
+        const logoContainer = nav.querySelector('.nav-brand .adp-logo');
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.src = brandingConfig.logo;
+        img.alt = brandingConfig.brandText;
+        logoContainer.appendChild(img);
+      }
+      if (brandingConfig.brandText) {
+        nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+        document.title = brandingConfig.brandText;
+      }
+    });
+  }
 
   if (!isPublicPage()) {
     loadSearchField(nav);
-    await createUserInfo(nav);
+    if (!window.unifiedShellRuntime) {
+      await createUserInfo(nav);
+    }
     initQuickLinks(nav);
   }
 }
