@@ -18,5 +18,5 @@ export async function openUploadDialog() {
 
   const container = uploadDialog.querySelector('#assets-upload-container');
   // eslint-disable-next-line no-undef
-  UploadCoordinator.renderAllInOneUpload(container, { env: 'QA', apiToken: getBearerToken() }, () => { console.log('rendered MFE!'); });
+  UploadCoordinator.renderAllInOneUpload(container, { env: 'QA', apiToken: await getBearerToken() }, () => { console.log('rendered MFE!'); });
 }
