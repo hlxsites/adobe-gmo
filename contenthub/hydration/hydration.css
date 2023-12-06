@@ -1,0 +1,10 @@
+#upload-dialog {
+  width: 60%;
+  /*height: 60%;*/
+  display: flex;
+  flex-direction: column;
+}
+
+#assets-upload-container {
+  height: 550px;
+}
