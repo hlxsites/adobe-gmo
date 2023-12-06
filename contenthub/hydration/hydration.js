@@ -12,8 +12,12 @@ export async function openUploadDialog() {
     <h4>Upload</h4>
     <div id="assets-upload-container"></div>
   `;
+  uploadDialog.addEventListener('close', (e) => {
+    uploadDialog.remove();
+  });
 
   document.body.append(uploadDialog);
+
   uploadDialog.showModal();
 
   const container = uploadDialog.querySelector('#assets-upload-container');
