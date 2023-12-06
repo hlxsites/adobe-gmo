@@ -10,17 +10,17 @@
 
 /* Adjusts margins for FAQ content using bullet points to remove extra line spacing */  
 .section.faq .default-content-wrapper ul {
-  margin: -1em 0 1em 0;
-}
+    margin: -1em 0 1em 0;
+  }
 .section.faq .default-content-wrapper li ul {
     margin: 0 0 0 0; 
   }
 
 header:empty {
-  display: none;
-  visibility: hidden;
-}
+    display: none;
+    visibility: hidden;
+  }
 
 header nav .nav-brand .adp-logo img {
-  min-height: 42px;
-}
+    min-height: 42px;
+  }
