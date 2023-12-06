@@ -3,7 +3,7 @@
   max-height: calc(100vh - 155px);
   min-height: calc(100vh - 235px);
   position: sticky;
-  top: 151px;
+  top: calc(var(--nav-height) + var(--main-container-padding-top));
   box-shadow: 0 0 7px rgb(0 0 0 / 10%);
   border-radius: 10px;
   scrollbar-width: none;

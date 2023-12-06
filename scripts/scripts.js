@@ -22,6 +22,7 @@ import {
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
 import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
+import { setCSSVar } from './shared.js';
 
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
@@ -89,24 +90,14 @@ export function decorateMain(main) {
   decorateBlocks(main);
 }
 
-export function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSeparatedList = false) {
-  if (configValue) {
-    const currentFontFamily = getComputedStyle(document.documentElement)
-      .getPropertyValue(cssVariableName);
-    let newValue = configValue;
-    if (shouldPrependToCommaSeparatedList) {
-      newValue = `${configValue}, ${currentFontFamily}`;
-    }
-    document.documentElement.style.setProperty(cssVariableName, newValue);
-  }
-}
-
 async function applySiteBranding() {
   const brandingConfig = await getBrandingConfig();
   setCSSVar('--header-background-color', brandingConfig.menubarColor);
   setCSSVar('--header-text-color', brandingConfig.brandTextColor);
   setCSSVar('--body-font-family', brandingConfig.font, true);
-
+  if (brandingConfig.portalTheme) {
+    document.body.classList.add(brandingConfig.portalTheme);
+  }
   addFavIcon(brandingConfig.favicon);
 }
 

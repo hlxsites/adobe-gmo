@@ -38,6 +38,12 @@
   --tag-text-color: #505050;
   --stats-label-color: var(--label-color);
   --radio-background-color: #fdfdfd;
+  
+  /** Padding **/
+  --main-container-padding-top: 12px;
+
+  /** ContentHub */
+  --contenthub-header-background: linear-gradient(90deg, rgba(248 206 103 / 100%) 0%, rgba(252 173 125 / 100%) 100%);
 
   /* borders */
   --border-color: #6d6d6d;
@@ -91,9 +97,21 @@
   /* nav height */
   --nav-height: 123px;
   --banner-height: 60px;
-
+  
   /* body panel sizes */
   --body-current-refinements-block-height: 34px;
+
+  /* card sizes */
+  --card-image-height: 190px;
+  --card-image-max-width: 310px;
+  --card-min-width: 210px;
+}
+
+body.contenthub {
+  --nav-height: 150px;
+  --card-image-height: 249px;
+  --card-image-max-width: 400px;
+  --card-min-width: 330px;
 }
 
 @media (min-width: 900px) {
@@ -359,7 +377,7 @@ main .section {
 */
 
 main > .section {
-  padding: 0 1.5rem;
+  padding: 0 32px;
 }
 
 /* section metadata */
@@ -592,7 +610,7 @@ START: Common blocks/*-infinite-results block styling
 }
 
 .section.adp-infinite-results-instantsearch-container, .section.adp-infinite-results-collections-container {
-  padding-top: 10px;
+  padding-top: var(--main-container-padding-top);
   display: grid;
   grid-template-columns: min-content max-content max-content auto min-content;
   grid-template-rows: auto auto;
@@ -602,7 +620,6 @@ START: Common blocks/*-infinite-results block styling
     "refinements infinite-results infinite-results infinite-results asset-details";
   align-items: start;
   background-color: var(--assets-browser-background-color);
-  border-top: solid #F1F1F1 2px;
   column-gap: 11px;
   row-gap: 11px;
 }
@@ -630,9 +647,15 @@ START: Common blocks/*-infinite-results block styling
   flex: 1;
   display: flex;
   flex-flow: row wrap;
-  gap: 25px;
+  gap: 22px;
   justify-content: space-between;
   container-type: inline-size;
+}
+
+.contenthub .adp-infinite-results .items {
+  gap: unset;
+  column-gap: 18px;
+  row-gap: 28px;
 }
 
 .adp-infinite-results .items .status-and-sort {
@@ -667,10 +690,10 @@ START: Common blocks/*-infinite-results block styling
 
 .adp-result-item {
   display: grid;
-  grid-template-rows: 200px auto auto auto;
+  grid-template-rows: calc(var(--card-image-height) + 10px) auto auto auto;
   flex: 1;
-  min-width: 210px;
-  max-width: 320px;
+  min-width: var(--card-min-width);
+  max-width: calc(var(--card-image-max-width) + 24px);
   border-radius: 10px;
   background-color: white;
   box-shadow: 0 0 7px rgb(0 0 0 / 10%);
@@ -705,7 +728,7 @@ START: Common blocks/*-infinite-results block styling
   display: flex;
   justify-content: center;
   width: 100%;
-  height: 184px;
+  height: var(--card-image-height);
   background-color: #e1e1e1;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -801,7 +824,7 @@ input[type="checkbox"]:indeterminate {
   grid-template-rows: repeat(2, 1fr);
   gap: 1px; /* Adjust the gap as needed */
   width: 100%;
-  height: 184px; 
+  height: var(--card-image-height); 
   background-color: #e1e1e1;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -821,7 +844,7 @@ input[type="checkbox"]:indeterminate {
 
 .adp-result-item .preview-collection a.thumbnail.one-image > img {
   width: 100%;
-  height: 184px;
+  height: var(--card-image-height);
   object-fit: cover;
 }
 
@@ -926,6 +949,11 @@ input[type="checkbox"]:indeterminate {
   word-break: break-all;
 }
 
+.adp-result-item > .metadata-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 .adp-result-item .metadata-fields {
   list-style: none;
   display: grid;
@@ -935,8 +963,6 @@ input[type="checkbox"]:indeterminate {
   overflow: hidden;
   padding: 0;
   gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
   white-space: nowrap;
   font-size: 0.75rem;
 }

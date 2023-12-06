@@ -7,7 +7,7 @@ const DRAFTS_BASE_PATH = 'drafts';
 function parseValue(value) {
   if (value === 'true' || value === 'false') {
     return value === 'true';
-  } if (!Number.isNaN(value)) {
+  } if (!Number.isNaN(Number(value))) {
     return Number(value);
   }
   return value;
@@ -51,6 +51,7 @@ export async function getAdminConfig() {
  * @property {string} dateFormat
  * @property {string} defaultSort
  * @property {string} fontCSSURL
+ * @property {string} portalType
  */
 
 /**
@@ -218,6 +219,7 @@ export async function getSearchFieldConfig() {
     enableSearchSuggestions: false,
     searchMinChars: 3,
     hideExpiredAssets: true,
+    placeholderText: 'Search all assets',
   };
   response[configId]?.data.forEach((row) => {
     if (row.Value) {

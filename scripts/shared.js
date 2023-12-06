@@ -44,3 +44,19 @@ export function closeModal(block) {
   removeParamFromWindowURL('assetId');
   modal.close();
 }
+
+export function getCSSVar(cssVariableName) {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(cssVariableName);
+}
+
+export function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSeparatedList = false) {
+  if (configValue) {
+    const currentFontFamily = getCSSVar(cssVariableName);
+    let newValue = configValue;
+    if (shouldPrependToCommaSeparatedList) {
+      newValue = `${configValue}, ${currentFontFamily}`;
+    }
+    document.documentElement.style.setProperty(cssVariableName, newValue);
+  }
+}
