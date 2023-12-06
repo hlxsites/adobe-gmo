@@ -24,7 +24,7 @@ export default class InsightsContainer {
     const bearerToken = await getBearerToken();
     const token = bearerToken.split(' ')[1];
     const insightsProps = {
-      imsOrg: '11A63DB860D35B1D0A49411A@AdobeOrg',
+      imsOrg: '76B329395DF155D60A495E2C@AdobeOrg',
       apiKey: IMS_CONFIG.xApiKey,
       apiToken: token,
       reportDescriptors: [
@@ -46,8 +46,8 @@ export default class InsightsContainer {
         },
         { reportType: 'searchTerms' },
       ],
-      repoID: 'author-p42602-e144932-cmstg.adobeaemcloud.com',
-      env: 'STAGE',
+      repoID: 'author-p103362-e974988.adobeaemcloud.com',
+      env: 'PROD',
     };
 
     // eslint-disable-next-line no-undef
