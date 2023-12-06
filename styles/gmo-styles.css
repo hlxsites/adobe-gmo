@@ -8,7 +8,14 @@
     line-height: 30px;
     margin: 0; /* Adjust this value as needed */
   }
-
+  
+/* Removes margins for FAQ content using bullet points */  
+.section.faq .default-content-wrapper ul {
+  margin: -1em 0 1em 0;
+}
+.section.faq .default-content-wrapper li ul {
+    margin: 0 0 0 0; 
+  }
 
 header:empty {
   display: none;
