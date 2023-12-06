@@ -1,4 +1,5 @@
-import {IMS_CONFIG, getBearerToken} from '../security.js';
+import { IMS_CONFIG, getBearerToken } from '../security.js';
+import { getDiscovery, getDefaultSelectedRepo } from './DiscoveryService.js';
 
 const ASSETS_REPORTING_ID = 'assets-reporting';
 
@@ -22,11 +23,14 @@ export default class InsightsContainer {
    */
   async #renderInsights() {
     const bearerToken = await getBearerToken();
-    const token = bearerToken.split(' ')[1];
+    const discoveryResponse = await getDiscovery(bearerToken);
+    const imsOrg = '76B329395DF155D60A495E2C@AdobeOrg';
+    const repoID = getDefaultSelectedRepo(discoveryResponse, imsOrg);
     const insightsProps = {
-      imsOrg: '76B329395DF155D60A495E2C@AdobeOrg',
+      imsOrg,
+      repoID,
       apiKey: IMS_CONFIG.xApiKey,
-      apiToken: token,
+      apiToken: bearerToken.split(' ')[1],
       reportDescriptors: [
         {
           reportType: 'download',
@@ -46,7 +50,6 @@ export default class InsightsContainer {
         },
         { reportType: 'searchTerms' },
       ],
-      repoID: 'author-p103362-e974988.adobeaemcloud.com',
       env: 'PROD',
     };
 
