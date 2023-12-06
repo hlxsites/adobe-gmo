@@ -1,15 +1,14 @@
 /* FAQ page typography styles */
-.section.faq,
-.section.faq ul,
-.section.faq li {
+.section.faq{
     color: #222222;
     font-weight: normal;
     font-size: 18px;
     line-height: 30px;
-    margin: 0; /* Adjust this value as needed */
+    /* disable capitalization until ADP portal has fixed ASSETS-30971 */
+    text-transform: initial;
   }
-  
-/* Removes margins for FAQ content using bullet points */  
+
+/* Adjusts margins for FAQ content using bullet points to remove extra line spacing */  
 .section.faq .default-content-wrapper ul {
   margin: -1em 0 1em 0;
 }
