@@ -1,3 +1,5 @@
+import {IMS_CONFIG, getBearerToken} from '../security.js';
+
 const ASSETS_REPORTING_ID = 'assets-reporting';
 
 export default class InsightsContainer {
@@ -8,8 +10,8 @@ export default class InsightsContainer {
   }
 
   /**
-   * Retrieves the asset selector's containing element.
-   * @returns {HTMLElement} The asset selector.
+   * Retrieves the insight's containing element.
+   * @returns {HTMLElement} The insights page.
    */
   #getInsights() {
     return document.getElementById(ASSETS_REPORTING_ID);
@@ -18,11 +20,13 @@ export default class InsightsContainer {
   /**
    * Renders Insights UI
    */
-  #renderInsights() {
+  async #renderInsights() {
+    const bearerToken = await getBearerToken();
+    const token = bearerToken.split(' ')[1];
     const insightsProps = {
       imsOrg: '11A63DB860D35B1D0A49411A@AdobeOrg',
-      apiKey: 'aem-assets-frontend-1',
-      apiToken: 'mock-token',
+      apiKey: IMS_CONFIG.xApiKey,
+      apiToken: token,
       reportDescriptors: [
         {
           reportType: 'download',
@@ -62,14 +66,13 @@ export default class InsightsContainer {
     return $script;
   }
 
-  render() {
-    this.#block.innerHTML = '';
+  async render() {
     const insightsContainer = document.createElement('div');
     insightsContainer.id = 'assets-reporting';
     this.#block.appendChild(insightsContainer);
     // eslint-disable-next-line max-len
-    this.#loadInsightsScript('https://experience-qa.adobe.com/solutions/cq-assets-reporting/static-assets/resources/assets-reporting.js', () => {
-      this.#renderInsights();
+    this.#loadInsightsScript('https://experience-stage.adobe.com/solutions/cq-assets-reporting/static-assets/resources/assets-reporting.js', async () => {
+      await this.#renderInsights();
     });
   }
 }
