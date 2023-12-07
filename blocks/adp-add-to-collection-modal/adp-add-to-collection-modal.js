@@ -122,7 +122,7 @@ export async function openModal(items) {
 
   // Event listener for the "Submit" button click
   const submitButton = dialog.querySelector('.action-submit');
-  submitButton.addEventListener('click', () => {
+  submitButton.addEventListener('click', async () => {
     // Get the title from the newCollectionInput
     if (newCollectionRadio.checked) {
       const titleInput = dialog.querySelector('.new-collection-input');
@@ -137,7 +137,8 @@ export async function openModal(items) {
         return;
       }
 
-      createCollection(title, title, selectedItems);
+      // only close the dialog if the operation did not throw an exception
+      await createCollection(title, title, selectedItems);
 
       resetDialogState();
     }
@@ -230,7 +231,7 @@ async function populateMultiAssetView(dialog) {
 }
 
 export default async function decorate(block) {
-  block.innerHTML = `<dialog autofocus>
+  block.innerHTML = `<dialog autofocus aria-label="Add To Collection">
     <div class='adp-add-to-collection-modal-container'>
       <div class='dialog-header'>
         <div class='dialog-header-left'>Add To Collection</div>
