@@ -6,20 +6,20 @@ import { logError } from '../../scripts/scripts.js';
 
 const GENERAL_METRICS = [{
   category: 'Total assets',
-  amount: 3026,
+  amount: 10118,
 }, {
   category: 'Total size',
-  amount: 1024 * 1024 * 1024 * 203,
+  amount: 1024 * 1024 * 1024 * 209,
   unit: 'bytes',
 }, {
   category: 'Uploads year-to-date',
-  amount: 3614,
+  amount: 10118,
 }, {
   category: 'Uploads quarter-to-date',
-  amount: 188,
+  amount: 6620,
 }, {
   category: 'Uploads last 30 days',
-  amount: 47,
+  amount: 6462,
 }];
 
 function formatNumber(number) {
@@ -57,29 +57,31 @@ function formatAmount(metric) {
 }
 
 const MIME_TYPES = [
-  { category: 'image/jpeg', amount: 981 },
-  { category: 'image/png', amount: 769 },
-  { category: 'video/mp4', amount: 477 },
-  { category: 'image/vnd.adobe.photoshop', amount: 349 },
-  { category: 'video/quicktime', amount: 112 },
-  { category: 'audio/x-wav', amount: 100 },
+  { category: 'video/mp4', amount: 3582 },
+  { category: 'image/jpeg', amount: 2391 },
+  { category: 'image/png', amount: 2053 },
+  { category: 'video/quicktime', amount: 424 },
+  { category: 'image/vnd.adobe.photoshop', amount: 380 },
+  { category: 'audio/x-wav', amount: 104 },
+  { category: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', amount: 102 },
+  { category: 'application/vnd.adobe.sparkler.project+dcx', amount: 102 },
+  { category: 'application/pdf', amount: 92 },
   { category: 'application/octet-stream', amount: 48 },
+  { category: 'application/postscript', amount: 33 },
   { category: 'application/json', amount: 30 },
-  { category: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', amount: 27 },
-  { category: 'application/pdf', amount: 25 },
-  { category: 'application/postscript', amount: 21 },
+  { category: 'application/vnd.audiograph', amount: 19 },
   { category: 'application/x-subrip', amount: 18 },
   { category: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', amount: 16 },
-  { category: 'application/vnd.audiograph', amount: 13 },
-  { category: 'application/zip', amount: 8 },
+  { category: 'application/zip', amount: 13 },
+  { category: 'image/svg+xml', amount: 12 },
+  { category: 'image/gif', amount: 11 },
+  { category: 'application/vnd.3gpp.pic-bw-small', amount: 9 },
+  { category: 'video/ogg', amount: 9 },
   { category: 'image/tiff', amount: 8 },
-  { category: 'application/vnd.3gpp.pic-bw-small', amount: 7 },
+  { category: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', amount: 7 },
   { category: 'audio/mpeg', amount: 4 },
-  { category: 'image/svg+xml', amount: 3 },
   { category: 'text/html', amount: 3 },
   { category: 'text/plain', amount: 3 },
-  { category: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', amount: 2 },
-  { category: 'image/gif', amount: 1 },
 ];
 
 const BUSINESS_UNITS = [{
