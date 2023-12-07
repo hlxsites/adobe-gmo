@@ -1,5 +1,5 @@
 import { getLinkShare, getAssetsFromLinkShare } from '../../scripts/link-share.js';
-import { getLastPartFromURL, getAnchorVariable, getQueryVariable } from '../../scripts/scripts.js';
+import { getAnchorVariable, getQueryVariable, getPathParams } from '../../scripts/scripts.js';
 import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
 import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
@@ -22,7 +22,7 @@ export default class LinkShareDatasource {
 
   async registerResultsCallback(container, infiniteResultsContainer) {
     this.infiniteResultsContainer = infiniteResultsContainer;
-    const share = await getLinkShare(getLastPartFromURL());
+    const share = await getLinkShare(getPathParams().at(-1));
     if (share === undefined) {
       return;
     }
