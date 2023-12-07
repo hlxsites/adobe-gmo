@@ -281,6 +281,8 @@ export async function getQuickLinkConfig() {
       });
     }
   });
+  console.log("Kaleidoscope");
+  console.log(result);
   return result;
 }
 
