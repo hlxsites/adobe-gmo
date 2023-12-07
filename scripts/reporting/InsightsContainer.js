@@ -1,4 +1,4 @@
-import { IMS_CONFIG, getBearerToken } from '../security.js';
+import { getBearerToken } from '../security.js';
 import { getDiscovery, getDefaultSelectedRepo } from './DiscoveryService.js';
 
 const ASSETS_REPORTING_ID = 'assets-reporting';
@@ -29,7 +29,7 @@ export default class InsightsContainer {
     const insightsProps = {
       imsOrg,
       repoID,
-      apiKey: IMS_CONFIG.xApiKey,
+      apiKey: 'assets-distribution-portal',
       apiToken: bearerToken.split(' ')[1],
       reportDescriptors: [
         {
