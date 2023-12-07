@@ -1,18 +1,18 @@
-.adp-metrics-container {
+.gmo-metrics-container {
   background-color: var(--assets-browser-background-color);
 }
 
-.adp-metrics {
+.gmo-metrics {
   display: flex;
   gap: 1rem;
   flex-direction: column;
 }
 
-.adp-metrics::before {
+.gmo-metrics::before {
   content: '';
 }
 
-.adp-metrics .graph-container {
+.gmo-metrics .graph-container {
   display: flex;
   flex-flow: row wrap;
   gap: 1rem;
@@ -20,7 +20,7 @@
   container-type: inline-size;
 }
 
-.adp-metrics .graph-container > div {
+.gmo-metrics .graph-container > div {
   box-shadow: 0 0 7px rgb(0 0 0 / 10%);
   background-color: white;
   border-radius: 10px;
@@ -33,7 +33,7 @@
   flex: 1;
 }
 
-.adp-metrics .graph-container > div.metric-placeholder {
+.gmo-metrics .graph-container > div.metric-placeholder {
   height: 0;
   padding-top: 0;
   padding-bottom: 0;
@@ -41,61 +41,61 @@
   border: unset;
 }
 
-.adp-metrics .graph-container .asset-metric-graph {
+.gmo-metrics .graph-container .asset-metric-graph {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.adp-metrics h1 {
+.gmo-metrics h1 {
   font-size: 1.25rem;
   margin: 0;
   padding: 0;
 }
 
-.adp-metrics h2 {
+.gmo-metrics h2 {
   font-size: 1rem;
   margin: 0;
   padding: 0;
 }
 
-.adp-metrics table {
+.gmo-metrics table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.adp-metrics table thead th,
-.adp-metrics table tbody td {
+.gmo-metrics table thead th,
+.gmo-metrics table tbody td {
   text-align: left;
   font-size: .8rem;
   padding: .5rem;
   border-bottom: 1px solid lightgray;
 }
 
-.adp-metrics table thead th:last-child,
-.adp-metrics table tbody td:last-child {
+.gmo-metrics table thead th:last-child,
+.gmo-metrics table tbody td:last-child {
   white-space: nowrap;
   text-align: right;
 }
 
-.adp-metrics table colgroup col.table-description {
+.gmo-metrics table colgroup col.table-description {
   width: 100%;
 }
 
 @media (min-width: 500px) {
-  .adp-metrics .graph-container > div {
+  .gmo-metrics .graph-container > div {
     min-width: 400px;
   }
 }
 
 @media (min-width: 950px) {
-  .adp-metrics .graph-container .asset-metric-graph {
+  .gmo-metrics .graph-container .asset-metric-graph {
     display: inline-block;
     align-items: unset;
     justify-content: unset;
   }
 
-  .adp-metrics .graph-container .asset-metric-graph.bar {
+  .gmo-metrics .graph-container .asset-metric-graph.bar {
     display: flex;
     align-items: center;
     justify-content: center;
