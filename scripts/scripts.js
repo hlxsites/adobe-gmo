@@ -21,7 +21,7 @@ import {
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
-import { bootstrapUnifiedShell, page, unifiedShellNavigateTo } from '../contenthub/unified-shell.js';
+import { bootstrapUnifiedShell, unifiedShellNavigateTo } from '../contenthub/unified-shell.js';
 import { setCSSVar } from './shared.js';
 
 // Load a list of dependencies the site needs
@@ -249,6 +249,7 @@ async function loadLazy(doc) {
     }
     await waitForDependency('search');
     if (!await initDeliveryEnvironment()) {
+      // eslint-disable-next-line no-console
       console.warn('User is not authorized for any delivery environment');
       if (window.location.pathname !== NO_ACCESS_PATH) {
         window.location.href = createLinkHref(NO_ACCESS_PATH);

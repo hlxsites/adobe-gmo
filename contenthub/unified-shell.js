@@ -45,11 +45,12 @@ async function loadUnifiedShellRuntime() {
 
 export async function bootstrapUnifiedShell() {
   await loadUnifiedShellRuntime();
-  // eslint-disable-next-line no-console
   window.unifiedShellRuntime = excApp();
 
+  // eslint-disable-next-line no-console
   console.debug('UnifiedShell runtime loaded');
   await page.done();
+  // eslint-disable-next-line no-console
   console.debug('sent "done" to UnifiedShell');
 
   topbar.onHeroClick(() => unifiedShellNavigateTo('/'));
@@ -78,7 +79,6 @@ export async function bootstrapUnifiedShell() {
   });
 
   window.addEventListener('beforeunload', () => {
-    console.log('beforeunload');
     page.spinner = true;
   });
 }
@@ -93,19 +93,19 @@ function handleUrlChange({ type, path }) {
   newUrl.search = '';
   const cleanedPath = newUrl.pathname + newUrl.hash.replace(/#$/, '');
 
-  console.log('history', { type, path: cleanedPath });
-
   if (type === 'internal') {
     currentInternalPathAndHash = cleanedPath;
   }
 
   if (type === 'external' && cleanedPath !== currentInternalPathAndHash) {
     if (window.location.pathname !== newUrl.pathname) {
+      // eslint-disable-next-line no-console
       console.debug('history: path changed, navigating to', cleanedPath);
       unifiedShellNavigateTo(cleanedPath);
     } else {
       // the asset detail page uses `#assetId=`, however it does not yet listen to url changes to initiate opening
       // the panel. As this is an edge case, we can just reload the page and the asset detail page will open the panel.
+      // eslint-disable-next-line no-console
       console.debug('history: hash changed, reloading page with ', cleanedPath);
       window.history.pushState({}, '', cleanedPath);
       window.location.reload();
