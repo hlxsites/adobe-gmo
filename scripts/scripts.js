@@ -21,7 +21,7 @@ import {
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
-import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
+import { bootstrapUnifiedShell, page, unifiedShellNavigateTo } from '../contenthub/unified-shell.js';
 import { setCSSVar } from './shared.js';
 
 // Load a list of dependencies the site needs
@@ -249,7 +249,11 @@ async function loadLazy(doc) {
     }
     await waitForDependency('search');
     if (!await initDeliveryEnvironment()) {
-      throw new Error('User is not authorized for any delivery environment');
+      console.warn('User is not authorized for any delivery environment');
+      if (window.location.pathname !== NO_ACCESS_PATH) {
+        window.location.href = createLinkHref(NO_ACCESS_PATH);
+      }
+      return;
     }
     await initSearch();
   }
@@ -392,13 +396,8 @@ function addParamToHashParams(url, paramName, paramValue) {
 }
 
 export function addHashParamToWindowURL(paramName, paramValue) {
-  if (window.unifiedShellRuntime) {
-    const newURL = `/${paramName}/${paramValue}`;
-    window.history.replaceState({}, '', newURL);
-  } else {
-    const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
-    window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
-  }
+  const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
+  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
 }
 
 export function createTag(tag, attributes) {
@@ -495,10 +494,13 @@ export function createLinkHref(path, queryParams = {}, hashParams = {}, options 
   }
   // remove domain for relative urls
   const urlWithoutOrigin = url.toString().replace(url.origin, '');
-  if (options.absolute) {
+  if (window.unifiedShellRuntime) {
+    return window.unifiedShellRuntime.generateShellUrl({ path: urlWithoutOrigin });
+  } else if (options.absolute) {
     return url.toString();
+  } else {
+    return urlWithoutOrigin;
   }
-  return urlWithoutOrigin;
 }
 
 /**
@@ -542,5 +544,9 @@ export function removeParamFromWindowURL(paramName) {
  * @param url {string} to navigate to
  */
 export function navigateTo(url) {
-  window.location.href = url;
+  if (window.unifiedShellRuntime) {
+    unifiedShellNavigateTo(url);
+  } else {
+    window.location.href = url;
+  }
 }
