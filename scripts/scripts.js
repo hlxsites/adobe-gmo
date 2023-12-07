@@ -61,7 +61,7 @@ function buildHeroBlock(main) {
 export function logError(source, error) {
   // eslint-disable-next-line no-console
   console.error(source, error);
-  sampleRUM('error', { source, target: error.message });
+  sampleRUM('error', { source, target: error?.message });
 }
 
 /**
@@ -345,15 +345,7 @@ export function getQueryVariable(variable) {
 }
 
 export function getAnchorVariable(variable) {
-  const hash = window.location.hash.substring(1);
-  const vars = hash.split('&');
-  for (let i = 0; i < vars.length; i += 1) {
-    const pair = vars[i].split('=');
-    if (pair && pair[0] === variable) {
-      return pair[1];
-    }
-  }
-  return undefined;
+  return new URLSearchParams(window.location.hash.substring(1)).get(variable);
 }
 
 loadPage();
@@ -364,53 +356,39 @@ export function safeCSSId(str) {
     .replace(/\.|%[0-9a-z]{2}/gi, '');
 }
 
-export function getLastPartFromURL() {
-  const url = new URL(document.location);
-  const path = url.pathname;
-  const parts = path.split('/');
-  const id = parts[parts.length - 1];
-  return id;
-}
-
-export function setLastPartofURL(newLastPart, redirect = false) {
-  const url = new URL(document.location);
-  const path = url.pathname;
-  const parts = path.split('/');
-  const lastPart = parts[parts.length - 1];
-  if (lastPart) {
-    // replace :'s with _'s as : isn't valid in a Franklin folder URL
-    parts[parts.length - 1] = newLastPart.replaceAll(':', '_');
-    url.pathname = parts.join('/');
-
-    if (window.unifiedShellRuntime) {
-      window.location.href = window.unifiedShellRuntime.generateShellUrl({ path: url.pathname });
-    } else if (redirect) {
-      window.location.href = url.toString();
-    } else {
-      window.history.replaceState({}, '', url.toString());
-    }
-  }
+export function getPathParams() {
+  return window.location.pathname
+    .split('/')
+    .filter((p) => p)
+    // restore the character "_"  back to ":", as ":" isn't valid in a Franklin folder URL
+    .map((p) => p.replaceAll('_', ':'));
 }
 
 function setParamInHashParams(url, paramName, paramValue) {
   const urlObject = new URL(url);
   const params = new URLSearchParams(urlObject.hash.replace('#', ''));
   params.set(paramName, paramValue);
-  urlObject.hash = params.toString();
-  return urlObject.toString();
+  urlObject.hash = decodeURIComponent(params.toString());
+  return urlObject;
 }
 
 export function setHashParamInWindowURL(paramName, paramValue) {
   const newURL = setParamInHashParams(window.location.href, paramName, paramValue);
-  window.history.replaceState({}, '', newURL);
+  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
 }
 
+/**
+ * @param url current url
+ * @param paramName new param name
+ * @param paramValue new param value
+ * @return {URL}
+ */
 function addParamToHashParams(url, paramName, paramValue) {
   const urlObject = new URL(url);
   const params = new URLSearchParams(urlObject.hash.replace('#', ''));
   params.append(paramName, paramValue);
-  urlObject.hash = params.toString();
-  return urlObject.toString();
+  urlObject.hash = decodeURIComponent(params.toString());
+  return urlObject;
 }
 
 export function addHashParamToWindowURL(paramName, paramValue) {
@@ -419,7 +397,7 @@ export function addHashParamToWindowURL(paramName, paramValue) {
     window.history.replaceState({}, '', newURL);
   } else {
     const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
-    window.history.replaceState({}, '', newURL);
+    window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
   }
 }
 
@@ -485,4 +463,84 @@ function createMetadataGroup(headingText) {
   metadataGroup.classList.add('metadata-group');
   metadataGroup.innerHTML = `<span>${headingText}</span>`;
   return metadataGroup;
+}
+
+/**
+ * returns a relative URL if possible, otherwise an absolute URL with origin
+ * @param path
+ * @param queryParams
+ * @param hashParams
+ * @param options {{absolute: boolean}}
+ * @return {string} URL
+ */
+export function createLinkHref(path, queryParams = {}, hashParams = {}, options = { absolute: false }) {
+  const url = new URL(path, window.location.href);
+  url.search = '';
+  url.hash = '';
+  // replace the character ":" with "_" because  as ":" isn't valid in a Franklin folder URL
+  url.pathname = url.pathname.replaceAll(':', '_');
+
+  if (queryParams) {
+    Object.entries(queryParams).forEach(([key, val]) => {
+      url.searchParams.set(key, val);
+    });
+  }
+  if (hashParams) {
+    const params = new URLSearchParams();
+    // eslint-disable-next-line guard-for-in
+    for (const key in hashParams) {
+      params.set(key, hashParams[key]);
+    }
+    url.hash = decodeURIComponent(params.toString());
+  }
+  // remove domain for relative urls
+  const urlWithoutOrigin = url.toString().replace(url.origin, '');
+  if (options.absolute) {
+    return url.toString();
+  }
+  return urlWithoutOrigin;
+}
+
+/**
+ * Removes a given parameter from a URL's query string and hash parameter string.
+ * @param {string} url URL to be modified.
+ * @param {string} paramName Name of the parameter to remove.
+ * @returns {URL} Modified URL
+ */
+export function removeParamFromUrl(url, paramName) {
+  const urlObject = new URL(url);
+  const params = new URLSearchParams(urlObject.search);
+  const hashParams = new URLSearchParams(urlObject.hash.replace('#', ''));
+
+  // Remove paramName from query parameters
+  if (params.has(paramName)) {
+    params.delete(paramName);
+    urlObject.search = params.toString();
+  }
+
+  // Remove paramName from hash parameters
+  if (hashParams.has(paramName)) {
+    hashParams.delete(paramName);
+    urlObject.hash = decodeURIComponent(hashParams.toString());
+  }
+
+  return urlObject;
+}
+
+/**
+ * Removes a given parameter from the current URL's query string and hash parameter string.
+ * The window's history will be modified in place.
+ * @param {string} paramName The name of the parameter to remove.
+ */
+export function removeParamFromWindowURL(paramName) {
+  const newURL = removeParamFromUrl(window.location.href, paramName);
+  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
+}
+
+/**
+ * call this instead of changing window.location directly
+ * @param url {string} to navigate to
+ */
+export function navigateTo(url) {
+  window.location.href = url;
 }

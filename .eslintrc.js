@@ -24,5 +24,6 @@ module.exports = {
     'no-else-return': 'off',
     'import/prefer-default-export': 'off',
     'max-len': ['warn', { code: 140 }],
+    'import/prefer-default-export': 'off',
   },
 };
