@@ -254,6 +254,10 @@ async function loadLazy(doc) {
       await initializeServiceWorkers();
       // Make sure all dependencies are loaded before initializing search
       // - we load them in parallel by leveraging the promise
+    } else if (await checkUserAccess()) {
+      // if the path is /no-access but user actually has access, then forwards to home
+      window.location.href = '/';
+      return;
     }
     await waitForDependency('search');
     await initDeliveryEnvironment();
