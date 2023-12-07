@@ -34,11 +34,11 @@ export default class InsightsContainer {
       reportDescriptors: [
         {
           reportType: 'download',
-          graphType: ['line', 'bar'],
+          graphType: ['line'],
         },
         {
           reportType: 'upload',
-          graphType: ['line', 'bar'],
+          graphType: ['line'],
         },
         {
           reportType: 'assetCountInsightsBySize',
