@@ -595,7 +595,7 @@ START: Common blocks/*-infinite-results block styling
   padding-top: 10px;
   display: grid;
   grid-template-columns: min-content max-content max-content auto min-content;
-  grid-template-rows: auto auto;
+  grid-template-rows: minmax(46px, auto) auto;
   /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
   grid-template-areas:
     "refinements selection-items stats current-refinements asset-details"
