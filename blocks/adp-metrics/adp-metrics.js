@@ -304,6 +304,18 @@ function createPlaceholder(block) {
   block.append(placeholder);
 }
 
+function sortByAmount(values) {
+  return values.sort((a, b) => {
+    if (a.amount > b.amount) {
+      return -1;
+    }
+    if (a.amount < b.amount) {
+      return 1;
+    }
+    return 0;
+  });
+}
+
 /**
  *
  * @param {HTMLElement} block
@@ -345,31 +357,31 @@ export default async function decorate(block) {
   // eslint-disable-next-line no-undef
   if (vegaEmbed) {
     const target = block.querySelector('.graph-container');
-    createGraph(target, 'mime-types', 'Assets by Format', MIME_TYPES, 'donut', {
+    createGraph(target, 'mime-types', 'Assets by Format', sortByAmount(MIME_TYPES), 'donut', {
       xLabel: 'Format',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'business-units', 'Assets by Business Unit', BUSINESS_UNITS, 'bar', {
+    createGraph(target, 'business-units', 'Assets by Business Unit', sortByAmount(BUSINESS_UNITS), 'bar', {
       xLabel: 'Business Unit',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'products', 'Assets by Product', PRODUCTS, 'donut', {
+    createGraph(target, 'products', 'Assets by Product', sortByAmount(PRODUCTS), 'donut', {
       xLabel: 'Product',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'campaigns', 'Assets by Campaign', CAMPAIGNS, 'donut', {
+    createGraph(target, 'campaigns', 'Assets by Campaign', sortByAmount(CAMPAIGNS), 'donut', {
       xLabel: 'Campaign',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'program-names', 'Assets by Program', PROGRAMS, 'donut', {
+    createGraph(target, 'program-names', 'Assets by Program', sortByAmount(PROGRAMS), 'donut', {
       xLabel: 'Program',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'program-owners', 'Assets by Program Owner', OWNERS, 'pie', {
+    createGraph(target, 'program-owners', 'Assets by Program Owner', sortByAmount(OWNERS), 'pie', {
       xLabel: 'Owner',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'top-requestors', 'Top Requestors of Content', OWNERS.slice(0, 5), 'bar', {
+    createGraph(target, 'top-requestors', 'Top Requestors of Content', sortByAmount(OWNERS.slice(0, 5)), 'bar', {
       xLabel: 'Requestor',
       yLabel: 'Requests',
     });
