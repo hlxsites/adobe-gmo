@@ -144,12 +144,12 @@ export default async function decorate(block) {
       <div class="selected-count">1 item selected</div>
     </div>
     <div class="banner-right">
-      <div class="actions actions-add-to-collection"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
-      <div class="actions actions-remove-from-collection hidden">
+      <div class="actions actions-add-to-collection" role="button"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
+      <div class="actions actions-remove-from-collection hidden" role="button">
         <span class="icon icon-remove-from-collection"></span>Remove from collection
       </div>
-      <div class="actions actions-share"><span class="icon icon-share"></span>Share</div>
-      <div class="actions actions-download"><span class="icon icon-download"></span>Download</div>
+      <div class="actions actions-share" role="button"><span class="icon icon-share"></span>Share</div>
+      <div class="actions actions-download" role="button"><span class="icon icon-download"></span>Download</div>
     </div>
   </div>
   `;
