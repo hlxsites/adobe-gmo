@@ -51,7 +51,7 @@ export async function getAdminConfig() {
  * @property {string} dateFormat
  * @property {string} defaultSort
  * @property {string} fontCSSURL
- * @property {string} portalType
+ * @property {string} portalTheme
  */
 
 /**
