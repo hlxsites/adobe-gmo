@@ -48,6 +48,7 @@
     "@algolia/autocomplete-plugin-query-suggestions": "1.11.1",
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
     "@algolia/autocomplete-theme-classic": "^1.11.1",
+    "@quarry-connected/platform-connector": "^3.6.1",
     "algoliasearch": "^4.18.0",
     "flatpickr": "^4.6.13",
     "instantsearch.css": "^8.1.0",
@@ -59,7 +60,9 @@
       "to": "scripts/libs/algoliasearch/",
       "fileIncludes": {
         "file": "algoliasearch-lite.umd.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search"
       }
     },
@@ -68,7 +71,9 @@
       "to": "scripts/libs/instantsearch.js/",
       "fileIncludes": {
         "file": "instantsearch.production.min.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search"
       }
     },
@@ -82,7 +87,9 @@
       "to": "scripts/libs/algolia/autocomplete-js/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -91,7 +98,9 @@
       "to": "scripts/libs/algolia/autocomplete-plugin-recent-searches/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -100,7 +109,9 @@
       "to": "scripts/libs/algolia/autocomplete-plugin-query-suggestions/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -122,7 +133,9 @@
       "fileIncludes": [
         {
           "file": "flatpickr.min.js",
-          "attributes": ["async"],
+          "attributes": [
+            "async"
+          ],
           "category": "flatpickr"
         },
         {
@@ -134,7 +147,9 @@
   "externalDependencies": [
     {
       "url": "https://sdk-1p.cc-embed.adobe.com/v3/CCEverywhere.js",
-      "attributes": ["async"],
+      "attributes": [
+        "async"
+      ],
       "category": "CCEverywhere"
     }
   ]
