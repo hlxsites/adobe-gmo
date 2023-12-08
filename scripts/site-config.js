@@ -272,17 +272,26 @@ async function mapUserSettingsForId(configId, result) {
  */
 export async function getQuickLinkConfig() {
   const result = [];
+  let faqPage = null;
   const response = await getConfig('site-config.json');
   response.quicklinks?.data.forEach((row) => {
     if (row.Title && row.Page) {
-      result.push({
-        title: row.Title,
-        page: row.Page,
-      });
+      if (row.Title === 'FAQ') {
+        faqPage = {
+          title: row.Title,
+          page: row.Page,
+        };
+      } else {
+        result.push({
+          title: row.Title,
+          page: row.Page,
+        });
+      }
     }
   });
-  console.log("Kaleidoscope");
-  console.log(result);
+  if (faqPage) {
+    result.push(faqPage);
+  }
   return result;
 }
 
