@@ -1,6 +1,5 @@
 import { PlatformConnector } from '../scripts/libs/platform-connector/platform-connector.js';
-import { getBearerToken, getImsToken } from '../scripts/security.js';
-import { fetchCached } from '../scripts/fetch-util.js';
+import { getImsToken } from '../scripts/security.js';
 
 /* eslint-disable no-underscore-dangle */
 export async function getAEMDiscoveryInfo() {
@@ -11,6 +10,7 @@ export async function getAEMDiscoveryInfo() {
   });
 
   const discovery = await PlatformConnector.getDiscovery();
+  console.log('discovery', discovery);
   return discovery;
 }
 

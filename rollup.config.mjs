@@ -24,6 +24,7 @@ export default [
     },
     treeshake: false,
     plugins: [commonjs(), resolve(), replace({
+      preventAssignment: true,
       'process.env.NODE_ENV': JSON.stringify( 'production' )
     })]
   }
