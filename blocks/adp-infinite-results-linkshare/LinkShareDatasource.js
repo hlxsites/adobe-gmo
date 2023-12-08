@@ -1,5 +1,5 @@
 import { getLinkShare, getAssetsFromLinkShare } from '../../scripts/link-share.js';
-import { getAnchorVariable, getQueryVariable, getPathParams } from '../../scripts/scripts.js';
+import { getAnchorVariable, getQueryVariable, getPathParams } from '../../scripts/shared.js';
 import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
 import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';

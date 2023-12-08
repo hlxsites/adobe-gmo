@@ -2,6 +2,7 @@ import excApp, {
   init, page, shell, topbar, user,
 } from '../scripts/libs/exc-app/exc-app.js';
 import { loadScript } from '../scripts/lib-franklin.js';
+import { addEventListener, EventNames } from '../scripts/events.js';
 
 export {
   page, user, shell, topbar,
@@ -81,6 +82,8 @@ export async function bootstrapUnifiedShell() {
   window.addEventListener('beforeunload', () => {
     page.spinner = true;
   });
+
+  addModalModeHandling();
 }
 
 let currentInternalPathAndHash = window.location.pathname + window.location.hash.replace(/#$/, '');
@@ -111,6 +114,15 @@ function handleUrlChange({ type, path }) {
       window.location.reload();
     }
   }
+}
+
+function addModalModeHandling() {
+  addEventListener(EventNames.ALL_MODALS_CLOSED, () => {
+    window.unifiedShellRuntime.modal = false;
+  });
+  addEventListener(EventNames.A_MODAL_IS_OPEN, () => {
+    window.unifiedShellRuntime.modal = true;
+  });
 }
 
 export function unifiedShellNavigateTo(url) {

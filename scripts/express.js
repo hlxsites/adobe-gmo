@@ -1,7 +1,7 @@
 import { getAdminConfig } from './site-config.js';
 import { getBearerToken, getUserProfile } from './security.js';
 import { getDownloadUrl } from './polaris.js';
-import { closeModal } from './shared.js';
+import { closeAssetDetailsModal } from './shared.js';
 import { waitForDependency, logError } from './scripts.js';
 
 let ccEverywhere;
@@ -206,7 +206,7 @@ export async function startCCE() {
 export async function addExpressEditorHandler(editorElement, assetId, repoName, assetHeight, assetWidth, assetType, detailsModal) {
   editorElement.addEventListener('click', async () => {
     if (detailsModal) {
-      closeModal(detailsModal);
+      closeAssetDetailsModal(detailsModal);
     }
 
     const assetUrl = await getDownloadUrl(assetId, repoName);
