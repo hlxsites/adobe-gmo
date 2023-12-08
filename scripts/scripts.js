@@ -22,8 +22,6 @@ import {
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
 import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
-import { setCSSVar, createLinkHref } from './shared.js';
-import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
 import { createLinkHref, navigateTo, setCSSVar } from './shared.js';
 import { getPlatformConnector } from '../contenthub/discovery-service.js';
 
