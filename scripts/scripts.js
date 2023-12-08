@@ -23,7 +23,7 @@ import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
 import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
 import { createLinkHref, navigateTo, setCSSVar } from './shared.js';
-import { getPlatformConnector, getRepositoryList } from '../contenthub/discovery-service.js';
+import { getRepositoryList } from '../contenthub/discovery-service.js';
 
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
