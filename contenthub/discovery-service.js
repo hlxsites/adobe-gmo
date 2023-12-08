@@ -1,21 +1,17 @@
-import { getBearerToken } from '../scripts/security.js';
+import { PlatformConnector } from '../scripts/libs/platform-connector/platform-connector.js';
+import { getBearerToken, getImsToken } from '../scripts/security.js';
 import { fetchCached } from '../scripts/fetch-util.js';
 
 /* eslint-disable no-underscore-dangle */
 export async function getAEMDiscoveryInfo() {
-  const token = await getBearerToken();
-  const value = await fetchCached(
-    'https://aem-discovery.adobe.io/index',
-    {
-      method: 'GET',
-      headers: {
-        Authorization: token,
-        'x-api-key': 'aem-assets-content-hub-1',
-        'Content-Type': 'application/json',
-      },
-    },
-  );
-  return JSON.parse(value);
+  PlatformConnector.init({
+    accessToken: await getImsToken(),
+    apiKey: 'aem-assets-content-hub-1',
+    platformUrl: 'https://aem-discovery.adobe.io',
+  });
+
+  const discovery = await PlatformConnector.getDiscovery();
+  return discovery;
 }
 
 async function findContentHubRepostiory() {
