@@ -111,8 +111,9 @@ To update the dependencies under [scripts/libs](scripts/libs) with newer version
 7. Run `git add scripts/libs package.json`, `git commit -m "Update dependencies"` to commit the new updated dependencies.
 
 Additionally, there are some dependencies that are converted from CommonJS to ESM with [Rollup](https://rollupjs.org/). 
-1. The dependencies (import and export) for each package is defined in `build/rollup-entrypoints`. 
-2. Run `npm run postinstall` to run rollup these dependencies.
+1. The dependencies (import and export) for each package is defined in `build/rollup-entrypoints`.
+2. The bundles are defined in `rollup.config.mjs`
+3. Run `npm run postinstall` to run rollup to create these bundles. 
 
 
 ## Test with Unified Shell 
