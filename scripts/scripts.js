@@ -250,10 +250,10 @@ async function loadLazy(doc) {
     await waitForDependency('search');
     if (!await initDeliveryEnvironment()) {
       // eslint-disable-next-line no-console
-      console.warn('User is not authorized for any delivery environment');
-      if (window.location.pathname !== NO_ACCESS_PATH) {
-        window.location.href = createLinkHref(NO_ACCESS_PATH);
-      }
+      // console.warn('User is not authorized for any delivery environment');
+      // if (window.location.pathname !== NO_ACCESS_PATH) {
+      //   window.location.href = createLinkHref(NO_ACCESS_PATH);
+      // }
       return;
     }
     await initSearch();

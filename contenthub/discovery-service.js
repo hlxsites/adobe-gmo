@@ -1,5 +1,6 @@
-import { PlatformConnector } from '../scripts/libs/platform-connector/platform-connector.js';
+import { PlatformConnector, getDefaultSelectedRepo } from '../scripts/libs/platform-connector/platform-connector.js';
 import { getImsToken } from '../scripts/security.js';
+import { user } from './unified-shell.js';
 
 /* eslint-disable no-underscore-dangle */
 export async function getAEMDiscoveryInfo() {
@@ -11,6 +12,9 @@ export async function getAEMDiscoveryInfo() {
 
   const discovery = await PlatformConnector.getDiscovery();
   console.log('discovery', discovery);
+
+  const repo = getDefaultSelectedRepo(discovery, await user.get('imsOrg'));
+  console.log('repo', repo);
   return discovery;
 }
 
