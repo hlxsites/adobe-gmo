@@ -5,7 +5,7 @@ import {
   getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
 } from '../../scripts/site-config.js';
 import { getUserProfile, getAvatarUrl, isPublicPage } from '../../scripts/security.js';
-import { closeDialogEvent, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
+import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
 import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
@@ -144,12 +144,12 @@ export default async function decorate(block) {
       <div class="selected-count">1 item selected</div>
     </div>
     <div class="banner-right">
-      <div class="actions actions-add-to-collection"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
-      <div class="actions actions-remove-from-collection hidden">
+      <div class="actions actions-add-to-collection" role="button"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
+      <div class="actions actions-remove-from-collection hidden" role="button">
         <span class="icon icon-remove-from-collection"></span>Remove from collection
       </div>
-      <div class="actions actions-share"><span class="icon icon-share"></span>Share</div>
-      <div class="actions actions-download"><span class="icon icon-download"></span>Download</div>
+      <div class="actions actions-share" role="button"><span class="icon icon-share"></span>Share</div>
+      <div class="actions actions-download" role="button"><span class="icon icon-download"></span>Download</div>
     </div>
   </div>
   `;
@@ -327,10 +327,11 @@ function initQuickLinks(nav) {
     itemEl.className = 'item';
     const itemLinkEl = document.createElement('a');
     if (item.page.startsWith('/') && isUrlPathNonRoot()) {
-      itemLinkEl.href = getBaseConfigPath() + item.page;
+      itemLinkEl.href = createLinkHref(getBaseConfigPath() + item.page);
     } else {
-      itemLinkEl.href = item.page;
+      itemLinkEl.href = createLinkHref(item.page);
     }
+    itemLinkEl.dataset.page = item.page;
     if (item.page.startsWith('http')) {
       itemLinkEl.target = '_blank';
       itemLinkEl.rel = 'noopener';
@@ -349,7 +350,7 @@ function initQuickLinks(nav) {
 
   // set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
+    if (item.querySelector('a')?.dataset.page === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');
     }
   });

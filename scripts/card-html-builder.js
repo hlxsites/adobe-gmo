@@ -75,6 +75,8 @@ function createActionButton(action, label, clickHandler, iconClass) {
   // Create the 'a' element
   const a = document.createElement('a');
   a.className = `action-${action}`;
+  a.ariaLabel = label;
+  a.role = 'button';
 
   const spanTooltip = document.createElement('span');
   spanTooltip.className = 'adp-tooltip';

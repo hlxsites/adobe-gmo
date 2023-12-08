@@ -28,6 +28,7 @@
     "@esm-bundle/chai": "4.3.4-fix.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.5",
     "@web/test-runner": "0.15.1",
     "@web/test-runner-commands": "0.6.5",
     "chai": "4.3.7",
@@ -48,10 +49,14 @@
     "@algolia/autocomplete-plugin-query-suggestions": "1.11.1",
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
     "@algolia/autocomplete-theme-classic": "^1.11.1",
+    "@babel/runtime": "^7.23.5",
+    "@quarry-connected/platform-connector": "^3.6.1",
+    "@quarry/intl": "^1.6.0",
     "algoliasearch": "^4.18.0",
     "flatpickr": "^4.6.13",
     "instantsearch.css": "^8.1.0",
-    "instantsearch.js": "^4.56.3"
+    "instantsearch.js": "^4.56.3",
+    "react-intl": "^6.5.5"
   },
   "copyDependencies": [
     {
@@ -59,7 +64,9 @@
       "to": "scripts/libs/algoliasearch/",
       "fileIncludes": {
         "file": "algoliasearch-lite.umd.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search"
       }
     },
@@ -68,7 +75,9 @@
       "to": "scripts/libs/instantsearch.js/",
       "fileIncludes": {
         "file": "instantsearch.production.min.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search"
       }
     },
@@ -82,7 +91,9 @@
       "to": "scripts/libs/algolia/autocomplete-js/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -91,7 +102,9 @@
       "to": "scripts/libs/algolia/autocomplete-plugin-recent-searches/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -100,7 +113,9 @@
       "to": "scripts/libs/algolia/autocomplete-plugin-query-suggestions/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -122,7 +137,9 @@
       "fileIncludes": [
         {
           "file": "flatpickr.min.js",
-          "attributes": ["async"],
+          "attributes": [
+            "async"
+          ],
           "category": "flatpickr"
         },
         {
@@ -134,7 +151,9 @@
   "externalDependencies": [
     {
       "url": "https://sdk-1p.cc-embed.adobe.com/v3/CCEverywhere.js",
-      "attributes": ["async"],
+      "attributes": [
+        "async"
+      ],
       "category": "CCEverywhere"
     }
   ]

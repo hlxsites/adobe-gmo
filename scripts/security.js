@@ -43,13 +43,19 @@ async function getCcCollabUrl() {
  * @returns {string} the bearer token
  */
 export async function getBearerToken() {
+  return `Bearer ${await getImsToken()}`;
+}
+
+/**
+ * Get the bearer token from local storage or prompt for it.
+ * @returns {string} the bearer token
+ */
+export async function getImsToken() {
   if (isUnifiedShellRuntimeAvailable()) {
-    const token = await getUnifiedShellIMSToken();
-    return `Bearer ${token}`;
+    return await getUnifiedShellIMSToken();
   }
   const securityIMSLIB = await import('./security-imslib.js');
-  const token = await securityIMSLIB.getIMSBearerToken();
-  return `Bearer ${token}`;
+  return await securityIMSLIB.getIMSBearerToken();
 }
 
 export async function getUserProfile() {

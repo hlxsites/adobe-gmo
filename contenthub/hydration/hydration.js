@@ -12,7 +12,7 @@ export async function openUploadDialog() {
     <h4>Upload</h4>
     <div id="assets-upload-container"></div>
   `;
-  uploadDialog.addEventListener('close', (e) => {
+  uploadDialog.addEventListener('close', () => {
     uploadDialog.remove();
   });
 
@@ -22,5 +22,10 @@ export async function openUploadDialog() {
 
   const container = uploadDialog.querySelector('#assets-upload-container');
   // eslint-disable-next-line no-undef
-  UploadCoordinator.renderAllInOneUpload(container, { env: 'QA', apiToken: await getBearerToken() }, () => { console.log('rendered MFE!'); });
+  UploadCoordinator.renderAllInOneUpload(
+    container,
+    { env: 'QA', apiToken: await getBearerToken() },
+    // eslint-disable-next-line no-console
+    () => { console.log('rendered MFE!'); },
+  );
 }

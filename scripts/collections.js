@@ -2,15 +2,12 @@ import { getBearerToken } from './security.js';
 import {
   getAssetHandlerApiKey, getDeliveryEnvironment,
 } from './polaris.js';
-import { getLastPartFromURL, logError } from './scripts.js';
+import { getPathParams, logError } from './scripts.js';
 import { emitEvent, EventNames } from './events.js';
 
 export function getCollectionIdFromURL() {
   if (window.location.pathname.startsWith('/collection/')) {
-    const collectionId = getLastPartFromURL();
-    if (collectionId !== undefined) {
-      return collectionId.replaceAll('_', ':');
-    }
+    return getPathParams().at(-1);
   }
   return undefined;
 }

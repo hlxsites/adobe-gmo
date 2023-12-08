@@ -1,5 +1,5 @@
 import excApp, {
-  init, page, user, shell, topbar,
+  init, page, shell, topbar, user,
 } from '../scripts/libs/exc-app/exc-app.js';
 import { loadScript } from '../scripts/lib-franklin.js';
 
@@ -45,24 +45,17 @@ async function loadUnifiedShellRuntime() {
 
 export async function bootstrapUnifiedShell() {
   await loadUnifiedShellRuntime();
-  // eslint-disable-next-line no-console
   window.unifiedShellRuntime = excApp();
 
+  // eslint-disable-next-line no-console
   console.debug('UnifiedShell runtime loaded');
   await page.done();
+  // eslint-disable-next-line no-console
   console.debug('sent "done" to UnifiedShell');
 
-  topbar.onHeroClick(() => {
-    window.location.pathname = '/';
-  });
+  topbar.onHeroClick(() => unifiedShellNavigateTo('/'));
 
-  window.unifiedShellRuntime.on('history', ({ type, path }) => {
-    const cleanedPath = path[0] === '/' ? path : `/${path}`;
-    console.log('history', { type, path });
-    if (type === 'external' && window.location.pathname !== cleanedPath) {
-      window.location.pathname = cleanedPath;
-    }
-  });
+  window.unifiedShellRuntime.on('history', handleUrlChange);
 
   window.unifiedShellRuntime.on('ready', (config) => {
     initialImsOrg = config.imsOrg;
@@ -84,4 +77,43 @@ export async function bootstrapUnifiedShell() {
       page.iframeReload(false);
     }
   });
+
+  window.addEventListener('beforeunload', () => {
+    page.spinner = true;
+  });
+}
+
+let currentInternalPathAndHash = window.location.pathname + window.location.hash.replace(/#$/, '');
+
+function handleUrlChange({ type, path }) {
+  const absolutePath = path[0] === '/' ? path : `/${path}`;
+
+  // ignore search params from new path
+  const newUrl = new URL(absolutePath, window.location.href);
+  newUrl.search = '';
+  const cleanedPath = newUrl.pathname + newUrl.hash.replace(/#$/, '');
+
+  if (type === 'internal') {
+    currentInternalPathAndHash = cleanedPath;
+  }
+
+  if (type === 'external' && cleanedPath !== currentInternalPathAndHash) {
+    if (window.location.pathname !== newUrl.pathname) {
+      // eslint-disable-next-line no-console
+      console.debug('history: path changed, navigating to', cleanedPath);
+      unifiedShellNavigateTo(cleanedPath);
+    } else {
+      // the asset detail page uses `#assetId=`, however it does not yet listen to url changes to initiate opening
+      // the panel. As this is an edge case, we can just reload the page and the asset detail page will open the panel.
+      // eslint-disable-next-line no-console
+      console.debug('history: hash changed, reloading page with ', cleanedPath);
+      window.history.pushState({}, '', cleanedPath);
+      window.location.reload();
+    }
+  }
+}
+
+export function unifiedShellNavigateTo(url) {
+  page.spinner = true;
+  window.location.href = url;
 }

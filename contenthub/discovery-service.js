@@ -1,5 +1,23 @@
-import { getBearerToken } from '../scripts/security.js';
+import { PlatformConnector, getDefaultSelectedRepo } from '../scripts/libs/platform-connector/platform-connector.js';
+import { getBearerToken, getImsToken } from '../scripts/security.js';
+import { user } from './unified-shell.js';
 import { fetchCached } from '../scripts/fetch-util.js';
+
+/* eslint-disable no-underscore-dangle */
+export async function getPlatformConnector() {
+  PlatformConnector.init({
+    accessToken: await getImsToken(),
+    apiKey: 'aem-assets-content-hub-1',
+    platformUrl: 'https://aem-discovery.adobe.io',
+  });
+
+  const discovery = await PlatformConnector.getDiscovery();
+  console.log('discovery', discovery);
+
+  const repo = getDefaultSelectedRepo(discovery, await user.get('imsOrg'));
+  console.log('repo', repo);
+  return discovery;
+}
 
 /* eslint-disable no-underscore-dangle */
 export async function getAEMDiscoveryInfo() {

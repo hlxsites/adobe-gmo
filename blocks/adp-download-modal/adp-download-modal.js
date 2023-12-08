@@ -11,7 +11,7 @@ import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-
 import { getDownloadRenditionConfig, getLicenseAgreementText } from '../../scripts/site-config.js';
 
 export default function decorate(block) {
-  block.innerHTML = `<dialog>
+  block.innerHTML = `<dialog aria-label="Download">
   <div class="download-container">
   <div class="modal-header">
     <div class="modal-header-left initial-format">

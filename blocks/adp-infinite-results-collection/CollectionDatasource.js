@@ -3,9 +3,8 @@ import {
 } from '../../scripts/collections.js';
 import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 import {
-  getLastPartFromURL, getAnchorVariable, getQueryVariable, setHashParamInWindowURL,
+  getAnchorVariable, getQueryVariable, setHashParamInWindowURL, removeParamFromWindowURL, getPathParams,
 } from '../../scripts/scripts.js';
-import { removeParamFromWindowURL } from '../../scripts/shared.js';
 import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';
@@ -53,7 +52,7 @@ export default class CollectionsDatasource {
 
   async registerResultsCallback(container, infiniteResultsContainer) {
     this.infiniteResultsContainer = infiniteResultsContainer;
-    const collection = await getCollection(getLastPartFromURL().replaceAll('_', ':'));
+    const collection = await getCollection(getPathParams().at(-1));
     if (collection === undefined) {
       return;
     }

@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
-import { logError } from '../../scripts/scripts.js';
+import { createLinkHref, logError } from '../../scripts/scripts.js';
 import { createDateInput } from '../../scripts/date-input.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
@@ -18,7 +18,7 @@ let shareLinkExpiryDate = null;
 let shareLinkUrl = '';
 
 function generateLinkShareUrl(linkId) {
-  return `${window.location.protocol}//${window.location.host}/share/${linkId}`;
+  return createLinkHref(`/share/${linkId}`, {}, {}, { absolute: true });
 }
 
 /**

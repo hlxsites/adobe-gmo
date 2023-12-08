@@ -1,8 +1,12 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  getAnchorVariable, createTag, addHashParamToWindowURL, sortMetadata,
+  getAnchorVariable,
+  createTag,
+  sortMetadata,
+  removeParamFromWindowURL,
+  setHashParamInWindowURL,
 } from '../../scripts/scripts.js';
-import { closeModal, removeParamFromWindowURL } from '../../scripts/shared.js';
+import { closeModal } from '../../scripts/shared.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
   getAssetName, getAssetMimeType, getAssetTitle,
@@ -110,8 +114,8 @@ export async function openAssetDetailsModal(id, resultsManager) {
   resultsManagerObj = resultsManager;
   scale = 1;
   assetId = id || getAnchorVariable('assetId');
-  if (!getAnchorVariable('assetId')) {
-    addHashParamToWindowURL('assetId', assetId);
+  if (getAnchorVariable('assetId') !== assetId) {
+    setHashParamInWindowURL('assetId', assetId);
   }
   if (assetId) {
     if (!document.body.classList.contains('no-scroll')) {

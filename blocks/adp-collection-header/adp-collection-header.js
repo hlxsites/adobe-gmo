@@ -1,6 +1,7 @@
 import { getCollection, getCollectionIdFromURL, deleteCollection } from '../../scripts/collections.js';
 import createConfirmDialog from '../../scripts/confirm-dialog.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
+import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 
 function createCollectionInfoHeader(collectionInfoHeader, collection) {
   // include back to collections listing similar to hide filters button
@@ -24,6 +25,9 @@ function createCollectionInfoHeader(collectionInfoHeader, collection) {
     `;
   collectionInfoHeader.querySelector('.adp-collection-title').innerText = collection.title;
   collectionInfoHeader.querySelector('.adp-collection-stats').innerText = `${collection.items.length} items`;
+  const backButton = collectionInfoHeader.querySelector('.back-button a');
+  backButton.href = createLinkHref(backButton.href);
+
   collectionInfoHeader.querySelector('.action-collection-delete').addEventListener('click', async (e) => {
     e.preventDefault();
     const collectionId = getCollectionIdFromURL();
@@ -33,7 +37,7 @@ function createCollectionInfoHeader(collectionInfoHeader, collection) {
         `Are you sure you want to delete the collection "${collection.title}"?`,
         async () => {
           await deleteCollection(collectionId, collection.title);
-          window.location.href = '/collections';
+          navigateTo(createLinkHref('/collections'));
         },
         'Proceed',
       );
