@@ -1,5 +1,6 @@
 import { loadCSS, loadScript } from '../../scripts/lib-franklin.js';
 import { getBearerToken } from '../../scripts/security.js';
+import { addModalEventListeners } from '../../scripts/shared.js';
 
 export async function openUploadDialog() {
   await loadScript('https://experience-qa.adobe.com/solutions/CQ-assets-upload/static-assets/resources/assets-upload.js');
@@ -7,14 +8,10 @@ export async function openUploadDialog() {
   loadCSS('/contenthub/hydration/hydration.css');
 
   const uploadDialog = document.createElement('dialog');
-  uploadDialog.id = 'upload-dialog';
   uploadDialog.innerHTML = `
     <h4>Upload</h4>
     <div id="assets-upload-container"></div>
   `;
-  uploadDialog.addEventListener('close', () => {
-    uploadDialog.remove();
-  });
 
   document.body.append(uploadDialog);
 
@@ -28,4 +25,10 @@ export async function openUploadDialog() {
     // eslint-disable-next-line no-console
     () => { console.log('rendered MFE!'); },
   );
+
+  addModalEventListeners(uploadDialog, {
+    removeDialogElementOnClose: true,
+    closeModalOnEscape: true,
+    closeModalOnOutsideClick: true,
+  });
 }

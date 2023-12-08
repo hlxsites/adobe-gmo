@@ -5,11 +5,6 @@ header .nav-wrapper {
   width: 100%;
 }
 
-header .nav-wrapper nav {
-  border-bottom: 1px solid rgba(233 233 233 / 100%);
-  box-shadow: 0 0 4px rgba(233 233 233 / 100%);
-}
-
 header nav .nav-top {
   box-sizing: border-box;
   display: grid;
@@ -505,6 +500,8 @@ header nav {
   grid-template-rows: calc(var(--nav-height)*0.75) calc(var(--nav-height)*0.25);
   align-items: center;
   background-color: var(--header-background-color);
+  border-bottom: 1px solid rgba(233 233 233 / 100%);
+  box-shadow: 0 0 4px rgba(233 233 233 / 100%);
 }
 
 .contenthub header nav {

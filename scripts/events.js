@@ -239,6 +239,16 @@ export const EventNames = {
    * * collectionId
   */
   DELETE_COLLECTION: 'delete-collection',
+
+  /**
+   * Sent when a user opens a modal.  Not fired if additional modals are opened after the first.
+   */
+  A_MODAL_IS_OPEN: 'a-modal-is-open',
+
+  /**
+   * Sent when all modals are closed.  Fired when the last modal is closed.
+   */
+  ALL_MODALS_CLOSED: 'all-modals-closed',
 };
 
 /**

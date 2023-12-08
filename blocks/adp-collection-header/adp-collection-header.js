@@ -1,7 +1,7 @@
 import { getCollection, getCollectionIdFromURL, deleteCollection } from '../../scripts/collections.js';
 import createConfirmDialog from '../../scripts/confirm-dialog.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
+import { createLinkHref, navigateTo } from '../../scripts/shared.js';
 
 function createCollectionInfoHeader(collectionInfoHeader, collection) {
   // include back to collections listing similar to hide filters button
