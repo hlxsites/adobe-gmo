@@ -19,16 +19,8 @@
     padding: 0.8em 0.8em 0.8em 40px;
 }
 
-.contenthub .adp-search-field input {
-    background-color: #fff;
-}
-
 .adp-search-field input::placeholder {
     color: #7d7d7d;
-}
-
-.contenthub .adp-search-field input::placeholder {
-    color: #2F2F2F;
 }
 
 /** override algolia's background color for search box **/
@@ -121,3 +113,11 @@ svg.aa-ClearIcon {
  .aa-ItemContent {
     column-gap: 5px;
  }
+
+.contenthub .adp-search-field input {
+    background-color: #fff;
+}
+
+.contenthub .adp-search-field input::placeholder {
+    color: #2F2F2F;
+}

@@ -5,7 +5,7 @@ import {
   getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
 } from '../../scripts/site-config.js';
 import { getUserProfile, getAvatarUrl, isPublicPage } from '../../scripts/security.js';
-import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
+import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/shared.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
 import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
@@ -342,11 +342,15 @@ function initQuickLinks(nav) {
   });
 
   // TODO: find a better place for the button. This is just for testing
-  const quickLinksButton = document.createElement('button');
-  quickLinksButton.className = 'upload-button';
-  quickLinksButton.textContent = 'Upload';
-  quickLinksButton.addEventListener('click', () => openUploadDialog());
-  quickLinks.append(quickLinksButton);
+  const quickLinksDiv = document.createElement('div');
+  quickLinksDiv.className = 'item';
+  const uploadLink = document.createElement('a');
+  uploadLink.className = 'upload-button';
+  uploadLink.href = '#';
+  uploadLink.textContent = 'Upload';
+  uploadLink.addEventListener('click', () => openUploadDialog());
+  quickLinksDiv.append(uploadLink);
+  quickLinks.append(quickLinksDiv);
 
   // set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {
