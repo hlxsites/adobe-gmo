@@ -1,22 +1,38 @@
-import { PlatformConnector, getDefaultSelectedRepo } from '../scripts/libs/platform-connector/platform-connector.js';
+import { PlatformConnector, getRepoList } from '../scripts/libs/platform-connector/platform-connector.js';
 import { getBearerToken, getImsToken } from '../scripts/security.js';
 import { user } from './unified-shell.js';
 import { fetchCached } from '../scripts/fetch-util.js';
 
-/* eslint-disable no-underscore-dangle */
-export async function getPlatformConnector() {
+const EMBEDDED = '_embedded';
+const REL_REPOSITORY = 'http://ns.adobe.com/adobecloud/rel/repository';
+async function getDiscoveryJson() {
   PlatformConnector.init({
     accessToken: await getImsToken(),
     apiKey: 'aem-assets-content-hub-1',
     platformUrl: 'https://aem-discovery.adobe.io',
   });
 
-  const discovery = await PlatformConnector.getDiscovery();
-  console.log('discovery', discovery);
+  return await PlatformConnector.getDiscovery();
+}
 
-  const repo = getDefaultSelectedRepo(discovery, await user.get('imsOrg'));
-  console.log('repo', repo);
-  return discovery;
+export async function getRepositoryList() {
+  const discoverObj = await getDiscoveryJson();
+  return getRepoList(discoverObj, await user.get('imsOrg'));
+}
+
+/**
+ *
+ * @param filter {Object}: for example: {env: 'prod', 'aem-tier': 'author'}
+ * @returns repositoryID {String}
+ */
+export async function getRepositoryIDWithFilter(filter) {
+  const discoverObj = await getDiscoveryJson();
+  const rList = getRepoList(discoverObj, await user.get('imsOrg'));
+  const repo = rList.find((embeddedObj) => {
+    const repoObj = embeddedObj[EMBEDDED]?.[REL_REPOSITORY];
+    return repoObj?.['repo:environment'] === filter.env && repoObj?.['aem:tier'] === filter['aem-tier'];
+  });
+  return repo[EMBEDDED]?.[REL_REPOSITORY]?.['repo:repositoryId'] ?? '';
 }
 
 /* eslint-disable no-underscore-dangle */

@@ -1,5 +1,6 @@
 import { getBearerToken } from '../security.js';
-import { getDiscovery, getDefaultSelectedRepo } from './DiscoveryService.js';
+import { getRepositoryIDWithFilter } from '../../contenthub/discovery-service.js';
+import { user } from '../../contenthub/unified-shell.js';
 
 const ASSETS_REPORTING_ID = 'assets-reporting';
 
@@ -23,9 +24,11 @@ export default class InsightsContainer {
    */
   async #renderInsights() {
     const bearerToken = await getBearerToken();
-    const discoveryResponse = await getDiscovery(bearerToken);
-    const imsOrg = '76B329395DF155D60A495E2C@AdobeOrg';
-    const repoID = getDefaultSelectedRepo(discoveryResponse, imsOrg);
+    // const imsConfig = await user.get('imsOrg');
+    const imsOrg = await user.get('imsOrg');
+    // const imsEnv = imsConfig?.imsEnvironment;
+    const imsEnv = 'prod';
+    const repoID = await getRepositoryIDWithFilter({ env: imsEnv, 'aem-tier': 'author' });
     const insightsProps = {
       imsOrg,
       repoID,
@@ -50,7 +53,7 @@ export default class InsightsContainer {
         },
         { reportType: 'searchTerms' },
       ],
-      env: 'PROD',
+      env: imsEnv.toUpperCase(),
     };
 
     // eslint-disable-next-line no-undef
