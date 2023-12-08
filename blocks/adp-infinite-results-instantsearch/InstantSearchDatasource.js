@@ -4,7 +4,7 @@ import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 // eslint-disable-next-line import/no-cycle
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetID, getAssetName } from '../../scripts/metadata.js';
-import { getAnchorVariable, getQueryVariable } from '../../scripts/scripts.js';
+import { getAnchorVariable, getQueryVariable } from '../../scripts/shared.js';
 
 const searchFieldConfig = await getSearchFieldConfig();
 const searchResultsCardViewConfig = await getCardViewConfig();
