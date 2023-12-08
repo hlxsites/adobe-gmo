@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Starter project for Adobe Helix",
   "scripts": {
-    "update-dependencies": "rm -r scripts/libs/* || true && webpack --mode production && node build/buildDependencies.js",
+    "update-dependencies": "node build/update-dependencies.cjs",
     "test": "wtr \"./test/**/*.test.js\" --node-resolve --port=2000 --coverage",
     "test:watch": "npm test -- --watch",
     "lint:js": "eslint .",
@@ -28,6 +28,7 @@
     "@esm-bundle/chai": "4.3.4-fix.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.5",
     "@web/test-runner": "0.15.1",
     "@web/test-runner-commands": "0.6.5",
     "chai": "4.3.7",
@@ -48,6 +49,7 @@
     "@algolia/autocomplete-plugin-query-suggestions": "1.11.1",
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
     "@algolia/autocomplete-theme-classic": "^1.11.1",
+    "@quarry-connected/platform-connector": "^3.6.1",
     "algoliasearch": "^4.18.0",
     "flatpickr": "^4.6.13",
     "instantsearch.css": "^8.1.0",
@@ -59,7 +61,9 @@
       "to": "scripts/libs/algoliasearch/",
       "fileIncludes": {
         "file": "algoliasearch-lite.umd.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search"
       }
     },
@@ -68,7 +72,9 @@
       "to": "scripts/libs/instantsearch.js/",
       "fileIncludes": {
         "file": "instantsearch.production.min.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search"
       }
     },
@@ -82,7 +88,9 @@
       "to": "scripts/libs/algolia/autocomplete-js/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -91,7 +99,9 @@
       "to": "scripts/libs/algolia/autocomplete-plugin-recent-searches/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -100,7 +110,9 @@
       "to": "scripts/libs/algolia/autocomplete-plugin-query-suggestions/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": ["async"],
+        "attributes": [
+          "async"
+        ],
         "category": "search-autocomplete"
       }
     },
@@ -122,7 +134,9 @@
       "fileIncludes": [
         {
           "file": "flatpickr.min.js",
-          "attributes": ["async"],
+          "attributes": [
+            "async"
+          ],
           "category": "flatpickr"
         },
         {
@@ -134,7 +148,9 @@
   "externalDependencies": [
     {
       "url": "https://sdk-1p.cc-embed.adobe.com/v3/CCEverywhere.js",
-      "attributes": ["async"],
+      "attributes": [
+        "async"
+      ],
       "category": "CCEverywhere"
     }
   ]
