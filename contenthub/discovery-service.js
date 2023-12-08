@@ -1,9 +1,10 @@
 import { PlatformConnector, getDefaultSelectedRepo } from '../scripts/libs/platform-connector/platform-connector.js';
-import { getImsToken } from '../scripts/security.js';
+import { getBearerToken, getImsToken } from '../scripts/security.js';
 import { user } from './unified-shell.js';
+import { fetchCached } from '../scripts/fetch-util.js';
 
 /* eslint-disable no-underscore-dangle */
-export async function getAEMDiscoveryInfo() {
+export async function getPlatformConnector() {
   PlatformConnector.init({
     accessToken: await getImsToken(),
     apiKey: 'aem-assets-content-hub-1',
@@ -16,6 +17,23 @@ export async function getAEMDiscoveryInfo() {
   const repo = getDefaultSelectedRepo(discovery, await user.get('imsOrg'));
   console.log('repo', repo);
   return discovery;
+}
+
+/* eslint-disable no-underscore-dangle */
+export async function getAEMDiscoveryInfo() {
+  const token = await getBearerToken();
+  const value = await fetchCached(
+    'https://aem-discovery.adobe.io/index',
+    {
+      method: 'GET',
+      headers: {
+        Authorization: token,
+        'x-api-key': 'aem-assets-content-hub-1',
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  return JSON.parse(value);
 }
 
 async function findContentHubRepostiory() {
