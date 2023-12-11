@@ -53,6 +53,8 @@ export default class InsightsContainer {
           graphType: ['donut'],
         },
         { reportType: 'searchTerms' },
+        { reportType: 'storageUsage', graphType: ['bar'] },
+        { reportType: 'deliveryCount' },
       ],
       env: imsEnv.toUpperCase(),
     };
