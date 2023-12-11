@@ -65,7 +65,7 @@ fs.readFile('scripts/dependencies.json', 'utf8', (err) => {
     // eslint-disable-next-line no-console
     if (err) return console.log(errr);
     // eslint-disable-next-line no-console
-    return console.log('The file was saved!');
+    return console.log('Successfully updated scripts/dependencies.json');
   });
 
   return true;

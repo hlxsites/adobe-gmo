@@ -22,7 +22,8 @@ import {
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
 import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
-import { setCSSVar, createLinkHref } from './shared.js';
+import { createLinkHref, navigateTo, setCSSVar } from './shared.js';
+import { getPlatformConnector } from '../contenthub/discovery-service.js';
 
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
@@ -248,11 +249,12 @@ async function loadLazy(doc) {
       // - we load them in parallel by leveraging the promise
     }
     await waitForDependency('search');
+    await getPlatformConnector();
     if (!await initDeliveryEnvironment()) {
       // eslint-disable-next-line no-console
       console.warn('User is not authorized for any delivery environment');
       if (window.location.pathname !== NO_ACCESS_PATH) {
-        window.location.href = createLinkHref(NO_ACCESS_PATH);
+        navigateTo(createLinkHref(NO_ACCESS_PATH));
       }
       return;
     }
