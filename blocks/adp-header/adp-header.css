@@ -90,9 +90,9 @@ header nav[aria-expanded="true"] .nav-top {
 header .nav-wrapper .banner {
   position: fixed;
   background-color: var(--checkbox-checked-background-color);
-  height: var(--banner-height);
+  height: var(--header-banner-height);
   width: 100%;
-  top: 65px;
+  top: calc(var(--nav-height) - var(--header-banner-height));
   justify-content: space-between;
   display: none;
 }
@@ -463,9 +463,12 @@ header nav .quick-links {
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
+  height: var(--header-banner-height);
 }
 
 header nav .quick-links .item {
+  display: flex;
+  align-items: center;
   padding-top: 0;
   padding-bottom: 15px;
   text-align: left;
@@ -473,7 +476,7 @@ header nav .quick-links .item {
   letter-spacing: 0;
   color: var(--label-color);
   opacity: 1;
-  margin: 10px;
+  margin: 10px 10px 0;
 }
 
 header nav .quick-links .item a:hover {
@@ -497,7 +500,7 @@ header nav {
   grid-template-areas: 
     "nav-top"
     "nav-bottom";
-  grid-template-rows: calc(var(--nav-height)*0.75) calc(var(--nav-height)*0.25);
+  grid-template-rows: calc(var(--nav-height) - var(--header-banner-height)) var(--header-banner-height);
   align-items: center;
   background-color: var(--header-background-color);
   border-bottom: 1px solid rgba(233 233 233 / 100%);
@@ -506,4 +509,9 @@ header nav {
 
 .contenthub header nav {
   background: var(--contenthub-header-background);
-} 
+}
+
+.contenthub header .banner.show {
+  height: var(--header-banner-height);
+  background-color: rgba(47 47 47 / 100%);
+}

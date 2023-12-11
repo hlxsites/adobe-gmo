@@ -96,7 +96,7 @@
  
   /* nav height */
   --nav-height: 123px;
-  --banner-height: 60px;
+  --header-banner-height: 60px;
   
   /* body panel sizes */
   --body-current-refinements-block-height: 34px;
@@ -112,6 +112,8 @@ body.contenthub {
   --card-image-height: 249px;
   --card-image-max-width: 400px;
   --card-min-width: 330px;
+  --header-banner-height: 50px;
+  --button-focus-outline-color: rgb(45 45 45 / 100%);
 }
 
 @media (min-width: 900px) {
@@ -938,6 +940,12 @@ input[type="checkbox"]:indeterminate {
 .adp-result-item.selected {
   border: 2px solid var(--assets-browser-selected-border-color);
   padding: 4px 4px 10px;
+}
+
+.contenthub .adp-result-item.checked,
+.contenthub .adp-result-item.selected {
+  border: unset;
+  padding: 6px 6px 12px;
 }
 
 .adp-result-item .title {
