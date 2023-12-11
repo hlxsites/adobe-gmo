@@ -1,6 +1,7 @@
 import { getBearerToken } from '../security.js';
 import { getRepositoryIDWithFilter } from '../../contenthub/discovery-service.js';
 import { user } from '../../contenthub/unified-shell.js';
+import { loadScript } from '../lib-franklin.js';
 
 const ASSETS_REPORTING_ID = 'assets-reporting';
 
@@ -60,25 +61,12 @@ export default class InsightsContainer {
     ReportingJSBundle.renderInsights(this.#getInsights(), insightsProps);
   }
 
-  #loadInsightsScript(url, cb, type) {
-    const $head = document.querySelector('head');
-    const $script = document.createElement('script');
-    $script.src = url;
-    if (type) {
-      $script.setAttribute('type', type);
-    }
-    $head.append($script);
-    $script.onload = cb;
-    return $script;
-  }
-
   async render() {
     const insightsContainer = document.createElement('div');
     insightsContainer.id = 'assets-reporting';
     this.#block.appendChild(insightsContainer);
     // eslint-disable-next-line max-len
-    this.#loadInsightsScript('https://experience-stage.adobe.com/solutions/cq-assets-reporting/static-assets/resources/assets-reporting.js', async () => {
-      await this.#renderInsights();
-    });
+    loadScript('https://experience-stage.adobe.com/solutions/cq-assets-reporting/static-assets/resources/assets-reporting.js')
+      .then(async () => await this.#renderInsights());
   }
 }
