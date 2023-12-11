@@ -7,6 +7,7 @@ It is designed to help users find, download and share assets. Users can browse a
  - Localhost: https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/contenthub (https://localhost.corp.adobe.com:8443/)
  - Stage: https://experience-stage.adobe.com/?shell_ims=prod&shell_source=stage#/@skylineprodtest017/contenthub (https://main--assets-contenthub--adobe-rnd.hlx.live/)
 
+Sharepoint: https://adobe.sharepoint.com/:f:/r/sites/HelixProjects/Shared%20Documents/sites/assets-distribution-portal/content-hub?csf=1&web=1&e=csog5r
 
 ## Quickstart 
  - `npm ni`
