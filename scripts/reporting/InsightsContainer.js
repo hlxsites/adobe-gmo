@@ -1,4 +1,4 @@
-import { getBearerToken } from '../security.js';
+import { getBearerToken, getIMSConfig } from '../security.js';
 import { getRepositoryIDWithFilter } from '../../contenthub/discovery-service.js';
 import { user } from '../../contenthub/unified-shell.js';
 import { loadScript } from '../lib-franklin.js';
@@ -24,37 +24,30 @@ export default class InsightsContainer {
    * Renders Insights UI
    */
   async #renderInsights() {
+    const imsConfig = await getIMSConfig();
+    const imsEnv = imsConfig?.imsEnvironment;
     const bearerToken = await getBearerToken();
-    // const imsConfig = await user.get('imsOrg');
     const imsOrg = await user.get('imsOrg');
-    // const imsEnv = imsConfig?.imsEnvironment;
-    const imsEnv = 'prod';
     const repoID = await getRepositoryIDWithFilter({ env: imsEnv, 'aem-tier': 'author' });
+    const apiKey = 'assets-distribution-portal';
     const insightsProps = {
       imsOrg,
       repoID,
-      apiKey: 'assets-distribution-portal',
+      apiKey,
       apiToken: bearerToken.split(' ')[1],
       reportDescriptors: [
-        {
-          reportType: 'download',
-          graphType: ['line'],
-        },
         {
           reportType: 'upload',
           graphType: ['line'],
         },
         {
-          reportType: 'assetCountInsightsBySize',
-          graphType: ['donut'],
-        },
-        {
           reportType: 'assetCountInsightsByFormat',
           graphType: ['donut'],
         },
-        { reportType: 'searchTerms' },
         { reportType: 'storageUsage', graphType: ['bar'] },
-        { reportType: 'deliveryCount' },
+        // {Total Count of assets}
+        // {Total Count of assets uploaded monthly/yearly}
+        // {Total Count of assets by mimeType}
       ],
       env: imsEnv.toUpperCase(),
     };

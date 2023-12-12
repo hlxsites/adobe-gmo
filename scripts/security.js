@@ -24,7 +24,7 @@ async function getUnifiedShellIMSToken() {
 /**
  * @return {Promise<{imsOrgWithoutDomain: {string}, imsEnvironment: {string}, imsOrgID: {string}}>}
  */
-async function getIMSConfig() {
+export async function getIMSConfig() {
   const imsConfig = await getIMSUnfiedShellConfig();
   if (imsConfig) {
     return imsConfig;
