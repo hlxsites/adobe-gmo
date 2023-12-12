@@ -144,11 +144,12 @@ const defaultSettings = { isOnboardingCompleted: false };
  * @returns {Promise<UserSettings>}
  */
 export async function getUserSettings() {
-  return await settingsApi.get({
+  const response = await settingsApi.get({
     groupId: 'general',
     level: SettingsLevel.USER,
     settings: defaultSettings,
   });
+  return response.settings;
 }
 
 /**

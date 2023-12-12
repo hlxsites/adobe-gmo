@@ -11,7 +11,7 @@ import {
   loadBlocks,
   loadCSS,
 } from './lib-franklin.js';
-import { getAdminConfig, getBrandingConfig } from './site-config.js';
+import { getAdminConfig, getBrandingConfig, isContentHub } from './site-config.js';
 import { getBearerToken, checkUserAccess, isPublicPage } from './security.js';
 import {
   getSearchIndex,
@@ -21,8 +21,10 @@ import {
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
-import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
-import { createLinkHref, navigateTo, setCSSVar } from './shared.js';
+import { bootstrapUnifiedShell, getUserSettings } from '../contenthub/unified-shell.js';
+import {
+  createLinkHref, navigateTo, setCSSVar,
+} from './shared.js';
 import { getPlatformConnector } from '../contenthub/discovery-service.js';
 
 // Load a list of dependencies the site needs
@@ -326,8 +328,21 @@ function loadDelayed() {
 }
 
 export async function loadPage() {
-  await loadEager(document);
-  await bootstrapUnifiedShell();
+  // load resource in parallel
+  const unifiedShellPromise = bootstrapUnifiedShell();
+  const eagerPromise = loadEager(document);
+
+  await unifiedShellPromise;
+  if (await isContentHub()) {
+    const settings = await getUserSettings();
+    if (window.location.pathname !== '/onboarding' && !settings.isOnboardingCompleted) {
+      // TODO: activate onboarding
+      // navigateTo(createLinkHref('/onboarding'));
+      // return;
+    }
+  }
+
+  await eagerPromise;
   await loadLazy(document);
   loadDelayed();
 }
