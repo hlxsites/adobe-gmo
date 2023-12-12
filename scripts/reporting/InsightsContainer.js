@@ -44,12 +44,12 @@ export default class InsightsContainer {
           reportType: 'assetCountInsightsByFormat',
           graphType: ['donut'],
         },
-        { reportType: 'storageUsage', graphType: ['bar'] },
         // {Total Count of assets}
-        // {Total Count of assets uploaded monthly/yearly}
+        // {Total Count of assets uploaded daily/monthly/yearly}
         // {Total Count of assets by mimeType}
       ],
       env: imsEnv.toUpperCase(),
+      layout: { style: 'singleColumn' },
     };
 
     // eslint-disable-next-line no-undef
