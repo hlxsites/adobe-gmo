@@ -12,13 +12,12 @@ import {
   loadCSS,
 } from './lib-franklin.js';
 import { getAdminConfig, getBrandingConfig } from './site-config.js';
-// eslint-disable-next-line import/no-cycle
 import { getBearerToken, checkUserAccess, isPublicPage } from './security.js';
 import {
   getSearchIndex,
   getBackendApiKey,
   getDeliveryEnvironment,
-  initDeliveryEnvironment,
+  initDeliveryEnvironment, getOptimizedPreviewUrl,
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
@@ -64,7 +63,7 @@ function buildHeroBlock(main) {
 export function logError(source, error) {
   // eslint-disable-next-line no-console
   console.error(source, error);
-  sampleRUM('error', { source, target: error.message });
+  sampleRUM('error', { source, target: error?.message });
 }
 
 /**
@@ -114,7 +113,10 @@ async function applySiteBranding() {
   addFavIcon(brandingConfig.favicon);
 }
 
-export async function loadScript(url, attrs) {
+/**
+ * @deprecated duplicate of loadScript in lib-franklin.js
+ */
+async function loadScript(url, attrs) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = url;
@@ -256,6 +258,10 @@ async function loadLazy(doc) {
       await initializeServiceWorkers();
       // Make sure all dependencies are loaded before initializing search
       // - we load them in parallel by leveraging the promise
+    } else if (await checkUserAccess()) {
+      // if the path is /no-access but user actually has access, then forwards to home
+      window.location.href = '/';
+      return;
     }
     await waitForDependency('search');
     await initDeliveryEnvironment();
@@ -311,6 +317,7 @@ export async function waitForDependency(dependencyCategory) {
   }
   return Promise.resolve();
 }
+
 /**
  * Loads everything that happens a lot later,
  * without impacting the user experience.
@@ -351,15 +358,7 @@ export function getQueryVariable(variable) {
 }
 
 export function getAnchorVariable(variable) {
-  const hash = window.location.hash.substring(1);
-  const vars = hash.split('&');
-  for (let i = 0; i < vars.length; i += 1) {
-    const pair = vars[i].split('=');
-    if (pair && pair[0] === variable) {
-      return pair[1];
-    }
-  }
-  return undefined;
+  return new URLSearchParams(window.location.hash.substring(1)).get(variable);
 }
 
 loadPage();
@@ -372,55 +371,44 @@ export function safeCSSId(str) {
     .replace(/\.|%[0-9a-z]{2}/gi, '');
 }
 
-export function getLastPartFromURL() {
-  const url = new URL(document.location);
-  const path = url.pathname;
-  const parts = path.split('/');
-  const id = parts[parts.length - 1];
-  return id;
-}
-
-export function setLastPartofURL(newLastPart, redirect = false) {
-  const url = new URL(document.location);
-  const path = url.pathname;
-  const parts = path.split('/');
-  const lastPart = parts[parts.length - 1];
-  if (lastPart) {
-    // replace :'s with _'s as : isn't valid in a Franklin folder URL
-    parts[parts.length - 1] = newLastPart.replaceAll(':', '_');
-    url.pathname = parts.join('/');
-    if (redirect) {
-      window.location.href = url.toString();
-    } else {
-      window.history.replaceState({}, '', url.toString());
-    }
-  }
+export function getPathParams() {
+  return window.location.pathname
+    .split('/')
+    .filter((p) => p)
+    // restore the character "_"  back to ":", as ":" isn't valid in a Franklin folder URL
+    .map((p) => p.replaceAll('_', ':'));
 }
 
 function setParamInHashParams(url, paramName, paramValue) {
   const urlObject = new URL(url);
   const params = new URLSearchParams(urlObject.hash.replace('#', ''));
   params.set(paramName, paramValue);
-  urlObject.hash = params.toString();
-  return urlObject.toString();
+  urlObject.hash = decodeURIComponent(params.toString());
+  return urlObject;
 }
 
 export function setHashParamInWindowURL(paramName, paramValue) {
   const newURL = setParamInHashParams(window.location.href, paramName, paramValue);
-  window.history.replaceState({}, '', newURL);
+  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
 }
 
+/**
+ * @param url current url
+ * @param paramName new param name
+ * @param paramValue new param value
+ * @return {URL}
+ */
 function addParamToHashParams(url, paramName, paramValue) {
   const urlObject = new URL(url);
   const params = new URLSearchParams(urlObject.hash.replace('#', ''));
   params.append(paramName, paramValue);
-  urlObject.hash = params.toString();
-  return urlObject.toString();
+  urlObject.hash = decodeURIComponent(params.toString());
+  return urlObject;
 }
 
 export function addHashParamToWindowURL(paramName, paramValue) {
   const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
-  window.history.replaceState({}, '', newURL);
+  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
 }
 
 export function createTag(tag, attributes) {
@@ -485,4 +473,124 @@ function createMetadataGroup(headingText) {
   metadataGroup.classList.add('metadata-group');
   metadataGroup.innerHTML = `<span>${headingText}</span>`;
   return metadataGroup;
+}
+
+/**
+ * returns a relative URL if possible, otherwise an absolute URL with origin
+ * @param path
+ * @param queryParams
+ * @param hashParams
+ * @param options {{absolute: boolean}}
+ * @return {string} URL
+ */
+export function createLinkHref(path, queryParams = {}, hashParams = {}, options = { absolute: false }) {
+  const url = new URL(path, window.location.href);
+  url.search = '';
+  url.hash = '';
+  // replace the character ":" with "_" because  as ":" isn't valid in a Franklin folder URL
+  url.pathname = url.pathname.replaceAll(':', '_');
+
+  if (queryParams) {
+    Object.entries(queryParams).forEach(([key, val]) => {
+      url.searchParams.set(key, val);
+    });
+  }
+  if (hashParams) {
+    const params = new URLSearchParams();
+    // eslint-disable-next-line guard-for-in
+    for (const key in hashParams) {
+      params.set(key, hashParams[key]);
+    }
+    url.hash = decodeURIComponent(params.toString());
+  }
+  // remove domain for relative urls
+  const urlWithoutOrigin = url.toString().replace(url.origin, '');
+  if (options.absolute) {
+    return url.toString();
+  }
+  return urlWithoutOrigin;
+}
+
+/**
+ * Removes a given parameter from a URL's query string and hash parameter string.
+ * @param {string} url URL to be modified.
+ * @param {string} paramName Name of the parameter to remove.
+ * @returns {URL} Modified URL
+ */
+export function removeParamFromUrl(url, paramName) {
+  const urlObject = new URL(url);
+  const params = new URLSearchParams(urlObject.search);
+  const hashParams = new URLSearchParams(urlObject.hash.replace('#', ''));
+
+  // Remove paramName from query parameters
+  if (params.has(paramName)) {
+    params.delete(paramName);
+    urlObject.search = params.toString();
+  }
+
+  // Remove paramName from hash parameters
+  if (hashParams.has(paramName)) {
+    hashParams.delete(paramName);
+    urlObject.hash = decodeURIComponent(hashParams.toString());
+  }
+
+  return urlObject;
+}
+
+/**
+ * Removes a given parameter from the current URL's query string and hash parameter string.
+ * The window's history will be modified in place.
+ * @param {string} paramName The name of the parameter to remove.
+ */
+export function removeParamFromWindowURL(paramName) {
+  const newURL = removeParamFromUrl(window.location.href, paramName);
+  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
+}
+
+/**
+ * call this instead of changing window.location directly
+ * @param url {string} to navigate to
+ */
+export function navigateTo(url) {
+  window.location.href = url;
+}
+
+/**
+ * Populates the asset view with the asset image and name to the left body of the dialog.
+ * @param dialog
+ * @param dialogHeaderLeftSelector
+ * @param dialogBodyLeftSelector
+ * @param dialogHeaderText
+ * @param assetId
+ * @param assetName
+ * @param title
+ * @param format
+ */
+// eslint-disable-next-line max-len
+export function populateAssetViewLeftDialog(dialog, dialogHeaderLeftSelector, dialogBodyLeftSelector, dialogHeaderText, assetId, assetName, title, format) {
+  const titleElement = dialog.querySelector(dialogHeaderLeftSelector);
+  titleElement.textContent = dialogHeaderText;
+  const dialogBodyLeft = dialog.querySelector(dialogBodyLeftSelector);
+  const newDialogBodyLeft = dialogBodyLeft.cloneNode(false);
+  newDialogBodyLeft.innerHTML = `
+    <div class='asset-image'>
+      <img/>
+    </div>
+    <div class='asset-name'></div>
+  `;
+  dialogBodyLeft.parentElement.replaceChild(newDialogBodyLeft, dialogBodyLeft);
+
+  // Populate the asset image
+  const assetImg = dialog.querySelector('.asset-image img');
+  assetImg.dataset.fileformat = format;
+  assetImg.style.visibility = 'hidden';
+  getOptimizedPreviewUrl(assetId, assetName, 350).then((url) => {
+    assetImg.src = url;
+    assetImg.style.visibility = '';
+  });
+  assetImg.alt = title;
+
+  // Populate the asset name
+  const assetImgName = dialog.querySelector('.asset-name');
+  assetImgName.textContent = title;
 }

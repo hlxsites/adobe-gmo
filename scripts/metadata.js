@@ -338,17 +338,19 @@ const DATA_TYPES = {
 function isDateValue(value) {
   if (typeof value === 'object' && value instanceof Date) {
     return true;
-  } if (typeof value === 'string') {
-    return !Number.isNaN(Date.parse(value)) || false;
-  } if (typeof value === 'number') {
-    try {
-      const date = new Date(value);
-      return !Number.isNaN(date.getTime());
-    } catch (e) {
-      return false;
-    }
+  } if (typeof value === 'string' || typeof value === 'number') {
+    return isISODate(value);
   }
   return false;
+}
+
+function isISODate(value) {
+  const dateObj = new Date(value);
+  try {
+    return (dateObj !== 'Invalid Date' && !Number.isNaN(dateObj) && (value === dateObj.toISOString())) || false;
+  } catch (e) {
+    return false;
+  }
 }
 
 export function isDate(propertyName, propertyValue) {
@@ -398,7 +400,7 @@ export function formatAssetMetadata(propertyName, metadataValue) {
   }
 
   // check if string is a date
-  if (Date.parse(metadataValue)) {
+  if (isISODate(metadataValue)) {
     return formatDate(metadataValue);
   }
 

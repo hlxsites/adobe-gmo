@@ -5,7 +5,7 @@ import {
   getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
 } from '../../scripts/site-config.js';
 import { getUserProfile, getAvatarUrl, isPublicPage } from '../../scripts/security.js';
-import { closeDialogEvent, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
+import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
 import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
@@ -143,12 +143,12 @@ export default async function decorate(block) {
       <div class="selected-count">1 item selected</div>
     </div>
     <div class="banner-right">
-      <div class="actions actions-add-to-collection"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
-      <div class="actions actions-remove-from-collection hidden">
+      <div class="actions actions-add-to-collection" role="button"><span class="icon icon-add-to-collection"></span>Add to Collection</div>
+      <div class="actions actions-remove-from-collection hidden" role="button">
         <span class="icon icon-remove-from-collection"></span>Remove from collection
       </div>
-      <div class="actions actions-share"><span class="icon icon-share"></span>Share</div>
-      <div class="actions actions-download"><span class="icon icon-download"></span>Download</div>
+      <div class="actions actions-share" role="button"><span class="icon icon-share"></span>Share</div>
+      <div class="actions actions-download" role="button"><span class="icon icon-download"></span>Download</div>
     </div>
   </div>
   `;
@@ -222,6 +222,8 @@ export default async function decorate(block) {
   if (!isPublicPage()) {
     loadSearchField(nav);
     await createUserInfo(nav);
+    initQuickLinks();
+    initBanner(nav);
   }
 }
 
@@ -247,7 +249,6 @@ async function createUserInfo(nav) {
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
     window.sessionStorage.setItem(SESSION_STARTED_KEY, 'true');
     emitEvent(document.documentElement, EventNames.SESSION_STARTED, {
-      email: userProfile.email,
       displayName: userProfile.displayName,
       authId: userProfile.authId,
     });
@@ -287,9 +288,63 @@ async function createUserInfo(nav) {
       },
     );
   });
+}
 
-  initQuickLinks();
+async function handleRemoveMultiSelectedAssetsFromCollection() {
+  const collectionId = getCollectionIdFromURL();
+  const collectionJSON = await getCollection(collectionId);
+  const collectionIndexes = {};
+  collectionJSON.items.forEach((item, index) => {
+    collectionIndexes[item.id] = index;
+  });
+  const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
+  const selectedAssetIds = selectedAssets.map((asset) => asset.getAttribute('data-item-id'));
 
+  const deleteOperation = selectedAssetIds.map((assetId) => ({
+    value: collectionJSON.items[collectionIndexes[assetId]],
+    path: `/items/${collectionIndexes[assetId]}`,
+  }));
+
+  await patchCollection(collectionId, collectionJSON?.etag, null, deleteOperation);
+  // Refresh the page
+  window.location.reload();
+}
+
+function initQuickLinks() {
+  if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
+    return;
+  }
+
+  const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
+  // decorate quick links
+  quickLinksConfig.forEach((item) => {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'item';
+    const itemLinkEl = document.createElement('a');
+    if (item.page.startsWith('/') && isUrlPathNonRoot()) {
+      itemLinkEl.href = createLinkHref(getBaseConfigPath() + item.page);
+    } else {
+      itemLinkEl.href = createLinkHref(item.page);
+    }
+    itemLinkEl.dataset.page = item.page;
+    if (item.page.startsWith('http')) {
+      itemLinkEl.target = '_blank';
+      itemLinkEl.rel = 'noopener';
+    }
+    itemLinkEl.textContent = item.title;
+    itemEl.append(itemLinkEl);
+    quickLinks.append(itemEl);
+  });
+
+  // set aria-selected on quick links
+  quickLinks.querySelectorAll('.item').forEach((item) => {
+    if (item.querySelector('a')?.dataset.page === window.location.pathname) {
+      item.setAttribute('aria-selected', 'true');
+    }
+  });
+}
+
+function initBanner(nav) {
   const closeBanner = nav.querySelector('.banner .action-close');
   closeBanner.addEventListener('click', () => {
     nav.querySelector('.banner')?.classList.remove('show');
@@ -344,59 +399,6 @@ async function createUserInfo(nav) {
       () => {},
       'Cancel',
     );
-  });
-}
-
-async function handleRemoveMultiSelectedAssetsFromCollection() {
-  const collectionId = getCollectionIdFromURL();
-  const collectionJSON = await getCollection(collectionId);
-  const collectionIndexes = {};
-  collectionJSON.items.forEach((item, index) => {
-    collectionIndexes[item.id] = index;
-  });
-  const selectedAssets = getSelectedAssetsFromInfiniteResultsBlock();
-  const selectedAssetIds = selectedAssets.map((asset) => asset.getAttribute('data-item-id'));
-
-  const deleteOperation = selectedAssetIds.map((assetId) => ({
-    value: collectionJSON.items[collectionIndexes[assetId]],
-    path: `/items/${collectionIndexes[assetId]}`,
-  }));
-
-  await patchCollection(collectionId, collectionJSON?.etag, null, deleteOperation);
-  // Refresh the page
-  window.location.reload();
-}
-
-function initQuickLinks() {
-  if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
-    return;
-  }
-
-  const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
-  // decorate quick links
-  quickLinksConfig.forEach((item) => {
-    const itemEl = document.createElement('div');
-    itemEl.className = 'item';
-    const itemLinkEl = document.createElement('a');
-    if (item.page.startsWith('/') && isUrlPathNonRoot()) {
-      itemLinkEl.href = getBaseConfigPath() + item.page;
-    } else {
-      itemLinkEl.href = item.page;
-    }
-    if (item.page.startsWith('http')) {
-      itemLinkEl.target = '_blank';
-      itemLinkEl.rel = 'noopener';
-    }
-    itemLinkEl.textContent = item.title;
-    itemEl.append(itemLinkEl);
-    quickLinks.append(itemEl);
-  });
-
-  // set aria-selected on quick links
-  quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
-      item.setAttribute('aria-selected', 'true');
-    }
   });
 }
 

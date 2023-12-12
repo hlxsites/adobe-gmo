@@ -22,5 +22,6 @@ module.exports = {
     'no-return-await': 'off',
     'no-restricted-syntax': 'off',
     'max-len': ['warn', { code: 140 }],
+    'import/prefer-default-export': 'off',
   },
 };
