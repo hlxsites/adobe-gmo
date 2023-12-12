@@ -21,7 +21,7 @@ import {
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
-import { bootstrapUnifiedShell } from '../contenthub/unified-shell.js';
+import { bootstrapUnifiedShell, getUserSettings } from '../contenthub/unified-shell.js';
 import { createLinkHref, navigateTo, setCSSVar } from './shared.js';
 import { getRepositoryList } from '../contenthub/discovery-service.js';
 
