@@ -2,11 +2,6 @@ import {
   getAnchorVariable,
   getQueryVariable,
   isElement,
-} from './scripts.js';
-import {
-  getAnchorVariable,
-  getQueryVariable,
-  isElement,
 } from './shared.js';
 import {
   addMetadataFields,

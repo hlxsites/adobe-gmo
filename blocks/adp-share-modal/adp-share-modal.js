@@ -1,7 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { createLinkHref, logError, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
-import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
-import { logError } from '../../scripts/scripts.js';
+import { logError, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import { createLinkHref, addModalEventListeners } from '../../scripts/shared.js';
 import { createDateInput } from '../../scripts/date-input.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';

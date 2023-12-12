@@ -334,7 +334,6 @@ export async function loadPage() {
 
 loadPage();
 
-
 /**
  * Populates the asset view with the asset image and name to the left body of the dialog.
  * @param dialog

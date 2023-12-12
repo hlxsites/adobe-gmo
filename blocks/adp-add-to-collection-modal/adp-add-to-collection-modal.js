@@ -2,7 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
-import { getSelectedAssetsFromInfiniteResultsBlock, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
+import { populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import { getSelectedAssetsFromInfiniteResultsBlock, addModalEventListeners } from '../../scripts/shared.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 
