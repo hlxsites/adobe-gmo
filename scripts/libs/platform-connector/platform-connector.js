@@ -26138,4 +26138,4 @@ var getLabelByMimeType = function (mimetype) {
   return intl.formatMessage(_mimeTypeToLabelMap[mimetype]);
 };
 
-export { PlatformConnector, getDefaultSelectedRepo };
+export { PlatformConnector, getDefaultSelectedRepo, getRepoList };
