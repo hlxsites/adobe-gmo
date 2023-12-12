@@ -249,7 +249,6 @@ async function createUserInfo(nav) {
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
     window.sessionStorage.setItem(SESSION_STARTED_KEY, 'true');
     emitEvent(document.documentElement, EventNames.SESSION_STARTED, {
-      email: userProfile.email,
       displayName: userProfile.displayName,
       authId: userProfile.authId,
     });
