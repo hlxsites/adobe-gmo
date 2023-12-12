@@ -43,7 +43,10 @@
   --main-container-padding-top: 12px;
 
   /** ContentHub */
-  --contenthub-header-background: linear-gradient(90deg, rgba(248 206 103 / 100%) 0%, rgba(252 173 125 / 100%) 100%);
+  --contenthub-header-background: linear-gradient(269deg, #FBAB7E 0%, #F7CE68 100%);
+  --contenthub-header-box-shadow: 0px 4px 12.8px 0px rgba(0 0 0 / 7%);
+  border-bottom: 1px solid var(--palette-gray-200, #E6E6E6);
+
 
   /* borders */
   --border-color: #6d6d6d;
@@ -109,12 +112,13 @@
 }
 
 body.contenthub {
+  --contexthub-default-button-background-color: #292929;
   --nav-height: 150px;
   --card-image-height: 249px;
   --card-image-max-width: 400px;
   --card-min-width: 330px;
   --header-banner-height: 50px;
-  --button-focus-outline-color: rgb(45 45 45 / 100%);
+  --button-focus-outline-color: var(--contexthub-default-button-background-color);
 }
 
 @media (min-width: 900px) {
@@ -622,7 +626,11 @@ START: Common blocks/*-infinite-results block styling
   padding-top: var(--main-container-padding-top);
   display: grid;
   grid-template-columns: min-content max-content max-content auto min-content;
+<<<<<<< HEAD
   grid-template-rows: minmax(46px, auto) auto;
+=======
+  grid-template-rows: 46px auto;
+>>>>>>> ad660ce (ASSETS-31831 - Update style for content hub)
   /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
   grid-template-areas:
     "refinements selection-items stats current-refinements asset-details"
@@ -633,11 +641,25 @@ START: Common blocks/*-infinite-results block styling
   row-gap: 11px;
 }
 
+.contenthub .section.adp-infinite-results-instantsearch-container, .section.adp-infinite-results-collections-container {
+  grid-template-columns: min-content max-content max-content auto auto min-content;
+  grid-template-areas:
+  "refinements selection-items stats current-refinements assets-actions assets-actions"
+  "refinements infinite-results infinite-results infinite-results infinite-results asset-details";
+}
+
 .section.adp-infinite-results-instantsearch-container.closed, .section.adp-infinite-results-collections-container.closed {
   grid-template-columns: min-content max-content max-content auto min-content;
   grid-template-areas:
     "refinements selection-items stats current-refinements asset-details"
     "infinite-results infinite-results infinite-results infinite-results asset-details";
+}
+
+.contenthub .section.adp-infinite-results-instantsearch-container.closed, .section.adp-infinite-results-collections-container.closed {
+  grid-template-columns: min-content max-content max-content auto auto min-content;
+  grid-template-areas:
+  "refinements selection-items stats current-refinements assets-actions assets-actions"
+  "infinite-results infinite-results infinite-results infinite-results infinite-results asset-details";
 }
 
 .adp-result-item .actions {

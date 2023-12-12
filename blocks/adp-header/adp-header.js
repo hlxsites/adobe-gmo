@@ -12,7 +12,6 @@ import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download
 import { addAddToCollectionModalHandler } from '../adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 import { getCollection, getCollectionIdFromURL, patchCollection } from '../../scripts/collections.js';
 import createConfirmDialog from '../../scripts/confirm-dialog.js';
-import { openUploadDialog } from '../../contenthub/hydration/hydration.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -340,17 +339,6 @@ function initQuickLinks() {
     itemEl.append(itemLinkEl);
     quickLinks.append(itemEl);
   });
-
-  // TODO: find a better place for the button. This is just for testing
-  const quickLinksDiv = document.createElement('div');
-  quickLinksDiv.className = 'item';
-  const uploadLink = document.createElement('a');
-  uploadLink.className = 'upload-button';
-  uploadLink.href = '#';
-  uploadLink.textContent = 'Upload';
-  uploadLink.addEventListener('click', () => openUploadDialog());
-  quickLinksDiv.append(uploadLink);
-  quickLinks.append(quickLinksDiv);
 
   // set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {

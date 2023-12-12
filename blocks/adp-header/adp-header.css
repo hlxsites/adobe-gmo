@@ -95,6 +95,15 @@ header .nav-wrapper .banner {
   top: calc(var(--nav-height) - var(--header-banner-height));
   justify-content: space-between;
   display: none;
+  color: var(--banner-text-color);
+}
+
+.contenthub header .nav-wrapper .banner {
+  background-color: #fff;
+  box-shadow: var(--contenthub-header-box-shadow);
+  border-bottom: var(--contenthub-header-border-bottom);
+  color: #222;
+  flex-direction: row-reverse;
 }
 
 header .nav-wrapper .banner.show {
@@ -105,15 +114,17 @@ header .nav-wrapper .banner .banner-left {
   display: flex;
   align-items: center;
   font: var(--bold-font-size-ms);
-  color: var(--banner-text-color);
   padding-left: 25px;
+}
+
+.contenthub header .nav-wrapper .banner .banner-left {
+  padding-right: 25px;
 }
 
 header .nav-wrapper .banner .banner-right {
   display: flex;
   align-items: center;
   font: var(--bold-font-size-ms);
-  color: var(--banner-text-color);
   padding-right: 30px;
   gap: 24px;
 }
@@ -124,7 +135,7 @@ header .nav-wrapper .banner .banner-right .actions {
   justify-self: center;
 }
 
-header .nav-wrapper .banner .banner-right .actions:hover{
+header .nav-wrapper .banner .banner-right .actions:hover {
   cursor: pointer;
 }
 
@@ -167,6 +178,14 @@ header .nav-wrapper .banner .action-close .icon svg {
   width: 10px;
   height: 10px;
   fill: white;
+}
+
+.contenthub .nav-wrapper .banner .banner-right .icon svg {
+  fill: #222;
+}
+
+.contenthub header .nav-wrapper .banner .action-close .icon svg {
+  fill: #222;
 }
 
 @media (min-width: 720px) {
@@ -509,9 +528,6 @@ header nav {
 
 .contenthub header nav {
   background: var(--contenthub-header-background);
-}
-
-.contenthub header .banner.show {
-  height: var(--header-banner-height);
-  background-color: rgba(47 47 47 / 100%);
+  border-bottom: unset;
+  box-shadow: unset;
 }
