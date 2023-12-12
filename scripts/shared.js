@@ -1,5 +1,4 @@
 import { unifiedShellNavigateTo } from '../contenthub/unified-shell.js';
-import { EventNames, emitEvent } from './events.js';
 
 export function closeAssetDetailsModal(block) {
   document.body.classList.remove('no-scroll');
@@ -24,44 +23,6 @@ export function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSepa
       newValue = `${configValue}, ${currentFontFamily}`;
     }
     document.documentElement.style.setProperty(cssVariableName, newValue);
-  }
-}
-
-let numModalsOpen = 0;
-
-export function addModalEventListeners(dialogElement, options = {}) {
-  const observer = new MutationObserver((event) => {
-    if (event[0].attributeName === 'open') { // dialog is opening
-      document.body.classList.add('no-scroll');
-      if (dialogElement.open) {
-        numModalsOpen += 1;
-        if (numModalsOpen === 1) {
-          emitEvent(dialogElement, EventNames.A_MODAL_IS_OPEN);
-        }
-      } else { // dialog is closing
-        document.body.classList.remove('no-scroll');
-        if (numModalsOpen > 0) {
-          numModalsOpen -= 1;
-        }
-        if (numModalsOpen === 0) {
-          emitEvent(dialogElement, EventNames.ALL_MODALS_CLOSED);
-        }
-        if (options.onClose) {
-          options.onClose();
-        }
-        if (options.removeDialogElementOnClose && dialogElement.isConnected) {
-          dialogElement.remove();
-        }
-      }
-    }
-  });
-  observer.observe(dialogElement, { attributes: true });
-  if (options.closeModalOnOutsideClick) {
-    dialogElement.addEventListener('click', (event) => {
-      if (event.target === dialogElement) {
-        dialogElement.close();
-      }
-    });
   }
 }
 

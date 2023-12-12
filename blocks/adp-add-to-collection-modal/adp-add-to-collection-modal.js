@@ -3,8 +3,9 @@ import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
 import { populateAssetViewLeftDialog } from '../../scripts/scripts.js';
-import { getSelectedAssetsFromInfiniteResultsBlock, addModalEventListeners } from '../../scripts/shared.js';
+import { getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/shared.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
+import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 
 // Function to create the new collection input
 function createNewCollectionInput(newCollectionRadioInputContainer) {
@@ -298,7 +299,7 @@ export default async function decorate(block) {
     dialog.close();
   });
 
-  addModalEventListeners(dialog, {
+  addDialogEventListeners(dialog, {
     closeModalOnEscape: false,
     closeModalOnOutsideClick: true,
     onClose: () => {

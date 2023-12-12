@@ -1,6 +1,7 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { logError, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
-import { createLinkHref, addModalEventListeners } from '../../scripts/shared.js';
+import { createLinkHref } from '../../scripts/shared.js';
+import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 import { createDateInput } from '../../scripts/date-input.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
@@ -293,7 +294,7 @@ export default async function decorate(block) {
 
   await decorateIcons(block);
   const dialog = block.querySelector('dialog');
-  addModalEventListeners(dialog);
+  addDialogEventListeners(dialog);
   dialog.querySelector('.action-close').addEventListener('click', () => {
     closeDialog(dialog);
   });

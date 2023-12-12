@@ -6,8 +6,8 @@ import {
   setHashParamInWindowURL,
   removeParamFromWindowURL,
   closeAssetDetailsModal,
-  addModalEventListeners,
 } from '../../scripts/shared.js';
+import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
   getAssetName, getAssetMimeType, getAssetTitle,
@@ -276,7 +276,7 @@ export default function decorate(block) {
   block.querySelector('#asset-details-close').addEventListener('click', () => {
     dialog.close();
   });
-  addModalEventListeners(dialog, {
+  addDialogEventListeners(dialog, {
     closeModalOnEscape: true,
     closeModalOnOutsideClick: true,
     onClose: () => {

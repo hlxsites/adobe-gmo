@@ -626,11 +626,7 @@ START: Common blocks/*-infinite-results block styling
   padding-top: var(--main-container-padding-top);
   display: grid;
   grid-template-columns: min-content max-content max-content auto min-content;
-<<<<<<< HEAD
-  grid-template-rows: minmax(46px, auto) auto;
-=======
   grid-template-rows: 46px auto;
->>>>>>> ad660ce (ASSETS-31831 - Update style for content hub)
   /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
   grid-template-areas:
     "refinements selection-items stats current-refinements asset-details"
@@ -1200,3 +1196,13 @@ END: blocks/adp-collection-header and blocks/adp-stats
   padding-bottom: 35px;
   justify-content: end;
 }
+
+/**
+START: dialog css - see scripts/dialog-html-builder.js
+*/
+.dialog-container {
+  border-radius: 6px;
+  border: none;
+  padding: 0;
+}
+
