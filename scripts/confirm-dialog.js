@@ -1,5 +1,5 @@
 import { decorateIcons } from './lib-franklin.js';
-import { addModalEventListeners } from './shared.js';
+import { addDialogEventListeners } from './dialog-html-builder.js';
 
 export default async function createConfirmDialog(title, text, onConfirm, confirmButtonText, onCancel, cancelButtonText) {
   const dialog = document.createElement('dialog');
@@ -46,7 +46,7 @@ export default async function createConfirmDialog(title, text, onConfirm, confir
     dialog.close();
   });
 
-  addModalEventListeners(dialog.querySelector('dialog'), {
+  addDialogEventListeners(dialog.querySelector('dialog'), {
     removeDialogElementOnClose: true,
     closeModalOnEscape: true,
   });

@@ -66,6 +66,14 @@ export async function getBrandingConfig() {
   return result;
 }
 
+export async function isContentHub() {
+  const brandingConfig = await getBrandingConfig();
+  if (brandingConfig.portalTheme === 'contenthub') {
+    return true;
+  }
+  return false;
+}
+
 /**
  * @typedef {Object} MetadataViewConfig
  * @property {string} label

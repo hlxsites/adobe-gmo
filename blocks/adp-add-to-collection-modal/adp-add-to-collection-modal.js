@@ -2,8 +2,10 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
-import { getSelectedAssetsFromInfiniteResultsBlock, addModalEventListeners } from '../../scripts/shared.js';
+import { populateAssetViewLeftDialog } from '../../scripts/scripts.js';
+import { getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/shared.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
+import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 
 // Function to create the new collection input
 function createNewCollectionInput(newCollectionRadioInputContainer) {
@@ -201,6 +203,34 @@ export async function addAddToCollectionModalHandler() {
   await openModal(items);
 }
 
+/**
+ * Handler to open the modal to add an asset card to a collection
+ * @param {string} assetId
+ * @param {string} repoName
+ * @param {string} title
+ * @param {string} format
+ * @returns {Promise<void>}
+ */
+export async function openAddToCollectionModalHandler(assetId, repoName, title, format) {
+  const dialog = document.querySelector('.adp-add-to-collection-modal.block dialog');
+  populateAssetViewLeftDialog(
+    dialog,
+    '.dialog-header-left',
+    '.dialog-body-left',
+    'Add asset to collection',
+    assetId,
+    repoName,
+    title,
+    format,
+  );
+  const items = [{
+    id: assetId,
+    name: repoName,
+    type: 'asset',
+  }];
+  await openModal(items);
+}
+
 async function populateMultiAssetView(dialog) {
   const dialogBodyLeft = dialog.querySelector('.dialog-body-left');
   const newDialogBodyLeft = dialogBodyLeft.cloneNode(false);
@@ -269,7 +299,7 @@ export default async function decorate(block) {
     dialog.close();
   });
 
-  addModalEventListeners(dialog, {
+  addDialogEventListeners(dialog, {
     closeModalOnEscape: false,
     closeModalOnOutsideClick: true,
     onClose: () => {

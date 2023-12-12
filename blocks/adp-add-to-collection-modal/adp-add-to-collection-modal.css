@@ -1,5 +1,4 @@
 .adp-add-to-collection-modal.block dialog {
-  min-width: 647px;
   border-radius: 6px;
   border: none;
   padding: 0;
@@ -62,6 +61,30 @@
   flex-direction: column;
   align-items: flex-start;
   grid-area: dialog-body-left;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-left .asset-image {
+  display: flex;
+  justify-content: center;
+  width: 212px;
+  height: 168px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-left .asset-image > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.adp-add-to-collection-modal-container .dialog-body .dialog-body-left .asset-name {
+  font: var(--add-to-collection-modal-font);
+  color: #222;
+  text-transform: none;
+  max-width: 100%;
+  word-wrap: break-word;
 }
 
 .adp-add-to-collection-modal-container .dialog-body .dialog-body-right {
@@ -170,7 +193,7 @@
   display: block;
   width: 80%;
   height: 100%;
-  font: var(--share-modal-font);
+  font: var(--add-to-collection-modal-font);
   border: var(--select-border);
   border-radius: 4px;
   padding: 4px;

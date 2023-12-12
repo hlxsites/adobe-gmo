@@ -11,13 +11,13 @@ import {
   loadBlocks,
   loadCSS,
 } from './lib-franklin.js';
-import { getAdminConfig, getBrandingConfig } from './site-config.js';
+import { getAdminConfig, getBrandingConfig, isContentHub } from './site-config.js';
 import { getBearerToken, checkUserAccess, isPublicPage } from './security.js';
 import {
   getSearchIndex,
   getBackendApiKey,
   getDeliveryEnvironment,
-  initDeliveryEnvironment,
+  initDeliveryEnvironment, getOptimizedPreviewUrl,
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
@@ -247,6 +247,10 @@ async function loadLazy(doc) {
       await initializeServiceWorkers();
       // Make sure all dependencies are loaded before initializing search
       // - we load them in parallel by leveraging the promise
+    } else if (await checkUserAccess()) {
+      // if the path is /no-access but user actually has access, then forwards to home
+      window.location.href = '/';
+      return;
     }
     await waitForDependency('search');
     await getRepositoryList();
@@ -322,10 +326,63 @@ function loadDelayed() {
 }
 
 export async function loadPage() {
-  await loadEager(document);
-  await bootstrapUnifiedShell();
+  // load resource in parallel
+  const unifiedShellPromise = bootstrapUnifiedShell();
+  const eagerPromise = loadEager(document);
+
+  await unifiedShellPromise;
+  if (await isContentHub()) {
+    const settings = await getUserSettings();
+    if (window.location.pathname !== '/onboarding' && !settings.isOnboardingCompleted) {
+      // TODO: activate onboarding
+      // navigateTo(createLinkHref('/onboarding'));
+      // return;
+    }
+  }
+
+  await eagerPromise;
   await loadLazy(document);
   loadDelayed();
 }
 
 loadPage();
+
+/**
+ * Populates the asset view with the asset image and name to the left body of the dialog.
+ * @param dialog
+ * @param dialogHeaderLeftSelector
+ * @param dialogBodyLeftSelector
+ * @param dialogHeaderText
+ * @param assetId
+ * @param assetName
+ * @param title
+ * @param format
+ */
+// eslint-disable-next-line max-len
+export function populateAssetViewLeftDialog(dialog, dialogHeaderLeftSelector, dialogBodyLeftSelector, dialogHeaderText, assetId, assetName, title, format) {
+  const titleElement = dialog.querySelector(dialogHeaderLeftSelector);
+  titleElement.textContent = dialogHeaderText;
+  const dialogBodyLeft = dialog.querySelector(dialogBodyLeftSelector);
+  const newDialogBodyLeft = dialogBodyLeft.cloneNode(false);
+  newDialogBodyLeft.innerHTML = `
+    <div class='asset-image'>
+      <img/>
+    </div>
+    <div class='asset-name'></div>
+  `;
+  dialogBodyLeft.parentElement.replaceChild(newDialogBodyLeft, dialogBodyLeft);
+
+  // Populate the asset image
+  const assetImg = dialog.querySelector('.asset-image img');
+  assetImg.dataset.fileformat = format;
+  assetImg.style.visibility = 'hidden';
+  getOptimizedPreviewUrl(assetId, assetName, 350).then((url) => {
+    assetImg.src = url;
+    assetImg.style.visibility = '';
+  });
+  assetImg.alt = title;
+
+  // Populate the asset name
+  const assetImgName = dialog.querySelector('.asset-name');
+  assetImgName.textContent = title;
+}

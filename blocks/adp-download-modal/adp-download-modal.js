@@ -1,7 +1,8 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
 import { logError } from '../../scripts/scripts.js';
-import { createTag, closeDialogEvent, addModalEventListeners } from '../../scripts/shared.js';
+import { createTag, closeDialogEvent } from '../../scripts/shared.js';
+import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { emitEvent, EventNames } from '../../scripts/events.js';
 import { getBearerToken } from '../../scripts/security.js';
@@ -32,7 +33,7 @@ export default function decorate(block) {
   </dialog>`;
   decorateIcons(block);
   const dialog = block.querySelector('dialog');
-  addModalEventListeners(dialog, {
+  addDialogEventListeners(dialog, {
     removeDialogElementOnClose: false,
     closeModalOnEscape: true,
     closeModalOnOutsideClick: true,

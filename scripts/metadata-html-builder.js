@@ -3,7 +3,12 @@ import {
   getQueryVariable,
   isElement,
 } from './shared.js';
-import { addMetadataFields, formatAssetMetadata, getAssetName } from './metadata.js';
+import {
+  addMetadataFields,
+  formatAssetMetadata,
+  getAssetName,
+  getAssetMimeType,
+} from './metadata.js';
 import { getAssetMetadata } from './polaris.js';
 
 function getAssetIdFromURL() {
@@ -143,6 +148,11 @@ export async function fetchMetadataAndCreateHTML(metadataViewConfig, assetData, 
     fileNameDiv.textContent = getAssetName(assetJSON);
     fileNameDiv.title = fileNameDiv.textContent;
     metadataContainer.appendChild(fileNameDiv);
+    const mimetypeDiv = document.createElement('div');
+    mimetypeDiv.classList.add('metadata-mimetype');
+    mimetypeDiv.textContent = formatAssetMetadata('format', getAssetMimeType(assetJSON));
+    mimetypeDiv.title = mimetypeDiv.textContent;
+    metadataContainer.appendChild(mimetypeDiv);
   }
   metadataContainer.appendChild(createMetadataHTML(metadataViewConfig, assetJSON, hideEmptyMetadataProperty));
   return metadataContainer;

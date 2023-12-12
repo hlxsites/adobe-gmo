@@ -4,13 +4,20 @@ The Assets Distribution Portal allows authors to create custom yet performant se
 It is designed to help users find, download and share assets. Users can browse across assets using our card view and search using facets and filters. The portal is customizable so that companies can configure it with their own branding.
 
 ## Environments
-- Preview: https://main--assets-contenthub--adobe-rnd.hlx.page/
-- Live: https://main--assets-contenthub--adobe-rnd.hlx.live/
+ - Localhost: https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/contenthub (https://localhost.corp.adobe.com:8443/)
+ - Stage: https://experience-stage.adobe.com/?shell_ims=prod&shell_source=stage#/@skylineprodtest017/contenthub (https://main--assets-contenthub--adobe-rnd.hlx.live/)
+
+Sharepoint: https://adobe.sharepoint.com/:f:/r/sites/HelixProjects/Shared%20Documents/sites/assets-distribution-portal/content-hub?csf=1&web=1&e=csog5r
+
+## Quickstart 
+ - `npm ni`
+ - `aem up` (not sudo)
+
 
 ## Installation
 
 ```sh
-npm i
+npm ci
 ```
 
 ## Tests

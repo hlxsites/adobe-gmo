@@ -12,7 +12,6 @@ import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download
 import { addAddToCollectionModalHandler } from '../adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 import { getCollection, getCollectionIdFromURL, patchCollection } from '../../scripts/collections.js';
 import createConfirmDialog from '../../scripts/confirm-dialog.js';
-import { openUploadDialog } from '../../contenthub/hydration/hydration.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -227,7 +226,8 @@ export default async function decorate(block) {
     if (!window.unifiedShellRuntime) {
       await createUserInfo(nav);
     }
-    initQuickLinks(nav);
+    initQuickLinks();
+    initBanner(nav);
   }
 }
 
@@ -253,7 +253,6 @@ async function createUserInfo(nav) {
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
     window.sessionStorage.setItem(SESSION_STARTED_KEY, 'true');
     emitEvent(document.documentElement, EventNames.SESSION_STARTED, {
-      email: userProfile.email,
       displayName: userProfile.displayName,
       authId: userProfile.authId,
     });
@@ -315,7 +314,7 @@ async function handleRemoveMultiSelectedAssetsFromCollection() {
   window.location.reload();
 }
 
-function initQuickLinks(nav) {
+function initQuickLinks() {
   if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
     return;
   }
@@ -341,24 +340,15 @@ function initQuickLinks(nav) {
     quickLinks.append(itemEl);
   });
 
-  // TODO: find a better place for the button. This is just for testing
-  const quickLinksDiv = document.createElement('div');
-  quickLinksDiv.className = 'item';
-  const uploadLink = document.createElement('a');
-  uploadLink.className = 'upload-button';
-  uploadLink.href = '#';
-  uploadLink.textContent = 'Upload';
-  uploadLink.addEventListener('click', () => openUploadDialog());
-  quickLinksDiv.append(uploadLink);
-  quickLinks.append(quickLinksDiv);
-
   // set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {
     if (item.querySelector('a')?.dataset.page === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');
     }
   });
+}
 
+function initBanner(nav) {
   const closeBanner = nav.querySelector('.banner .action-close');
   closeBanner.addEventListener('click', () => {
     nav.querySelector('.banner')?.classList.remove('show');

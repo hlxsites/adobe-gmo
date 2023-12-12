@@ -1,5 +1,5 @@
 import excApp, {
-  init, page, shell, topbar, user,
+  init, page, SettingsLevel, shell, topbar, user, settings as settingsApi,
 } from '../scripts/libs/exc-app/exc-app.js';
 import { loadScript } from '../scripts/lib-franklin.js';
 import { addEventListener, EventNames } from '../scripts/events.js';
@@ -128,4 +128,37 @@ function addModalModeHandling() {
 export function unifiedShellNavigateTo(url) {
   page.spinner = true;
   window.location.href = url;
+}
+
+/**
+ * @typedef {Object} UserSettings
+ * @property {boolean} isOnboardingCompleted
+ */
+
+/**
+ * @type UserSettings
+ */
+const defaultSettings = { isOnboardingCompleted: false };
+
+/**
+ * @returns {Promise<UserSettings>}
+ */
+export async function getUserSettings() {
+  const response = await settingsApi.get({
+    groupId: 'general',
+    level: SettingsLevel.USER,
+    settings: defaultSettings,
+  });
+  return response.settings;
+}
+
+/**
+ * @param {UserSettings} settings
+ */
+export async function setUserSettings(settings) {
+  await settingsApi.set({
+    groupId: 'general',
+    level: SettingsLevel.USER,
+    settings,
+  });
 }

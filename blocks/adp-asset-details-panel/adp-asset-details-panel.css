@@ -10,6 +10,10 @@
   overflow: auto;
 }
 
+.contenthub .adp-asset-details-panel-wrapper {
+  top: calc(var(--nav-height) + var(--main-container-padding-top) + 46px);
+}
+
 .adp-asset-details-panel-wrapper::-webkit-scrollbar {
   width: 0;
 }

@@ -43,7 +43,10 @@
   --main-container-padding-top: 12px;
 
   /** ContentHub */
-  --contenthub-header-background: linear-gradient(90deg, rgba(248 206 103 / 100%) 0%, rgba(252 173 125 / 100%) 100%);
+  --contenthub-header-background: linear-gradient(269deg, #FBAB7E 0%, #F7CE68 100%);
+  --contenthub-header-box-shadow: 0px 4px 12.8px 0px rgba(0 0 0 / 7%);
+  border-bottom: 1px solid var(--palette-gray-200, #E6E6E6);
+
 
   /* borders */
   --border-color: #6d6d6d;
@@ -88,6 +91,7 @@
   --stats-value-font: normal normal bold 16px/20px var(--body-font-family);
   --current-refinement-font: normal normal normal 12px/15px var(--body-font-family);
   --share-modal-font: var(--metadata-font);
+  --add-to-collection-modal-font: var(--metadata-font);
  
   /* heading sizes */
   --header-font-size: 14px;
@@ -96,7 +100,7 @@
  
   /* nav height */
   --nav-height: 123px;
-  --banner-height: 60px;
+  --header-banner-height: 60px;
   
   /* body panel sizes */
   --body-current-refinements-block-height: 34px;
@@ -108,10 +112,13 @@
 }
 
 body.contenthub {
+  --contexthub-default-button-background-color: #292929;
   --nav-height: 150px;
   --card-image-height: 249px;
   --card-image-max-width: 400px;
   --card-min-width: 330px;
+  --header-banner-height: 50px;
+  --button-focus-outline-color: var(--contexthub-default-button-background-color);
 }
 
 @media (min-width: 900px) {
@@ -400,6 +407,12 @@ main .section.highlight {
   text-transform: initial;
 }
 
+.metadata-mimetype {
+  color: #9e9e9e;
+  font-size: var(--body-font-size-xs);
+  text-transform: uppercase;
+}
+
 .ais-RefinementList-labelText,
 .ais-RefinementList-count,
 .tag {
@@ -613,7 +626,7 @@ START: Common blocks/*-infinite-results block styling
   padding-top: var(--main-container-padding-top);
   display: grid;
   grid-template-columns: min-content max-content max-content auto min-content;
-  grid-template-rows: auto auto;
+  grid-template-rows: 46px auto;
   /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
   grid-template-areas:
     "refinements selection-items stats current-refinements asset-details"
@@ -624,11 +637,25 @@ START: Common blocks/*-infinite-results block styling
   row-gap: 11px;
 }
 
+.contenthub .section.adp-infinite-results-instantsearch-container, .section.adp-infinite-results-collections-container {
+  grid-template-columns: min-content max-content max-content auto auto min-content;
+  grid-template-areas:
+  "refinements selection-items stats current-refinements assets-actions assets-actions"
+  "refinements infinite-results infinite-results infinite-results infinite-results asset-details";
+}
+
 .section.adp-infinite-results-instantsearch-container.closed, .section.adp-infinite-results-collections-container.closed {
   grid-template-columns: min-content max-content max-content auto min-content;
   grid-template-areas:
     "refinements selection-items stats current-refinements asset-details"
     "infinite-results infinite-results infinite-results infinite-results asset-details";
+}
+
+.contenthub .section.adp-infinite-results-instantsearch-container.closed, .section.adp-infinite-results-collections-container.closed {
+  grid-template-columns: min-content max-content max-content auto auto min-content;
+  grid-template-areas:
+  "refinements selection-items stats current-refinements assets-actions assets-actions"
+  "infinite-results infinite-results infinite-results infinite-results infinite-results asset-details";
 }
 
 .adp-result-item .actions {
@@ -940,6 +967,12 @@ input[type="checkbox"]:indeterminate {
   padding: 4px 4px 10px;
 }
 
+.contenthub .adp-result-item.checked,
+.contenthub .adp-result-item.selected {
+  border: unset;
+  padding: 6px 6px 12px;
+}
+
 .adp-result-item .title {
   font-size: 0.9rem;
   font-weight: bold;
@@ -1163,3 +1196,13 @@ END: blocks/adp-collection-header and blocks/adp-stats
   padding-bottom: 35px;
   justify-content: end;
 }
+
+/**
+START: dialog css - see scripts/dialog-html-builder.js
+*/
+.dialog-container {
+  border-radius: 6px;
+  border: none;
+  padding: 0;
+}
+
