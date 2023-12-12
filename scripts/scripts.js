@@ -23,6 +23,10 @@ import {
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
 
+import {
+  sdkTest,
+} from './test-polling-events.js';
+
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
   .then((res) => res.json())
@@ -260,6 +264,9 @@ async function loadLazy(doc) {
     await waitForDependency('search');
     await initDeliveryEnvironment();
     await initSearch();
+    //Todo Testing sdkTest() call
+    await sdkTest();
+
   }
   if (!(document.querySelector('head meta[name="hide-header"]')?.getAttribute('content') === 'true')) {
     loadHeader(doc.querySelector('header'), 'adp-header');
