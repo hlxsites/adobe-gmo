@@ -39,3 +39,9 @@
   flex-grow: 1;
   overflow: auto;
 }
+
+#hydration-upload-dialog .dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+}

@@ -1,4 +1,3 @@
-import decorate from '../blocks/adp-download-modal/adp-download-modal.js';
 import { emitEvent, EventNames } from './events.js';
 import { decorateIcons } from './lib-franklin.js';
 
