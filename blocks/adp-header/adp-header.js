@@ -5,7 +5,7 @@ import {
   getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
 } from '../../scripts/site-config.js';
 import { getUserProfile, getAvatarUrl, isPublicPage } from '../../scripts/security.js';
-import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
+import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/shared.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
 import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
@@ -204,24 +204,28 @@ export default async function decorate(block) {
   navWrapper.append(nav);
   block.append(navWrapper);
 
-  getBrandingConfig().then((brandingConfig) => {
-    if (brandingConfig.logo) {
-      const logoContainer = nav.querySelector('.nav-brand .adp-logo');
-      const img = document.createElement('img');
-      img.loading = 'lazy';
-      img.src = brandingConfig.logo;
-      img.alt = brandingConfig.brandText;
-      logoContainer.appendChild(img);
-    }
-    if (brandingConfig.brandText) {
-      nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
-      document.title = brandingConfig.brandText;
-    }
-  });
+  if (!window.unifiedShellRuntime) {
+    getBrandingConfig().then((brandingConfig) => {
+      if (brandingConfig.logo) {
+        const logoContainer = nav.querySelector('.nav-brand .adp-logo');
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.src = brandingConfig.logo;
+        img.alt = brandingConfig.brandText;
+        logoContainer.appendChild(img);
+      }
+      if (brandingConfig.brandText) {
+        nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+        document.title = brandingConfig.brandText;
+      }
+    });
+  }
 
   if (!isPublicPage()) {
     loadSearchField(nav);
-    await createUserInfo(nav);
+    if (!window.unifiedShellRuntime) {
+      await createUserInfo(nav);
+    }
     initQuickLinks();
     initBanner(nav);
   }

@@ -1,8 +1,9 @@
 import { getSearchFieldConfig } from '../../scripts/site-config.js';
 import {
-  getSearchClient, getInstantSearchRouting, setCSSVar, waitForDependency,
+  getSearchClient, getInstantSearchRouting, waitForDependency,
 } from '../../scripts/scripts.js';
 import { getSearchIndex } from '../../scripts/polaris.js';
+import { setCSSVar } from '../../scripts/shared.js';
 
 const searchFieldConfig = await getSearchFieldConfig();
 const { searchMinChars, enableSearchSuggestions } = searchFieldConfig;
@@ -239,7 +240,7 @@ export default async function decorate(block) {
 
     const autocompleteSearch = autocomplete({
       container: searchField,
-      placeholder: 'Search all assets',
+      placeholder: searchFieldConfig.placeholderText,
       detachedMediaQuery: 'none',
       openOnFocus: true,
       plugins,

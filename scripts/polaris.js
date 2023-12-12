@@ -1,6 +1,8 @@
 import { isVideo } from './filetypes.js';
-import { getAdminConfig } from './site-config.js';
 import { getBearerToken } from './security.js';
+import { getDeliveryServiceEndpoint } from '../contenthub/discovery-service.js';
+import { shell } from './libs/exc-app/exc-app.js';
+import { getAdminConfig } from './site-config.js';
 
 let deliveryEndpointURL = null;
 let backendApiKey = null;
@@ -12,11 +14,18 @@ const metadataCache = {};
 
 export async function initDeliveryEnvironment() {
   if (!deliveryEndpointURL) {
-    // Pull the delivery environment URL from /site-config.json
-    const adminConfig = await getAdminConfig();
-    deliveryEndpointURL = adminConfig.aemDeliveryEndpoint;
-    backendApiKey = adminConfig.imsEnvironment === 'stage' ? 'polaris-asset-search-api-key' : 'asset_search_service';
-    assetHandlerApiKey = adminConfig.imsEnvironment === 'stage' ? 'activation_service_test1' : 'activation_service';
+    if (window.unifiedShellRuntime) {
+      deliveryEndpointURL = await getDeliveryServiceEndpoint();
+      const imsEnvironment = await shell.get('imsEnvironment');
+      backendApiKey = imsEnvironment === 'stage' ? 'polaris-asset-search-api-key' : 'asset_search_service';
+      assetHandlerApiKey = imsEnvironment === 'stage' ? 'activation_service_test1' : 'activation_service';
+    } else {
+      // Pull the delivery environment URL from /site-config.json
+      const adminConfig = await getAdminConfig();
+      deliveryEndpointURL = adminConfig.aemDeliveryEndpoint;
+      backendApiKey = adminConfig.imsEnvironment === 'stage' ? 'polaris-asset-search-api-key' : 'asset_search_service';
+      assetHandlerApiKey = adminConfig.imsEnvironment === 'stage' ? 'activation_service_test1' : 'activation_service';
+    }
   }
   return deliveryEndpointURL;
 }

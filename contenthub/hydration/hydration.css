@@ -1,0 +1,47 @@
+#hydration-upload-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 90vw;
+  height: 90vh;
+}
+
+
+#hydration-upload-dialog .dialog-header {
+  display: grid;
+  padding: 28px 34px 0 35px;
+  grid-template:
+    'dialog-header-left dialog-header-right' 1fr
+    / 1fr 1fr;
+}
+
+#hydration-upload-dialog .dialog-header span.icon {
+  display: flex;
+  align-items: center;
+}
+
+#hydration-upload-dialog .dialog-header .dialog-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-area: dialog-header-left;
+  font: var(--bold-font-size-l);
+  text-transform: initial;
+}
+
+#hydration-upload-dialog .dialog-header .dialog-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  grid-area: dialog-header-right;
+}
+
+#hydration-upload-dialog .dialog-body {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+#hydration-upload-dialog .dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+}

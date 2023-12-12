@@ -1,9 +1,9 @@
 import { getBearerToken } from './security.js';
 import {
-  getAssetHandlerApiKey,
-  getDeliveryEnvironment,
+  getAssetHandlerApiKey, getDeliveryEnvironment,
 } from './polaris.js';
-import { getPathParams, logError } from './scripts.js';
+import { logError } from './scripts.js';
+import { getPathParams } from './shared.js';
 import { emitEvent, EventNames } from './events.js';
 
 export function getCollectionIdFromURL() {
