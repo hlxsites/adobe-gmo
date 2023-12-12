@@ -227,7 +227,8 @@ export default async function decorate(block) {
     if (!window.unifiedShellRuntime) {
       await createUserInfo(nav);
     }
-    initQuickLinks(nav);
+    initQuickLinks();
+    initBanner(nav);
   }
 }
 
@@ -253,7 +254,6 @@ async function createUserInfo(nav) {
   if (window && window.sessionStorage && !window.sessionStorage.getItem(SESSION_STARTED_KEY)) {
     window.sessionStorage.setItem(SESSION_STARTED_KEY, 'true');
     emitEvent(document.documentElement, EventNames.SESSION_STARTED, {
-      email: userProfile.email,
       displayName: userProfile.displayName,
       authId: userProfile.authId,
     });
@@ -315,7 +315,7 @@ async function handleRemoveMultiSelectedAssetsFromCollection() {
   window.location.reload();
 }
 
-function initQuickLinks(nav) {
+function initQuickLinks() {
   if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
     return;
   }
@@ -358,7 +358,9 @@ function initQuickLinks(nav) {
       item.setAttribute('aria-selected', 'true');
     }
   });
+}
 
+function initBanner(nav) {
   const closeBanner = nav.querySelector('.banner .action-close');
   closeBanner.addEventListener('click', () => {
     nav.querySelector('.banner')?.classList.remove('show');

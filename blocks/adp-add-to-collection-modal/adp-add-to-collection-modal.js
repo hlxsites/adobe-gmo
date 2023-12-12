@@ -2,6 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
+import { getSelectedAssetsFromInfiniteResultsBlock, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import { getSelectedAssetsFromInfiniteResultsBlock, addModalEventListeners } from '../../scripts/shared.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 
@@ -198,6 +199,34 @@ export async function addAddToCollectionModalHandler() {
       },
     );
   });
+  await openModal(items);
+}
+
+/**
+ * Handler to open the modal to add an asset card to a collection
+ * @param {string} assetId
+ * @param {string} repoName
+ * @param {string} title
+ * @param {string} format
+ * @returns {Promise<void>}
+ */
+export async function openAddToCollectionModalHandler(assetId, repoName, title, format) {
+  const dialog = document.querySelector('.adp-add-to-collection-modal.block dialog');
+  populateAssetViewLeftDialog(
+    dialog,
+    '.dialog-header-left',
+    '.dialog-body-left',
+    'Add asset to collection',
+    assetId,
+    repoName,
+    title,
+    format,
+  );
+  const items = [{
+    id: assetId,
+    name: repoName,
+    type: 'asset',
+  }];
   await openModal(items);
 }
 

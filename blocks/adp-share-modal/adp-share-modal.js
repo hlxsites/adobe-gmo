@@ -1,4 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
+import { createLinkHref, logError, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import { getOptimizedPreviewUrl } from '../../scripts/polaris.js';
 import { logError } from '../../scripts/scripts.js';
 import { createLinkHref, addModalEventListeners } from '../../scripts/shared.js';
@@ -88,31 +89,7 @@ function formatDate(date) {
 }
 
 function populateSingleAssetView(dialog, assetId, assetName, title, format) {
-  const titleElement = dialog.querySelector('.dialog-header-left');
-  titleElement.textContent = 'Share asset';
-  const dialogBodyLeft = dialog.querySelector('.share-link-body-left');
-  const newDialogBodyLeft = dialogBodyLeft.cloneNode(false);
-  newDialogBodyLeft.innerHTML = `
-    <div class='asset-image'>
-      <img/>
-    </div>
-    <div class='asset-name'></div>
-  `;
-  dialogBodyLeft.parentElement.replaceChild(newDialogBodyLeft, dialogBodyLeft);
-
-  // Populate the asset image
-  const assetImg = dialog.querySelector('.asset-image img');
-  assetImg.dataset.fileformat = format;
-  assetImg.style.visibility = 'hidden';
-  getOptimizedPreviewUrl(assetId, assetName, 350).then((url) => {
-    assetImg.src = url;
-    assetImg.style.visibility = '';
-  });
-  assetImg.alt = title;
-
-  // Populate the asset name
-  const assetImgName = dialog.querySelector('.asset-name');
-  assetImgName.textContent = title;
+  populateAssetViewLeftDialog(dialog, '.dialog-header-left', '.share-link-body-left', 'Share asset', assetId, assetName, title, format);
 
   const shareLinkExpiryContainer = dialog.querySelector('.share-link-body-right .share-link-expiry-container');
   shareLinkExpiryContainer.classList.remove('multi-select');

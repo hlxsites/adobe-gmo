@@ -14,6 +14,7 @@ import { closeAssetDetailsPanel } from '../blocks/adp-asset-details-panel/adp-as
 import { getLicenseAgreementFlags } from './site-config.js';
 import { logError } from './scripts.js';
 import { getCSSVar } from './shared.js';
+import { openAddToCollectionModalHandler } from '../blocks/adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 
 const licenseAgreementFlags = await getLicenseAgreementFlags();
 let assetObj;
@@ -157,6 +158,14 @@ export function createAssetCardElement(
     }, 'share');
     actionsElement.appendChild(shareButton);
   }
+
+  if (!excludedActions || !excludedActions.includes('add-to-collection')) {
+    const addToCollectionButton = createActionButton('addToCollection', 'Add to collection', () => {
+      openAddToCollectionModalHandler(assetId, repoName, title, mimeType);
+    }, 'addToCollection');
+    actionsElement.appendChild(addToCollectionButton);
+  }
+
   return card;
 }
 
