@@ -99,7 +99,7 @@ export default class CollectionsDatasource {
   }
 
   getExcludedItemActions() {
-    return [];
+    return ['add-to-collection'];
   }
 
   noResultsMessage() {

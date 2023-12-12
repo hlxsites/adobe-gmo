@@ -17,7 +17,7 @@ import {
   getSearchIndex,
   getBackendApiKey,
   getDeliveryEnvironment,
-  initDeliveryEnvironment,
+  initDeliveryEnvironment, getOptimizedPreviewUrl,
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
@@ -547,4 +547,44 @@ export function removeParamFromWindowURL(paramName) {
  */
 export function navigateTo(url) {
   window.location.href = url;
+}
+
+/**
+ * Populates the asset view with the asset image and name to the left body of the dialog.
+ * @param dialog
+ * @param dialogHeaderLeftSelector
+ * @param dialogBodyLeftSelector
+ * @param dialogHeaderText
+ * @param assetId
+ * @param assetName
+ * @param title
+ * @param format
+ */
+// eslint-disable-next-line max-len
+export function populateAssetViewLeftDialog(dialog, dialogHeaderLeftSelector, dialogBodyLeftSelector, dialogHeaderText, assetId, assetName, title, format) {
+  const titleElement = dialog.querySelector(dialogHeaderLeftSelector);
+  titleElement.textContent = dialogHeaderText;
+  const dialogBodyLeft = dialog.querySelector(dialogBodyLeftSelector);
+  const newDialogBodyLeft = dialogBodyLeft.cloneNode(false);
+  newDialogBodyLeft.innerHTML = `
+    <div class='asset-image'>
+      <img/>
+    </div>
+    <div class='asset-name'></div>
+  `;
+  dialogBodyLeft.parentElement.replaceChild(newDialogBodyLeft, dialogBodyLeft);
+
+  // Populate the asset image
+  const assetImg = dialog.querySelector('.asset-image img');
+  assetImg.dataset.fileformat = format;
+  assetImg.style.visibility = 'hidden';
+  getOptimizedPreviewUrl(assetId, assetName, 350).then((url) => {
+    assetImg.src = url;
+    assetImg.style.visibility = '';
+  });
+  assetImg.alt = title;
+
+  // Populate the asset name
+  const assetImgName = dialog.querySelector('.asset-name');
+  assetImgName.textContent = title;
 }

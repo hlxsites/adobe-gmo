@@ -82,6 +82,7 @@
   --stats-value-font: normal normal bold 16px/20px var(--body-font-family);
   --current-refinement-font: normal normal normal 12px/15px var(--body-font-family);
   --share-modal-font: var(--metadata-font);
+  --add-to-collection-modal-font: var(--metadata-font);
  
   /* heading sizes */
   --header-font-size: 14px;

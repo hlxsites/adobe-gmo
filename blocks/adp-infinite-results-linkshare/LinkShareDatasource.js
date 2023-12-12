@@ -68,7 +68,7 @@ export default class LinkShareDatasource {
   }
 
   getExcludedItemActions() {
-    return ['share'];
+    return ['share', 'add-to-collection'];
   }
 
   noResultsMessage() {
