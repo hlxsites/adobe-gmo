@@ -11,8 +11,9 @@ import topbar from '@adobe/exc-app/topbar';
 import helpcenter from '@adobe/exc-app/helpcenter';
 import userprofile from '@adobe/exc-app/userprofile';
 import shell from '@adobe/exc-app/shell';
+import settings, { SettingsLevel } from '@adobe/exc-app/settings';
 
 export default excApp;
 export {
-  init, page, user, topbar, helpcenter, userprofile, shell,
+  init, page, user, topbar, helpcenter, userprofile, shell, settings, SettingsLevel,
 };

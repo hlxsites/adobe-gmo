@@ -598,6 +598,136 @@ const shell = {
 };
 var _default = shell$1.default = shell;
 
+var settings$1 = {};
+
+var SettingsLevel$1 = {};
+
+(function (exports) {
+	"use strict";
+	/*************************************************************************
+	 * Copyright 2021 Adobe
+	 * All Rights Reserved.
+	 *
+	 * NOTICE: Adobe permits you to use, modify, and distribute this file in
+	 * accordance with the terms of the Adobe license agreement accompanying
+	 * it. If you have received this file from a source other than Adobe,
+	 * then your use, modification, or distribution of it requires the prior
+	 * written permission of Adobe.
+	 **************************************************************************/
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.SettingsLevel = void 0;
+	/**
+	 * @ignore
+	 */
+	var SettingsLevel;
+	(function (SettingsLevel) {
+	    /**
+	     * Settings specific to the org.
+	     */
+	    SettingsLevel["ORG"] = "org";
+	    /**
+	     * Settings specific to the user.
+	     */
+	    SettingsLevel["USER"] = "user";
+	    /**
+	     * Settings specific to the user-org combination.
+	     */
+	    SettingsLevel["USERORG"] = "userorg";
+	})(SettingsLevel = exports.SettingsLevel || (exports.SettingsLevel = {}));
+	
+} (SettingsLevel$1));
+
+var SettingsLevel = /*@__PURE__*/getDefaultExportFromCjs(SettingsLevel$1);
+
+(function (exports) {
+	"use strict";
+	/*************************************************************************
+	 * Copyright 2020 Adobe
+	 * All Rights Reserved.
+	 *
+	 * NOTICE: Adobe permits you to use, modify, and distribute this file in
+	 * accordance with the terms of the Adobe license agreement accompanying
+	 * it. If you have received this file from a source other than Adobe,
+	 * then your use, modification, or distribution of it requires the prior
+	 * written permission of Adobe.
+	 **************************************************************************/
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.SettingsLevel = void 0;
+	/**
+	 * APIs to get or set settings, preferences or configuration data that can be stored and retrieved
+	 * at an IMS user and/or an IMS org level. An app in unified shell can consume Settings service.
+	 *
+	 * To consume this API, add the following import to your code.
+	 *
+	 * ```typescript
+	 * import settings from '@adobe/exc-app/settings';
+	 * ```
+	 *
+	 * The default export is an object of type [SettingsApi](../interfaces/_settings_.settingsapi.md)
+	 *
+	 * API reference: [scroll down](#index)
+	 *
+	 * ### Sample code
+	 *
+	 * ```typescript
+	 * import settings, {SettingsLevel} from '@adobe/exc-app/settings';
+	 *
+	 * async function updateSettings(type: string, value: number) {
+	 *   const data = await settings.get({
+	 *     groupId: 'test-groupId',
+	 *     level: SettingsLevel.USER,
+	 *     settings: {key1: null}
+	 *   });
+	 *   data = data || {};
+	 *   data[type] = value;
+	 *   await settings.set({
+	 *     groupId: 'test-groupId',
+	 *     level: SettingsLevel.USER,
+	 *     settings: {key1: data}
+	 *   });
+	 * }
+	 * ```
+	 *
+	 * ### SettingsLevel
+	 *
+	 * Can be optionally specified to define the level at which settings are saved.
+	 *
+	 * * `SettingsLevel.USER` - use this level when you want to get/set settings per user.
+	 * * `SettingsLevel.USERORG` - should be used when settings are for user + org combination.
+	 * * `SettingsLevel.ORG` - use this level when you want to get/set settings per org.
+	 *
+	 * By default settings are saved at level `SettingsLevel.USERORG`. You can optionally override this
+	 * in the get/set API calls using the `level` parameter.
+	 *
+	 * ### Groups
+	 *
+	 * Apps can group their settings into different groups by different group IDs and keep multiple
+	 * settings in different groups. Apps are free to define their own groups for a particular selected
+	 * settings level.
+	 *
+	 * You can specify this in the get/set API calls using the `groupId` parameter.
+	 *
+	 * ### Sharing settings
+	 *
+	 * Set settingsAppId in the solution specific route configuration in order to share settings with
+	 * other applications.
+	 * @packageDocumentation
+	 * @module settings
+	 */
+	const Global_1 = Global;
+	const SettingsLevel_1 = SettingsLevel$1;
+	Object.defineProperty(exports, "SettingsLevel", { enumerable: true, get: function () { return SettingsLevel_1.SettingsLevel; } });
+	const settings = {
+	    get: params => (0, Global_1.getImpl)('settings')().get(params),
+	    set: params => (0, Global_1.getImpl)('settings')().set(params)
+	};
+	exports.default = settings;
+	
+} (settings$1));
+
+var settings = /*@__PURE__*/getDefaultExportFromCjs(settings$1);
+
 // https://www.npmjs.com/package/@adobe/exc-app is currently only available as a CommonJS module.
 
-export { _default$4 as default, helpcenter, init_1 as init, page, _default as shell, _default$2 as topbar, _default$3 as user, _default$1 as userprofile };
+var SettingsLevel$2 = settings$1.SettingsLevel;
+export { SettingsLevel$2 as SettingsLevel, _default$4 as default, helpcenter, init_1 as init, page, settings, _default as shell, _default$2 as topbar, _default$3 as user, _default$1 as userprofile };
