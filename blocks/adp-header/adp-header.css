@@ -531,3 +531,16 @@ header nav {
   border-bottom: unset;
   box-shadow: unset;
 }
+
+
+.quick-links button {
+  background-color: var(--button-focus-outline-color);
+  border-radius: 16px;
+  font: var(--bold-font-size-s);
+  color: var(--button-text-color);
+  height: 37px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 16px;
+}

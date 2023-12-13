@@ -12,6 +12,7 @@ import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download
 import { addAddToCollectionModalHandler } from '../adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 import { getCollection, getCollectionIdFromURL, patchCollection } from '../../scripts/collections.js';
 import createConfirmDialog from '../../scripts/confirm-dialog.js';
+import { openUploadDialog } from '../../contenthub/hydration/hydration.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -339,6 +340,17 @@ function initQuickLinks() {
     itemEl.append(itemLinkEl);
     quickLinks.append(itemEl);
   });
+
+  const navDiv = document.createElement('div');
+  navDiv.classList.add('item');
+  const addAssetsButton = document.createElement('button');
+  addAssetsButton.classList.add('action', 'add-assets');
+  navDiv.appendChild(addAssetsButton);
+  addAssetsButton.appendChild(document.createTextNode('Add Assets'));
+  addAssetsButton.addEventListener('click', () => {
+    openUploadDialog();
+  });
+  quickLinks.appendChild(navDiv);
 
   // set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {

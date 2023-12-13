@@ -9,11 +9,21 @@ const REL_REPOSITORY = 'http://ns.adobe.com/adobecloud/rel/repository';
 async function getDiscoveryJson() {
   PlatformConnector.init({
     accessToken: await getImsToken(),
-    apiKey: 'aem-assets-content-hub-1',
+    apiKey: 'aem-assets-frontend-1',
     platformUrl: 'https://aem-discovery.adobe.io',
   });
 
   return await PlatformConnector.getDiscovery();
+}
+
+export async function getFederatedDiscoveryLinks(repositoryId) {
+  try {
+    const discovery = await getDiscoveryJson();
+    const { _links } = await PlatformConnector.getFederatedDiscovery(discovery, repositoryId);
+    return _links;
+  } catch (e) {
+    throw new Error('Unable to get federated discovery links');
+  }
 }
 
 export async function getRepositoryList() {
@@ -58,6 +68,12 @@ export async function getAEMDiscoveryInfo() {
     },
   );
   return JSON.parse(value);
+}
+
+export async function getCurrentRepositoryId() {
+  let repositoryEnv = await findContentHubRepostiory();
+  repositoryEnv = repositoryEnv?._embedded?.['http://ns.adobe.com/adobecloud/rel/repository']?.['repo:repositoryId'];
+  return repositoryEnv?.replace('delivery-', 'author-');
 }
 
 async function findContentHubRepostiory() {
