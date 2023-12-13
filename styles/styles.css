@@ -153,7 +153,6 @@ body {
   color: var(--text-color);
   background-color: var(--white-background-color);
   display: none;
-  text-transform: capitalize;
 }
 
 body.appear {
