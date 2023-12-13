@@ -25,7 +25,7 @@ function parseValue(value) {
  */
 
 /**
- * @returns {AdminConfig}
+ * @returns {Promise<AdminConfig>}
  */
 export async function getAdminConfig() {
   const response = await getConfig('admin-config.json');

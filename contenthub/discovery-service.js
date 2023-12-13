@@ -2,6 +2,7 @@ import { PlatformConnector, getRepoList } from '../scripts/libs/platform-connect
 import { getBearerToken, getImsToken } from '../scripts/security.js';
 import { user } from './unified-shell.js';
 import { fetchCached } from '../scripts/fetch-util.js';
+import { getAdminConfig, isContentHub } from '../scripts/site-config.js'
 
 const EMBEDDED = '_embedded';
 const REL_REPOSITORY = 'http://ns.adobe.com/adobecloud/rel/repository';
@@ -17,7 +18,14 @@ async function getDiscoveryJson() {
 
 export async function getRepositoryList() {
   const discoverObj = await getDiscoveryJson();
-  return getRepoList(discoverObj, await user.get('imsOrg'));
+  let imsOrg;
+  if (await isContentHub()) {
+    imsOrg = await user.get('imsOrg');
+  } else {
+    const adminCfg = await getAdminConfig();
+    imsOrg = adminCfg.imsOrg;
+  }
+  return getRepoList(discoverObj, imsOrg);
 }
 
 /**
