@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "@adobe/adobe-client-data-layer": "^2.0.2",
-    "@adobe/aio-lib-events": "^3.2.0",
     "@algolia/autocomplete-js": "^1.11.1",
     "@algolia/autocomplete-plugin-query-suggestions": "1.11.1",
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.1",
@@ -57,18 +56,11 @@
       "fileInclude": "adobe-client-data-layer.min.js"
     },
     {
-      "from": "node_modules/@adobe/aio-lib-events/src/",
-      "to": "scripts/libs/aio-lib-events/",
-      "fileInclude": "index.js"
-    },
-    {
       "from": "node_modules/algoliasearch/dist/",
       "to": "scripts/libs/algoliasearch/",
       "fileIncludes": {
         "file": "algoliasearch-lite.umd.js",
-        "attributes": [
-          "async"
-        ],
+        "attributes": ["async"],
         "category": "search"
       }
     },
@@ -77,9 +69,7 @@
       "to": "scripts/libs/instantsearch.js/",
       "fileIncludes": {
         "file": "instantsearch.production.min.js",
-        "attributes": [
-          "async"
-        ],
+        "attributes": ["async"],
         "category": "search"
       }
     },
@@ -93,9 +83,7 @@
       "to": "scripts/libs/algolia/autocomplete-js/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": [
-          "async"
-        ],
+        "attributes": ["async"],
         "category": "search-autocomplete"
       }
     },
@@ -104,9 +92,7 @@
       "to": "scripts/libs/algolia/autocomplete-plugin-recent-searches/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": [
-          "async"
-        ],
+        "attributes": ["async"],
         "category": "search-autocomplete"
       }
     },
@@ -115,9 +101,7 @@
       "to": "scripts/libs/algolia/autocomplete-plugin-query-suggestions/",
       "fileIncludes": {
         "file": "index.production.js",
-        "attributes": [
-          "async"
-        ],
+        "attributes": ["async"],
         "category": "search-autocomplete"
       }
     },
@@ -139,9 +123,7 @@
       "fileIncludes": [
         {
           "file": "flatpickr.min.js",
-          "attributes": [
-            "async"
-          ],
+          "attributes": ["async"],
           "category": "flatpickr"
         },
         {
@@ -153,9 +135,7 @@
   "externalDependencies": [
     {
       "url": "https://sdk-1p.cc-embed.adobe.com/v3/CCEverywhere.js",
-      "attributes": [
-        "async"
-      ],
+      "attributes": ["async"],
       "category": "CCEverywhere"
     }
   ]
