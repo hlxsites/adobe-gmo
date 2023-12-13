@@ -28,8 +28,19 @@ async function loadUnifiedShellRuntime() {
   return await new Promise(async (resolve, reject) => {
     // catch typical error and show in the UI
     const onError = (e) => {
+      console.error('error while loading UnifiedShell: ', e);
+
+      if (e.message.includes('Needs to be within an iframe')) {
+        const p = document.createElement('p');
+        p.innerHTML = `This app needs to be executed from the unified shell. 
+            Please try one of these links: <a href="https://experience.adobe.com/contenthub">prod</a> or
+            <a href="https://experience-stage.adobe.com/?shell_ims=prod&shell_source=stage#/@skylineprodtest017/contenthub">stage</a> or  
+            <a href="https://experience-qa.adobe.com/?shell_ims=prod&shell_source=dev#/@skylineprodtest017/contenthub">local</a>
+    `;
+        document.body.append(p);
+        return;
+      }
       // eslint-disable-next-line no-console
-      console.warn('error loading UnifiedShell: ', e);
 
       document.body.append(e.message);
       reject(e);
