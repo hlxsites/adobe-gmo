@@ -15,6 +15,16 @@ async function getDiscoveryJson() {
   return await PlatformConnector.getDiscovery();
 }
 
+export async function getFederatedDiscoveryLinks(repositoryId) {
+  try {
+    const discovery = await getDiscoveryJson();
+    const { _links } = await PlatformConnector.getFederatedDiscovery(discovery, repositoryId);
+    return _links;
+  } catch (e) {
+    throw new Error('Unable to get federated discovery links');
+  }
+}
+
 export async function getRepositoryList() {
   const discoverObj = await getDiscoveryJson();
   return getRepoList(discoverObj, await user.get('imsOrg'));
@@ -50,6 +60,12 @@ export async function getAEMDiscoveryInfo() {
     },
   );
   return JSON.parse(value);
+}
+
+export async function getCurrentRepositoryId() {
+  let repositoryEnv = await findContentHubRepostiory();
+  repositoryEnv = repositoryEnv?._embedded?.['http://ns.adobe.com/adobecloud/rel/repository']?.['repo:repositoryId'];
+  return repositoryEnv?.replace('delivery-', 'author-');
 }
 
 async function findContentHubRepostiory() {

@@ -1,6 +1,7 @@
 import { createDialogHtml, addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 import { loadCSS, loadScript } from '../../scripts/lib-franklin.js';
-import { getBearerToken } from '../../scripts/security.js';
+import { getImsToken } from '../../scripts/security.js';
+import { getCurrentRepositoryId, getFederatedDiscoveryLinks } from '../discovery-service.js';
 
 export async function openUploadDialog() {
   await loadScript('https://experience-qa.adobe.com/solutions/CQ-assets-upload/static-assets/resources/assets-upload.js');
@@ -14,11 +15,21 @@ export async function openUploadDialog() {
   dialog.showModal();
 
   const container = dialogBody;
+  const repositoryId = await getCurrentRepositoryId();
+  const discoveryLinks = await getFederatedDiscoveryLinks(repositoryId);
+  const folderUUID = crypto.randomUUID();
+  const targetUploadPath = `/content/dam/hydrated-assets/${folderUUID.substring(0, 2)}/${folderUUID.substring(2, 4)}/${folderUUID}`;
+  const apiToken = await getImsToken();
   // eslint-disable-next-line no-undef
   UploadCoordinator.renderAllInOneUpload(
     container,
-    // TODO: Configure the MFE with proper metadata
-    { env: 'QA', apiToken: await getBearerToken() },
+    {
+      env: 'QA',
+      apiToken,
+      discoveryLinks,
+      targetUploadPath,
+      rootPath: targetUploadPath,
+    },
     // eslint-disable-next-line no-console
     () => { console.log('rendered MFE!'); },
   );
