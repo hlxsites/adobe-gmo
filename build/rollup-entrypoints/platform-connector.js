@@ -1,5 +1,1 @@
-import { PlatformConnector, getDefaultSelectedRepo } from '@quarry-connected/platform-connector';
-
-export {
-  PlatformConnector, getDefaultSelectedRepo,
-};
+export * from '@quarry-connected/platform-connector';
