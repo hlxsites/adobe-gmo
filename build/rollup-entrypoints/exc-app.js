@@ -3,17 +3,13 @@
 // Until then, we need to use a workaround to convert CommonJS to ES modules.
 // Everthing exported from this module will be converted and available as an ES module.
 
-/* eslint-disable import/no-extraneous-dependencies,import/extensions */
-import excApp, { init } from '@adobe/exc-app';
-import page from '@adobe/exc-app/page';
-import user from '@adobe/exc-app/user';
-import topbar from '@adobe/exc-app/topbar';
-import helpcenter from '@adobe/exc-app/helpcenter';
-import userprofile from '@adobe/exc-app/userprofile';
-import shell from '@adobe/exc-app/shell';
-import settings, { SettingsLevel } from '@adobe/exc-app/settings';
+/* eslint-disable import/no-extraneous-dependencies,import/extensions, no-restricted-exports */
 
-export default excApp;
-export {
-  init, page, user, topbar, helpcenter, userprofile, shell, settings, SettingsLevel,
-};
+export { default, init } from '@adobe/exc-app';
+export { default as page } from '@adobe/exc-app/page';
+export { default as user } from '@adobe/exc-app/user';
+export { default as topbar } from '@adobe/exc-app/topbar';
+export { default as helpcenter } from '@adobe/exc-app/helpcenter';
+export { default as userprofile } from '@adobe/exc-app/userprofile';
+export { default as shell } from '@adobe/exc-app/shell';
+export { default as settings, SettingsLevel } from '@adobe/exc-app/settings';
