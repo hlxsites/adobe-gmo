@@ -23,7 +23,6 @@ import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
 import { bootstrapUnifiedShell, getUserSettings } from '../contenthub/unified-shell.js';
 import { createLinkHref, navigateTo, setCSSVar } from './shared.js';
-import { getRepositoryList } from '../contenthub/discovery-service.js';
 
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
@@ -253,7 +252,6 @@ async function loadLazy(doc) {
       return;
     }
     await waitForDependency('search');
-    await getRepositoryList();
     if (!await initDeliveryEnvironment()) {
       // eslint-disable-next-line no-console
       console.warn('User is not authorized for any delivery environment');
