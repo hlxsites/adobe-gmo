@@ -163,6 +163,8 @@ export default async function decorate(block) {
         <div id="asset-details-metadata-container"></div>
       </div>
       `;
+  block.role = 'complementary';
+  block.ariaLabel = 'Details Side Panel';
   decorateIcons(block);
 
   // clone the download element to remove previous event listener before adding a new one
