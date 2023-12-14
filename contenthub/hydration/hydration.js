@@ -1,7 +1,8 @@
 import { createDialogHtml, addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 import { loadCSS, loadScript } from '../../scripts/lib-franklin.js';
 import { getImsToken } from '../../scripts/security.js';
-import { getCurrentRepositoryId, getFederatedDiscoveryLinks } from '../discovery-service.js';
+import { getFederatedDiscoveryLinks } from '../discovery-service.js';
+import { getAdminConfig } from '../../scripts/site-config.js';
 
 export async function openUploadDialog() {
   await loadScript(
@@ -17,7 +18,9 @@ export async function openUploadDialog() {
   dialog.showModal();
 
   const container = dialogBody;
-  const repositoryId = await getCurrentRepositoryId();
+
+  const adminConfig = await getAdminConfig();
+  const repositoryId = adminConfig.aemDeliveryEndpoint.replace('https://delivery', 'author');
   const discoveryLinks = await getFederatedDiscoveryLinks(repositoryId);
   const folderUUID = crypto.randomUUID();
   const targetUploadPath = `/content/dam/hydrated-assets/${folderUUID.substring(0, 2)}/${folderUUID.substring(2, 4)}/${folderUUID}`;
