@@ -5,7 +5,7 @@ import { fetchCached } from './fetch-util.js';
 let isIMSInitialized = false;
 
 const IMSLIB_ENV_CONFIG = {
-  clientId: 'assets-distribution-portal',
+  clientId: 'aem-assets-content-hub-1',
   scope: 'openid,AdobeID,additional_info.projectedProductContext,read_organizations',
   urls: {
     stage: 'https://auth-stg1.services.adobe.com/imslib/imslib.js',
