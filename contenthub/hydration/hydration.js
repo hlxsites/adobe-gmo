@@ -87,7 +87,7 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'gmo:productOffering',
+          name: 'gmo:productsOffering',
           label: 'Product',
           placeholder: 'Select one or more',
           required: true,
@@ -207,7 +207,7 @@ export async function openUploadDialog() {
           element: 'textarea',
         },
         {
-          name: 'gmo:keywords',
+          name: 'dc:subject',
           label: 'Keywords',
           placeholder: 'Enter comma-separated list',
           element: 'text',
