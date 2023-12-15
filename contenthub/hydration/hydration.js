@@ -34,7 +34,7 @@ export async function openUploadDialog() {
       discoveryLinks,
       targetUploadPath,
       rootPath: targetUploadPath,
-
+      version: 'PR-18-fe17ea92fba6f202d57fcf5360a7b00b59d45996',
       metadataSchema: [
         {
           name: 'gmo:lineofBusiness',
@@ -314,11 +314,6 @@ export async function openUploadDialog() {
               name: 'NA',
             },
           ],
-        },
-        {
-          name: 'dam:roles',
-          value: 'asset-distribution-portal-b71f9f7b599c3c58a69fa396f8a0030c',
-          element: 'hidden',
         },
         {
           name: 'dam:assetStatus',
