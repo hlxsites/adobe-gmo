@@ -105,13 +105,24 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
  */
 export default async function decorate(block) {
   block.textContent = '';
+  
+  // Kaleidoscope
+  let logoHome = null;
+
+  if (await window.adobeIMS?.getProfile() != null) {
+    logoHome = `${getBaseConfigPath()}/` + 'assets';
+  } else {
+    logoHome = `${getBaseConfigPath()}/`;
+  }
+  console.log(logoHome);
+
   // decorate nav DOM
   const nav = document.createElement('nav');
   nav.id = 'nav';
   nav.innerHTML = `
   <div class="nav-top">
     <div class="nav-brand">
-      <a class="adp-logo" href="/"></a>
+      <a class="adp-logo" href="${logoHome}"></a>
       <div></div>
     </div>
     <div class="nav-sections">
