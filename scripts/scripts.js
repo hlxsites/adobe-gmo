@@ -48,16 +48,16 @@ const AUDIENCES = {
 
 window.hlx.plugins.add('experimentation', {
   condition: () => getMetadata('experiment')
-  || Object.keys(getAllMetadata('campaign')).length
-  || Object.keys(getAllMetadata('audience')).length,
+    || Object.keys(getAllMetadata('campaign')).length
+    || Object.keys(getAllMetadata('audience')).length,
   options: { audiences: AUDIENCES },
   url: '/plugins/experimentation/src/index.js',
 });
 
-window.hlx.plugins.add('rum-conversion', {
-  url: '/plugins/rum-conversion/src/index.js',
-  load: 'lazy',
-});
+// window.hlx.plugins.add('rum-conversion', {
+//   url: '/plugins/rum-conversion/src/index.js',
+//   load: 'lazy',
+// });
 
 /**
  * Sanitizes a string for use as class name.
@@ -270,6 +270,13 @@ function cleanUrl(url) {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
+  const brandingConfig = await getBrandingConfig();
+  if (brandingConfig.fontCssUrl) {
+    loadCSS(brandingConfig.fontCssUrl);
+  }
+  applySiteBranding();
+  document.documentElement.lang = 'en';
+  decorateTemplateAndTheme();
   // Add below snippet early in the eager phase
   if (getMetadata('experiment')
     || Object.keys(getAllMetadata('campaign')).length
@@ -278,13 +285,6 @@ async function loadEager(doc) {
     const { loadEager: runEager } = await import('../plugins/experimentation/src/index.js');
     await runEager(document, { audiences: AUDIENCES }, pluginContext);
   }
-  const brandingConfig = await getBrandingConfig();
-  if (brandingConfig.fontCssUrl) {
-    loadCSS(brandingConfig.fontCssUrl);
-  }
-  applySiteBranding();
-  document.documentElement.lang = 'en';
-  decorateTemplateAndTheme();
   await window.hlx.plugins.run('loadEager');
   const main = doc.querySelector('main');
   if (main) {
@@ -292,7 +292,6 @@ async function loadEager(doc) {
     document.body.classList.add('appear');
     await waitForLCP(LCP_BLOCKS);
   }
-  window.hlx.plugins.run('loadLazy');
 }
 
 async function initializeServiceWorkers() {
@@ -348,15 +347,6 @@ async function loadLazy(doc) {
     await waitForDependency('search');
     await initDeliveryEnvironment();
     await initSearch();
-      // Add below snippet at the end of the lazy phase
-  if ((getMetadata('experiment')
-  || Object.keys(getAllMetadata('campaign')).length
-  || Object.keys(getAllMetadata('audience')).length)) {
-  // eslint-disable-next-line import/no-relative-packages
-  const { loadLazy: runLazy } = await import('../plugins/experimentation/src/index.js');
-  await runLazy(document, { audiences: AUDIENCES }, pluginContext);
-}
-
   }
   if (!(document.querySelector('head meta[name="hide-header"]')?.getAttribute('content') === 'true')) {
     loadHeader(doc.querySelector('header'), 'adp-header');
@@ -370,6 +360,7 @@ async function loadLazy(doc) {
   if (hash && element) element.scrollIntoView();
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
+  window.hlx.plugins.run('loadLazy');
   sampleRUM('lazy');
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
   sampleRUM.observe(main.querySelectorAll('picture > img'));
