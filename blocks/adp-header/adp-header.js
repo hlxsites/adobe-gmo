@@ -106,15 +106,13 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 export default async function decorate(block) {
   block.textContent = '';
   
-  // Kaleidoscope
+  // change adp-logo href depending on whether user is logged in
   let logoHome = null;
-
   if (await window.adobeIMS?.getProfile() != null) {
     logoHome = `${getBaseConfigPath()}/` + 'assets';
   } else {
     logoHome = `${getBaseConfigPath()}/`;
   }
-  console.log(logoHome);
 
   // decorate nav DOM
   const nav = document.createElement('nav');
