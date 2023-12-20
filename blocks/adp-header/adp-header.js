@@ -347,7 +347,7 @@ function initQuickLinks() {
 
   // set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (item.querySelector('a')?.dataset.page === window.location.pathname) {
+    if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');
     }
   });
