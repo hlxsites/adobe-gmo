@@ -6,20 +6,20 @@ import { logError } from '../../scripts/scripts.js';
 
 const GENERAL_METRICS = [{
   category: 'Total assets',
-  amount: 3026,
+  amount: 59475,
 }, {
   category: 'Total size',
-  amount: 1024 * 1024 * 1024 * 203,
+  amount: 1024 * 1024 * 1024 * 331.6,
   unit: 'bytes',
 }, {
   category: 'Uploads year-to-date',
-  amount: 3614,
+  amount: 59475,
 }, {
   category: 'Uploads quarter-to-date',
-  amount: 188,
+  amount: 56629,
 }, {
   category: 'Uploads last 30 days',
-  amount: 47,
+  amount: 56486,
 }];
 
 function formatNumber(number) {
@@ -57,29 +57,31 @@ function formatAmount(metric) {
 }
 
 const MIME_TYPES = [
-  { category: 'image/jpeg', amount: 981 },
-  { category: 'image/png', amount: 769 },
-  { category: 'video/mp4', amount: 477 },
-  { category: 'image/vnd.adobe.photoshop', amount: 349 },
-  { category: 'video/quicktime', amount: 112 },
-  { category: 'audio/x-wav', amount: 100 },
+  { category: 'video/mp4', amount: 3579 },
+  { category: 'image/jpeg', amount: 51258 },
+  { category: 'image/png', amount: 2102 },
+  { category: 'video/quicktime', amount: 422 },
+  { category: 'image/vnd.adobe.photoshop', amount: 380 },
+  { category: 'audio/x-wav', amount: 104 },
+  { category: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', amount: 102 },
+  { category: 'application/vnd.adobe.sparkler.project+dcx', amount: 578 },
+  { category: 'application/pdf', amount: 571 },
   { category: 'application/octet-stream', amount: 48 },
+  { category: 'application/postscript', amount: 33 },
   { category: 'application/json', amount: 30 },
-  { category: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', amount: 27 },
-  { category: 'application/pdf', amount: 25 },
-  { category: 'application/postscript', amount: 21 },
+  { category: 'application/vnd.audiograph', amount: 19 },
   { category: 'application/x-subrip', amount: 18 },
-  { category: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', amount: 16 },
-  { category: 'application/vnd.audiograph', amount: 13 },
-  { category: 'application/zip', amount: 8 },
+  { category: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', amount: 15 },
+  { category: 'application/zip', amount: 21 },
+  { category: 'image/svg+xml', amount: 9 },
+  { category: 'image/gif', amount: 11 },
+  { category: 'application/vnd.3gpp.pic-bw-small', amount: 9 },
+  { category: 'video/ogg', amount: 9 },
   { category: 'image/tiff', amount: 8 },
-  { category: 'application/vnd.3gpp.pic-bw-small', amount: 7 },
+  { category: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', amount: 170 },
   { category: 'audio/mpeg', amount: 4 },
-  { category: 'image/svg+xml', amount: 3 },
   { category: 'text/html', amount: 3 },
-  { category: 'text/plain', amount: 3 },
-  { category: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', amount: 2 },
-  { category: 'image/gif', amount: 1 },
+  { category: 'text/plain', amount: 2 },
 ];
 
 const BUSINESS_UNITS = [{
@@ -302,6 +304,18 @@ function createPlaceholder(block) {
   block.append(placeholder);
 }
 
+function sortByAmount(values) {
+  return values.sort((a, b) => {
+    if (a.amount > b.amount) {
+      return -1;
+    }
+    if (a.amount < b.amount) {
+      return 1;
+    }
+    return 0;
+  });
+}
+
 /**
  *
  * @param {HTMLElement} block
@@ -343,31 +357,31 @@ export default async function decorate(block) {
   // eslint-disable-next-line no-undef
   if (vegaEmbed) {
     const target = block.querySelector('.graph-container');
-    createGraph(target, 'mime-types', 'Assets by Format', MIME_TYPES, 'donut', {
+    createGraph(target, 'mime-types', 'Assets by Format', sortByAmount(MIME_TYPES), 'donut', {
       xLabel: 'Format',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'business-units', 'Assets by Business Unit', BUSINESS_UNITS, 'bar', {
+    createGraph(target, 'business-units', 'Assets by Business Unit', sortByAmount(BUSINESS_UNITS), 'bar', {
       xLabel: 'Business Unit',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'products', 'Assets by Product', PRODUCTS, 'donut', {
+    createGraph(target, 'products', 'Assets by Product', sortByAmount(PRODUCTS), 'donut', {
       xLabel: 'Product',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'campaigns', 'Assets by Campaign', CAMPAIGNS, 'donut', {
+    createGraph(target, 'campaigns', 'Assets by Campaign', sortByAmount(CAMPAIGNS), 'donut', {
       xLabel: 'Campaign',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'program-names', 'Assets by Program', PROGRAMS, 'donut', {
+    createGraph(target, 'program-names', 'Assets by Program', sortByAmount(PROGRAMS), 'donut', {
       xLabel: 'Program',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'program-owners', 'Assets by Program Owner', OWNERS, 'pie', {
+    createGraph(target, 'program-owners', 'Assets by Program Owner', sortByAmount(OWNERS), 'pie', {
       xLabel: 'Owner',
       yLabel: 'Asset Count',
     });
-    createGraph(target, 'top-requestors', 'Top Requestors of Content', OWNERS.slice(0, 5), 'bar', {
+    createGraph(target, 'top-requestors', 'Top Requestors of Content', sortByAmount(OWNERS.slice(0, 5)), 'bar', {
       xLabel: 'Requestor',
       yLabel: 'Requests',
     });

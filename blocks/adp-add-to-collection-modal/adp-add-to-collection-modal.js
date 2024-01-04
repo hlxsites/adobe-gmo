@@ -2,7 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
-import { getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
+import { getSelectedAssetsFromInfiniteResultsBlock, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 
 function closeDialog(dialog) {
@@ -122,7 +122,7 @@ export async function openModal(items) {
 
   // Event listener for the "Submit" button click
   const submitButton = dialog.querySelector('.action-submit');
-  submitButton.addEventListener('click', () => {
+  submitButton.addEventListener('click', async () => {
     // Get the title from the newCollectionInput
     if (newCollectionRadio.checked) {
       const titleInput = dialog.querySelector('.new-collection-input');
@@ -137,7 +137,8 @@ export async function openModal(items) {
         return;
       }
 
-      createCollection(title, title, selectedItems);
+      // only close the dialog if the operation did not throw an exception
+      await createCollection(title, title, selectedItems);
 
       resetDialogState();
     }
@@ -205,6 +206,34 @@ export async function addAddToCollectionModalHandler() {
   await openModal(items);
 }
 
+/**
+ * Handler to open the modal to add an asset card to a collection
+ * @param {string} assetId
+ * @param {string} repoName
+ * @param {string} title
+ * @param {string} format
+ * @returns {Promise<void>}
+ */
+export async function openAddToCollectionModalHandler(assetId, repoName, title, format) {
+  const dialog = document.querySelector('.adp-add-to-collection-modal.block dialog');
+  populateAssetViewLeftDialog(
+    dialog,
+    '.dialog-header-left',
+    '.dialog-body-left',
+    'Add asset to collection',
+    assetId,
+    repoName,
+    title,
+    format,
+  );
+  const items = [{
+    id: assetId,
+    name: repoName,
+    type: 'asset',
+  }];
+  await openModal(items);
+}
+
 async function populateMultiAssetView(dialog) {
   const dialogBodyLeft = dialog.querySelector('.dialog-body-left');
   const newDialogBodyLeft = dialogBodyLeft.cloneNode(false);
@@ -230,7 +259,7 @@ async function populateMultiAssetView(dialog) {
 }
 
 export default async function decorate(block) {
-  block.innerHTML = `<dialog autofocus>
+  block.innerHTML = `<dialog autofocus aria-label="Add To Collection">
     <div class='adp-add-to-collection-modal-container'>
       <div class='dialog-header'>
         <div class='dialog-header-left'>Add To Collection</div>

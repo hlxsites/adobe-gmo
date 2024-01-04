@@ -13,6 +13,7 @@ import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share
 import { closeAssetDetailsPanel } from '../blocks/adp-asset-details-panel/adp-asset-details-panel.js';
 import { getLicenseAgreementFlags } from './site-config.js';
 import { logError } from './scripts.js';
+import { openAddToCollectionModalHandler } from '../blocks/adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 
 const licenseAgreementFlags = await getLicenseAgreementFlags();
 let assetObj;
@@ -63,6 +64,8 @@ function createActionButton(action, label, clickHandler, iconClass) {
   // Create the 'a' element
   const a = document.createElement('a');
   a.className = `action-${action}`;
+  a.ariaLabel = label;
+  a.role = 'button';
 
   const spanTooltip = document.createElement('span');
   spanTooltip.className = 'adp-tooltip';
@@ -143,6 +146,14 @@ export function createAssetCardElement(
     }, 'share');
     actionsElement.appendChild(shareButton);
   }
+
+  if (!excludedActions || !excludedActions.includes('add-to-collection')) {
+    const addToCollectionButton = createActionButton('addToCollection', 'Add to collection', () => {
+      openAddToCollectionModalHandler(assetId, repoName, title, mimeType);
+    }, 'addToCollection');
+    actionsElement.appendChild(addToCollectionButton);
+  }
+
   return card;
 }
 

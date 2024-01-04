@@ -1,4 +1,4 @@
-import { setLastPartofURL } from '../../scripts/scripts.js';
+import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 import {
   getCollectionID,
   getCollectionTitle,
@@ -75,6 +75,6 @@ export default class CollectionsDatasource {
   }
 
   onItemSelected(itemElement, itemId) {
-    setLastPartofURL(`collection/${itemId}`, true);
+    navigateTo(createLinkHref(`collection/${itemId}`));
   }
 }
