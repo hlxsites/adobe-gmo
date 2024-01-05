@@ -158,6 +158,14 @@ export async function openModal(items) {
       getCollection(collectionId)
         .then((collection) => {
           const { etag } = collection;
+          //Todo Remove Debugging
+          console.log("In adp-add-to-collection-modal.js");
+          console.log("Get etag value");
+          console.log("collection");
+          console.log(collection);
+          console.log("etag");
+          console.log(etag);
+
           patchCollection(collectionId, etag, payload);
         });
       resetDialogState();

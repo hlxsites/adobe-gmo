@@ -203,6 +203,15 @@ export async function listCollection(limit = undefined, cursor = '') {
  * @throws {Error} If an HTTP error or network error occurs.
  */
 export async function patchCollection(collectionId, etag, addOperation = '', deleteOperation = '') {
+//Todo Remove logging
+console.log('In function pactchCollection');
+console.log('collectionId');
+console.log(collectionId);
+console.log('etag');
+console.log(etag);
+console.log('addOperation');
+console.log(addOperation);
+//Todo Remove logging
   try {
     const patchOperations = [];
     if (addOperation) {
@@ -222,6 +231,15 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
       headers: await getRequestHeadersWithIfMatch(etag),
       body: JSON.stringify(patchOperations),
     };
+
+
+    //Todo Remove logging
+    console.log("End Point URL");
+    console.log(`${getBaseCollectionsUrl()}/${collectionId}`);
+
+    console.log("Options");
+    console.log(options);
+
     const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
 
     if (response.status === 200) {

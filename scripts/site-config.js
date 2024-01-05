@@ -314,6 +314,8 @@ export function isUrlPathNonRoot() {
 async function getConfig(filename) {
   if (!filename) throw new Error('filename is required');
   try {
+console.log('Called function getConfig(filename)');
+console.log(`${getBaseConfigPath()}/${filename}`, {}, `/${filename}`);
     return await fetchCached(`${getBaseConfigPath()}/${filename}`, {}, `/${filename}`);
   } catch (error) {
     throw new Error(`Error fetching ${filename}: ${error}`, error);
