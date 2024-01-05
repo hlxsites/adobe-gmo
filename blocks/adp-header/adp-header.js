@@ -105,13 +105,22 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
  */
 export default async function decorate(block) {
   block.textContent = '';
+  
+  // change adp-logo href depending on whether user is logged in
+  let logoHome = null;
+  if (await window.adobeIMS?.getProfile() != null) {
+    logoHome = `${getBaseConfigPath()}/` + 'assets';
+  } else {
+    logoHome = `${getBaseConfigPath()}/`;
+  }
+
   // decorate nav DOM
   const nav = document.createElement('nav');
   nav.id = 'nav';
   nav.innerHTML = `
   <div class="nav-top">
     <div class="nav-brand">
-      <a class="adp-logo" href="/"></a>
+      <a class="adp-logo" href="${logoHome}"></a>
       <div></div>
     </div>
     <div class="nav-sections">
@@ -338,7 +347,7 @@ function initQuickLinks() {
 
   // set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (item.querySelector('a')?.dataset.page === window.location.pathname) {
+    if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');
     }
   });
