@@ -6,7 +6,7 @@ import { getAdminConfig } from '../../scripts/site-config.js';
 
 export async function openUploadDialog() {
   await loadScript(
-    'https://experience-qa.adobe.com/solutions/CQ-assets-upload/static-assets/resources/assets-upload.js'
+    'https://experience-qa.adobe.com/solutions/CQ-assets-upload/static-assets/resources/assets-upload.js',
   );
   // API: https://git.corp.adobe.com/CQ/assets-upload/blob/main/packages/%40assets/upload/src/components/AllInOneUpload.tsx#L22-L30
   loadCSS('/contenthub/hydration/hydration.css');
@@ -23,7 +23,10 @@ export async function openUploadDialog() {
   const repositoryId = adminConfig.aemDeliveryEndpoint.replace('https://delivery', 'author');
   const discoveryLinks = await getFederatedDiscoveryLinks(repositoryId);
   const folderUUID = crypto.randomUUID();
-  const targetUploadPath = `/content/dam/hydrated-assets/${folderUUID.substring(0, 2)}/${folderUUID.substring(2, 4)}/${folderUUID}`;
+  const targetUploadPath = `/content/dam/hydrated-assets/${folderUUID.substring(0, 2)}/${folderUUID.substring(
+    2,
+    4,
+  )}/${folderUUID}`;
   const apiToken = await getImsToken();
   // eslint-disable-next-line no-undef
   UploadCoordinator.renderAllInOneUpload(
@@ -37,12 +40,12 @@ export async function openUploadDialog() {
       version: 'PR-18-70073416b7410f6c0664488cfc1907025778c99c',
       metadataSchema: [
         {
-          name: 'gmo:lineofBusiness',
+          mapToProperty: 'gmo:lineofBusiness',
           label: 'Line of Business',
           placeholder: 'Select one',
           required: true,
           element: 'dropdown',
-          dropdownItems: [
+          dropdownOptions: [
             {
               id: 'corporate',
               name: 'Corporate',
@@ -62,12 +65,12 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'gmo:productFamily',
+          mapToProperty: 'gmo:productFamily',
           label: 'Product Family',
           placeholder: 'Select one',
           required: true,
           element: 'dropdown',
-          dropdownItems: [
+          dropdownOptions: [
             {
               id: 'na',
               name: 'N/A',
@@ -87,12 +90,12 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'gmo:productsOffering',
+          mapToProperty: 'gmo:productsOffering',
           label: 'Product',
           placeholder: 'Select one or more',
           required: true,
-          element: 'multiselect_dropdown',
-          dropdownItems: [
+          element: 'tags',
+          dropdownOptions: [
             { name: 'N/A', id: 'na' },
             { name: 'Adobe Color', id: 'adobe-color' },
             { name: 'Adobe Express', id: 'adobe-express' },
@@ -149,12 +152,12 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'gmo:fiscalYear',
+          mapToProperty: 'gmo:fiscalYear',
           label: 'Year',
           placeholder: 'Select one',
           required: true,
           element: 'dropdown',
-          dropdownItems: [
+          dropdownOptions: [
             {
               id: '2023',
               name: '2023',
@@ -166,24 +169,24 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'gmo:campaignName',
+          mapToProperty: 'gmo:campaignName',
           label: 'Campaign',
           placeholder: 'Enter campaign name',
           element: 'text',
         },
         {
-          name: 'gmo:programName',
+          mapToProperty: 'gmo:programName',
           label: 'Program',
           placeholder: 'Enter program name',
           element: 'text',
         },
         {
-          name: 'gmo:licensedContent',
+          mapToProperty: 'gmo:licensedContent',
           label: 'Licensed?',
           placeholder: 'Select one',
           required: true,
           element: 'dropdown',
-          dropdownItems: [
+          dropdownOptions: [
             {
               id: 'yes',
               name: 'Yes',
@@ -195,29 +198,31 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'gmo:licenseDateXXX',
+          mapToProperty: 'gmo:licenseDateXXX',
           label: 'Expiration Date',
           placeholder: 'Select date',
-          element: 'date',
+          element: 'datepicker',
+          requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes' }],
         },
         {
-          name: 'gmo:usageTerms',
+          mapToProperty: 'gmo:usageTerms',
           label: 'Licensed usage terms',
           placeholder: 'Enter terms of usage',
           element: 'textarea',
+          requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes' }],
         },
         {
-          name: 'dc:subject',
+          mapToProperty: 'dc:subject',
           label: 'Keywords',
           placeholder: 'Enter comma-separated list',
           element: 'text',
         },
         {
-          name: 'gmo:contentType',
+          mapToProperty: 'gmo:contentType',
           label: 'Content Type',
           placeholder: 'Select one',
           element: 'dropdown',
-          dropdownItems: [
+          dropdownOptions: [
             { name: 'Art - Boxshot/Cardshot', id: 'art-boxshot-cardshot' },
             { name: 'Art - Imagery', id: 'art-imagery' },
             { name: 'Art - Icon/Logo', id: 'art-icon-logo' },
@@ -260,11 +265,11 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'gmo:ddomStage',
+          mapToProperty: 'gmo:ddomStage',
           label: 'DDOM Stage',
           placeholder: 'Select multiple',
-          element: 'multiselect_dropdown',
-          dropdownItems: [
+          element: 'tags',
+          dropdownOptions: [
             {
               id: 'discover',
               name: 'Discover',
@@ -288,11 +293,11 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'gmo:p0TargetMarketGeo',
+          mapToProperty: 'gmo:p0TargetMarketGeo',
           label: 'Target Market',
           placeholder: 'Select One',
           element: 'dropdown',
-          dropdownItems: [
+          dropdownOptions: [
             {
               id: 'apac',
               name: 'APAC',
@@ -316,7 +321,7 @@ export async function openUploadDialog() {
           ],
         },
         {
-          name: 'dam:assetStatus',
+          mapToProperty: 'dam:assetStatus',
           value: 'approved',
           element: 'hidden',
         },
