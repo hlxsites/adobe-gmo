@@ -37,7 +37,6 @@ export async function openUploadDialog() {
       discoveryLinks,
       targetUploadPath,
       rootPath: targetUploadPath,
-      version: 'PR-18-70073416b7410f6c0664488cfc1907025778c99c',
       metadataSchema: [
         {
           mapToProperty: 'gmo:lineofBusiness',
