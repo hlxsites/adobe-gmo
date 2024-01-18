@@ -8,12 +8,25 @@
     color: #505050;
 }
 
+.gmo-landing-page p a:any-link {
+    color: #035fe6;
+}
+
+.gmo-landing-page p a:hover {
+    color: #136ff6;
+}
+
+.gmo-landing-page p a:active {
+    color: #035fe6;
+}
+
 .gmo-landing-page .video-background {
     position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
 }
+
 .gmo-landing-page .video-background video {
     position: relative;
     top: 0;
