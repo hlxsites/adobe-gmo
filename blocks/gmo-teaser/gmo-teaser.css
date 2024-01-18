@@ -9,6 +9,18 @@
     text-transform: none;
 }
 
+.gmo-teaser a:any-link {
+    color: #72B7F9;
+}
+
+.gmo-teaser a:hover {
+    color: #8FCAFC;
+}
+
+.gmo-teaser a:active {
+    color: #AEDBFE;
+}
+
 .gmo-teaser .teaser {
     background-color: #292929;
     color: #efefef;
