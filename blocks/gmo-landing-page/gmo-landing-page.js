@@ -13,18 +13,14 @@ async function getVideoColor(){
     const video = document.querySelector('.desktop');
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d', { willReadFrequently: true });
-    
-    console.log('waiting for video load');
     await waitForVideoLoad();
-    console.log('video loaded');
-
+    
+    // Set the interval for capturing the video frame
+    const interval = 500; // .5 seconds
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    // Set the interval for capturing the video frame
-    const interval = 500; // .5 seconds
-
-    let videoColor = null;
+    let hexColorOld = null;
 
     // Capture the video frame and extract the color information at the specified interval
     setInterval(() => {
@@ -35,24 +31,15 @@ async function getVideoColor(){
         const blue = pixelData[2];
         const hexColor = '#' + ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1);
 
-        if (videoColor !== hexColor) { 
+        if (hexColorOld !== hexColor) { 
             let linkActive = document.querySelector('.gmo-landing-page p a');
-            // let linkHover = document.querySelector('.gmo-landing-page p a:hover');
-            // let linkAnyLink = document.querySelector('.gmo-landing-page a:any-link');
             if (hexColor == '#000000') {
                 linkActive.style.color = '#AEDBFE';
-                // linkHover.style.color = '#8FCAFC';
-                // linkAnyLink.style.color = '#72B7F9';
             } else {
                 linkActive.style.color = '#035fe6';
-                // linkHover.style.color = '#136ff6';
-                // linkAnyLink.style.color = '#035fe6';
             }
-            console.log(`background color has changed`);
-            return (videoColor = hexColor)
-        } else {
-            console.log('background color has not changed');
-        }    
+            return (hexColorOld = hexColor)
+        }   
     }, interval);
 }
 

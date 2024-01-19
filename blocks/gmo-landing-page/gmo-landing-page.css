@@ -10,6 +10,8 @@
 
 .gmo-landing-page p a:any-link {
     color: #035fe6;
+    transition:
+        color 0.2s;
 }
 
 .gmo-landing-page p a:hover {
