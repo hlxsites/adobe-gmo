@@ -3,11 +3,11 @@ import { readBlockConfig } from '../../scripts/lib-franklin.js';
 async function waitForVideoLoad() {
     const video = document.querySelector('.desktop');
     return new Promise((resolve) => {
-      video.oncanplaythrough = () => {
-        resolve();
-      };
+        video.oncanplaythrough = () => {
+            resolve();
+        };
     });
-  }
+}
 
 async function getVideoColor(){
     const video = document.querySelector('.desktop');
@@ -15,8 +15,6 @@ async function getVideoColor(){
     const context = canvas.getContext('2d', { willReadFrequently: true });
     await waitForVideoLoad();
     
-    // Set the interval for capturing the video frame
-    const interval = 500; // .5 seconds
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -31,16 +29,15 @@ async function getVideoColor(){
         const blue = pixelData[2];
         const hexColor = '#' + ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1);
 
-        if (hexColorOld !== hexColor) { 
+        if (hexColorOld !== hexColor) {
+            hexColorOld = hexColor; 
             let linkActive = document.querySelector('.gmo-landing-page p a');
             if (hexColor == '#000000') {
-                linkActive.style.color = '#AEDBFE';
-            } else {
-                linkActive.style.color = '#035fe6';
-            }
-            return (hexColorOld = hexColor)
+                return linkActive.style.color = '#AEDBFE';
+            } 
+                linkActive.style.color = '#035FE6';
         }   
-    }, interval);
+    }, 500);
 }
 
 export default async function decorate(block) {
@@ -51,11 +48,11 @@ export default async function decorate(block) {
 
     block.innerHTML=`
     <div class="video-background">
-        <video autoplay loop muted playsinline class="desktop" crossorigin="Anonymous">
+        <video autoplay loop muted playsinline class="desktop" crossorigin="anonymous">
             <source src="${config.videodesktop}" type="video/mp4">
             
         </video>
-        <video autoplay loop muted playsinline class="mobile" crossorigin="Anonymous">
+        <video autoplay loop muted playsinline class="mobile" crossorigin="anonymous">
             <source src="${config.videomobile}" type="video/mp4">
         </video>
     </div>
