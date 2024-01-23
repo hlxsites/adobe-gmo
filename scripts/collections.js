@@ -63,13 +63,28 @@ export function getBaseCollectionsUrl() {
  * @throws {Error} If an HTTP error or network error occurs.
  */
 export async function getCollection(collectionId) {
+
+  console.log("In function getCollection(collectionId)");
   try {
     const options = {
       method: 'GET',
       headers: await getRequestHeaders(),
     };
 
+    console.log("collectionId=");
+    console.log(collectionId);
+
+    console.log("options=");
+    console.log(options);
+
+    console.log("Get Collections URL");
+    console.log(`${getBaseCollectionsUrl()}/${collectionId}`);
+
     const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
+
+    console.log("response");
+    console.log(response);
+
 
     // Handle response codes
     if (response.status === 200) {
@@ -109,6 +124,11 @@ export async function createCollection(title, description, items) {
       headers: await getRequestHeaders(),
       body: JSON.stringify({ title, description, items }),
     };
+
+
+    console.log('Items of Assets');
+    console.log(items);
+
 
     const response = await fetch(`${getBaseCollectionsUrl()}`, options);
 
@@ -226,19 +246,27 @@ console.log(addOperation);
         patchOperations.push(op);
       }
     }
+
+    //patchOperations is used to store the assets being added/deleted to/from the collection
+    console.log("patchOperations");
+    console.log(patchOperations);
+
+
     const options = {
       method: 'PATCH',
       headers: await getRequestHeadersWithIfMatch(etag),
       body: JSON.stringify(patchOperations),
     };
 
+      console.log("Options");
+      console.log(options);
+
 
     //Todo Remove logging
     console.log("End Point URL");
     console.log(`${getBaseCollectionsUrl()}/${collectionId}`);
 
-    console.log("Options");
-    console.log(options);
+
 
     const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
 
