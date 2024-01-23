@@ -5,17 +5,18 @@ import showToast from "./toast-message.js";
 initLegalNotice();
 
 async function initLegalNotice() {
-    const config = await getBrandingConfig();
+  const config = await getBrandingConfig();
+  if (config?.legalMessage) {
     document.addEventListener(EventNames.SESSION_STARTED, function() {
       showLegalNotice(config);
     });
+  }
 }
   
 function showLegalNotice(config) {
-    const legalDefault = `NOTICE: Adobe records and uses your e-mail address for tracking purposes.`;
-    const legalToast = config?.legalMessage || legalDefault;
-    const legalDuration = 10000;
-    const toastType = "info";
+  const legalToast = config?.legalMessage;
+  const legalDuration = 10000;
+  const toastType = "info";
 
-    showToast(legalToast, legalDuration, toastType, false);
+  showToast(legalToast, legalDuration, toastType, false);
 }
