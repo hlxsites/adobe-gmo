@@ -33,7 +33,7 @@ async function getVideoColor(){
             hexColorOld = hexColor; 
             let linkActive = document.querySelector('.gmo-landing-page p a');
             if (hexColor == '#000000') {
-                return linkActive.style.color = '#AEDBFE';
+                return linkActive.style.color = '#72B7F9';
             } 
                 linkActive.style.color = '#035FE6';
         }   
