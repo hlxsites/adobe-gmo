@@ -85,7 +85,7 @@ function createSuggestionsPlugin(recentSearchesPlugin) {
   if (enableSearchSuggestions) {
     querySuggestionsPlugin = createQuerySuggestionsPlugin({
       searchClient: getSearchClient(),
-      indexName: 'query_suggestions',
+      indexName: INSTANT_SEARCH_INDEX_NAME + '_query_suggestions',
       getSearchParams({ state }) {
         // This creates a shared `hitsPerPage` value once the duplicates
         // between recent searches and Query Suggestions are removed.
