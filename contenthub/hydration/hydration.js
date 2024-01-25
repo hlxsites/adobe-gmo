@@ -63,7 +63,7 @@ export async function openUploadDialog() {
             },
           ],
         },
-        {
+        /*{
           mapToProperty: 'gmo:productFamily',
           label: 'Product Family',
           placeholder: 'Select one',
@@ -87,7 +87,7 @@ export async function openUploadDialog() {
               name: 'Document Cloud',
             },
           ],
-        },
+        },*/
         {
           mapToProperty: 'gmo:productsOffering',
           label: 'Product',
