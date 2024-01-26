@@ -40,10 +40,10 @@ async function getBearerTokenFromIMS(callWithToken) {
           }
           const token = tokenDetails && tokenDetails.token;
           callWithToken(token);
-        } else {
-          if (!isPublicPage()) {
+          return;
+        } 
+        if (!isPublicPage()) {
               window.adobeIMS.reAuthenticate();
-          }
         }
       },
     };
@@ -51,9 +51,9 @@ async function getBearerTokenFromIMS(callWithToken) {
     // load ims.min.js
     await loadScript(IMSLIB_ENV_CONFIG.urls[imsLibConfig.imsEnvironment]);
     isIMSInitialized = true;
-  } else {
-    window.adobeIMS.reAuthenticate();
+    return;
   }
+    window.adobeIMS.reAuthenticate();
 }
 
 /**

@@ -220,7 +220,7 @@ export default async function decorate(block) {
     }
   });
 
-  if (await getUserProfile() != null) {
+  if (await getUserProfile() !== null) {
     document.querySelector('.adp-logo').href = getBaseConfigPath() + '/assets';
     loadSearchField(nav);
     await createUserInfo(nav);
