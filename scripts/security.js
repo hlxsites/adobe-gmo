@@ -52,13 +52,13 @@ export function isPublicPage() {
 }
 
 export async function checkUserAccess() {
-  if (isPublicPage()) {
-    return true;
-  }
   await getBearerToken();
   const { imsUserGroup } = await getIMSConfig();
   if (imsUserGroup) {
     const imsLibSecurityModule = await import('./security-imslib.js');
+    if (isPublicPage()) {
+      return true;
+    } 
     return await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
   }
   return true;

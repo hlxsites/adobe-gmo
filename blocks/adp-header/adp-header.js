@@ -106,21 +106,13 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 export default async function decorate(block) {
   block.textContent = '';
   
-  // change adp-logo href depending on whether user is logged in
-  let logoHome = null;
-  if (await window.adobeIMS?.getProfile() != null) {
-    logoHome = `${getBaseConfigPath()}/` + 'assets';
-  } else {
-    logoHome = `${getBaseConfigPath()}/`;
-  }
-
   // decorate nav DOM
   const nav = document.createElement('nav');
   nav.id = 'nav';
   nav.innerHTML = `
   <div class="nav-top">
     <div class="nav-brand">
-      <a class="adp-logo" href="${logoHome}"></a>
+      <a class="adp-logo" href="${getBaseConfigPath()}/"></a>
       <div></div>
     </div>
     <div class="nav-sections">
@@ -228,7 +220,8 @@ export default async function decorate(block) {
     }
   });
 
-  if (!isPublicPage()) {
+  if (await getUserProfile() != null) {
+    document.querySelector('.adp-logo').href = getBaseConfigPath() + '/assets';
     loadSearchField(nav);
     await createUserInfo(nav);
     initQuickLinks();
