@@ -1,12 +1,15 @@
+import { getAdminConfig } from '../../scripts/site-config.js';
+
 let bearerToken;
+const adminConfig = await getAdminConfig();
 
 /* new */
-const apiKey = '';
-const secret = '';
+const apiKey = adminConfig.fireflyClientId;
+const secret = adminConfig.fireflyCS;
 
 /* photoshop */
-const psKey = '';
-const psSecret = '';
+const psKey = adminConfig.psClientId;
+const psSecret = adminConfig.psCS;
 let psToken;
 
 // gen fill selection vars
@@ -88,7 +91,7 @@ export default async function decorate(block) {
             <div class="button genfill clear hide">
                 <span class="button-text">Clear</span>
             </div>
-            <div class="button genfill dl-mask">
+            <div class="button genfill dl-mask hide">
                 <span class="button-text">Download Mask</span>
             </div>
         </div>
@@ -142,7 +145,18 @@ export default async function decorate(block) {
             changeMode(event);
         });
     })
+
+    const clearButton = block.querySelector(".button.clear");
+    clearButton.addEventListener('click', () => {
+        clearAll();
+    })
 };
+
+function clearAll() {
+    document.querySelector('.image-hero').innerHTML = '';
+    document.querySelector('.image-root').innerHTML = '';
+    document.getElementById('canvas-wrapper').innerHTML = '';
+}
 
 function changeMode(click) {
     const button = click.target;
@@ -220,7 +234,6 @@ async function getFFToken() {
             return response.json();
         });
 
-        console.log("token:" + responseJson['access_token'])
         bearerToken = responseJson['access_token'];
         return bearerToken;
     } else {
@@ -252,7 +265,6 @@ async function getPSToken() {
         const responseJson = await fetch(imsURL, options).then(response => {
             return response.json();
         });
-        console.log("ps token:" + responseJson['access_token'])
         psToken = responseJson['access_token'];
         return psToken;
     } else {
@@ -282,7 +294,7 @@ async function psMask() {
     const options = {
         method: 'POST',
         headers: {
-          'X-Api-Key': apiKey,
+          'X-Api-Key': psKey,
           Authorization: psToken,
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
@@ -328,11 +340,11 @@ async function textToImage() {
       body: JSON.stringify(inputs),
     };
     
-    console.log(options);
+    //console.log(options);
     const response = await fetch(url, options);
     const responseJson = await response.json();
 
-    appendResults(params.input.value, responseJson);
+    appendResults(params.input.value, responseJson, "image/jpeg");
 }
 
 async function genExpand() {
@@ -367,9 +379,8 @@ async function genExpand() {
       };
       const response = await fetch(url, options);
       const responseJson = await response.json();
-      console.log(responseJson);
+      //console.log(responseJson);
       
-      // appendresults expecting data url not a link
       appendResults(params.input.value, responseJson);
 }
 
@@ -381,26 +392,23 @@ async function genFill() {
     const url = 'https://firefly-beta.adobe.io/v1/images/fill';
     const params = document.forms["config"];
     const defaultPrompt = 'rat in a dress';
-
     const baseImage = document.getElementById('genfill-base');
-    let baseRef = baseImage.dataset.reference;
-    console.log(baseRef);
-    if (baseRef === "undefined") {
-        //do upload
-        baseRef = await uploadImage(baseImage);
-    }
-
     let newToken = await getFFToken();
 
-    // 1. get image reference [data-reference]
-    // 2. upload mask
-    // 3. provide mask ref
     const imageSrc = baseImage.src;
     const imageType = imageSrc.substring(imageSrc.indexOf('data:') + 5,imageSrc.indexOf(';base64'));
-    console.log(imageType);
+    let baseRef = baseImage.dataset.reference;
+
+    if (baseRef === "undefined") {
+        //do upload
+        //in this case we're using a generated image. convert the image src to blob first
+        const baseString = imageSrc.slice(imageSrc.indexOf(';base64') + 8, imageSrc.length);
+        const blob = await b64toBlob(baseString, imageType);
+        baseRef = await uploadImage(blob, imageType);
+    }
+
     const mask = await processMask(selection, imageType);
-    console.log(mask);
-    const maskRef = await uploadImage(mask);
+    const maskRef = await uploadImage(mask, imageType);
 
     const inputs = {
         'prompt': params.input.value || defaultPrompt,
@@ -419,18 +427,18 @@ async function genFill() {
           'X-Api-Key': apiKey,
           Authorization: newToken,
           'Content-Type': 'application/json',
-          'x-accept-mimetype': 'image/jpeg',
+          'x-accept-mimetype': imageType,
           'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
         },
         body: JSON.stringify(inputs),
       };
       const response = await fetch(url, options);
       const responseJson = await response.json();
-      console.log(responseJson);
-      appendResults(params.input.value, responseJson);
+      //console.log(responseJson);
+      appendResults(params.input.value, responseJson, imageType);
 }
 
-function appendResults(prompt, responseJson) {
+function appendResults(prompt, responseJson, imageType) {
     const imageRoot = document.querySelector(".image-root");
     const capturePrompt = document.createElement('div');
     capturePrompt.classList.add('image-prompt');
@@ -439,8 +447,7 @@ function appendResults(prompt, responseJson) {
     const carousel = document.createElement('div');
     carousel.classList.add('image-carousel');
     responseJson.images.forEach((image) => {
-        //here check for .base64 value
-        carousel.appendChild(appendImages(image));
+        carousel.appendChild(appendImages(image, imageType));
     })
     imageRoot.appendChild(carousel);
 }
@@ -487,23 +494,26 @@ async function processMask({ top, left, width, height }, imageType) {
     let canvasHeight = canvas.getAttribute('height');
     let canvasWidth = canvas.getAttribute('width');
     const factor = canvas.dataset.scaling;
-
-    const shadowCanvas = document.createElement('canvas');
-    shadowCanvas.width = canvasWidth;
-    shadowCanvas.height = canvasHeight;
-    const shadowContext = shadowCanvas.getContext('2d');
-    shadowContext.scale(factor, factor);
-    shadowContext.fillStyle = 'black';
-    shadowContext.fillRect(0, 0, shadowCanvas.width, shadowCanvas.height);
-    shadowContext.fillStyle = 'white';
-    shadowContext.fillRect(left, top, width, height);
     if (canvasWidth.includes('px')) {
         canvasWidth = canvasWidth.replace('px','');
     }
     if (canvasHeight.includes('px')) {
         canvasHeight = canvasHeight.replace('px', '');
     }
-    const img = shadowContext.getImageData(0,0,canvasWidth,canvasHeight);
+
+    const shadowCanvas = document.createElement('canvas');
+    shadowCanvas.width = canvasWidth * factor;
+    shadowCanvas.height = canvasHeight * factor;
+    shadowCanvas.style.height = canvasHeight + 'px';
+    shadowCanvas.style.width = canvasWidth + 'px';
+    const shadowContext = shadowCanvas.getContext('2d');
+    shadowContext.scale(factor, factor);
+    shadowContext.fillStyle = 'black';
+    shadowContext.fillRect(0, 0, shadowCanvas.width, shadowCanvas.height);
+    shadowContext.fillStyle = 'white';
+    shadowContext.fillRect(left, top, width, height);
+
+    const img = shadowContext.getImageData(0,0,canvasWidth * factor,canvasHeight * factor);
     // this is probably causing issues re: having/not having 'px'
     shadowCanvas.width = canvasWidth * factor;
     shadowCanvas.height = canvasHeight * factor;
@@ -515,11 +525,27 @@ async function processMask({ top, left, width, height }, imageType) {
 
 }
 
+const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+  
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+      const byteNumbers = new Array(slice.length);
+
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+  
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+      
+    const blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+  }
+
 function dlMask({ top, left, width, height }) {
-    console.log('top: ' + top);
-    console.log('left: ' + left);
-    console.log('width: ' + width);
-    console.log('height: ' + height);
     const canvas = document.getElementById('genfill');
     let canvasHeight = canvas.getAttribute('height');
     let canvasWidth = canvas.getAttribute('width');
@@ -531,9 +557,7 @@ function dlMask({ top, left, width, height }) {
     if (canvasHeight.includes('px')) {
         canvasHeight = canvasHeight.replace('px', '');
     }
-    // multiply the coordinates by factor???
-    console.log('original width: ' + width);
-    console.log('multiplied width: ' + width * factor)
+
     const shadowCanvas = document.createElement('canvas');
     shadowCanvas.width = canvasWidth * factor;
     shadowCanvas.height = canvasHeight * factor;
@@ -546,7 +570,6 @@ function dlMask({ top, left, width, height }) {
     shadowContext.fillStyle = 'white';
     shadowContext.fillRect(left, top, (width) , (height));
 
-    // the height and width are right but it's not drawin the rectangle
     const img = shadowContext.getImageData(0,0,canvasWidth * factor,canvasHeight * factor);
     shadowContext.putImageData(img, 0, 0);
 
@@ -556,18 +579,18 @@ function dlMask({ top, left, width, height }) {
     dlElem.setAttribute('href', image);
     dlElem.setAttribute('download', filename);
     dlElem.click();
-    shadowCanvas.remove(); // ?
+    shadowCanvas.remove();
 }
 
-function appendImages(response) {
+function appendImages(response, imageType) {
 
-    console.log(response);
+    //console.log(response);
     const imageEl = document.createElement('div');
 
     if ((response.base64) === undefined) {
         imageEl.innerHTML = `<img class="generated" src="` + response.image.presignedUrl + `"/>`;
     } else {
-        imageEl.innerHTML = `<img class="generated" src="data:image/png;base64,` + response.base64 + `"/>`;
+        imageEl.innerHTML = `<img class="generated" src="data:` + imageType + `;base64,` + response.base64 + `"/>`;
     }
 
     imageEl.classList.add('image-block');
@@ -583,28 +606,24 @@ function showHero(e) {
         heroDiv.removeChild(heroDiv.childNodes[0]);
     }
 
-    //tag generated images with height and width.
-    //perform upload, tag with reference
     const newImg = e.target.cloneNode();
     newImg.addEventListener('click', (event) => {
         initCanvas(event.target);
         document.querySelector('.image-hero').classList.add('hide');
-    }); //canvas
+    }); 
     
     heroDiv.appendChild(newImg);
 
 }
 
 function handleFiles(files) {
-    console.log('handle files');
+    //console.log('handle files');
     files = [...files];
     files.forEach(processImages);
 }
 
 async function processImages(image) {
-    // todo don't use base64 for uploadImage
     let base64 = await base64Encode(image);
-    //let imageRef = await uploadImage(base64);
     let imageRef = await uploadImage(image);
     previewImage(imageRef, base64);
 }
@@ -617,17 +636,19 @@ async function base64Encode(image) {
     });
 }
 
-async function uploadImage(image) {
-    console.log(image);
+async function uploadImage(image, imageType) {
     const url = 'https://firefly-beta.adobe.io/v2/storage/image';
     const token = await getFFToken();
+    if (imageType === undefined) {
+        imageType = image.type;
+    }
 
     const options = {
         method: 'POST',
         headers: {
             'x-api-key': apiKey,
             Authorization: token,
-            'Content-Type': 'image/jpeg'
+            'Content-Type': imageType
         },
         body: image
     };
@@ -669,12 +690,20 @@ function previewImage(ref, base64) {
     });
 }
 
+function clearCanvas() {
+    const canvasWrapper = document.getElementById('canvas-wrapper');
+    if (canvasWrapper.hasChildNodes()) {
+        canvasWrapper.innerHTML = '';
+    }
+    selection = null;
+    //clear selection also
+}
+
 function initCanvas(img) {
+    //check first if a canvas exists, if so clear it out
+    clearCanvas();
     const maxHeight = 500;
     const maxWidth = 500;
-    //console.log(img);
-    //console.log(img.naturalHeight);
-    //console.log(img.naturalWidth);
     const imgHeight = img.naturalHeight;
     const imgWidth = img.naturalWidth;
     let factor, canvasHeight, canvasWidth;
@@ -688,12 +717,9 @@ function initCanvas(img) {
         canvasWidth = '500';
         canvasHeight = ((imgHeight / factor));
     } else {
-        //console.log('square img');
         factor = ((imgHeight / maxHeight));
         canvasHeight = '500';
         canvasWidth = ((imgWidth / factor));
-        //console.log(canvasHeight);
-        //console.log(canvasWidth);
     }
 
     const image = new Image();
@@ -707,7 +733,7 @@ function initCanvas(img) {
     canvas.style.height = canvasHeight + 'px';
     canvas.style.width = canvasWidth + 'px';
 
-    canvas.width = canvasWidth; // + px?
+    canvas.width = canvasWidth; 
     canvas.height = canvasHeight;
     canvas.classList.add('genfill');
     canvas.id = 'genfill';
@@ -715,8 +741,6 @@ function initCanvas(img) {
     canvas.setAttribute('width', canvasWidth + 'px');
     canvas.setAttribute('height', canvasHeight + 'px');
     const context = canvas.getContext('2d');
-    //context.scale(factor, factor);
-    //console.log(context);
     document.getElementById('canvas-wrapper').appendChild(canvas);
 
 
@@ -840,7 +864,6 @@ function canvasMouseMove(e) {
   
     // Draw
     if (selection) { 
-        //console.log(selection);
         drawSelection(selection, e);
     }
 }
@@ -871,8 +894,8 @@ function drawSelection({ top, left, width, height }, e) {
 }
 
 function canvasMouseUp() {
-    console.log('mouse up')
+    //console.log('mouse up')
     interaction = null;
     origin = null;
-    console.log(selection);
+    //console.log(selection);
 }
