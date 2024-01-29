@@ -353,9 +353,18 @@ async function genExpand() {
     const defaultPrompt = 'rave party with a dj and bubbles floating around';
 
     const baseImage = document.getElementById('genfill-base');
-    const baseRef = baseImage.dataset.reference;
-
+    let baseRef = baseImage.dataset.reference;
+// code here from gen fill
     let newToken = await getFFToken();
+
+    const imageSrc = baseImage.src;
+    const imageType = imageSrc.substring(imageSrc.indexOf('data:') + 5,imageSrc.indexOf(';base64'));
+
+    if (baseRef === "undefined") {
+        const baseString = imageSrc.slice(imageSrc.indexOf(';base64') + 8, imageSrc.length);
+        const blob = await b64toBlob(baseString, imageType);
+        baseRef = await uploadImage(blob, imageType);
+    }
 
     const inputs = {
         'prompt': params.input.value || defaultPrompt,
@@ -372,7 +381,7 @@ async function genExpand() {
           'X-Api-Key': apiKey,
           Authorization: newToken,
           'Content-Type': 'application/json',
-          'x-accept-mimetype': 'image/jpeg',
+          'x-accept-mimetype': imageType,
           'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
         },
         body: JSON.stringify(inputs),
@@ -381,7 +390,7 @@ async function genExpand() {
       const responseJson = await response.json();
       //console.log(responseJson);
       
-      appendResults(params.input.value, responseJson);
+      appendResults(params.input.value, responseJson, imageType);
 }
 
 async function genFill() {
