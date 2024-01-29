@@ -1,0 +1,199 @@
+.gmo-api-test-container {
+    text-transform: none;
+}
+.gmo-api-test.block {
+    display: flex;
+    height: 900px;
+}
+.gmo-api-test .sidepanel {
+    width: 375px;
+    height: 100%;
+    padding-right: 1.5rem;
+}
+.gmo-api-test .canvas {
+    width: 100%;
+    height: 100%;
+    background: #ccc;
+}
+
+.gmo-api-test .canvas .image-hero .generated {
+    width: 30%;
+}
+.image-root {
+    padding: 10px;
+    .image-prompt {
+        font-size: 14px;
+    }
+}
+.image-root:empty {
+    display: none;
+}
+img.generated {
+    width: 148px;
+}
+div.image-block {
+    display: inline-block;
+    margin-right: 10px;
+    &:last-child {
+        margin: 0;
+    }
+}
+.controls {
+    display: flex;
+    flex-direction: row;
+    padding: 10px 0px;
+}
+.button {
+    width: 120px;
+    border-radius: 20px;
+    background: #1473e6;
+    color: white;
+    height: 15px;
+    line-height: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 0.833em;
+    text-align: center;
+    cursor: pointer;
+    &:first-child {
+        margin-right: 10px;
+    }
+    &:not(:first-child) {
+        margin-left: 10px;
+    }
+}
+
+.ff-form {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+.ff-input {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    line-height: 20px;
+    border: 2px solid black;
+}
+
+.ff-input[contenteditable]:empty::before {
+    content: "Input your text prompt here";
+    color: gray;
+}
+.config {
+    margin-bottom: 35px;
+}
+.config-count-wrapper {
+    width: 100%;
+}
+select {
+    width: 100%;
+}
+form.ff-form textarea {
+    width: unset;
+}
+
+#filedrop {
+    border: 2px dashed #ccc;
+    border-radius: 20px;
+    width: 325px;
+    font-family: sans-serif;
+    margin: 10px auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    &.highlight {
+        border-color: purple;
+    }
+}
+
+#filedrop .button {
+    position: relative;
+    margin: 0 auto;
+}
+
+#gallery {
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+}
+#gallery p {
+    padding: 10px;
+}
+#gallery img {
+
+    margin-bottom: 10px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+#fileElem {
+    display: none;
+}
+.workarea {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+#drawing {
+    
+    height: 200px;
+}
+#canvas-wrapper {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    background: #ccc;
+}
+#canvas-wrapper img {
+    position: relative;
+}
+canvas.genfill {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: block;
+    z-index: 100;
+    top: 0;
+    left: 0;
+}
+.canvas-controls {
+    display: flex;
+}
+
+.toggle {
+    padding: 5px 15px 0 15px;
+    margin-right: 10px;
+    border-right: solid 3px gray;
+}
+.togglebtn {
+    width: 21px;
+    height: 30px;
+    background-size: cover;
+    margin-bottom: 10px;
+}
+.toggle-text2image {
+    background: url("../../icons/Adobe_Corporate_Vertical_Lockup_Red_RGB.svg");
+}
+.toggle-genfill {
+    background: url("../../icons/Adobe_Corporate_Vertical_Lockup_Black_RGB.svg");
+}
+.toggle-genexpand {
+    background: url("../../icons/Adobe_Corporate_Vertical_Lockup_Red_RGB.svg");
+}
+.section.gmo-api-test-container {
+    padding: 0;
+}
+#imageRef {
+    display: none;
+}
+#maskRef {
+    display: none;
+}
+.hide {
+    display: none !important;
+}
+.mode {
+    margin-bottom: 20px;
+}
