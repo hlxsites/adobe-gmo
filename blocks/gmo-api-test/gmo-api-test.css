@@ -1,9 +1,21 @@
+html { 
+    height: 100vh;
+}
+
+main {
+    height: 100%;
+}
+.gmo-api-test-wrapper {
+    height: 100%;
+}
+
 .gmo-api-test-container {
     text-transform: none;
+    height: 100%;
 }
 .gmo-api-test.block {
     display: flex;
-    height: 900px;
+    height: 100%;
 }
 .gmo-api-test .sidepanel {
     width: 375px;
