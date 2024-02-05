@@ -125,6 +125,8 @@ export async function createCollection(title, description, items) {
       body: JSON.stringify({ title, description, items }),
     };
 
+    console.log('options');
+    console.log(options);
 
     console.log('Items of Assets');
     console.log(items);
@@ -191,6 +193,9 @@ export async function listCollection(limit = undefined, cursor = '') {
     method: 'GET',
     headers: await getRequestHeaders(),
   };
+
+  console.log('In fuction listCollection');
+  console.log(options);
 
   // Include the query parameters in the URL
   const queryString = queryParams.toString();
