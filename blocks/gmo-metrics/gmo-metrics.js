@@ -323,7 +323,10 @@ function sortByAmount(values) {
 export default async function decorate(block) {
   const config = readBlockConfig(block);
   block.innerHTML = `
-    <h1>${config.title || 'Asset Metrics'}</h1>
+    <div class="title">
+      <h1>${config.title || 'Asset Metrics'}</h1>
+      <h1>Updated: ${config.updated}</h1>
+    </div>
     <div class="graph-container">
       <div>
         <h2>Asset Statistics</h2>

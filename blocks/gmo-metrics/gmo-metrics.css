@@ -12,6 +12,11 @@
   content: '';
 }
 
+.gmo-metrics .title {
+  display: flex; 
+  justify-content: space-between;
+}
+
 .gmo-metrics .graph-container {
   display: flex;
   flex-flow: row wrap;
@@ -100,4 +105,5 @@
     align-items: center;
     justify-content: center;
   }
+
 }
