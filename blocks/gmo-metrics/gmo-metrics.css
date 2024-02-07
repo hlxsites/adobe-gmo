@@ -17,7 +17,7 @@
   justify-content: space-between;
 }
 
-.gmo-metrics .updated-data {
+.gmo-metrics .subtitle-right {
   font-size: 16px;
   color: var(--assets-browser-text-color);
   font-weight: normal;
