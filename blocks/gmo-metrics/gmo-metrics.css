@@ -12,6 +12,17 @@
   content: '';
 }
 
+.gmo-metrics .title {
+  display: flex; 
+  justify-content: space-between;
+}
+
+.gmo-metrics .updated-data {
+  font-size: 16px;
+  color: var(--assets-browser-text-color);
+  font-weight: normal;
+}
+
 .gmo-metrics .graph-container {
   display: flex;
   flex-flow: row wrap;
@@ -100,4 +111,5 @@
     align-items: center;
     justify-content: center;
   }
+
 }
