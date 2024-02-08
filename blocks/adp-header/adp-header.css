@@ -532,7 +532,6 @@ header nav {
   box-shadow: unset;
 }
 
-
 .quick-links button {
   background-color: var(--button-focus-outline-color);
   border-radius: 16px;
@@ -543,4 +542,17 @@ header nav {
   justify-content: center;
   align-items: center;
   padding: 0 16px;
+}
+
+.upload-actions {
+  width: 100%;
+  margin: 0 1em;
+}
+
+.upload-actions button {
+  float: right;
+}
+
+.upload-actions button.disabled {
+  background-color: var(--overlay-background-color);
 }
