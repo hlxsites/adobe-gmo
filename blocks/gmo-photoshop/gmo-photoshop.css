@@ -1,0 +1,19 @@
+.button {
+    width: 120px;
+    border-radius: 20px;
+    background: #1473e6;
+    color: white;
+    height: 15px;
+    line-height: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 0.833em;
+    text-align: center;
+    cursor: pointer;
+    &:first-child {
+        margin-right: 10px;
+    }
+    &:not(:first-child) {
+        margin-left: 10px;
+    }
+}
