@@ -7,7 +7,12 @@ import { getPathParams, logError } from './scripts.js';
 import { emitEvent, EventNames } from './events.js';
 
 export function getCollectionIdFromURL() {
+  /* Todo remove this comment
   if (window.location.pathname.startsWith('/collection/')) {
+    return getPathParams().at(-1);
+  }
+  */
+  if (window.location.pathname.includes('/collection/')) {
     return getPathParams().at(-1);
   }
   return undefined;
@@ -28,7 +33,8 @@ export function getAssetIdFromCollectionItem(assetItem) {
   return assetItem.id;
 }
 
-async function getRequestHeaders() {
+/* Todo delete this function when code is complete */
+async function getRequestHeadersOriginal() {
   const token = await getBearerToken();
   return {
     'Content-Type': 'application/json',
@@ -37,6 +43,22 @@ async function getRequestHeaders() {
   };
 }
 
+
+
+async function getRequestHeaders() {
+  const token = await getBearerToken();
+  /*Todo delete logging token*/ console.log('AuthToken ',token);
+
+  return {
+    'Content-Type': 'application/json',
+    'x-api-key': await getAssetHandlerApiKey(),
+    'Authorization': token,
+    'x-ch-request': 'collection',
+    'X-Adobe-Accept-Experimental': '1',
+  };
+}
+
+/* Todo delete this function when code is complete */
 async function getRequestHeadersWithIfMatch(etag) {
   const token = await getBearerToken();
   return {
@@ -46,6 +68,18 @@ async function getRequestHeadersWithIfMatch(etag) {
     'If-Match': etag,
   };
 }
+
+async function getRequestHeadersWithIfMatchPatchJSON(etag) {
+  const token = await getBearerToken();
+  return {
+    'Content-Type': 'application/json-patch+json',
+    'x-api-key': await getAssetHandlerApiKey(),
+    Authorization: token,
+    'If-Match': etag,
+  };
+}
+
+
 /**
  * Constructs and returns the base URL for collections.
  *
@@ -55,14 +89,28 @@ export function getBaseCollectionsUrl() {
   return `${getDeliveryEnvironment()}/adobe/collections`;
 }
 
+
 /**
+ * Constructs and returns the base URL for assets collections. (New)
+ *
+ * @returns {string} The base collections URL.
+ */
+export function getBaseAssetsCollectionsUrl() {
+  return `${getDeliveryEnvironment()}/adobe/assets/collections`;
+}
+
+
+
+
+/**
+ * Todo Delete this function after code is complete
  * Retrieves a collection by its unique identifier.
  *
  * @param {string} collectionId - The unique identifier of the collection to retrieve.
  * @returns {Promise<object>} A promise that resolves with the retrieved collection.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-export async function getCollection(collectionId) {
+export async function getCollectionOld(collectionId) {
   try {
     const options = {
       method: 'GET',
@@ -93,6 +141,125 @@ export async function getCollection(collectionId) {
 }
 
 /**
+ * Retrieves a collection by its unique identifier.
+ *
+ * @param {string} collectionId - The unique identifier of the collection to retrieve.
+ * @returns {Promise<object>} A promise that resolves with the retrieved collection.
+ * @throws {Error} If an HTTP error or network error occurs.
+ */
+export async function getCollection(collectionId) {
+  try {
+
+    const options = {
+      method: 'GET',
+      headers: await getRequestHeaders(),
+    };
+
+  //Todo delete logging
+  console.log("Options");
+  console.log(options);
+
+    //const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
+
+    const collectionId2='urn:cid:aem:6156b683-27ba-4e70-82b4-fe97eb38ac19';
+
+    const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId2}/items`, options);
+
+    //const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}/items`, options);
+
+    // Handle response codes
+    if (response.status === 200) {
+      // Collection retrieved successfully
+
+    const responseBody = await response.json();
+     //responseBody.etag = response.headers.get('If-none-match');//Old getCollection
+    responseBody.etag = response.headers.get('Etag');
+
+
+//Todo Delete Debug Code
+    // Access the response headers
+    const headers = response.headers;
+    console.log("Show Response Headers")
+    // Loop through and log all headers
+    headers.forEach((value, name) => {
+      console.log(`${name}: ${value}`);
+    });
+//Todo Delete Debug Code
+
+      return responseBody;
+    } if (response.status === 404) {
+      // Handle 404 error
+      const errorResponse = await response.json();
+      throw new Error(`Failed to get collection (404): ${errorResponse.detail}`);
+    } else {
+      // Handle other response codes
+      throw new Error(`Failed to retrieve collection: ${response.status} ${response.statusText}`);
+    }
+  } catch (error) {
+    // Handle network or other errors
+    logError('getCollection', error);
+    throw error;
+  }
+}
+
+/**
+ * Todo Delete this function after code is complete
+ * Creates a new collection. (Old/Deprecated)
+ *
+ * @param {string} title - The title of the new collection.
+ * @param {string} description - The description of the new collection (optional).
+ * @param {Array<object>} items - An array of items to include in the collection (optional).
+ * @param {object} collectionDetails - From the collection modal to be used by emitEvent
+ * @returns {Promise<object>} A promise that resolves with the created collection.
+ * @throws {Error} If an HTTP error or network error occurs.
+ */
+export async function createCollectionOld(title, description, items) {
+  try {
+    const options = {
+      method: 'POST',
+      headers: await getRequestHeaders(),
+      body: JSON.stringify({ title, description, items }),
+    };
+
+    const response = await fetch(`${getBaseCollectionsUrl()}`, options);
+
+    // Handle response codes
+    if (response.status === 200) {
+      // Collection created successfully
+      const responseBody = await response.json();
+
+      const assetsArray = items.map((obj) => ({ assetId: obj.id, assetName: obj.name }));
+
+      const collectionDetails = {
+        collectionName: title,
+        collectionId: responseBody.id,
+        assets: assetsArray,
+      };
+      // Emit create creation event
+      emitEvent(document.documentElement, EventNames.CREATE_COLLECTION, collectionDetails);
+
+      return responseBody;
+    } if (response.status === 400) {
+      // Handle 400 error
+      const errorResponse = await response.json();
+      throw new Error(`Failed to create collection (400): ${errorResponse.detail}`);
+    } else if (response.status === 404) {
+      // Handle 404 error
+      const errorResponse = await response.json();
+      throw new Error(`Failed to create collection (404): ${errorResponse.detail}`);
+    } else {
+      // Handle other response codes
+      throw new Error(`Failed to create collection: ${response.status} ${response.statusText}`);
+    }
+  } catch (error) {
+    // Handle network or other errors
+    logError('createCollection', error);
+    throw error;
+  }
+}
+
+
+/**
  * Creates a new collection.
  *
  * @param {string} title - The title of the new collection.
@@ -109,8 +276,8 @@ export async function createCollection(title, description, items) {
       headers: await getRequestHeaders(),
       body: JSON.stringify({ title, description, items }),
     };
-
-    const response = await fetch(`${getBaseCollectionsUrl()}`, options);
+debugger;
+    const response = await fetch(`${getBaseAssetsCollectionsUrl()}`, options);
 
     // Handle response codes
     if (response.status === 200) {
@@ -167,14 +334,31 @@ export async function listCollection(limit = undefined, cursor = '') {
     queryParams.append('cursor', cursor);
   }
 
+/*
   const options = {
     method: 'GET',
     headers: await getRequestHeaders(),
   };
+*/
 
+  const options = {
+    method: 'GET',
+    headers: await getRequestHeadersOriginal(),
+  };
   // Include the query parameters in the URL
   const queryString = queryParams.toString();
   const url = `${getBaseCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
+
+  //New List Collection is not working yet
+  //const url = `${getBaseAssetsCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
+
+  console.log('options');
+  console.log(options);
+
+  console.log('url');
+  console.log(url);
+
+  debugger;
 
   try {
     const response = await fetch(url, options);
@@ -192,7 +376,9 @@ export async function listCollection(limit = undefined, cursor = '') {
   }
 }
 
+
 /**
+ * Todo Delete this function after code is complete
  * Updates a collection using JSON patch operations.
  *
  * @param {string} collectionId - The unique identifier of the collection to patch.
@@ -202,7 +388,7 @@ export async function listCollection(limit = undefined, cursor = '') {
 * @returns {Promise<void>} A promise that resolves when the collection is updated.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-export async function patchCollection(collectionId, etag, addOperation = '', deleteOperation = '') {
+export async function patchCollectionOld(collectionId, etag, addOperation = '', deleteOperation = '') {
   try {
     const patchOperations = [];
     if (addOperation) {
@@ -244,6 +430,114 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
         };
         emitEvent(document.documentElement, EventNames.DELETE_FROM_COLLECTION, collectionDetails);
       }
+
+      return responseBody;
+    } if (response.status === 400) {
+      // Handle 400 error
+      const errorResponse = await response.json();
+      throw new Error(`Failed to patch collection (400): ${errorResponse.detail}`);
+    } else if (response.status === 404) {
+      // Handle 404 error
+      const errorResponse = await response.json();
+      throw new Error(`Failed to patch collection (404): ${errorResponse.detail}`);
+    } else if (response.status === 412) {
+      // Handle 412 error
+      const errorResponse = await response.json();
+      throw new Error(`Failed to patch collection (412): ${errorResponse.detail}`);
+    } else {
+      throw new Error(`Failed to update collection: ${response.status} ${response.statusText}`);
+    }
+  } catch (error) {
+    logError('patchCollection', error);
+    throw error;
+  }
+}
+
+
+/**
+ * Updates a collection using JSON patch operations.
+ *
+ * @param {string} collectionId - The unique identifier of the collection to patch.
+ * @param {string} etag - The entity tag (ETag) value to use for conditional requests.
+ * @param {object} addOperation - The JSON patch operation to add an item to the collection (optional).
+ * @param {object} deleteOperation - The JSON patch operation to remove an item from the collection (optional).
+* @returns {Promise<void>} A promise that resolves when the collection is updated.
+ * @throws {Error} If an HTTP error or network error occurs.
+ */
+export async function patchCollection(collectionId, etag, addOperation = '', deleteOperation = '') {
+
+  try {
+
+    /* Expected Body
+    [
+      {
+        "op": "add",
+        "id": "urn:aaid:aem:ffe295fb-7e6a-462a-91f7-ab34cf6ee13d",
+        "type": "asset"
+      }
+    ]
+    */
+    const patchOperations = [];
+    if (addOperation) {
+      for (const op of addOperation) {
+        patchOperations.push({'op':'add', 'id':op.value.id, 'type': 'asset'});
+      }
+    }
+    if (deleteOperation) {
+      for (const op of deleteOperation) {
+        patchOperations.push({'op':'remove', 'id':op.value.id, 'type': 'asset'});
+      }
+    }
+    const options = {
+      method: 'POST',
+      headers: await getRequestHeadersWithIfMatchPatchJSON(etag),
+      body: JSON.stringify(patchOperations),
+    };
+
+    console.log('options');
+    console.log(options);
+
+    debugger;
+
+    const collectionId2='urn:cid:aem:6156b683-27ba-4e70-82b4-fe97eb38ac19';
+
+
+    //const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}`, options);
+
+    const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId2}/items`, options);
+
+
+    if (response.status === 200 || response.status === 204) {
+
+
+      console.log('Patch Collection Success!!');
+
+
+      //const responseBody = await response.json();
+
+      const responseBody = await getCollection(collectionId2);
+
+      const collectionData = responseBody.self[0];
+
+      if (addOperation) {
+        const assetsArray = addOperation.map((obj) => ({ assetId: obj.value.id, assetName: obj.value.name }));
+        const collectionDetails = {
+          collectionName: collectionData.collectionMetadata.title,
+          collectionId: collectionData.id,
+          assets: assetsArray,
+        };
+        emitEvent(document.documentElement, EventNames.ADD_TO_COLLECTION, collectionDetails);
+      } else if (deleteOperation) {
+        const assetsArray = deleteOperation.map((obj) => ({ assetId: obj.value.id, assetName: obj.value.name }));
+        const collectionDetails = {
+          collectionName: collectionData.collectionMetadata.title,
+          collectionId: collectionData.id,
+          assets: assetsArray,
+        };
+        emitEvent(document.documentElement, EventNames.DELETE_FROM_COLLECTION, collectionDetails);
+      }
+
+
 
       return responseBody;
     } if (response.status === 400) {

@@ -155,11 +155,19 @@ export async function openModal(items) {
         });
       }
 
+/*Todo Delete this getCollection */
+      getCollection('urn:cid:aem:8f67c491-347a-4c50-a55b-aad555671b22')
+        .then((collection) => {
+          const { etag } = collection;
+          patchCollection(collectionId, etag, payload);
+        });
+/*
       getCollection(collectionId)
         .then((collection) => {
           const { etag } = collection;
           patchCollection(collectionId, etag, payload);
         });
+*/
       resetDialogState();
     }
 
