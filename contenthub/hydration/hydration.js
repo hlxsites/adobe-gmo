@@ -12,16 +12,16 @@ export async function openUploadDialog() {
   loadCSS('/contenthub/hydration/hydration.css');
 
   const {results:[{ facets }]} = await window.search.client.search([{
-    "indexName":window.search.indexName,
-    "params":{
-      "facets":[
+    "indexName": window.search.indexName,
+    "params": {
+      "facets": [
         "gmo-campaignName",
         "gmo-programName"
       ],
-    "hitsPerPage":0,
-    "maxValuesPerFacet":50,
-    "page":0,
-    "query":"*"
+    "hitsPerPage": 0,
+    "maxValuesPerFacet": 50,
+    "page": 0,
+    "query": "*"
   }}]);
 
   let facetOptions = {};
