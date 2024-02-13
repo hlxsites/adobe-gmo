@@ -11,6 +11,24 @@ export async function openUploadDialog() {
   // API: https://git.corp.adobe.com/CQ/assets-upload/blob/main/packages/%40assets/upload/src/components/AllInOneUpload.tsx#L22-L30
   loadCSS('/contenthub/hydration/hydration.css');
 
+  const {results:[{ facets }]} = await window.search.client.search([{
+    "indexName": window.search.indexName,
+    "params": {
+      "facets": [
+        "gmo-campaignName",
+        "gmo-programName"
+      ],
+    "hitsPerPage": 0,
+    "maxValuesPerFacet": 50,
+    "page": 0,
+    "query": "*"
+  }}]);
+
+  let facetOptions = {};
+  for(const [facet, counts] of Object.entries(facets)){
+    facetOptions[facet] = Object.keys(counts).sort().map((name) => ({id: name, name}));
+  }
+
   //Working on a solution so the form can tell us if it is finished.
   //Until that logic is built, we're making a quick solution to validate this form.
   let formValues = {};
@@ -170,14 +188,16 @@ export async function openUploadDialog() {
     {
       mapToProperty: 'gmo:campaignName',
       label: 'Campaign',
-      placeholder: 'Enter campaign name',
-      element: 'text',
+      placeholder: 'Select campaign',
+      element: 'dropdown',
+      dropdownOptions: [{id: '', name: 'N/A'}, ...facetOptions['gmo-campaignName']],
     },
     {
       mapToProperty: 'gmo:programName',
       label: 'Program',
-      placeholder: 'Enter program name',
-      element: 'text',
+      placeholder: 'Select program name',
+      element: 'dropdown',
+      dropdownOptions: facetOptions['gmo-programName'],
       required: true,
       requires: [{
         property: 'gmo:campaignName',
@@ -187,7 +207,7 @@ export async function openUploadDialog() {
     },
     {
       mapToProperty: 'gmo:deliverableType',
-      label: 'Deliverable Type',
+      label: 'Select deliverable type',
       element: 'dropdown',
       required: true,
       dropdownOptions: [
@@ -389,8 +409,6 @@ export async function openUploadDialog() {
       element: 'hidden',
     },
   ];
-
-
 
   //These buttons can be remade in React Spectrum if we move to that library
   const navDiv = document.createElement('div');
