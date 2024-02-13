@@ -190,7 +190,7 @@ export async function openUploadDialog() {
       label: 'Campaign',
       placeholder: 'Select campaign',
       element: 'dropdown',
-      dropdownOptions: [{id:'', name: 'N/A'}, ...facetOptions['gmo-campaignName']],
+      dropdownOptions: [{id: '', name: 'N/A'}, ...facetOptions['gmo-campaignName']],
     },
     {
       mapToProperty: 'gmo:programName',
