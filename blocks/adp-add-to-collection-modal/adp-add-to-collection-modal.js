@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  listCollection, createCollection, patchCollection, getCollection,
+  searchListCollection,listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
 import { getSelectedAssetsFromInfiniteResultsBlock, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
@@ -44,11 +44,20 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
 
     // Function to load more data when reaching the end of the dropdown
     const loadMoreData = async (cursor) => {
-      const collectionData = await listCollection({ cursor, limit: 10 }); // Adjust the limit as needed
+      //const collectionData = await listCollection({ cursor, limit: 10 }); // Adjust the limit as needed
+      const collectionData = await searchListCollection(10, page);
+      //const collectionData2 = await searchListCollection(10, page);
+      //Todo try this for now, but replace with same logic as cursor
+      page = page+1;
+
       return collectionData;
     };
 
+    //Todo delete the variable cursor when searchListCollection is working
     let cursor = null;
+
+    let page = 0;
+
 
     // Event listener to detect scroll and load more data when at the bottom
     dropdownSelect.addEventListener('scroll', async () => {
