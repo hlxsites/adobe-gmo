@@ -19,26 +19,16 @@ export default class CollectionsDatasource {
 
   lastPage = false;
 
-
-
   async showMore() {
-    debugger;
     //const list = await listCollection(5, this.cursor);
     const list = await searchListCollection(5, this.pageNumber);
-    //const list2 = await searchListCollection(5, this.pageNumber);
 
     //this.cursor = list.cursor;
     this.pageNumber += 1;
 
-
-
-    if (list.nbPages > this.pageNumber){
+    if (this.pageNumber >= list.nbPages){
       this.lastPage = true;
     }
-
-
-
-
 
     /*
     this.infiniteResultsContainer.resultsCallback(
@@ -76,10 +66,9 @@ export default class CollectionsDatasource {
     this.infiniteResultsContainer = infiniteResultsContainer;
     this.container = container;
 
-/*
-    const list = await listCollection(5, this.cursor);
-    const list2 = await searchListCollection(5, this.pageNumber);
-*/
+
+    //const list = await listCollection(5, this.cursor);
+
     const list = await searchListCollection(5, this.pageNumber);
 
     //this.cursor = list.cursor;

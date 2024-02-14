@@ -184,7 +184,7 @@ export async function getCollection(collectionId) {
     //const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId2}/items`, options);
 console.log("GET Collection URL");
 console.log(`${getBaseAssetsCollectionsUrl()}/${collectionId}/items`);
-debugger;
+
     const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}/items`, options);
 
     // Handle response codes
@@ -296,7 +296,7 @@ export async function createCollection(title, description, items) {
       headers: await getRequestHeaders(),
       body: JSON.stringify({ title, description, items }),
     };
-debugger;
+
     const response = await fetch(`${getBaseAssetsCollectionsUrl()}`, options);
 
     // Handle response codes
@@ -612,8 +612,6 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
 
     console.log('options');
     console.log(options);
-
-    debugger;
 
     //const collectionId2='urn:cid:aem:6156b683-27ba-4e70-82b4-fe97eb38ac19';
 
