@@ -31,16 +31,25 @@ const assetId = 'urn:aaid:aem:84da1fe2-3e89-4cd0-a9e5-4171af8ea6ed'; //should I 
 
 export default async function decorate(block) {
     block.innerHTML=`hello
-    <div class="button remove-bg">
-        <span class="button-text">Test Remove Background</span>
+    <div class="button show-modal">
+        <span class="button-text">Show Modal</span>
     </div>
-    <div class="button check-status">
-        <span class="button-text">Check Status</span>
-    </div>
-    <dialog autofocus aria-label="Photoshop" class="ps-workshop">
-        <div class="dialog-header">
-        </div>
-        <div class="dialog-body">
+    <dialog class="ps-workshop ps-dialog">
+        <div autofocus aria-label="Photoshop">
+            <div class="ps-dialog-area ps-dialog-header">
+                <span class="dialog-title">Title Here</span>
+            </div>
+            <div class="ps-dialog-area ps-dialog-body">
+                <span>Image goes here</span>
+            </div>
+            <div class="ps-dialog-area ps-dialog-controls">
+                <div class="button remove-bg">
+                    <span class="button-text">Remove BG</span>
+                </div>
+                <div class="button check-status">
+                    <span class="button-text">Check Status</span>
+                </div>
+            </div>
         </div>
     </dialog>`;
 
@@ -56,16 +65,20 @@ export default async function decorate(block) {
     statusButton.addEventListener('click', async () => {
         pollJobStatus();
     })
+    const showButton = block.querySelector(".show-modal");
+    showButton.addEventListener('click', () => {
+        openModal();
+    })
 }
 
 async function initAWS() {
-    const s3region = '';
+    const s3region = 'us-east-1';
     AWS.config.update({
         accessKeyId: s3key,
         secretAccessKey: s3secret,
         region: s3region
     });
-    s3 = new AWS.S3();
+    s3 = new AWS.S3({apiVersion: '2006-03-01', signatureVersion: 'v4'});
 }
 
 async function getAssetInfo() {
@@ -77,7 +90,7 @@ async function getAssetInfo() {
 
 async function removeBg() {
     await getAssetInfo();
-    const token = getPSToken();
+    const token = await getPSToken();
     const apiUrl = 'https://image.adobe.io/sensei/cutout';
     const storageType = 'external';
     console.log(uploadUrl);
@@ -94,8 +107,8 @@ async function removeBg() {
     const options = {
         method: 'POST',
         headers: {
-          'X-Api-Key': psKey,
-          Authorization: token,
+          'x-api-key': psKey,
+          'Authorization': 'Bearer ' + token,
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
         },
@@ -106,10 +119,13 @@ async function removeBg() {
         return response.json();
     });
     console.log(responseJson);
+    console.log(responseJson._links.self.href);
+    const checkBtn = document.querySelector(".check-status");
+    checkBtn.dataset.status = responseJson._links.self.href;
 }
 
 async function getUploadUrl() {
-    const filePath = 'test/psapi.jpg';
+    const filePath = 'mask.jpg'; //this needs to match the name of the output file
     const bucketName = 'psapibucket'; // put actual name here
     if (!s3) {
         await initAWS();
@@ -117,7 +133,7 @@ async function getUploadUrl() {
     var params = {
         Bucket: bucketName,
         Key: filePath, //path the uploaded file will live in
-        Expires: 60 // expiration time for the presigned URL in seconds
+        Expires: 3600 // expiration time for the presigned URL in seconds
     };
  
     const presignedUrl = await s3.getSignedUrl('putObject', params);
@@ -189,7 +205,8 @@ async function psMask(downloadURL, uploadURL) {
 }
 
 async function pollJobStatus(jobId) {
-    const statusUrl = 'https://image.adobe.io/sensei/status/' + jobId;
+    //const statusUrl = 'https://image.adobe.io/sensei/status/' + jobId;
+    const statusUrl = document.querySelector(".check-status").dataset.status;
     const token = await getPSToken();
     /*
     curl -X GET \
@@ -201,14 +218,13 @@ async function pollJobStatus(jobId) {
 
 
     const options = {
-        method: 'POST',
+        method: 'GET',
         headers: {
             'X-Api-Key': psKey,
-            Authorization: token,
+            'Authorization': 'Bearer ' + token,
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
-        },
-        body: JSON.stringify(inputs),
+        }
     };
     const responseJson = await fetch(statusUrl, options).then(response => {
         return response.json();
@@ -219,7 +235,10 @@ async function pollJobStatus(jobId) {
 }
 
 function openModal() {
-
+    document.body.classList.add('no-scroll');
+    const dialog = document.querySelector('.gmo-photoshop.block dialog');
+    //dialog.classList.add("show-dialog");
+    dialog.showModal();
 }
 
 function closeModal() {

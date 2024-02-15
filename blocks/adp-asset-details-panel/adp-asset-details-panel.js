@@ -141,6 +141,9 @@ export default async function decorate(block) {
               <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
                 <span class="icon icon-cc-express"></span>
               </button>
+              <button id="asset-details-ps-api" class="action action-asset-ps-api" title="Edit With PS APIs" aria-label="Edit With PS APIs">
+                <span class="icon icon-ps-icon"></span>
+              </button>
             </div>
             <div class="top-right">
               <button id="asset-details-fullscreen" class="action action-asset-fullscreen" title="Fullscreen" aria-label="Fullscreen">
@@ -173,6 +176,8 @@ export default async function decorate(block) {
     const { assetId } = block.dataset;
     openDownloadModal(assetId);
   });
+
+  
 
   // add event listeners
   block.querySelector('#asset-details-close').addEventListener('click', () => {

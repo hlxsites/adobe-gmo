@@ -17,3 +17,15 @@
         margin-left: 10px;
     }
 }
+.gmo-photoshop.block dialog.show-dialog {
+    display: block;
+}
+.ps-workshop {
+    width: 800px;
+}
+.ps-dialog-area {
+    width: 100%;
+}
+.ps-dialog-controls {
+    display: inline-flex;
+}

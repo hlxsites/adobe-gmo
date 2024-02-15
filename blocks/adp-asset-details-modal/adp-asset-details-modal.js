@@ -270,6 +270,9 @@ export default function decorate(block) {
           <button id="asset-details-express" class="action action-edit-asset" title="Edit in Express" aria-label="Edit in Express">
             <span class="icon icon-cc-express"></span>
           </button>
+          <button id="asset-details-ps-api" class="action action-asset-ps-api" title="Edit With PS APIs" aria-label="Edit With PS APIs">
+            <span class="icon icon-ps-icon"></span>
+          </button>
         </div>
       </div>
     </dialog>`;
