@@ -58,6 +58,8 @@ export default async function decorate(block) {
                 <textarea id="imageRef" name="imageRef" role="genFill" class="input" maxlength="100" placeholder="Supply an image reference"></textarea>
                 <textarea id="maskRef" name="maskRef" role="genFill" class="input" maxlength="100" placeholder="Supply a mask reference"></textarea>
                 <textarea id="input" name="input" role="text2image" class="input" maxlength="1024" placeholder="Add your text prompt here"></textarea>
+                <label for="bearertoken" class="label-margin-top">Bearer Token:</label>
+                <textarea id="bearertoken" name="bearertoken" role="text2image" class="input" maxlength="1024" placeholder="Supply a valid bearer token"></textarea>
                 <div class="filedrop hide" id="filedrop">
                     <p>Upload multiple images with the file dialog or by dragging and dropping images into the dashed region.</p>
                     <input type="file" id="fileElem" multiple accept="image/*">
@@ -210,6 +212,13 @@ function chooseAPI() {
 
 async function getFFToken() {
     if (!bearerToken) {
+        // check bearer token dialog to see if user supplied one
+        const tokenInput = document.querySelector("#bearertoken").value;
+        if (tokenInput) {
+            bearerToken = tokenInput;
+            return bearerToken;
+        }
+
         const imsURL = `https://ims-na1.adobelogin.com/ims/token/v3?client_id=${apiKey}`;
         const scope = 'openid,AdobeID,firefly_api';
         const options = {
@@ -358,11 +367,23 @@ async function genExpand() {
     let newToken = await getFFToken();
 
     const imageSrc = baseImage.src;
-    const imageType = imageSrc.substring(imageSrc.indexOf('data:') + 5,imageSrc.indexOf(';base64'));
+    let imageType = imageSrc.substring(imageSrc.indexOf('data:') + 5,imageSrc.indexOf(';base64'));
+    let blob;
 
     if (baseRef === "undefined") {
-        const baseString = imageSrc.slice(imageSrc.indexOf(';base64') + 8, imageSrc.length);
-        const blob = await b64toBlob(baseString, imageType);
+        if (imageType === "http") {
+            // presigned URL, get the blob
+            blob = await fetch(imageSrc).then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+            });
+            console.log(blob);
+            imageType = 'image/jpeg';
+        } else {
+            const baseString = imageSrc.slice(imageSrc.indexOf(';base64') + 8, imageSrc.length);
+            blob = await b64toBlob(baseString, imageType);
+        }
         baseRef = await uploadImage(blob, imageType);
     }
 
