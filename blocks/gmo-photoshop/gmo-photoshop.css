@@ -29,3 +29,12 @@
 .ps-dialog-controls {
     display: inline-flex;
 }
+.ps-dialog-body {
+    height: 800px;
+}
+.ps-dialog-header {
+    margin-bottom: 25px;
+}
+.orig-asset.shrink {
+    width: 150px;
+}

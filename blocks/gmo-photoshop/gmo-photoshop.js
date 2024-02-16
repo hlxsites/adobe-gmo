@@ -42,6 +42,8 @@ export default async function decorate(block) {
             <div class="ps-dialog-area ps-dialog-body">
                 <span>Image goes here</span>
             </div>
+            <div class="ps-dialog-area ps-dialog-orig">
+            </div>
             <div class="ps-dialog-area ps-dialog-controls">
                 <div class="button remove-bg">
                     <span class="button-text">Remove BG</span>
@@ -56,6 +58,7 @@ export default async function decorate(block) {
 
     // do more stuff here
     await initAWS();
+    await getAssetInfo();
 
     const rbgButton = block.querySelector(".remove-bg");
     rbgButton.addEventListener('click', async () => {
@@ -67,7 +70,7 @@ export default async function decorate(block) {
     })
     const showButton = block.querySelector(".show-modal");
     showButton.addEventListener('click', () => {
-        openModal();
+        openModal(downloadUrl);
     })
 }
 
@@ -85,11 +88,11 @@ async function getAssetInfo() {
     assetJSON = await getAssetMetadata(assetId);
     assetName = getAssetName(assetJSON);
     downloadUrl = await getDownloadUrl(assetId, assetName);
-    uploadUrl = await getUploadUrl();
+    uploadUrl = await getPresignedURL('putObject');
 }
 
 async function removeBg() {
-    await getAssetInfo();
+    //await getAssetInfo();
     const token = await getPSToken();
     const apiUrl = 'https://image.adobe.io/sensei/cutout';
     const storageType = 'external';
@@ -124,8 +127,8 @@ async function removeBg() {
     checkBtn.dataset.status = responseJson._links.self.href;
 }
 
-async function getUploadUrl() {
-    const filePath = 'mask.jpg'; //this needs to match the name of the output file
+async function getPresignedURL(type) {
+    const filePath = 'psapi.jpg'; //this needs to match the name of the output file
     const bucketName = 'psapibucket'; // put actual name here
     if (!s3) {
         await initAWS();
@@ -136,7 +139,7 @@ async function getUploadUrl() {
         Expires: 3600 // expiration time for the presigned URL in seconds
     };
  
-    const presignedUrl = await s3.getSignedUrl('putObject', params);
+    const presignedUrl = await s3.getSignedUrl(type, params);
     //console.log(presignedUrl);
     return presignedUrl;
 }
@@ -230,14 +233,61 @@ async function pollJobStatus(jobId) {
         return response.json();
     });
     console.log(responseJson);
+    if (responseJson.status == 'succeeded') {
+        console.log(`job's done`);
+        shrinkOriginal();
+        //const resultUrl = responseJson.output.href;
+        const result = await getPresignedURL('getObject');
+        const responseBlob = await fetch(result).then(response => {
+            return response.blob();
+        });
+        const resultImg = await base64Encode(responseBlob);
+        
+        //appendImgToRoot(resultUrl);
+        //need a presigned get URL for the object it created
+        appendImgToRoot(resultImg);
+        // next, move original image element to some 'holding area' or w/e
+        // then show results as the big image
+    }
     //const jobStatus = responseJson['access_token'];
 
 }
 
-function openModal() {
+async function base64Encode(image) {
+    return new Promise((resolve) => {
+      const fr = new FileReader();
+      fr.onloadend = () => { resolve(fr.result); };
+      fr.readAsDataURL(image);
+    });
+}
+
+function shrinkOriginal() {
+    const origFileArea = document.querySelector(".ps-dialog-orig");
+    console.log(origFileArea.hasChildNodes());
+    if (origFileArea.childNodes.length <= 1) {
+        const origImg = document.querySelector(".orig-asset");
+        origImg.classList.add("shrink");
+        origFileArea.appendChild(origImg);
+    }
+}
+
+function appendImgToRoot(imageUrl) {
+    const imageRoot = document.querySelector('.ps-dialog-body');
+    const imageEl = document.createElement('div');
+    imageEl.innerHTML = `<img class="orig-asset" src="` + imageUrl + `"/>`;
+    //dialog.classList.add("show-dialog");
+    imageRoot.appendChild(imageEl);
+}
+
+function openModal(imageUrl) {
     document.body.classList.add('no-scroll');
     const dialog = document.querySelector('.gmo-photoshop.block dialog');
+    appendImgToRoot(imageUrl);
+    /*const imageRoot = dialog.querySelector('.ps-dialog-body');
+    const imageEl = document.createElement('div');
+    imageEl.innerHTML = `<img class="orig-asset" src="` + imageUrl + `"/>`;
     //dialog.classList.add("show-dialog");
+    imageRoot.appendChild(imageEl);*/
     dialog.showModal();
 }
 
