@@ -2,10 +2,11 @@ import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 import {
   getCollectionID,
   getCollectionTitle,
-  listCollection,
   searchListCollection,
 } from '../../scripts/collections.js';
 import { createCollectionCardElement } from '../../scripts/card-html-builder.js';
+
+//Todo Pagination needs to be fixed not all cards are shown when there are a lot collections to show
 
 export default class CollectionsDatasource {
   //cursor;

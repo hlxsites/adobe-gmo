@@ -7,11 +7,6 @@ import { getPathParams, logError } from './scripts.js';
 import { emitEvent, EventNames } from './events.js';
 
 export function getCollectionIdFromURL() {
-  /* Todo remove this comment
-  if (window.location.pathname.startsWith('/collection/')) {
-    return getPathParams().at(-1);
-  }
-  */
   if (window.location.pathname.includes('/collection/')) {
     return getPathParams().at(-1);
   }
@@ -33,16 +28,6 @@ export function getAssetIdFromCollectionItem(assetItem) {
   return assetItem.id;
 }
 
-/* Todo delete this function when code is complete */
-async function getRequestHeadersOriginal() {
-  const token = await getBearerToken();
-  return {
-    'Content-Type': 'application/json',
-    'x-api-key': await getAssetHandlerApiKey(),
-    Authorization: token,
-  };
-}
-
 async function getRequestHeadersSearchCollections() {
   const token = await getBearerToken();
   return {
@@ -54,26 +39,15 @@ async function getRequestHeadersSearchCollections() {
   };
 }
 
-
 async function getRequestHeaders() {
+
   const token = await getBearerToken();
+
   return {
     'Content-Type': 'application/json',
     'x-api-key': await getAssetHandlerApiKey(),
     'Authorization': token,
-    'x-ch-request': 'collection',
     'X-Adobe-Accept-Experimental': '1',
-  };
-}
-
-/* Todo delete this function when code is complete */
-async function getRequestHeadersWithIfMatch(etag) {
-  const token = await getBearerToken();
-  return {
-    'Content-Type': 'application/json',
-    'x-api-key': await getAssetHandlerApiKey(),
-    Authorization: token,
-    'If-Match': etag,
   };
 }
 
@@ -117,47 +91,6 @@ export function getBaseAssetsCollectionsUrl() {
   return `${getDeliveryEnvironment()}/adobe/assets/collections`;
 }
 
-
-
-
-/**
- * Todo Delete this function after code is complete
- * Retrieves a collection by its unique identifier.
- *
- * @param {string} collectionId - The unique identifier of the collection to retrieve.
- * @returns {Promise<object>} A promise that resolves with the retrieved collection.
- * @throws {Error} If an HTTP error or network error occurs.
- */
-export async function getCollectionOld(collectionId) {
-  try {
-    const options = {
-      method: 'GET',
-      headers: await getRequestHeaders(),
-    };
-
-    const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
-
-    // Handle response codes
-    if (response.status === 200) {
-      // Collection retrieved successfully
-      const responseBody = await response.json();
-      responseBody.etag = response.headers.get('If-none-match');
-      return responseBody;
-    } if (response.status === 404) {
-      // Handle 404 error
-      const errorResponse = await response.json();
-      throw new Error(`Failed to get collection (404): ${errorResponse.detail}`);
-    } else {
-      // Handle other response codes
-      throw new Error(`Failed to retrieve collection: ${response.status} ${response.statusText}`);
-    }
-  } catch (error) {
-    // Handle network or other errors
-    logError('getCollection', error);
-    throw error;
-  }
-}
-
 /**
  * Retrieves a collection by its unique identifier.
  *
@@ -168,43 +101,24 @@ export async function getCollectionOld(collectionId) {
 export async function getCollection(collectionId) {
   try {
 
+
     const options = {
       method: 'GET',
       headers: await getRequestHeaders(),
     };
 
-  //Todo delete logging
-  console.log("Options");
-  console.log(options);
-
-    //const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
-
-    //const collectionId2='urn:cid:aem:6156b683-27ba-4e70-82b4-fe97eb38ac19';
-
-    //const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId2}/items`, options);
-console.log("GET Collection URL");
-console.log(`${getBaseAssetsCollectionsUrl()}/${collectionId}/items`);
-
     const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}/items`, options);
 
     // Handle response codes
     if (response.status === 200) {
-      // Collection retrieved successfully
 
-    const responseBody = await response.json();
-     //responseBody.etag = response.headers.get('If-none-match');//Old getCollection
+    let responseBody = await response.json();
+
     responseBody.etag = response.headers.get('Etag');
-
-
-//Todo Delete Debug Code
-    // Access the response headers
-    const headers = response.headers;
-    console.log("Show Response Headers")
-    // Loop through and log all headers
-    headers.forEach((value, name) => {
-      console.log(`${name}: ${value}`);
-    });
-//Todo Delete Debug Code
+    if (responseBody.self[0].collectionMetadata.title)
+      responseBody.title = responseBody.self[0].collectionMetadata.title;
+    else
+      responseBody.title = '';
 
       return responseBody;
     } if (response.status === 404) {
@@ -335,6 +249,10 @@ export async function createCollection(title, description, items) {
 }
 
 /**
+ * Deprecated getAllCollections API not implemented yet
+ *
+ * https://adobe-aem-assets-delivery-experimental.redoc.ly/#operation/getAllCollections
+ *
  * Lists collections with optional limit and cursor parameters.
  *
  * @param {number} - The optional maximum number of collections to retrieve.
@@ -354,31 +272,14 @@ export async function listCollection(limit = undefined, cursor = '') {
     queryParams.append('cursor', cursor);
   }
 
-/*
   const options = {
     method: 'GET',
     headers: await getRequestHeaders(),
-  };
-*/
-
-  const options = {
-    method: 'GET',
-    headers: await getRequestHeadersOriginal(),
   };
 
   // Include the query parameters in the URL
   const queryString = queryParams.toString();
   const url = `${getBaseCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
-
-  //New List Collection is not working yet
-  //const url = `${getBaseAssetsCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
-
-  console.log('options');
-  console.log(options);
-
-  console.log('url');
-  console.log(url);
-
 
   try {
     const response = await fetch(url, options);
@@ -418,6 +319,7 @@ export async function searchListCollection(limit = undefined, page = 0) {
     queryParams.append('page', page);
   }
 
+  //Todo add the indexName in a config file hardcode for now
   const indexName ="108396-1046543_collections";
 
   const data = {
@@ -447,15 +349,6 @@ export async function searchListCollection(limit = undefined, page = 0) {
   const queryString = queryParams.toString();
   const url = `${getSearchCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
 
-  //New List Collection is not working yet
-  //const url = `${getBaseAssetsCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
-
-  console.log('options');
-  console.log(options);
-
-  console.log('url');
-  console.log(url);
-
   try {
     const response = await fetch(url, options);
     // Handle response codes
@@ -473,8 +366,7 @@ export async function searchListCollection(limit = undefined, page = 0) {
           description: hit.collectionMetadata.metadata ? hit.collectionMetadata.metadata.description : hit.collectionMetadata.description
         }))
       };
-
-      console.log(transformedData);
+      //console.log(transformedData);
 
       return transformedData;
     }
@@ -485,90 +377,6 @@ export async function searchListCollection(limit = undefined, page = 0) {
     throw error;
   }
 }
-
-
-/*
-export async function searchListCollection(limit = undefined, cursor = '') {
-}
-*/
-
-
-/**
- * Todo Delete this function after code is complete
- * Updates a collection using JSON patch operations.
- *
- * @param {string} collectionId - The unique identifier of the collection to patch.
- * @param {string} etag - The entity tag (ETag) value to use for conditional requests.
- * @param {object} addOperation - The JSON patch operation to add an item to the collection (optional).
- * @param {object} deleteOperation - The JSON patch operation to remove an item from the collection (optional).
-* @returns {Promise<void>} A promise that resolves when the collection is updated.
- * @throws {Error} If an HTTP error or network error occurs.
- */
-export async function patchCollectionOld(collectionId, etag, addOperation = '', deleteOperation = '') {
-  try {
-    const patchOperations = [];
-    if (addOperation) {
-      for (const op of addOperation) {
-        op.op = 'add';
-        patchOperations.push(op);
-      }
-    }
-    if (deleteOperation) {
-      for (const op of deleteOperation) {
-        op.op = 'remove';
-        patchOperations.push(op);
-      }
-    }
-    const options = {
-      method: 'PATCH',
-      headers: await getRequestHeadersWithIfMatch(etag),
-      body: JSON.stringify(patchOperations),
-    };
-    const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
-
-    if (response.status === 200) {
-      const responseBody = await response.json();
-
-      if (addOperation) {
-        const assetsArray = addOperation.map((obj) => ({ assetId: obj.value.id, assetName: obj.value.name }));
-        const collectionDetails = {
-          collectionName: responseBody.title,
-          collectionId: responseBody.id,
-          assets: assetsArray,
-        };
-        emitEvent(document.documentElement, EventNames.ADD_TO_COLLECTION, collectionDetails);
-      } else if (deleteOperation) {
-        const assetsArray = deleteOperation.map((obj) => ({ assetId: obj.value.id, assetName: obj.value.name }));
-        const collectionDetails = {
-          collectionName: responseBody.title,
-          collectionId: responseBody.id,
-          assets: assetsArray,
-        };
-        emitEvent(document.documentElement, EventNames.DELETE_FROM_COLLECTION, collectionDetails);
-      }
-
-      return responseBody;
-    } if (response.status === 400) {
-      // Handle 400 error
-      const errorResponse = await response.json();
-      throw new Error(`Failed to patch collection (400): ${errorResponse.detail}`);
-    } else if (response.status === 404) {
-      // Handle 404 error
-      const errorResponse = await response.json();
-      throw new Error(`Failed to patch collection (404): ${errorResponse.detail}`);
-    } else if (response.status === 412) {
-      // Handle 412 error
-      const errorResponse = await response.json();
-      throw new Error(`Failed to patch collection (412): ${errorResponse.detail}`);
-    } else {
-      throw new Error(`Failed to update collection: ${response.status} ${response.statusText}`);
-    }
-  } catch (error) {
-    logError('patchCollection', error);
-    throw error;
-  }
-}
-
 
 /**
  * Updates a collection using JSON patch operations.
@@ -581,18 +389,8 @@ export async function patchCollectionOld(collectionId, etag, addOperation = '', 
  * @throws {Error} If an HTTP error or network error occurs.
  */
 export async function patchCollection(collectionId, etag, addOperation = '', deleteOperation = '') {
-
   try {
 
-    /* Expected Body
-    [
-      {
-        "op": "add",
-        "id": "urn:aaid:aem:ffe295fb-7e6a-462a-91f7-ab34cf6ee13d",
-        "type": "asset"
-      }
-    ]
-    */
     const patchOperations = [];
     if (addOperation) {
       for (const op of addOperation) {
@@ -610,26 +408,9 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
       body: JSON.stringify(patchOperations),
     };
 
-    console.log('options');
-    console.log(options);
-
-    //const collectionId2='urn:cid:aem:6156b683-27ba-4e70-82b4-fe97eb38ac19';
-
-
     const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}`, options);
 
-    //const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId2}/items`, options);
-
-
     if (response.status === 200 || response.status === 204) {
-
-
-      console.log('Patch Collection Success!!');
-
-
-      //const responseBody = await response.json();
-
-      //const responseBody = await getCollection(collectionId2);
 
       const responseBody = await getCollection(collectionId);
 
@@ -652,9 +433,6 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
         };
         emitEvent(document.documentElement, EventNames.DELETE_FROM_COLLECTION, collectionDetails);
       }
-
-
-
       return responseBody;
     } if (response.status === 400) {
       // Handle 400 error
