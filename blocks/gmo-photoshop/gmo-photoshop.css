@@ -30,7 +30,8 @@
     display: inline-flex;
 }
 .ps-dialog-body {
-    height: 800px;
+    min-height: 800px;
+    
 }
 .ps-dialog-header {
     margin-bottom: 25px;
