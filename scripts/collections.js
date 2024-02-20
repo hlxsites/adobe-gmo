@@ -279,9 +279,13 @@ export async function searchListCollection(limit = undefined, page = 0) {
   //Todo add the indexName in a config file hardcode for now
   const indexName ="108396-1046543_collections";
 
-  const data = {
-     "requests": [
-         {
+  let data = {};
+
+  if (page!=null)
+  {
+    data = {
+      "requests": [
+        {
              "indexName": indexName,
              "params": {
                  "facets": [],
@@ -293,8 +297,29 @@ export async function searchListCollection(limit = undefined, page = 0) {
                  "tagFilters": ""
              }
          }
-     ]
-  };
+      ]
+    };
+  }
+  else
+  {
+    //No page parameter
+    data = {
+      "requests": [
+        {
+             "indexName": indexName,
+             "params": {
+                 "facets": [],
+                 "highlightPostTag": "__/ais-highlight__",
+                 "highlightPreTag": "__ais-highlight__",
+                 "hitsPerPage": limit,
+                 "query": "",
+                 "tagFilters": ""
+             }
+         }
+      ]
+    };
+  }
+
 
   const options = {
     method: 'POST',

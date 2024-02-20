@@ -43,27 +43,30 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
     dropdownSelect.classList.add('add-to-existing-dropdown'); // Add the new class
 
     // Function to load more data when reaching the end of the dropdown
-    const loadMoreData = async (cursor) => {
+    //const loadMoreData = async (cursor) => {
+    const loadMoreData = async (page) => {
       //const collectionData = await listCollection({ cursor, limit: 10 }); // Adjust the limit as needed
       //Todo fix logic to show all collections
-      const collectionData = await searchListCollection(100, page);
+
+      const collectionData = await searchListCollection(20, page);
 
       //Todo try this for now, but replace with same logic as cursor
-      page = page+1;
+      //page = page+1;
 
       return collectionData;
     };
 
     //Todo delete the variable cursor when searchListCollection is working
-    //let cursor = null;
+    let cursor = null;
 
-    let page = 0;
+    let page = null;
 
 
     // Event listener to detect scroll and load more data when at the bottom
     dropdownSelect.addEventListener('scroll', async () => {
       if (dropdownSelect.scrollTop + dropdownSelect.clientHeight >= dropdownSelect.scrollHeight) {
-        const moreData = await loadMoreData(cursor);
+        //const moreData = await loadMoreData(cursor);
+        const moreData = await loadMoreData(page);
         if (moreData.items.length > 0) {
           // Update the cursor for the next load
           cursor = moreData.cursor;
@@ -80,10 +83,15 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
     });
 
     // Initial data loading
-    const initialData = await loadMoreData(cursor);
+    //const initialData = await loadMoreData(cursor);
+    const initialData = await loadMoreData(page);
     if (initialData.items.length > 0) {
       // Update the cursor for the next load
       cursor = initialData.cursor;
+      if (page==null)
+        page=0;
+
+      page = page +1;
 
       // Populate the options in the dropdown with the initial data
       initialData.items.forEach((collection) => {
@@ -165,19 +173,12 @@ export async function openModal(items) {
         });
       }
 
-/*Todo Delete this getCollection */
-      getCollection('urn:cid:aem:8f67c491-347a-4c50-a55b-aad555671b22')
-        .then((collection) => {
-          const { etag } = collection;
-          patchCollection(collectionId, etag, payload);
-        });
-/*
       getCollection(collectionId)
         .then((collection) => {
           const { etag } = collection;
           patchCollection(collectionId, etag, payload);
         });
-*/
+
       resetDialogState();
     }
 
