@@ -69,7 +69,8 @@ async function getRequestHeadersWithIfMatchPatchJSON(etag) {
   return {
     'Content-Type': 'application/json-patch+json',
     'x-api-key': await getAssetHandlerApiKey(),
-    Authorization: token,
+    'Authorization': token,
+    'X-Adobe-Accept-Experimental': '1',
     'If-Match': etag,
   };
 }
@@ -357,13 +358,15 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
         patchOperations.push({'op':'remove', 'id':op.value.id, 'type': 'asset'});
       }
     }
+
+
     const options = {
       method: 'POST',
       headers: await getRequestHeadersWithIfMatchPatchJSON(etag),
       body: JSON.stringify(patchOperations),
     };
 
-    const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}`, options);
+    const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}/items`, options);
 
     if (response.status === 200 || response.status === 204) {
 
