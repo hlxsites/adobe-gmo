@@ -51,6 +51,19 @@ async function getRequestHeaders() {
   };
 }
 
+async function getRequestHeadersWithEtag(etag) {
+
+  const token = await getBearerToken();
+
+  return {
+    'Content-Type': 'application/json',
+    'x-api-key': await getAssetHandlerApiKey(),
+    'Authorization': token,
+    'X-Adobe-Accept-Experimental': '1',
+    'If-Match': etag,
+  };
+}
+
 async function getRequestHeadersWithIfMatchPatchJSON(etag) {
   const token = await getBearerToken();
   return {
@@ -135,63 +148,6 @@ export async function getCollection(collectionId) {
     throw error;
   }
 }
-
-/**
- * Todo Delete this function after code is complete
- * Creates a new collection. (Old/Deprecated)
- *
- * @param {string} title - The title of the new collection.
- * @param {string} description - The description of the new collection (optional).
- * @param {Array<object>} items - An array of items to include in the collection (optional).
- * @param {object} collectionDetails - From the collection modal to be used by emitEvent
- * @returns {Promise<object>} A promise that resolves with the created collection.
- * @throws {Error} If an HTTP error or network error occurs.
- */
-export async function createCollectionOld(title, description, items) {
-  try {
-    const options = {
-      method: 'POST',
-      headers: await getRequestHeaders(),
-      body: JSON.stringify({ title, description, items }),
-    };
-
-    const response = await fetch(`${getBaseCollectionsUrl()}`, options);
-
-    // Handle response codes
-    if (response.status === 200) {
-      // Collection created successfully
-      const responseBody = await response.json();
-
-      const assetsArray = items.map((obj) => ({ assetId: obj.id, assetName: obj.name }));
-
-      const collectionDetails = {
-        collectionName: title,
-        collectionId: responseBody.id,
-        assets: assetsArray,
-      };
-      // Emit create creation event
-      emitEvent(document.documentElement, EventNames.CREATE_COLLECTION, collectionDetails);
-
-      return responseBody;
-    } if (response.status === 400) {
-      // Handle 400 error
-      const errorResponse = await response.json();
-      throw new Error(`Failed to create collection (400): ${errorResponse.detail}`);
-    } else if (response.status === 404) {
-      // Handle 404 error
-      const errorResponse = await response.json();
-      throw new Error(`Failed to create collection (404): ${errorResponse.detail}`);
-    } else {
-      // Handle other response codes
-      throw new Error(`Failed to create collection: ${response.status} ${response.statusText}`);
-    }
-  } catch (error) {
-    // Handle network or other errors
-    logError('createCollection', error);
-    throw error;
-  }
-}
-
 
 /**
  * Creates a new collection.
@@ -366,7 +322,6 @@ export async function searchListCollection(limit = undefined, page = 0) {
           description: hit.collectionMetadata.metadata ? hit.collectionMetadata.metadata.description : hit.collectionMetadata.description
         }))
       };
-      //console.log(transformedData);
 
       return transformedData;
     }
@@ -459,17 +414,20 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
  * Deletes a collection.
  *
  * @param {string} collectionId - The unique identifier of the collection to delete.
+ * @param {string} collectionName - Collection name used for emit delete event.
+ * @param {string} etag - Used for in the header for the delete operation.
  * @returns {Promise<void>} A promise that resolves when the collection is updated.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-export async function deleteCollection(collectionId, collectionName) {
+export async function deleteCollection(collectionId, collectionName, etag) {
   try {
+
     const options = {
       method: 'DELETE',
-      headers: await getRequestHeaders(),
+      headers: await getRequestHeadersWithEtag(etag),
     };
 
-    const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
+    const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}`, options);
 
     if (response.status !== 204) {
       throw new Error(`Failed to delete collection: ${response.status} ${response.statusText}`);

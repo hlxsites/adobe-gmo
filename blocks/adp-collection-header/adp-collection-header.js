@@ -4,6 +4,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 
 function createCollectionInfoHeader(collectionInfoHeader, collection) {
+
   // include back to collections listing similar to hide filters button
   collectionInfoHeader.innerHTML = `
         <div class="adp-collection-header-left">
@@ -36,7 +37,7 @@ function createCollectionInfoHeader(collectionInfoHeader, collection) {
         'Delete collection',
         `Are you sure you want to delete the collection "${collection.title}"?`,
         async () => {
-          await deleteCollection(collectionId, collection.title);
+          await deleteCollection(collectionId, collection.title, collection.etag);
           navigateTo(createLinkHref('/collections'));
         },
         'Proceed',
