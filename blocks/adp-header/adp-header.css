@@ -543,16 +543,3 @@ header nav {
   align-items: center;
   padding: 0 16px;
 }
-
-.upload-actions {
-  width: 100%;
-  margin: 0 1em;
-}
-
-.upload-actions button {
-  float: right;
-}
-
-.upload-actions button.disabled {
-  background-color: var(--overlay-background-color);
-}
