@@ -337,6 +337,13 @@ export async function searchListCollection(limit = undefined, page = 0) {
     if (response.status === 200) {
       // Collection retrieved successfully
       const responseBody = await response.json();
+
+//Todo delete debug
+console.log('options');
+console.log(options);
+console.log('responseBody');
+console.log(responseBody);
+//Todo delete debug
       // Transform the data
       let transformedData = {
         page: responseBody.results[0].page,

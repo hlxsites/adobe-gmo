@@ -48,7 +48,8 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
       //const collectionData = await listCollection({ cursor, limit: 10 }); // Adjust the limit as needed
       //Todo fix logic to show all collections
 
-      const collectionData = await searchListCollection(20, page);
+      //const collectionData = await searchListCollection(100, page);
+      const collectionData = await searchListCollection(100, null);
 
       //Todo try this for now, but replace with same logic as cursor
       //page = page+1;
@@ -64,6 +65,7 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
 
     // Event listener to detect scroll and load more data when at the bottom
     dropdownSelect.addEventListener('scroll', async () => {
+debugger;
       if (dropdownSelect.scrollTop + dropdownSelect.clientHeight >= dropdownSelect.scrollHeight) {
         //const moreData = await loadMoreData(cursor);
         const moreData = await loadMoreData(page);
