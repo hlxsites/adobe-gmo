@@ -36,13 +36,42 @@
 }
 
 #hydration-upload-dialog .dialog-body {
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 4em);
+  height: 100%;
+  padding: 0 2em 1em 2em;
+}
+
+#hydration-upload-dialog h4 {
+  font-size: large;
+  font-weight: normal;
+  margin: 1em 0;
+}
+
+#hydration-upload-dialog .dialog-body #hydration-container {
   flex-grow: 1;
   overflow: auto;
-  padding: 2em;
 }
 
 #hydration-upload-dialog .dialog-footer {
   display: flex;
   justify-content: flex-end;
-  padding-bottom: 20px;
+  margin: 0em 2em 0.5em 2em;
+
+}
+
+#hydration-upload-dialog .dialog-footer button{
+  float: right;
+  margin-left: 1em;
+}
+
+#hydration-upload-dialog .upload-actions button.disabled {
+  background-color: var(--overlay-background-color);
+}
+
+#hydration-upload-dialog .upload-actions button.close-upload-assets {
+  background-color: inherit;
+  color: inherit;
+  border: solid;
 }
