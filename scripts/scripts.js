@@ -213,6 +213,14 @@ async function loadEager(doc) {
   }
 }
 
+async function initializeServiceWorkers() {
+  if (window.location.hostname.includes('localhost')) {
+    const sw = await navigator.serviceWorker.register('/localdata.js');
+    // eslint-disable-next-line no-console
+    console.log('ServiceWorker registered', sw);
+  }
+}
+
 /**
  * Adds the favicon.
  * @param {string} href The favicon URL
@@ -245,7 +253,9 @@ async function loadLazy(doc) {
         window.location.href = NO_ACCESS_PATH;
         return;
       }
-
+      // This is a dev only service worker that caches the algolia JS SDK
+      // check if we are on localhost
+      await initializeServiceWorkers();
       // Make sure all dependencies are loaded before initializing search
       // - we load them in parallel by leveraging the promise
     } else if (await checkUserAccess()) {

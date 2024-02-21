@@ -206,55 +206,6 @@ export async function createCollection(title, description, items) {
 }
 
 /**
- * Deprecated getAllCollections API not implemented yet
- *
- * https://adobe-aem-assets-delivery-experimental.redoc.ly/#operation/getAllCollections
- *
- * Lists collections with optional limit and cursor parameters.
- *
- * @param {number} - The optional maximum number of collections to retrieve.
- * @param {string} - The optional cursor for paginating the results.
- * @returns {Promise<object>} A promise that resolves with a list of collections.
- * @throws {Error} If an HTTP error or network error occurs.
- */
-export async function listCollection(limit = undefined, cursor = '') {
-  // Construct the query parameters
-  const queryParams = new URLSearchParams();
-
-  if (limit) {
-    queryParams.append('limit', limit);
-  }
-
-  if (cursor) {
-    queryParams.append('cursor', cursor);
-  }
-
-  const options = {
-    method: 'GET',
-    headers: await getRequestHeaders(),
-  };
-
-  // Include the query parameters in the URL
-  const queryString = queryParams.toString();
-  const url = `${getBaseCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
-
-  try {
-    const response = await fetch(url, options);
-    // Handle response codes
-    if (response.status === 200) {
-      // Collection retrieved successfully
-      const responseBody = await response.json();
-      return responseBody;
-    }
-    // Handle other response codes
-    throw new Error(`Failed to list collection: ${response.status} ${response.statusText}`);
-  } catch (error) {
-    logError('listCollection', error);
-    throw error;
-  }
-}
-
-/**
  * Search Lists collections with optional limit and page parameters.
  *
  * @param {number} - The optional maximum number of collections to retrieve.
@@ -262,7 +213,6 @@ export async function listCollection(limit = undefined, cursor = '') {
  * @returns {Promise<object>} A promise that resolves with a list of collections.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-
 
 export async function searchListCollection(limit = undefined, page = 0) {
   // Construct the query parameters
@@ -279,11 +229,7 @@ export async function searchListCollection(limit = undefined, page = 0) {
   //Todo add the indexName in a config file hardcode for now
   const indexName ="108396-1046543_collections";
 
-  let data = {};
-
-  if (page!=null)
-  {
-    data = {
+  const data = {
       "requests": [
         {
              "indexName": indexName,
@@ -299,27 +245,6 @@ export async function searchListCollection(limit = undefined, page = 0) {
          }
       ]
     };
-  }
-  else
-  {
-    //No page parameter
-    data = {
-      "requests": [
-        {
-             "indexName": indexName,
-             "params": {
-                 "facets": [],
-                 "highlightPostTag": "__/ais-highlight__",
-                 "highlightPreTag": "__ais-highlight__",
-                 "hitsPerPage": limit,
-                 "query": "",
-                 "tagFilters": ""
-             }
-         }
-      ]
-    };
-  }
-
 
   const options = {
     method: 'POST',
@@ -338,12 +263,6 @@ export async function searchListCollection(limit = undefined, page = 0) {
       // Collection retrieved successfully
       const responseBody = await response.json();
 
-//Todo delete debug
-console.log('options');
-console.log(options);
-console.log('responseBody');
-console.log(responseBody);
-//Todo delete debug
       // Transform the data
       let transformedData = {
         page: responseBody.results[0].page,

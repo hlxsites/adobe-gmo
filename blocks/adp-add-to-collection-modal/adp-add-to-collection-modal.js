@@ -45,34 +45,19 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
     // Function to load more data when reaching the end of the dropdown
     //const loadMoreData = async (cursor) => {
     const loadMoreData = async (page) => {
-      //const collectionData = await listCollection({ cursor, limit: 10 }); // Adjust the limit as needed
-      //Todo fix logic to show all collections
-
-      //const collectionData = await searchListCollection(100, page);
-      const collectionData = await searchListCollection(100, null);
-
-      //Todo try this for now, but replace with same logic as cursor
-      //page = page+1;
-
+      const collectionData = await searchListCollection(100, page);
       return collectionData;
     };
 
-    //Todo delete the variable cursor when searchListCollection is working
-    let cursor = null;
-
-    let page = null;
-
+    let page = 0;
 
     // Event listener to detect scroll and load more data when at the bottom
     dropdownSelect.addEventListener('scroll', async () => {
-debugger;
       if (dropdownSelect.scrollTop + dropdownSelect.clientHeight >= dropdownSelect.scrollHeight) {
-        //const moreData = await loadMoreData(cursor);
         const moreData = await loadMoreData(page);
         if (moreData.items.length > 0) {
-          // Update the cursor for the next load
-          cursor = moreData.cursor;
-
+          //Update page to next load
+          page++;
           // Populate the options in the dropdown from the additional data
           moreData.items.forEach((collection) => {
             const option = document.createElement('option');
@@ -85,15 +70,10 @@ debugger;
     });
 
     // Initial data loading
-    //const initialData = await loadMoreData(cursor);
     const initialData = await loadMoreData(page);
     if (initialData.items.length > 0) {
-      // Update the cursor for the next load
-      cursor = initialData.cursor;
-      if (page==null)
-        page=0;
-
-      page = page +1;
+      //Update page to next load
+      page++;
 
       // Populate the options in the dropdown with the initial data
       initialData.items.forEach((collection) => {
