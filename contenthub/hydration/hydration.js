@@ -428,6 +428,10 @@ export async function openUploadDialog() {
       if(addUploadButton.classList.contains('disabled')) return;
       addUploadButton.removeEventListener('click', uploadClickEvent);
       UploadCoordinator.initiateUpload();
+      //Ideally, this change of buttons functionality would occur once initiateUpload is complete
+      //Since we do not know how long that will take, we wait 1 second to prevent an accidental
+      //double click.
+      //If the users clicks "Upload More" before their asset finishes uploading, it might fail. 
       setTimeout(() => {
         cancelButton.removeChild(cancelText);
         addUploadButton.removeChild(uploadText);
