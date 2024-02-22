@@ -6,6 +6,9 @@ import {
 import { getPathParams, logError } from './scripts.js';
 import { emitEvent, EventNames } from './events.js';
 
+import {
+  getAdminConfig, } from './site-config.js';
+
 export function getCollectionIdFromURL() {
   if (window.location.pathname.includes('/collection/')) {
     return getPathParams().at(-1);
@@ -226,8 +229,8 @@ export async function searchListCollection(limit = undefined, page = 0) {
     queryParams.append('page', page);
   }
 
-  //Todo add the indexName in a config file hardcode for now
-  const indexName ="108396-1046543_collections";
+  const adminConfig=await getAdminConfig();
+  const indexName=adminConfig.searchCollectionIndex;
 
   const data = {
       "requests": [
