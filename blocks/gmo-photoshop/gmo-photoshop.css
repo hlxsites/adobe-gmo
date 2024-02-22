@@ -39,3 +39,16 @@
 .orig-asset.shrink {
     width: 150px;
 }
+.control-rail {
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+}
+.togglebtn {
+    background: url("../../icons/AdobeRed.svg");
+    width: 21px;
+    height: 30px;
+    background-size: cover;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}

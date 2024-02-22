@@ -35,6 +35,12 @@ export default async function decorate(block) {
         <span class="button-text">Show Modal</span>
     </div>
     <dialog class="ps-workshop ps-dialog">
+        <div aria-label="Controls" class="control-rail">
+            <div id="toggle-removeBg" data-switch="removeBg" class="toggle-removeBg togglebtn" title="Remove Background"></div>
+            <div id="toggle-imageMask" data-switch="imageMask" class="toggle-imageMask togglebtn" title="Generate Mask"></div>
+            <div id="toggle-crop" data-switch="crop" class="toggle-crop togglebtn" title="Product Crop"></div>
+            <div id="toggle-renditions" data-switch="renditions" class="toggle-renditions togglebtn" title="Generate Renditions"></div>
+        </div>
         <div autofocus aria-label="Photoshop">
             <div class="ps-dialog-area ps-dialog-header">
                 <span class="dialog-title">Title Here</span>
@@ -63,16 +69,37 @@ export default async function decorate(block) {
     const rbgButton = block.querySelector(".remove-bg");
     rbgButton.addEventListener('click', async () => {
         removeBg();
-    })
+    });
     const statusButton = block.querySelector(".check-status");
     statusButton.addEventListener('click', async () => {
         pollJobStatus();
-    })
+    });
     const showButton = block.querySelector(".show-modal");
     showButton.addEventListener('click', () => {
         openModal(downloadUrl);
-    })
+    });
+    const renditionBtn = block.querySelector(".toggle-renditions");
+    renditionBtn.addEventListener('click', () => {
+        renditions();
+    });
+    const cropBtn = block.querySelector(".toggle-crop");
+    cropBtn.addEventListener('click', () => {
+        productCrop();
+    });
+    const maskBtn = block.querySelector(".toggle-imageMask");
+    maskBtn.addEventListener('click', () => {
+        imageMask();
+    });
+    const rbgBtn = block.querySelector(".toggle-removeBg");
+    rbgBtn.addEventListener('click', async () => {
+        removeBg();
+    });
 }
+
+// todo:
+// 1. Renditions (convert from diff filetypes)
+// 2. Product crop (smart cropping)
+// 3. Image mask
 
 async function initAWS() {
     const s3region = 'us-east-1';
@@ -91,6 +118,7 @@ async function getAssetInfo() {
     uploadUrl = await getPresignedURL('putObject');
 }
 
+//actual api calls start here -----
 async function removeBg() {
     //await getAssetInfo();
     const token = await getPSToken();
@@ -125,6 +153,124 @@ async function removeBg() {
     console.log(responseJson._links.self.href);
     const checkBtn = document.querySelector(".check-status");
     checkBtn.dataset.status = responseJson._links.self.href;
+    checkBtn.dataset.operation = "removeBg";
+}
+
+async function renditions() {
+    const token = await getPSToken();
+    const apiUrl = 'https://image.adobe.io/pie/psdService/renditionCreate';
+    const storageType = 'external';
+    const inputs = {
+        'inputs': [{
+            'storage': storageType,
+            'href': downloadUrl
+        }],
+        'outputs': [{
+            'href': uploadUrl,
+            'width': 4120,
+            'storage': storageType,
+            'type': 'image/jpeg'
+        }]
+    };
+    const options = {
+        method: 'POST',
+        headers: {
+          'x-api-key': psKey,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
+        },
+        body: JSON.stringify(inputs),
+    };
+    const responseJson = await fetch(apiUrl, options).then(response => {
+        return response.json();
+    });
+    console.log(responseJson);
+    console.log(responseJson._links.self.href);
+
+    const checkBtn = document.querySelector(".check-status");
+    checkBtn.dataset.status = responseJson._links.self.href;
+    checkBtn.dataset.operation = "renditions";
+}
+
+async function productCrop() {
+    const token = await getPSToken();
+    const apiUrl = 'https://image.adobe.io/pie/psdService/productCrop';
+    const storageType = 'external';
+    const inputs = {
+        'inputs': [{
+            'storage': storageType,
+            'href': downloadUrl
+        }],
+        'options': {
+            "unit": "Pixels",
+            "width": 10,
+            "height": 10
+        },
+        'outputs': [{
+            'href': uploadUrl,
+            'storage': storageType,
+            'type': 'image/jpeg'
+        }]
+    };
+    const options = {
+        method: 'POST',
+        headers: {
+          'x-api-key': psKey,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
+        },
+        body: JSON.stringify(inputs),
+    };
+    const responseJson = await fetch(apiUrl, options).then(response => {
+        return response.json();
+    });
+    console.log(responseJson);
+    console.log(responseJson._links.self.href);
+    const checkBtn = document.querySelector(".check-status");
+    checkBtn.dataset.status = responseJson._links.self.href;
+    checkBtn.dataset.operation = "crop";
+}
+
+async function imageMask() {
+    //await getAssetInfo();
+    const token = await getPSToken();
+    const apiUrl = 'https://image.adobe.io/sensei/mask';
+    const storageType = 'external';
+    console.log(uploadUrl);
+    const inputs = {
+        'input': {
+            'storage': storageType,
+            'href': downloadUrl // must be public
+        },
+        'output': {
+            'storage': storageType,
+            'href': uploadUrl,
+            'mask': {
+                'format': 'soft'
+            }
+        }
+    };
+    const options = {
+        method: 'POST',
+        headers: {
+          'x-api-key': psKey,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
+        },
+        body: JSON.stringify(inputs),
+    };
+
+    const responseJson = await fetch(apiUrl, options).then(response => {
+        return response.json();
+    });
+    console.log(responseJson);
+    console.log(responseJson._links.self.href);
+    const checkBtn = document.querySelector(".check-status");
+    checkBtn.dataset.status = responseJson._links.self.href;
+    checkBtn.dataset.operation = "mask";
 }
 
 async function getPresignedURL(type) {
@@ -175,41 +321,11 @@ async function getPSToken() {
     }
 }
 
-async function psMask(downloadURL, uploadURL) {
-    const url = ' https://image.adobe.io/sensei/mask';
-    const params = '';
-    const storageType = '';
-
-    const inputs = {
-        'input': {
-            'storage': storageType,
-            'href': downloadURL // must be public
-        },
-        'options': {
-            'optimize': 'performance'
-        },
-        'output': {
-            'storage': storageType,
-            'href': uploadURL
-        }
-    };
-
-    const options = {
-        method: 'POST',
-        headers: {
-          'X-Api-Key': psKey,
-          Authorization: psToken,
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
-        },
-        body: JSON.stringify(inputs),
-    };
-
-}
-
 async function pollJobStatus(jobId) {
     //const statusUrl = 'https://image.adobe.io/sensei/status/' + jobId;
-    const statusUrl = document.querySelector(".check-status").dataset.status;
+    const statusBtn = document.querySelector(".check-status");
+    const statusUrl = statusBtn.dataset.status;
+    const operation = statusBtn.dataset.operation;
     const token = await getPSToken();
     /*
     curl -X GET \
@@ -233,22 +349,53 @@ async function pollJobStatus(jobId) {
         return response.json();
     });
     console.log(responseJson);
-    if (responseJson.status == 'succeeded') {
-        console.log(`job's done`);
-        shrinkOriginal();
-        //const resultUrl = responseJson.output.href;
-        const result = await getPresignedURL('getObject');
-        const responseBlob = await fetch(result).then(response => {
-            return response.blob();
-        });
-        const resultImg = await base64Encode(responseBlob);
-        
-        //appendImgToRoot(resultUrl);
-        //need a presigned get URL for the object it created
-        appendImgToRoot(resultImg);
-        // next, move original image element to some 'holding area' or w/e
-        // then show results as the big image
+    //below only works for image mask and remove bg
+    //product crop returns a more annoying array
+    if (operation == "mask" || operation == "removeBg") {
+        if (responseJson.status == 'succeeded') {
+            console.log(`job's done`);
+            shrinkOriginal();
+            //const resultUrl = responseJson.output.href;
+            const result = await getPresignedURL('getObject');
+            const responseBlob = await fetch(result).then(response => {
+                return response.blob();
+            });
+            const resultImg = await base64Encode(responseBlob);
+            
+            //appendImgToRoot(resultUrl);
+            //need a presigned get URL for the object it created
+            appendImgToRoot(resultImg);
+            // next, move original image element to some 'holding area' or w/e
+            // then show results as the big image
+        }
     }
+
+    // rendition
+    if (operation == "renditions") {
+        if (responseJson.outputs[0].status == 'succeeded') {
+            shrinkOriginal();
+            const result = await getPresignedURL('getObject');
+            const responseBlob = await fetch(result).then(response => {
+                return response.blob();
+            })
+            const resultImg = await base64Encode(responseBlob);
+            appendImgToRoot(resultImg);
+        }
+    }
+    // product crop
+    if (operation == "crop") {
+        if (responseJson.outputs[0].status == 'succeeded') {
+            shrinkOriginal();
+            const result = await getPresignedURL('getObject');
+            const responseBlob = await fetch(result).then(response => {
+                return response.blob();
+            })
+            const resultImg = await base64Encode(responseBlob);
+            appendImgToRoot(resultImg);
+        }
+    }
+
+
     //const jobStatus = responseJson['access_token'];
 
 }
