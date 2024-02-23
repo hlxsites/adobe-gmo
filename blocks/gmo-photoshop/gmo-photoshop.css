@@ -36,10 +36,21 @@
 .ps-dialog-header {
     margin-bottom: 25px;
 }
-.orig-asset.shrink {
-    width: 150px;
+.ps-dialog-image-holder {
+    display: inline-flex;
 }
-.control-rail {
+.ps-dialog-results {
+    display: inline-flex;
+    max-height: 350px;
+}
+.shrink {
+    width: 150px;
+    margin-right: 15px;
+}
+.shrink img {
+    max-height: 200px;
+}
+.control-rail, .ps-dialog-apis-buttons {
     height: 40px;
     display: flex;
     flex-direction: row;
@@ -51,4 +62,14 @@
     background-size: cover;
     margin-bottom: 10px;
     margin-right: 10px;
+}
+.hidden {
+    display: none;
+}
+.ps-dialog-close-button {
+    margin-left:9%;
+    cursor: pointer;
+}
+.ps-dialog-apis-buttons {
+    width: 90%;
 }

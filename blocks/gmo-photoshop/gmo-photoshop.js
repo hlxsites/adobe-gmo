@@ -1,59 +1,54 @@
 import { getAdminConfig } from '../../scripts/site-config.js';
 import { getDownloadUrl, getAssetMetadata } from '../../scripts/polaris.js';
-import { getAssetName } from '../../scripts/metadata.js';
+import { getAssetName, getAssetTitle } from '../../scripts/metadata.js';
 
 /* photoshop */
-const adminConfig = await getAdminConfig();
-const psKey = adminConfig.psClientId;
-const psSecret = adminConfig.psCS;
-const s3key = adminConfig.s3key;
-const s3secret = adminConfig.s3secret;
+const psAdminConfig = await getAdminConfig();
+const psKey = psAdminConfig.psClientId;
+const psSecret = psAdminConfig.psCS;
+const s3key = psAdminConfig.s3key;
+const s3secret = psAdminConfig.s3secret;
 let psToken;
 let s3;
-let assetJSON, assetName;
-let downloadUrl, uploadUrl;
-
-//testing purposes
-const assetId = 'urn:aaid:aem:84da1fe2-3e89-4cd0-a9e5-4171af8ea6ed'; //should I remove the urn:aaid:aem: ?
-
-// to do:
-/*
-1. launch from a button on psd files
-2. send psd to storage solution
-3. store reference to the psd (download url)
-4. load psd for editing (how?)
-5. 
-
-
-
-*/
-
+let psAssetJSON, psAssetName, psAssetTitle, psAssetId;
+let downloadUrl, psUploadUrl;
 
 export default async function decorate(block) {
-    block.innerHTML=`hello
-    <div class="button show-modal">
-        <span class="button-text">Show Modal</span>
-    </div>
+    block.innerHTML=`
     <dialog class="ps-workshop ps-dialog">
         <div aria-label="Controls" class="control-rail">
-            <div id="toggle-removeBg" data-switch="removeBg" class="toggle-removeBg togglebtn" title="Remove Background"></div>
-            <div id="toggle-imageMask" data-switch="imageMask" class="toggle-imageMask togglebtn" title="Generate Mask"></div>
-            <div id="toggle-crop" data-switch="crop" class="toggle-crop togglebtn" title="Product Crop"></div>
-            <div id="toggle-renditions" data-switch="renditions" class="toggle-renditions togglebtn" title="Generate Renditions"></div>
+            <div class="ps-dialog-apis-buttons">
+                <div id="toggle-removeBg" data-switch="removeBg" class="toggle-removeBg togglebtn" title="Remove Background"></div>
+                <div id="toggle-imageMask" data-switch="imageMask" class="toggle-imageMask togglebtn" title="Generate Mask"></div>
+                <div id="toggle-renditions" data-switch="renditions" class="toggle-renditions togglebtn" title="Generate Renditions"></div>
+                <div id="toggle-crop" data-switch="crop" class="toggle-crop togglebtn" title="Product Crop"></div>
+            </div>
+            <div class="ps-dialog-close-button">
+                <div id="ps-dialog-close-modal" class="ps-dialog-close-modal">X</div>
+            </div>
         </div>
         <div autofocus aria-label="Photoshop">
             <div class="ps-dialog-area ps-dialog-header">
-                <span class="dialog-title">Title Here</span>
+                <span class="dialog-title" id="ps-dialog-title"></span>
             </div>
-            <div class="ps-dialog-area ps-dialog-body">
-                <span>Image goes here</span>
-            </div>
-            <div class="ps-dialog-area ps-dialog-orig">
+            <div class="ps-dialog-area ps-dialog-body"></div>
+            <div class="ps-dialog-area ps-dialog-image-holder">
+                <div class="ps-dialog-orig-wrapper">
+                    <div class="ps-dialog-orig-header hidden">
+                        Original Image
+                    </div>
+                    <div class="ps-dialog-orig">
+                    </div>
+                </div>
+                <div class="ps-dialog-results-wrapper">
+                    <div class="ps-dialog-results-header hidden">
+                        Results
+                    </div>
+                    <div class="ps-dialog-results">
+                    </div>
+                </div>
             </div>
             <div class="ps-dialog-area ps-dialog-controls">
-                <div class="button remove-bg">
-                    <span class="button-text">Remove BG</span>
-                </div>
                 <div class="button check-status">
                     <span class="button-text">Check Status</span>
                 </div>
@@ -64,19 +59,11 @@ export default async function decorate(block) {
 
     // do more stuff here
     await initAWS();
-    await getAssetInfo();
 
-    const rbgButton = block.querySelector(".remove-bg");
-    rbgButton.addEventListener('click', async () => {
-        removeBg();
-    });
+
     const statusButton = block.querySelector(".check-status");
     statusButton.addEventListener('click', async () => {
         pollJobStatus();
-    });
-    const showButton = block.querySelector(".show-modal");
-    showButton.addEventListener('click', () => {
-        openModal(downloadUrl);
     });
     const renditionBtn = block.querySelector(".toggle-renditions");
     renditionBtn.addEventListener('click', () => {
@@ -94,12 +81,11 @@ export default async function decorate(block) {
     rbgBtn.addEventListener('click', async () => {
         removeBg();
     });
+    const closeModalBtn = block.querySelector(".ps-dialog-close-modal");
+    closeModalBtn.addEventListener('click', () => {
+        closeModal();
+    })
 }
-
-// todo:
-// 1. Renditions (convert from diff filetypes)
-// 2. Product crop (smart cropping)
-// 3. Image mask
 
 async function initAWS() {
     const s3region = 'us-east-1';
@@ -112,19 +98,20 @@ async function initAWS() {
 }
 
 async function getAssetInfo() {
-    assetJSON = await getAssetMetadata(assetId);
-    assetName = getAssetName(assetJSON);
-    downloadUrl = await getDownloadUrl(assetId, assetName);
-    uploadUrl = await getPresignedURL('putObject');
+    psAssetJSON = await getAssetMetadata(psAssetId);
+    psAssetName = getAssetName(psAssetJSON);
+    psAssetTitle = getAssetTitle(psAssetJSON);
+    document.querySelector("#ps-dialog-title").textContent = psAssetTitle;
+    downloadUrl = await getDownloadUrl(psAssetId, psAssetName);
+    psUploadUrl = await getPresignedURL('putObject');
 }
 
 //actual api calls start here -----
 async function removeBg() {
-    //await getAssetInfo();
     const token = await getPSToken();
     const apiUrl = 'https://image.adobe.io/sensei/cutout';
     const storageType = 'external';
-    console.log(uploadUrl);
+    console.log(psUploadUrl);
     const inputs = {
         'input': {
             'storage': storageType,
@@ -132,7 +119,7 @@ async function removeBg() {
         },
         'output': {
             'storage': storageType,
-            'href': uploadUrl
+            'href': psUploadUrl
         }
     };
     const options = {
@@ -154,6 +141,7 @@ async function removeBg() {
     const checkBtn = document.querySelector(".check-status");
     checkBtn.dataset.status = responseJson._links.self.href;
     checkBtn.dataset.operation = "removeBg";
+    checkBtn.dataset.completed = "false";
 }
 
 async function renditions() {
@@ -166,7 +154,7 @@ async function renditions() {
             'href': downloadUrl
         }],
         'outputs': [{
-            'href': uploadUrl,
+            'href': psUploadUrl,
             'width': 4120,
             'storage': storageType,
             'type': 'image/jpeg'
@@ -191,6 +179,7 @@ async function renditions() {
     const checkBtn = document.querySelector(".check-status");
     checkBtn.dataset.status = responseJson._links.self.href;
     checkBtn.dataset.operation = "renditions";
+    checkBtn.dataset.completed = "false";
 }
 
 async function productCrop() {
@@ -208,7 +197,7 @@ async function productCrop() {
             "height": 10
         },
         'outputs': [{
-            'href': uploadUrl,
+            'href': psUploadUrl,
             'storage': storageType,
             'type': 'image/jpeg'
         }]
@@ -231,14 +220,14 @@ async function productCrop() {
     const checkBtn = document.querySelector(".check-status");
     checkBtn.dataset.status = responseJson._links.self.href;
     checkBtn.dataset.operation = "crop";
+    checkBtn.dataset.completed = "false";
 }
 
 async function imageMask() {
-    //await getAssetInfo();
     const token = await getPSToken();
     const apiUrl = 'https://image.adobe.io/sensei/mask';
     const storageType = 'external';
-    console.log(uploadUrl);
+    console.log(psUploadUrl);
     const inputs = {
         'input': {
             'storage': storageType,
@@ -246,7 +235,7 @@ async function imageMask() {
         },
         'output': {
             'storage': storageType,
-            'href': uploadUrl,
+            'href': psUploadUrl,
             'mask': {
                 'format': 'soft'
             }
@@ -271,11 +260,12 @@ async function imageMask() {
     const checkBtn = document.querySelector(".check-status");
     checkBtn.dataset.status = responseJson._links.self.href;
     checkBtn.dataset.operation = "mask";
+    checkBtn.dataset.completed = "false";
 }
 
 async function getPresignedURL(type) {
-    const filePath = 'psapi.jpg'; //this needs to match the name of the output file
-    const bucketName = 'psapibucket'; // put actual name here
+    const filePath = 'psapi.jpg'; 
+    const bucketName = 'psapibucket'; 
     if (!s3) {
         await initAWS();
     }
@@ -286,7 +276,6 @@ async function getPresignedURL(type) {
     };
  
     const presignedUrl = await s3.getSignedUrl(type, params);
-    //console.log(presignedUrl);
     return presignedUrl;
 }
 
@@ -321,20 +310,14 @@ async function getPSToken() {
     }
 }
 
-async function pollJobStatus(jobId) {
-    //const statusUrl = 'https://image.adobe.io/sensei/status/' + jobId;
+async function pollJobStatus() {
     const statusBtn = document.querySelector(".check-status");
+    if (statusBtn.dataset.completed == "true") {
+        return
+    }
     const statusUrl = statusBtn.dataset.status;
     const operation = statusBtn.dataset.operation;
     const token = await getPSToken();
-    /*
-    curl -X GET \
-  https://image.adobe.io/sensei/status/e3a13d81-a462-4b71-9964-28b2ef34aca7 \
-  -H "Authorization: Bearer $token"  \
-  -H "x-api-key: $apiKey" \
-  -H "Content-Type: application/json"
-  */
-
 
     const options = {
         method: 'GET',
@@ -348,30 +331,21 @@ async function pollJobStatus(jobId) {
     const responseJson = await fetch(statusUrl, options).then(response => {
         return response.json();
     });
-    console.log(responseJson);
-    //below only works for image mask and remove bg
-    //product crop returns a more annoying array
+
     if (operation == "mask" || operation == "removeBg") {
         if (responseJson.status == 'succeeded') {
-            console.log(`job's done`);
             shrinkOriginal();
-            //const resultUrl = responseJson.output.href;
             const result = await getPresignedURL('getObject');
             const responseBlob = await fetch(result).then(response => {
                 return response.blob();
             });
             const resultImg = await base64Encode(responseBlob);
-            
-            //appendImgToRoot(resultUrl);
-            //need a presigned get URL for the object it created
-            appendImgToRoot(resultImg);
-            // next, move original image element to some 'holding area' or w/e
-            // then show results as the big image
+            appendImgToRoot(resultImg, true);
+            statusBtn.dataset.completed = "true";
         }
     }
 
-    // rendition
-    if (operation == "renditions") {
+    if (operation == "renditions" || operation == "crop") {
         if (responseJson.outputs[0].status == 'succeeded') {
             shrinkOriginal();
             const result = await getPresignedURL('getObject');
@@ -379,24 +353,10 @@ async function pollJobStatus(jobId) {
                 return response.blob();
             })
             const resultImg = await base64Encode(responseBlob);
-            appendImgToRoot(resultImg);
+            appendImgToRoot(resultImg, true);
+            statusBtn.dataset.completed = "true";
         }
     }
-    // product crop
-    if (operation == "crop") {
-        if (responseJson.outputs[0].status == 'succeeded') {
-            shrinkOriginal();
-            const result = await getPresignedURL('getObject');
-            const responseBlob = await fetch(result).then(response => {
-                return response.blob();
-            })
-            const resultImg = await base64Encode(responseBlob);
-            appendImgToRoot(resultImg);
-        }
-    }
-
-
-    //const jobStatus = responseJson['access_token'];
 
 }
 
@@ -410,34 +370,51 @@ async function base64Encode(image) {
 
 function shrinkOriginal() {
     const origFileArea = document.querySelector(".ps-dialog-orig");
-    console.log(origFileArea.hasChildNodes());
     if (origFileArea.childNodes.length <= 1) {
         const origImg = document.querySelector(".orig-asset");
         origImg.classList.add("shrink");
         origFileArea.appendChild(origImg);
+        const origHeader = document.querySelector(".ps-dialog-orig-header");
+        origHeader.classList.remove("hidden");
     }
 }
 
-function appendImgToRoot(imageUrl) {
+function appendImgToRoot(imageUrl, isGenerated) {
+    moveResults();
     const imageRoot = document.querySelector('.ps-dialog-body');
     const imageEl = document.createElement('div');
     imageEl.innerHTML = `<img class="orig-asset" src="` + imageUrl + `"/>`;
-    //dialog.classList.add("show-dialog");
+    imageRoot.replaceChildren();
     imageRoot.appendChild(imageEl);
+    if (isGenerated) {
+        imageEl.classList.add('generated-big');
+    }
 }
 
-function openModal(imageUrl) {
+function moveResults() {
+    const resultsArea = document.querySelector('.ps-dialog-results');
+    const previousResult = document.querySelector('.generated-big');
+    if (previousResult === null) {
+        return;
+    }
+    previousResult.classList.remove('generated-big');
+    previousResult.classList.add('generated');
+    previousResult.classList.add('shrink');
+    resultsArea.appendChild(previousResult);
+    const resultsHeader = document.querySelector(".ps-dialog-results-header");
+    resultsHeader.classList.remove("hidden");
+}
+
+export async function openModal(assetId) {
+    psAssetId = assetId;
+    await getAssetInfo();
     document.body.classList.add('no-scroll');
     const dialog = document.querySelector('.gmo-photoshop.block dialog');
-    appendImgToRoot(imageUrl);
-    /*const imageRoot = dialog.querySelector('.ps-dialog-body');
-    const imageEl = document.createElement('div');
-    imageEl.innerHTML = `<img class="orig-asset" src="` + imageUrl + `"/>`;
-    //dialog.classList.add("show-dialog");
-    imageRoot.appendChild(imageEl);*/
+    appendImgToRoot(downloadUrl, false);
     dialog.showModal();
 }
 
 function closeModal() {
-
+    const dialog = document.querySelector('.gmo-photoshop.block dialog');
+    dialog.close();
 }

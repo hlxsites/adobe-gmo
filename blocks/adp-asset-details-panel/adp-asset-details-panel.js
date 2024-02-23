@@ -19,6 +19,7 @@ import { addShareModalHandler } from '../adp-share-modal/adp-share-modal.js';
 import {
   addExpressEditorHandler, fileValidity, isCCEConfigured,
 } from '../../scripts/express.js';
+import { openModal } from '../gmo-photoshop/gmo-photoshop.js';
 
 let resultsManager;
 /**
@@ -204,4 +205,9 @@ export default async function decorate(block) {
     const { assetId } = block.dataset;
     openAssetDetailsModal(assetId, resultsManager);
   });
+
+  block.querySelector("#asset-details-ps-api").addEventListener('click', () => {
+    const assetId = block.dataset.assetId;
+    openModal(assetId);
+  })
 }
