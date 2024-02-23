@@ -45,31 +45,11 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
     // Function to load more data when reaching the end of the dropdown
     const loadMoreData = async (page) => {
       //Call to get the nbHits for the total number of Collections
-      let collectionMax = await searchListCollection(0,0);
+      const collectionMax = await searchListCollection(0,0);
+      //Get all the collections
       const collectionData = await searchListCollection(collectionMax.nbHits,page);
       return collectionData;
     };
-
-    // Event listener to detect scroll and load more data when at the bottom
-    /* The scroll event is commented out, since the <select> does not support it
-
-    dropdownSelect.addEventListener('scroll', async () => {
-      if (dropdownSelect.scrollTop + dropdownSelect.clientHeight >= dropdownSelect.scrollHeight) {
-        const moreData = await loadMoreData(page);
-        if (moreData.items.length > 0) {
-          //Update page to next load
-          page++;
-          // Populate the options in the dropdown from the additional data
-          moreData.items.forEach((collection) => {
-            const option = document.createElement('option');
-            option.value = collection.id;
-            option.textContent = collection.title;
-            dropdownSelect.appendChild(option);
-          });
-        }
-      }
-    });
-    */
 
     const page = 0;
     // Initial data loading
