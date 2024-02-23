@@ -69,7 +69,6 @@ export default class CollectionsDatasource {
   }
 
   async createItemElement(item, infiniteResultsContainer) {
-
     const assetJSON = await getAssetMetadata(getAssetIdFromCollectionItem(item));
     const assetId = this.getItemId(item);
     const card = await createAssetCardElement(

@@ -6,8 +6,7 @@ import {
 import { getPathParams, logError } from './scripts.js';
 import { emitEvent, EventNames } from './events.js';
 
-import {
-  getAdminConfig, } from './site-config.js';
+import { getAdminConfig } from './site-config.js';
 
 export function getCollectionIdFromURL() {
   if (window.location.pathname.includes('/collection/')) {
@@ -36,7 +35,7 @@ async function getRequestHeadersSearchCollections() {
   return {
     'Content-Type': 'application/json',
     'x-api-key': 'asset_search_service',
-    'Authorization': token,
+    Authorization: token,
     'x-ch-Request': 'search',
     'x-adobe-accept-experimental': '1',
   };
@@ -49,7 +48,7 @@ async function getRequestHeaders() {
   return {
     'Content-Type': 'application/json',
     'x-api-key': await getAssetHandlerApiKey(),
-    'Authorization': token,
+    Authorization: token,
     'X-Adobe-Accept-Experimental': '1',
   };
 }
@@ -61,7 +60,7 @@ async function getRequestHeadersWithEtag(etag) {
   return {
     'Content-Type': 'application/json',
     'x-api-key': await getAssetHandlerApiKey(),
-    'Authorization': token,
+    Authorization: token,
     'X-Adobe-Accept-Experimental': '1',
     'If-Match': etag,
   };
@@ -72,7 +71,7 @@ async function getRequestHeadersWithIfMatchPatchJSON(etag) {
   return {
     'Content-Type': 'application/json-patch+json',
     'x-api-key': await getAssetHandlerApiKey(),
-    'Authorization': token,
+    Authorization: token,
     'X-Adobe-Accept-Experimental': '1',
     'If-Match': etag,
   };
@@ -129,13 +128,14 @@ export async function getCollection(collectionId) {
     // Handle response codes
     if (response.status === 200) {
 
-    let responseBody = await response.json();
+      const responseBody = await response.json();
 
-    responseBody.etag = response.headers.get('Etag');
-    if (responseBody.self[0].collectionMetadata.title)
-      responseBody.title = responseBody.self[0].collectionMetadata.title;
-    else
-      responseBody.title = '';
+      responseBody.etag = response.headers.get('Etag');
+      if (responseBody.self[0].collectionMetadata.title) {
+        responseBody.title = responseBody.self[0].collectionMetadata.title;
+      } else {
+        responseBody.title = '';
+      }
 
       return responseBody;
     } if (response.status === 404) {
@@ -229,25 +229,24 @@ export async function searchListCollection(limit = undefined, page = 0) {
     queryParams.append('page', page);
   }
 
-  const adminConfig=await getAdminConfig();
-  const indexName=adminConfig.searchCollectionIndex;
-
+  const adminConfig = await getAdminConfig();
+  const indexName = adminConfig.searchCollectionIndex;
   const data = {
-      "requests": [
-        {
-             "indexName": indexName,
-             "params": {
-                 "facets": [],
-                 "highlightPostTag": "__/ais-highlight__",
-                 "highlightPreTag": "__ais-highlight__",
-                 "hitsPerPage": limit,
-                 "page": page,
-                 "query": "",
-                 "tagFilters": ""
-             }
-         }
-      ]
-    };
+    requests: [
+      {
+        indexName: indexName,
+        params: {
+          facets: [],
+          highlightPostTag: '__/ais-highlight__',
+          highlightPreTag: '__ais-highlight__',
+          hitsPerPage: limit,
+          page: page,
+          query: '',
+          tagFilters: ''
+        }
+      }
+    ]
+  };
 
   const options = {
     method: 'POST',
@@ -267,7 +266,7 @@ export async function searchListCollection(limit = undefined, page = 0) {
       const responseBody = await response.json();
 
       // Transform the data
-      let transformedData = {
+      const transformedData = {
         page: responseBody.results[0].page,
         nbHits: responseBody.results[0].nbHits,
         nbPages: responseBody.results[0].nbPages,
@@ -304,15 +303,14 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
     const patchOperations = [];
     if (addOperation) {
       for (const op of addOperation) {
-        patchOperations.push({'op':'add', 'id':op.value.id, 'type': 'asset'});
+        patchOperations.push({ 'op': 'add', 'id': op.value.id, 'type': 'asset' });
       }
     }
     if (deleteOperation) {
       for (const op of deleteOperation) {
-        patchOperations.push({'op':'remove', 'id':op.value.id, 'type': 'asset'});
+        patchOperations.push({ 'op': 'remove', 'id': op.value.id, 'type': 'asset' });
       }
     }
-
 
     const options = {
       method: 'POST',

@@ -7,11 +7,12 @@ import {
 import { createCollectionCardElement } from '../../scripts/card-html-builder.js';
 
 export default class CollectionsDatasource {
-
   infiniteResultsContainer = null;
 
   container = null;
+
   pageNumber = 0;
+
   lastPage = false;
 
   async showMore() {

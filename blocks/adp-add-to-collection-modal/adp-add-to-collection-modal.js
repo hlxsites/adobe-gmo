@@ -44,10 +44,10 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
 
     // Function to load more data when reaching the end of the dropdown
     const loadMoreData = async (page) => {
-      //Call to get the nbHits for the total number of Collections
-      const collectionMax = await searchListCollection(0,0);
-      //Get all the collections
-      const collectionData = await searchListCollection(collectionMax.nbHits,page);
+      // Call to get the nbHits for the total number of Collections
+      const collectionMax = await searchListCollection(0, 0);
+      // Get all the collections
+      const collectionData = await searchListCollection(collectionMax.nbHits, page);
       return collectionData;
     };
 
@@ -55,7 +55,6 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
     // Initial data loading
     const initialData = await loadMoreData(page);
     if (initialData.items.length > 0) {
-
       // Populate the options in the dropdown with the initial data
       initialData.items.forEach((collection) => {
         const option = document.createElement('option');

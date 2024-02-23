@@ -4,7 +4,6 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 
 function createCollectionInfoHeader(collectionInfoHeader, collection) {
-
   // include back to collections listing similar to hide filters button
   collectionInfoHeader.innerHTML = `
         <div class="adp-collection-header-left">
