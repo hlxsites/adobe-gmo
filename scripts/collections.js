@@ -133,8 +133,6 @@ export async function getCollection(collectionId) {
       responseBody.etag = response.headers.get('Etag');
       if (responseBody.self[0].collectionMetadata.title) {
         responseBody.title = responseBody.self[0].collectionMetadata?.title ?? '';
-      } else {
-        responseBody.title = '';
       }
 
       return responseBody;
