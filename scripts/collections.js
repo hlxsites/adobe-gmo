@@ -132,7 +132,7 @@ export async function getCollection(collectionId) {
 
       responseBody.etag = response.headers.get('Etag');
       if (responseBody.self[0].collectionMetadata.title) {
-        responseBody.title = responseBody.self[0].collectionMetadata.title;
+        responseBody.title = responseBody.self[0].collectionMetadata?.title ?? '';
       } else {
         responseBody.title = '';
       }
@@ -272,8 +272,8 @@ export async function searchListCollection(limit = undefined, page = 0) {
         nbPages: responseBody.results[0].nbPages,
         items: responseBody.results[0].hits.map(hit => ({
           id: hit.collectionId,
-          title: hit.collectionMetadata.metadata ? hit.collectionMetadata.metadata.title : hit.collectionMetadata.title,
-          description: hit.collectionMetadata.metadata ? hit.collectionMetadata.metadata.description : hit.collectionMetadata.description
+          title: hit.collectionMetadata.metadata?.title ?? hit.collectionMetadata.title,
+          description: hit.collectionMetadata.metadata?.description ?? hit.collectionMetadata.description
         }))
       };
 
