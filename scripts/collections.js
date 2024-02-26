@@ -131,10 +131,7 @@ export async function getCollection(collectionId) {
       const responseBody = await response.json();
 
       responseBody.etag = response.headers.get('Etag');
-      if (responseBody.self[0].collectionMetadata.title) {
-        responseBody.title = responseBody.self[0].collectionMetadata?.title ?? '';
-      }
-
+      responseBody.title = responseBody.self[0].collectionMetadata?.title ?? '';
       return responseBody;
     } if (response.status === 404) {
       // Handle 404 error
