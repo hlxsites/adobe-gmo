@@ -38,6 +38,7 @@ async function getRequestHeadersSearchCollections() {
     'x-api-key': getBackendApiKey(),
     Authorization: token,
     'x-adobe-accept-experimental': '1',
+    'x-adp-request': 'search',
   };
 }
 
