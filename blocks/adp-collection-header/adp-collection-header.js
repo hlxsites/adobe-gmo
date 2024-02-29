@@ -3,6 +3,11 @@ import createConfirmDialog from '../../scripts/confirm-dialog.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 
+import {
+  selectAllAssets,deselectAllAssets,
+} from '../adp-infinite-results-collection/adp-infinite-results-collection.js';
+
+
 function createCollectionInfoHeader(collectionInfoHeader, collection) {
   // include back to collections listing similar to hide filters button
   collectionInfoHeader.innerHTML = `
@@ -14,6 +19,10 @@ function createCollectionInfoHeader(collectionInfoHeader, collection) {
             <div class="adp-collection-title"></div>
             <div class="adp-collection-subinfo">
               <div class="adp-collection-stats"></div>
+              <div class="adp-collection-select-all">
+                <input type="checkbox" id="select-all-checkbox"/>
+                <label for="select-all-checkbox">Select All</label>
+              </div>
             </div>
           </div>
         </div>
@@ -28,6 +37,16 @@ function createCollectionInfoHeader(collectionInfoHeader, collection) {
   const backButton = collectionInfoHeader.querySelector('.back-button a');
   backButton.href = createLinkHref(backButton.href);
 
+  document.getElementById('select-all-checkbox').addEventListener('click', function(event) {
+      // Get the checked state of the select all checkbox
+      var isChecked = event.target.checked;
+
+      // Get all the checkboxes within the cards
+      var checkboxes = document.querySelectorAll('.checkbox-container input[type="checkbox"], .filetype-video .checkbox-container input[type="checkbox"]');
+      // isChecked then selectAllAssets() else deselectAllAssets
+      isChecked ? selectAllAssets() : deselectAllAssets();
+  });
+
   collectionInfoHeader.querySelector('.action-collection-delete').addEventListener('click', async (e) => {
     e.preventDefault();
     const collectionId = getCollectionIdFromURL();
@@ -36,7 +55,7 @@ function createCollectionInfoHeader(collectionInfoHeader, collection) {
         'Delete collection',
         `Are you sure you want to delete the collection "${collection.title}"?`,
         async () => {
-          await deleteCollection(collectionId, collection.title);
+          await deleteCollection(collectionId, collection.title, collection.etag);
           navigateTo(createLinkHref('/collections'));
         },
         'Proceed',

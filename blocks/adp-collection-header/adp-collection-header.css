@@ -20,8 +20,15 @@
     z-index: 1;
 }
 
+
 .adp-collection-header-left .adp-collection-title {
-    margin-bottom: 12px;
+    margin-bottom: 12px; /* Keeps space between title and items */
+}
+
+.adp-collection-subinfo {
+    display: flex;
+    /* justify-content: space-between; /* Aligns items to the left and select all to the right */
+    align-items: center; /* Centers items vertically */
 }
 
 .adp-collection-stats {
@@ -29,13 +36,30 @@
     border-radius: 6px;
     font: 11px/14px var(--body-font-family);
     padding: 6px 10px;
-    width: fit-content;
+    flex-shrink: 0;
+    margin-right: 20px; /* Adjust the 20px to whatever fixed space you want between the items and the checkbox */
 }
+
+.adp-collection-select-all {
+    display: flex;
+    align-items: center; /* This will vertically align the checkbox and label */
+}
+
+.adp-collection-select-all input[type="checkbox"] {
+    margin-right: 5px; /* Adds some space between the checkbox and the label */
+}
+
 
 .adp-collection-header-left .back-button .icon {
     height: 10px;
     width: 18px;
     vertical-align: text-bottom;
+}
+
+/*Todo New CSS */
+.adp-collection-header-collection-info {
+    display: flex;
+    flex-direction: column; /* Stack the title and sub-info vertically */
 }
 
 .adp-collection-header .adp-collection-title {

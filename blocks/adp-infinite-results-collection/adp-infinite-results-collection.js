@@ -39,3 +39,12 @@ export function hasNextCard() {
 export function hasPreviousCard() {
   return infiniteResultsContainer.hasPreviousCard();
 }
+
+
+export function selectAllAssets() {
+  infiniteResultsContainer.selectAllItems();
+}
+
+export function deselectAllAssets() {
+  infiniteResultsContainer.deselectAllItems();
+}
