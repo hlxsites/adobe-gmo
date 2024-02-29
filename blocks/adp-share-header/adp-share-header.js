@@ -3,16 +3,16 @@ import createConfirmDialog from '../../scripts/confirm-dialog.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 
+import {
+  selectAllAssets, deselectAllAssets
+} from '../adp-infinite-results-linkshare/adp-infinite-results-linkshare.js';
 
 function createShareInfoHeader(shareInfoHeader) {
 
   shareInfoHeader.innerHTML = `
         <div class="adp-share-header-left">
-
           <div class="adp-share-header-share-info">
-            <div class="adp-share-title"></div>
             <div class="adp-share-subinfo">
-              <div class="adp-share-stats"></div>
               <div class="adp-share-select-all">
                 <input type="checkbox" id="select-all-checkbox"/>
                 <label for="select-all-checkbox">Select All</label>
@@ -22,8 +22,6 @@ function createShareInfoHeader(shareInfoHeader) {
         </div>
         </div>
     `;
-  //shareInfoHeader.querySelector('.adp-share-title').innerText = 'title';
-  shareInfoHeader.querySelector('.adp-share-stats').innerText = '5 items';
 
   document.getElementById('select-all-checkbox').addEventListener('click', function(event) {
       // Get the checked state of the select all checkbox
@@ -31,11 +29,8 @@ function createShareInfoHeader(shareInfoHeader) {
 
       // Get all the checkboxes within the cards
       var checkboxes = document.querySelectorAll('.checkbox-container input[type="checkbox"], .filetype-video .checkbox-container input[type="checkbox"]');
-
-      // Set the checked state of each card's checkbox to match the select all checkbox
-      checkboxes.forEach(function(checkbox) {
-          checkbox.checked = isChecked;
-      });
+      // isChecked then selectAllAssets() else deselectAllAssets
+      isChecked ? selectAllAssets() : deselectAllAssets();
   });
 
   decorateIcons(shareInfoHeader);

@@ -2,18 +2,9 @@
     padding-right: 0;
 }
 
-/*
 .adp-share-header {
     display: flex;
-    height: 124px;
-}
-
-*/
-.adp-share-header{
-  /*grid-area: selection-items; */
-  /* display: flex; */
-  padding-top: 15px;
-  padding-bottom: 11px;
+    height: 62px;
 }
 
 .adp-share-header-left {
@@ -29,13 +20,14 @@
     z-index: 1;
 }
 
+/*
 .adp-share-header-left .adp-share-title {
     margin-bottom: 12px; /* Keeps space between title and items */
 }
-
+*/
 .adp-share-subinfo {
     display: flex;
-    justify-content: space-between; /* Aligns items to the left and select all to the right */
+    /* justify-content: space-between; /* Aligns items to the left and select all to the right */
     align-items: center; /* Centers items vertically */
 }
 
@@ -45,8 +37,8 @@
     font: 11px/14px var(--body-font-family);
     padding: 6px 10px;
     flex-shrink: 0;
+    margin-right: 20px; /* Adjust the 20px to whatever fixed space you want between the items and the checkbox */
 }
-
 
 .adp-share-select-all {
     display: flex;
@@ -57,21 +49,13 @@
     margin-right: 5px; /* Adds some space between the checkbox and the label */
 }
 
-
-.adp-share-header-left .back-button .icon {
-    height: 10px;
-    width: 18px;
-    vertical-align: text-bottom;
-}
-
-/*Todo New CSS */
 .adp-share-header-share-info {
     display: flex;
     flex-direction: column; /* Stack the title and sub-info vertically */
 }
 
 .adp-share-header .adp-share-title {
-    font: var(--share-heading-font);
+    font: var(--collection-heading-font);
     width: 100%;
 }
 

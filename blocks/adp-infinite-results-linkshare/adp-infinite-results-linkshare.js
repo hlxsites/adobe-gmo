@@ -8,6 +8,7 @@ export default async function decorate(block) {
   const instantSearchDatasource = new LinkShareDatasource();
   infiniteResultsContainer = new InfiniteResultsContainer(block, instantSearchDatasource);
   infiniteResultsContainer.render();
+
   addEventListener(EventNames.ASSET_QUICK_PREVIEW_CLOSE, (e) => {
     infiniteResultsContainer.deselectItem(e.detail.assetId);
   });
@@ -21,3 +22,13 @@ export function openLinkShare(id) {
   // change the url
   window.history.pushState({}, '', url);
 }
+
+export function selectAllAssets() {
+  infiniteResultsContainer.selectAllItems();
+}
+
+export function deselectAllAssets() {
+  infiniteResultsContainer.deselectAllItems();
+}
+
+
