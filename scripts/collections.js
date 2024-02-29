@@ -36,7 +36,6 @@ async function getRequestHeadersSearchCollections() {
     'Content-Type': 'application/json',
     'x-api-key': 'asset_search_service',
     Authorization: token,
-    'x-ch-Request': 'search',
     'x-adobe-accept-experimental': '1',
   };
 }
