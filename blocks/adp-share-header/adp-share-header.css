@@ -1,0 +1,88 @@
+.section.adp-share-header-left-container {
+    padding-right: 0;
+}
+
+/*
+.adp-share-header {
+    display: flex;
+    height: 124px;
+}
+
+*/
+.adp-share-header{
+  /*grid-area: selection-items; */
+  /* display: flex; */
+  padding-top: 15px;
+  padding-bottom: 11px;
+}
+
+.adp-share-header-left {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+    font-size: var(--header-font-size);
+    padding: 0;
+    top: 0.01rem;
+    padding-top: 0.88rem;
+    padding-bottom: 0.88rem;
+    z-index: 1;
+}
+
+.adp-share-header-left .adp-share-title {
+    margin-bottom: 12px; /* Keeps space between title and items */
+}
+
+.adp-share-subinfo {
+    display: flex;
+    justify-content: space-between; /* Aligns items to the left and select all to the right */
+    align-items: center; /* Centers items vertically */
+}
+
+.adp-share-stats {
+    border: #E6E6E6 1px solid;
+    border-radius: 6px;
+    font: 11px/14px var(--body-font-family);
+    padding: 6px 10px;
+    flex-shrink: 0;
+}
+
+
+.adp-share-select-all {
+    display: flex;
+    align-items: center; /* This will vertically align the checkbox and label */
+}
+
+.adp-share-select-all input[type="checkbox"] {
+    margin-right: 5px; /* Adds some space between the checkbox and the label */
+}
+
+
+.adp-share-header-left .back-button .icon {
+    height: 10px;
+    width: 18px;
+    vertical-align: text-bottom;
+}
+
+/*Todo New CSS */
+.adp-share-header-share-info {
+    display: flex;
+    flex-direction: column; /* Stack the title and sub-info vertically */
+}
+
+.adp-share-header .adp-share-title {
+    font: var(--share-heading-font);
+    width: 100%;
+}
+
+.adp-share-header .actions .adp-action {
+    text-wrap: nowrap;
+    align-items: center;
+}
+
+.adp-share-header .actions {
+    /* vertically align center */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
