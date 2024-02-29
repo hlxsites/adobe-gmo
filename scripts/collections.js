@@ -2,6 +2,7 @@ import { getBearerToken } from './security.js';
 import {
   getAssetHandlerApiKey,
   getDeliveryEnvironment,
+  getBackendApiKey,
 } from './polaris.js';
 import { getPathParams, logError } from './scripts.js';
 import { emitEvent, EventNames } from './events.js';
@@ -34,7 +35,7 @@ async function getRequestHeadersSearchCollections() {
   const token = await getBearerToken();
   return {
     'Content-Type': 'application/json',
-    'x-api-key': 'asset_search_service',
+    'x-api-key': getBackendApiKey(),
     Authorization: token,
     'x-adobe-accept-experimental': '1',
   };
