@@ -1,5 +1,3 @@
-
-import createConfirmDialog from '../../scripts/confirm-dialog.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 
