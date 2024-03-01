@@ -20,11 +20,6 @@
     z-index: 1;
 }
 
-/*
-.adp-share-header-left .adp-share-title {
-    margin-bottom: 12px; /* Keeps space between title and items */
-}
-*/
 .adp-share-subinfo {
     display: flex;
     /* justify-content: space-between; /* Aligns items to the left and select all to the right */
