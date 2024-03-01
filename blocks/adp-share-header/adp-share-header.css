@@ -1,6 +1,3 @@
-.section.adp-share-header-left-container {
-    padding-right: 0;
-}
 
 .adp-share-header {
     display: flex;
@@ -26,15 +23,6 @@
     align-items: center; /* Centers items vertically */
 }
 
-.adp-share-stats {
-    border: #E6E6E6 1px solid;
-    border-radius: 6px;
-    font: 11px/14px var(--body-font-family);
-    padding: 6px 10px;
-    flex-shrink: 0;
-    margin-right: 20px; /* Adjust the 20px to whatever fixed space you want between the items and the checkbox */
-}
-
 .adp-share-select-all {
     display: flex;
     align-items: center; /* This will vertically align the checkbox and label */
@@ -49,7 +37,7 @@
     flex-direction: column; /* Stack the title and sub-info vertically */
 }
 
-.adp-share-header .adp-share-title {
+.adp-share-header {
     font: var(--collection-heading-font);
     width: 100%;
 }

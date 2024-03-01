@@ -56,7 +56,6 @@
     vertical-align: text-bottom;
 }
 
-/*Todo New CSS */
 .adp-collection-header-collection-info {
     display: flex;
     flex-direction: column; /* Stack the title and sub-info vertically */
