@@ -23,10 +23,10 @@ function createShareInfoHeader(shareInfoHeader) {
 
   document.getElementById('select-all-checkbox').addEventListener('click', function(event) {
       // Get the checked state of the select all checkbox
-      var isChecked = event.target.checked;
+      const isChecked = event.target.checked;
 
       // Get all the checkboxes within the cards
-      var checkboxes = document.querySelectorAll('.checkbox-container input[type="checkbox"], .filetype-video .checkbox-container input[type="checkbox"]');
+      const checkboxes = document.querySelectorAll('.checkbox-container input[type="checkbox"], .filetype-video .checkbox-container input[type="checkbox"]');
       // isChecked then selectAllAssets() else deselectAllAssets
       isChecked ? selectAllAssets() : deselectAllAssets();
   });

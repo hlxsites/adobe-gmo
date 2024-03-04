@@ -16,6 +16,8 @@ export default async function decorate(block) {
     infiniteResultsContainer.deselectItem(e.detail.assetId);
   });
   addEventListener(EventNames.CLOSE_BANNER, () => {
+    //Uncheck select all checkbox
+    document.getElementById('select-all-checkbox').checked = false;
     infiniteResultsContainer.clearAllSelections();
   });
 }
