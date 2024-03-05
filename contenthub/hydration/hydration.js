@@ -29,34 +29,73 @@ export async function openUploadDialog() {
     facetOptions[facet] = Object.keys(counts).sort().map((name) => ({id: name, name}));
   }
 
+  let formValues = {};
+  let filesExist = false;
+  let metadataSchema = [];
+  let reloadForm = null;
+
+  const doneText = document.createTextNode('Done');
+  const cancelText = document.createTextNode('Cancel');
+  const uploadText = document.createTextNode('Upload');
+  const moreText = document.createTextNode('Upload More');
+  const cancelButton = document.createElement('button');
+  const addUploadButton = document.createElement('button');
+  addUploadButton.classList.add('action', 'upload-assets');
+  const formChanged = () => {
+    if(filesExist && formIsComplete()){
+      addUploadButton.classList.remove('disabled');
+    }else{
+      addUploadButton.classList.add('disabled');
+    }
+  };
+  
+  const formIsComplete = () => {
+    //find a basic required field that isn't filled.
+    const incomplete = metadataSchema.find((schema) => {
+      if(!schema.required) return;
+      if(schema.requires) return;
+      return Array.isArray(formValues[schema.mapToProperty]) ? formValues[schema.mapToProperty].length === 0 : formValues[schema.mapToProperty] === '';
+    });
+    
+    if(incomplete) return false;
+
+    if(formValues['gmo:campaignName']){
+      if(!formValues['gmo:programName']) return false;
+      if(!formValues['gmo:deliverableType']) return false;
+    }
+
+    if(formValues['gmo:licensedContent'] !== 'no'){
+      if(!formValues['gmo:usageTerms']) return false;
+      if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseDateXXX']) return false;
+    }
+    return true;
+  };
+
+  const licenseDateFieldShow  = {
+    mapToProperty: 'gmo:licenseDateXXX',
+    label: 'Expiration Date',
+    placeholder: 'Select date',
+    required: true,
+    element: 'datepicker',
+    requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes-expire' }],
+  };
+
+  const licenseExpirePerpitytity = new Date();
+  licenseExpirePerpitytity.setFullYear(licenseExpirePerpitytity.getFullYear() + 200);
+  licenseExpirePerpitytity.setHours(23,59,59,999);
+  
+  const licenseDateFieldHidden = {
+    mapToProperty: 'gmo:licenseDateXXX',
+    element: 'hidden',
+    value: +licenseExpirePerpitytity
+  };
+
   //Working on a solution so the form can tell us if it is finished.
   //Until that logic is built, we're making a quick solution to validate this form.
-  const renderForm = async () => {
-    let formValues = {};
-    let filesExist = false;
-    const formIsComplete = () => {
-      //find a basic required field that isn't filled.
-      const incomplete = metadataSchema.find((schema) => {
-        if(!schema.required) return;
-        if(schema.requires) return;
-        return Array.isArray(formValues[schema.mapToProperty]) ? formValues[schema.mapToProperty].length === 0 : formValues[schema.mapToProperty] === '';
-      });
-      
-      if(incomplete) return false;
-
-      if(formValues['gmo:campaignName']){
-        if(!formValues['gmo:programName']) return false;
-        if(!formValues['gmo:deliverableType']) return false;
-      }
-
-      if(formValues['gmo:licensedContent'] !== 'no'){
-        if(!formValues['gmo:usageTerms']) return false;
-        if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseDateXXX']) return false;
-      }
-      return true;
-    };
-
-    const metadataSchema = [
+  const reloadModal = async () => {
+    formValues = {};
+    filesExist = false;
+    metadataSchema = [
       {
         mapToProperty: 'gmo:lineofBusiness',
         label: 'Line of Business',
@@ -271,19 +310,12 @@ export async function openUploadDialog() {
             name: 'Yes (Expires)',
           },
           {
-            id: 'yes-perpetutity',
-            name: 'Yes (in Perpetutity)',
+            id: 'yes-perpetuity',
+            name: 'Yes (in Perpetuity)',
           },
         ],
       },
-      {
-        mapToProperty: 'gmo:licenseDateXXX',
-        label: 'Expiration Date',
-        placeholder: 'Select date',
-        required: true,
-        element: 'datepicker',
-        requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes-expire' }],
-      },
+      licenseDateFieldShow,
       {
         mapToProperty: 'gmo:usageTerms',
         label: 'Licensed usage terms',
@@ -412,52 +444,29 @@ export async function openUploadDialog() {
     ];
 
     //These buttons can be remade in React Spectrum if we move to that library
-    const doneText = document.createTextNode('Done');
-    const cancelText = document.createTextNode('Cancel');
-    const uploadText = document.createTextNode('Upload');
-    const moreText = document.createTextNode('Upload More');
     const navDiv = document.createElement('div');
     navDiv.classList.add('quick-links');
     navDiv.classList.add('upload-actions');
-    const addUploadButton = document.createElement('button');
     navDiv.appendChild(addUploadButton);
-    addUploadButton.classList.add('action', 'upload-assets', 'disabled');
-    addUploadButton.appendChild(uploadText);
 
     const uploadClickEvent = () => {
       if(addUploadButton.classList.contains('disabled')) return;
       addUploadButton.removeEventListener('click', uploadClickEvent);
       UploadCoordinator.initiateUpload();
-      //Ideally, this change of buttons functionality would occur once initiateUpload is complete
-      //Since we do not know how long that will take, we wait 1 second to prevent an accidental
-      //double click.
-      //If the users clicks "Upload More" before their asset finishes uploading, it might fail. 
-      setTimeout(() => {
-        cancelButton.removeChild(cancelText);
-        addUploadButton.removeChild(uploadText);
-        cancelButton.appendChild(doneText);
-        addUploadButton.appendChild(moreText);
-        addUploadButton.addEventListener('click', renderForm);
-      }, 1000);
     };
 
+    addUploadButton.innerHTML = '';
+    addUploadButton.appendChild(uploadText);
+    if(!addUploadButton.classList.contains('disabled')) addUploadButton.classList.add('disabled');
     addUploadButton.addEventListener('click', uploadClickEvent);
 
-    const cancelButton = document.createElement('button');
     navDiv.appendChild(cancelButton);
     cancelButton.classList.add('action','close-upload-assets');
+    cancelButton.innerHTML = '';
     cancelButton.appendChild(cancelText);
     cancelButton.addEventListener('click', () => {
       dialog.close();
     });
-
-    const formChanged = () => {
-      if(filesExist && formIsComplete()){
-        addUploadButton.classList.remove('disabled');
-      }else{
-        addUploadButton.classList.add('disabled');
-      }
-    };
     
     const { dialog, dialogBody } = createDialogHtml('hydration-upload-dialog', {
       dialogHeaderLeftContent: 'Upload your approved assets',
@@ -483,35 +492,8 @@ export async function openUploadDialog() {
       4,
     )}/${folderUUID}`;
     const apiToken = await getImsToken();
-    // eslint-disable-next-line no-undef
-    UploadCoordinator.renderAllInOneUpload(
-      container,
-      {
-        env: 'PROD',
-        apiToken,
-        discoveryLinks,
-        targetUploadPath,
-        rootPath: targetUploadPath,
-        hideUploadButton: true, //this button cannot be controlled
-        uploadingPlaceholder: {
-          href: 'https://1000logos.net/wp-content/uploads/2016/10/Adobe-Logo-1993.jpg',
-          alt: 'Adobe Logo'
-        },
-        onFilesChange: (files) => {
-          filesExist = files?.length;
-          formChanged();
-        },
-        onMetadataFormChange: (e) => {
-          formValues[e.property] = e.value;
-          formChanged();
-        },
-        metadataSchema,
-      },
-      // eslint-disable-next-line no-console
-      () => {
-        console.log('rendered MFE!');
-      },
-    );
+    reloadForm = renderUploadCoordinator(container, apiToken, discoveryLinks, targetUploadPath, dialog);
+    reloadForm(metadataSchema);
 
     addDialogEventListeners(dialog, {
       removeDialogElementOnClose: true,
@@ -520,6 +502,62 @@ export async function openUploadDialog() {
     });
   };
 
-  renderForm();
+  const renderUploadCoordinator = (container, apiToken, discoveryLinks, targetUploadPath, dialog) => {
+    return (mdschema) => {
+      // eslint-disable-next-line no-undef
+      UploadCoordinator.renderAllInOneUpload(
+        container,
+        {
+          env: 'PROD',
+          apiToken,
+          discoveryLinks,
+          targetUploadPath,
+          rootPath: targetUploadPath,
+          hideUploadButton: true, //this button cannot be controlled
+          uploadingPlaceholder: {
+            href: 'https://1000logos.net/wp-content/uploads/2016/10/Adobe-Logo-1993.jpg',
+            alt: 'Adobe Logo'
+          },
+          onFilesChange: (files) => {
+            filesExist = files?.length;
+            formChanged();
+          },
+          onMetadataFormChange: (e) => {
+            if (e.property === 'gmo:licensedContent') {
+              const licenseExpirationIndex = metadataSchema.findIndex((field) => field.mapToProperty === 'gmo:licenseDateXXX');
+              if (e.value === 'yes-perpetuity') {
+                metadataSchema[licenseExpirationIndex] = licenseDateFieldHidden;
+              }else{
+                metadataSchema[licenseExpirationIndex] = licenseDateFieldShow;
+              }
+              reloadForm(metadataSchema);
+            }
+
+            formValues[e.property] = e.value;
+            formChanged();
+          },
+          onUploadComplete: () => {
+            cancelButton.removeChild(cancelText);
+            addUploadButton.removeChild(uploadText);
+            cancelButton.appendChild(doneText);
+            addUploadButton.appendChild(moreText);
+            const resetFormClickEvent = () => {
+              addUploadButton.removeEventListener('click', resetFormClickEvent);
+              dialog.close();
+              reloadModal();
+            };
+            addUploadButton.addEventListener('click', resetFormClickEvent);
+          },
+          metadataSchema: mdschema,
+        },
+        // eslint-disable-next-line no-console
+        () => {
+          console.log('rendered MFE!');
+        },
+      );
+    }
+  }
+
+  reloadModal();
 
 }
