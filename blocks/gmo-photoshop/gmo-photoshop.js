@@ -10,49 +10,98 @@ const s3key = psAdminConfig.s3key;
 const s3secret = psAdminConfig.s3secret;
 let psToken;
 let s3;
-let psAssetJSON, psAssetName, psAssetTitle, psAssetId;
+let psAssetJSON, psAssetName, psAssetTitle, psAssetId, psAssetFormat;
 let downloadUrl, psUploadUrl;
 
+const testPsd = 'newtestpsd.psd';
+
 export default async function decorate(block) {
+
+    // image block
     block.innerHTML=`
     <dialog class="ps-workshop ps-dialog">
-        <div aria-label="Controls" class="control-rail">
-            <div class="ps-dialog-apis-buttons">
-                <div id="toggle-removeBg" data-switch="removeBg" class="toggle-removeBg togglebtn" title="Remove Background"></div>
-                <div id="toggle-imageMask" data-switch="imageMask" class="toggle-imageMask togglebtn" title="Generate Mask"></div>
-                <div id="toggle-renditions" data-switch="renditions" class="toggle-renditions togglebtn" title="Generate Renditions"></div>
-                <div id="toggle-crop" data-switch="crop" class="toggle-crop togglebtn" title="Product Crop"></div>
-            </div>
-            <div class="ps-dialog-close-button">
-                <div id="ps-dialog-close-modal" class="ps-dialog-close-modal">X</div>
-            </div>
-        </div>
-        <div autofocus aria-label="Photoshop">
-            <div class="ps-dialog-area ps-dialog-header">
-                <span class="dialog-title" id="ps-dialog-title"></span>
-            </div>
-            <div class="ps-dialog-area ps-dialog-body"></div>
-            <div class="ps-dialog-area ps-dialog-image-holder">
-                <div class="ps-dialog-orig-wrapper">
-                    <div class="ps-dialog-orig-header hidden">
-                        Original Image
+        <div class="image-functions hidden">
+            <div aria-label="Controls" class="control-rail">
+                <div class="ps-dialog-apis-buttons">
+                    <div id="removeBg" class="button api">
+                        <span class="button-text">Remove BG</span>
                     </div>
-                    <div class="ps-dialog-orig">
+                    <div id="imageMask" class="button api">
+                        <span class="button-text">Image Mask</span>
+                    </div>
+                    <div id="renditions" class="button api">
+                        <span class="button-text">Rendition</span>
+                    </div>
+                    <div id="crop" class="button api">
+                        <span class="button-text">Crop</span>
                     </div>
                 </div>
-                <div class="ps-dialog-results-wrapper">
-                    <div class="ps-dialog-results-header hidden">
-                        Results
+                <div class="ps-dialog-close-button">
+                    <div id="ps-dialog-close-modal" class="ps-dialog-close-modal">X</div>
+                </div>
+            </div>
+            <div autofocus aria-label="Photoshop">
+                <div class="ps-dialog-area ps-dialog-header">
+                    <span class="dialog-title" id="ps-dialog-title"></span>
+                </div>
+                <div class="ps-dialog-area ps-dialog-body"></div>
+                <div class="ps-dialog-area ps-dialog-image-holder">
+                    <div class="ps-dialog-orig-wrapper">
+                        <div class="ps-dialog-orig-header hidden">
+                            Original Image
+                        </div>
+                        <div class="ps-dialog-orig">
+                        </div>
                     </div>
-                    <div class="ps-dialog-results">
+                    <div class="ps-dialog-results-wrapper">
+                        <div class="ps-dialog-results-header hidden">
+                            Results
+                        </div>
+                        <div class="ps-dialog-results">
+                        </div>
                     </div>
+                </div>
+                <div class="ps-dialog-area ps-dialog-controls">
+                    <div class="button check-status">
+                        <span class="button-text">Check Status</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="psd-functions hidden">
+            <div class="loader">
+            </div>
+            <div aria-label="Controls" class="control-rail hidden">
+                <div class="ps-dialog-apis-buttons">
+                    <div id="psdtest" class="button api psdtest">
+                        <span class="button-text">PSD Presigned Get</span>
+                    </div>
+                    <div id="psdlayers" class="button api psdlayer">
+                        <span class="button-text">PSD Layer Info</span>
+                    </div>
+                    <div id="textedit" class="button api textedit">
+                        <span class="button-text">Test Text Edit</span>
+                    </div>
+                </div>
+                <div class="ps-dialog-close-button">
+                    <div id="ps-dialog-close-modal" class="ps-dialog-close-modal">X</div>
+                </div>
+            </div>
+            <div id="psd-wrapper">
+                <div id="psd-col1" class="column1">
+                    <div id="text-adjust">
+                    </div>
+                    <div id="psd-renditions">
+                    </div>
+                </div>
+                <div id="psd-col2" class="column2">
                 </div>
             </div>
             <div class="ps-dialog-area ps-dialog-controls">
-                <div class="button check-status">
-                    <span class="button-text">Check Status</span>
+                <div id="psdstatus" class="button psdstatus">
+                    <span class="button-text">Check PSD Status</span>
                 </div>
-            </div>
+            </div>    
         </div>
     </dialog>`;
 
@@ -60,24 +109,24 @@ export default async function decorate(block) {
     // do more stuff here
     await initAWS();
 
-
+    // image actions
     const statusButton = block.querySelector(".check-status");
     statusButton.addEventListener('click', async () => {
         pollJobStatus();
     });
-    const renditionBtn = block.querySelector(".toggle-renditions");
+    const renditionBtn = block.querySelector("#renditions");
     renditionBtn.addEventListener('click', () => {
         renditions();
     });
-    const cropBtn = block.querySelector(".toggle-crop");
+    const cropBtn = block.querySelector("#crop");
     cropBtn.addEventListener('click', () => {
         productCrop();
     });
-    const maskBtn = block.querySelector(".toggle-imageMask");
+    const maskBtn = block.querySelector("#imageMask");
     maskBtn.addEventListener('click', () => {
         imageMask();
     });
-    const rbgBtn = block.querySelector(".toggle-removeBg");
+    const rbgBtn = block.querySelector("#removeBg");
     rbgBtn.addEventListener('click', async () => {
         removeBg();
     });
@@ -85,6 +134,25 @@ export default async function decorate(block) {
     closeModalBtn.addEventListener('click', () => {
         closeModal();
     })
+    // end image actions
+
+    const psdTestBtn = block.querySelector("#psdtest");
+    psdTestBtn.addEventListener('click', async () => {
+        const presigned = await getPresignedURL('getObject', testPsd);
+        console.log(presigned);
+    });
+    const editTextBtn = block.querySelector("#textedit");
+    editTextBtn.addEventListener('click', async () => {
+        editTextLayer();
+    });
+    const psdLayerBtn = block.querySelector("#psdlayers");
+    psdLayerBtn.addEventListener('click', async () => {
+        getLayerInfo();
+    });
+    const psdStatusBtn = block.querySelector("#psdstatus");
+    psdStatusBtn.addEventListener('click', () => {
+        checkLayerInfoStatus();
+    });
 }
 
 async function initAWS() {
@@ -99,11 +167,17 @@ async function initAWS() {
 
 async function getAssetInfo() {
     psAssetJSON = await getAssetMetadata(psAssetId);
+    //console.log(psAssetJSON);
+    //console.log(psAssetJSON.repositoryMetadata);
+    psAssetFormat = psAssetJSON.repositoryMetadata['dc:format'];
+    // --> image/vnd.adobe.photoshop
     psAssetName = getAssetName(psAssetJSON);
     psAssetTitle = getAssetTitle(psAssetJSON);
     document.querySelector("#ps-dialog-title").textContent = psAssetTitle;
     downloadUrl = await getDownloadUrl(psAssetId, psAssetName);
-    psUploadUrl = await getPresignedURL('putObject');
+    psUploadUrl = await getPresignedURL('putObject', 'psapi.jpg');
+
+    //get asset type and adjust what loads
 }
 
 //actual api calls start here -----
@@ -263,15 +337,16 @@ async function imageMask() {
     checkBtn.dataset.completed = "false";
 }
 
-async function getPresignedURL(type) {
-    const filePath = 'psapi.jpg'; 
+async function getPresignedURL(type, fileName) {
+    //const filePath = 'psapi.jpg'; 
+
     const bucketName = 'psapibucket'; 
     if (!s3) {
         await initAWS();
     }
     var params = {
         Bucket: bucketName,
-        Key: filePath, //path the uploaded file will live in
+        Key: fileName, //path the uploaded file will live in
         Expires: 3600 // expiration time for the presigned URL in seconds
     };
  
@@ -335,7 +410,7 @@ async function pollJobStatus() {
     if (operation == "mask" || operation == "removeBg") {
         if (responseJson.status == 'succeeded') {
             shrinkOriginal();
-            const result = await getPresignedURL('getObject');
+            const result = await getPresignedURL('getObject', 'psapi.jpg');
             const responseBlob = await fetch(result).then(response => {
                 return response.blob();
             });
@@ -348,7 +423,7 @@ async function pollJobStatus() {
     if (operation == "renditions" || operation == "crop") {
         if (responseJson.outputs[0].status == 'succeeded') {
             shrinkOriginal();
-            const result = await getPresignedURL('getObject');
+            const result = await getPresignedURL('getObject', 'psapi.jpg');
             const responseBlob = await fetch(result).then(response => {
                 return response.blob();
             })
@@ -410,11 +485,216 @@ export async function openModal(assetId) {
     await getAssetInfo();
     document.body.classList.add('no-scroll');
     const dialog = document.querySelector('.gmo-photoshop.block dialog');
-    appendImgToRoot(downloadUrl, false);
+    //if (psAssetFormat == "image/vnd.adobe.photoshop") {
+    // testing
+    const testFormat = "image/vnd.adobe.photoshop";
+    if (testFormat == "image/vnd.adobe.photoshop") {
+        dialog.querySelector(".psd-functions").classList.remove('hidden');
+        await getLayerInfo();
+
+    } else {
+        dialog.querySelector(".image-functions").classList.remove('hidden');
+        appendImgToRoot(downloadUrl, false);
+    }
     dialog.showModal();
 }
 
 function closeModal() {
     const dialog = document.querySelector('.gmo-photoshop.block dialog');
+    // clear stuff here
     dialog.close();
+}
+
+async function getLayerInfo() {
+    const token = await getPSToken();
+    const apiUrl = 'https://image.adobe.io/pie/psdService/documentManifest';
+    const storageType = 'external';
+    //console.log(psUploadUrl);
+    const getPsdURL = await getPresignedURL('getObject', testPsd);
+    //const putPsdURl = await getPresignedURL('putObject', '')
+    const inputs = {
+        'inputs': [
+            {
+            'storage': storageType,
+            'href': getPsdURL // must be public
+            }
+        ],
+        'options': {
+            'thumbnails': {
+                'type': 'image/jpeg'
+            }
+        }
+    };
+    const options = {
+        method: 'POST',
+        headers: {
+          'x-api-key': psKey,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
+        },
+        body: JSON.stringify(inputs),
+    };
+
+    const responseJson = await fetch(apiUrl, options).then(response => {
+        return response.json();
+    });
+    console.log(responseJson);
+    console.log(responseJson._links.self.href);
+    const checkBtn = document.querySelector("#psdstatus");
+    checkBtn.dataset.status = responseJson._links.self.href;
+    checkBtn.dataset.operation = "layerinfo";
+    checkBtn.dataset.completed = "false";
+}
+
+async function checkLayerInfoStatus() {
+    const statusBtn = document.querySelector("#psdstatus");
+    if (statusBtn.dataset.completed == "true") {
+        return
+    }
+    const statusUrl = statusBtn.dataset.status;
+    const operation = statusBtn.dataset.operation;
+    const token = await getPSToken();
+
+    const options = {
+        method: 'GET',
+        headers: {
+            'X-Api-Key': psKey,
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
+        }
+    };
+    const responseJson = await fetch(statusUrl, options).then(response => {
+        return response.json();
+    });
+    const output = responseJson.outputs[0];
+    console.log(output.status);
+    console.log(output.layers);
+    output.layers.forEach((layer) => {
+        console.log("layer name: " + layer.name)
+        console.log("layer thumbnail: " + layer.thumbnail)
+        console.log("layer children: " + layer.children)
+        // get the thumbnail for a child's smart object?
+        // get any text layers and display. how do we do textupdate?
+    
+    })
+    
+
+    if (operation == "layerinfo") {
+        if (output.status == 'succeeded') {
+            //shrinkOriginal();
+            //const result = await getPresignedURL('getObject', 'psapi.jpg');
+            //const responseBlob = await fetch(result).then(response => {
+            //    return response.blob();
+            //});
+            //const resultImg = await base64Encode(responseBlob);
+            //appendImgToRoot(resultImg, true);
+            statusBtn.dataset.completed = "true";
+            console.log('good result');
+            document.querySelector(".loader").classList.add('hidden');
+            document.querySelector(".psd-functions .control-rail.hidden").classList.remove('hidden');
+            document.querySelector("#psd-wrapper").classList.remove('hidden');
+
+            output.layers.forEach((layer) => {
+                console.log("layer name: " + layer.name)
+                console.log("layer thumbnail: " + layer.thumbnail)
+                console.log("layer children: " + layer.children)
+                // get the thumbnail for a child's smart object?
+                // get any text layers and display. how do we do textupdate?
+                // handle text layer manipulation
+                const textEditArea = document.querySelector('#text-adjust');
+                const textLayers = layer.children.filter(child => child.type === "textLayer");
+                console.log(textLayers);
+
+                textLayers.forEach((layer) => {
+                    //<textarea id="newtext" name="newtext" role="text2image" class="input" maxlength="1024" placeholder="Add your new text here"></textarea>
+                    const textInput = document.createElement('textarea');
+                    textInput.id = layer.name;
+                    textInput.name = layer.name;
+                    textInput.classList.add('textinput');
+                    textInput.placeholder = layer.text.content;
+                    textInput.dataset.original = layer.text.content;
+                    textEditArea.appendChild(textInput);
+                })
+            })
+        }
+    }
+}
+
+async function editTextLayer() {
+    // get new text for each layer
+
+    const token = await getPSToken();
+    const apiUrl = 'https://image.adobe.io/pie/psdService/text';
+    const storageType = 'external';
+    //console.log(psUploadUrl);
+    const timestamp = Date.now();
+    const resultFileName = 'textedit-' + timestamp + '.psd'
+    const getPsdURL = await getPresignedURL('getObject', testPsd);
+    const putPsdURl = await getPresignedURL('putObject', resultFileName)
+    // count # of text layers
+    const textInputs = document.querySelectorAll('.textinput');
+    console.log(textInputs.length);
+    let layers = [];
+    let count = 0;
+    textInputs.forEach((input) => {
+        layers[count] = {
+            'name': input.name,
+            'text': {
+                'content': input.value
+            }
+        }
+        count++;
+    })
+    console.log(layers);
+
+    /*
+        'options': {
+            'layers':[
+              {
+                'name': "Sleepy Cats",
+                "text": {
+                    "content": "CHANGED TO NEW TEXT"
+                }
+              }
+            ]
+        },
+    */
+    const inputs = {
+        'inputs': [
+            {
+            'storage': storageType,
+            'href': getPsdURL // must be public
+            }
+        ],
+        'options': { layers },
+        'outputs': [
+            {
+              'href': putPsdURl,
+              'storage': storageType,
+              'type': 'vnd.adobe.photoshop'
+            }
+        ]
+    };
+    const options = {
+        method: 'POST',
+        headers: {
+          'x-api-key': psKey,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
+        },
+        body: JSON.stringify(inputs),
+    };
+
+    const responseJson = await fetch(apiUrl, options).then(response => {
+        return response.json();
+    });
+    console.log(responseJson);
+    console.log(responseJson._links.self.href);
+    const checkBtn = document.querySelector("#psdstatus");
+    checkBtn.dataset.status = responseJson._links.self.href;
+    checkBtn.dataset.operation = "layerinfo";
+    checkBtn.dataset.completed = "false";
 }

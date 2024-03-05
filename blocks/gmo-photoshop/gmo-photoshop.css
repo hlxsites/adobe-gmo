@@ -10,12 +10,12 @@
     padding: 0.833em;
     text-align: center;
     cursor: pointer;
-    &:first-child {
-        margin-right: 10px;
-    }
-    &:not(:first-child) {
-        margin-left: 10px;
-    }
+}
+
+.button.api {
+    width: 60px;
+    font-size: 10px;
+    margin-right: 10px;
 }
 .gmo-photoshop.block dialog.show-dialog {
     display: block;
@@ -73,3 +73,23 @@
 .ps-dialog-apis-buttons {
     width: 90%;
 }
+.loader {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+    margin-bottom: 100px;
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 75px;
+    height: 75px;
+    animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .psd-wrapper {
+    display: flex;
+  }
