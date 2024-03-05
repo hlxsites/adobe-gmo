@@ -18,17 +18,10 @@ function createShareInfoHeader(shareInfoHeader) {
             </div>
           </div>
         </div>
-        </div>
     `;
 
-  document.getElementById('select-all-checkbox').addEventListener('click', function(event) {
-      // Get the checked state of the select all checkbox
-      const isChecked = event.target.checked;
-
-      // Get all the checkboxes within the cards
-      const checkboxes = document.querySelectorAll('.checkbox-container input[type="checkbox"], .filetype-video .checkbox-container input[type="checkbox"]');
-      // isChecked then selectAllAssets() else deselectAllAssets
-      isChecked ? selectAllAssets() : deselectAllAssets();
+  document.getElementById('select-all-checkbox').addEventListener('click', (event) => {
+      event.target.checked ? selectAllAssets() : deselectAllAssets();
   });
 
   decorateIcons(shareInfoHeader);
