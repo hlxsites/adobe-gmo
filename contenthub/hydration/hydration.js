@@ -87,7 +87,7 @@ export async function openUploadDialog() {
   const licenseDateFieldHidden = {
     mapToProperty: 'gmo:licenseDateXXX',
     element: 'hidden',
-    value: +licenseExpirePerpitytity
+    value: licenseExpirePerpitytity.toISOString()
   };
 
   //Working on a solution so the form can tell us if it is finished.
