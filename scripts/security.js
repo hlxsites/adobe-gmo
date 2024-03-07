@@ -111,3 +111,14 @@ export async function checkUserAccess() {
     }
   }
 }
+
+export async function checkUserUploadAccess() {
+  await getBearerToken();
+  const { imsUserGroup } = await getIMSConfig();
+  const imsLibSecurityModule = await import('./security-imslib.js');
+  const targetGroupName = 'Deployment Manager - Cloud Service';
+  const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
+  const filteredIMSUserGroup = await securityGroupMemberships.filter((obj) => obj.groupName === targetGroupName);
+  console.log('in the function', filteredIMSUserGroup);
+  return filteredIMSUserGroup.length > 0 ? true : false;
+  }
