@@ -53,6 +53,8 @@ export default class LinkShareDatasource {
         },
         removeItemFromMultiSelectionHandler: () => {
           infiniteResultsContainer.removeItemFromMultiSelection(assetId);
+          //Uncheck select all checkbox
+          document.getElementById('select-all-checkbox').checked = false;
         },
       },
     );
