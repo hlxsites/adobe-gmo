@@ -1,5 +1,7 @@
 import { fetchCached } from './fetch-util.js';
 import { isUnifiedShellRuntimeAvailable, shell, user } from '../contenthub/unified-shell.js';
+import { getAdminConfig } from './site-config.js';
+import { getSecurityGroupMemberships } from './security-imslib.js';
 
 /**
  * @return {Promise<{imsOrgWithoutDomain: {string}, imsEnvironment: {string}, imsOrgID: {string}}|null>}
@@ -110,4 +112,10 @@ export async function checkUserAccess() {
       return true;
     }
   }
+}
+
+export async function checkAddAssetsAccess() {
+  const adminConfig = await getAdminConfig();
+  const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
+  return securityGroupMemberships.some((grp) => grp.groupName === adminConfig.imsAuthorGroup);
 }
