@@ -90,6 +90,29 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
-  .psd-wrapper {
+  #psd-wrapper {
     display: flex;
+  }
+  #background-replace {
+    max-width: 400px;
+  }
+  #psd-col1 {
+    margin-right: 50px;
+  }
+  .thumbnail-wrapper {
+    display: flex;
+    width: 400px;
+    border: 2px solid black;
+    margin-bottom: 40px;
+    padding: 4px;
+  }
+  
+  .thumbnail-wrapper img {
+    max-width: 75%;
+  }
+  .thumbnail-control-wrapper {
+    margin-left: 20px;
+  }
+  .thumbnail-control-wrapper .button {
+    width: 60px;
   }

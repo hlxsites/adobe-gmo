@@ -89,12 +89,10 @@ export default async function decorate(block) {
             </div>
             <div id="psd-wrapper">
                 <div id="psd-col1" class="column1">
-                    <div id="text-adjust">
-                    </div>
-                    <div id="psd-renditions">
-                    </div>
+                    <div id="text-adjust"></div>
                 </div>
                 <div id="psd-col2" class="column2">
+                    <div id="background-replace"></div>
                 </div>
             </div>
             <div class="ps-dialog-area ps-dialog-controls">
@@ -604,8 +602,56 @@ async function checkLayerInfoStatus() {
                 // get any text layers and display. how do we do textupdate?
                 // handle text layer manipulation
                 const textEditArea = document.querySelector('#text-adjust');
+                const bgEditArea = document.querySelector('#background-replace');
                 const textLayers = layer.children.filter(child => child.type === "textLayer");
+                const smartObjLayers = layer.children.filter(child => child.type === "smartObject");
                 console.log(textLayers);
+
+                smartObjLayers.forEach((layer) => {
+                    console.log(layer.name);
+                    //<textarea id="newtext" name="newtext" role="text2image" class="input" maxlength="1024" placeholder="Add your new text here"></textarea>
+                    
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('thumbnail-wrapper');
+                    wrapper.dataset.name = layer.name;
+                    const buttonWrapper = document.createElement('div');
+                    buttonWrapper.className = ('thumbnail-control-wrapper');
+                    const uploadBtn = document.createElement('div');
+                    uploadBtn.className = ('button upload-img');
+                    uploadBtn.dataset.name = layer.name;
+                    uploadBtn.dataset.action = "change";
+                    uploadBtn.textContent = "Upload";
+                    uploadBtn.addEventListener('click', (event) => {
+                        console.log(event.target);
+                        changeThumbnail(event.target);
+                    })
+                    const deleteBtn = document.createElement('div');
+                    deleteBtn.className = ('button delete-img');
+                    deleteBtn.dataset.name = layer.name;
+                    deleteBtn.dataset.action = "delete";
+                    deleteBtn.textContent = "Delete" // this isn't actually deleting, the layer is being hidden
+                    deleteBtn.addEventListener('click', (event) => {
+                        console.log(event.target);
+                        deleteThumbnail(event.target);
+                    })
+                    const thumbnail = document.createElement('img');
+                    thumbnail.src = layer.thumbnail;
+                    thumbnail.id = layer.name;
+                    thumbnail.name = layer.name;
+                    wrapper.appendChild(thumbnail);
+                    buttonWrapper.appendChild(deleteBtn);
+                    buttonWrapper.appendChild(uploadBtn);
+                    wrapper.appendChild(buttonWrapper);
+                    bgEditArea.appendChild(wrapper);
+                    /*const textInput = document.createElement('textarea');
+                    textInput.id = layer.name;
+                    textInput.name = layer.name;
+                    textInput.classList.add('textinput');
+                    textInput.placeholder = layer.text.content;
+                    textInput.dataset.original = layer.text.content;
+                    textEditArea.appendChild(textInput);
+                    */
+                })
 
                 textLayers.forEach((layer) => {
                     //<textarea id="newtext" name="newtext" role="text2image" class="input" maxlength="1024" placeholder="Add your new text here"></textarea>
@@ -620,6 +666,81 @@ async function checkLayerInfoStatus() {
             })
         }
     }
+}
+
+async function updateSmartObject() {
+    const token = await getPSToken();
+    const apiUrl = 'https://image.adobe.io/pie/psdService/text';
+    const storageType = 'external';
+    const timestamp = Date.now();
+    const resultFileName = 'textedit-' + timestamp + '.psd'
+    const getPsdURL = await getPresignedURL('getObject', testPsd);
+    const putPsdURL = await getPresignedURL('putObject', resultFileName)
+    let layers = [];
+    let count = 0;
+    const imgInputs = document.querySelectorAll('.thumbnail-wrapper');
+    console.log(imgInputs.length);
+    imgInputs.forEach((input) => {
+        const imgHide = input.dataset.delete; // dummy value
+        if (imgHide) {
+
+        }
+        layers[count] = {
+            'name': input.name,
+            'text': {
+                'content': input.value
+            }
+        }
+        count++;
+    })
+    const inputs = {
+        'inputs': [
+            {
+            'storage': storageType,
+            'href': getPsdURL // must be public
+            }
+        ],
+        'options': { layers },
+        'outputs': [
+            {
+              'href': putPsdURl,
+              'storage': storageType,
+              'type': 'vnd.adobe.photoshop'
+            }
+        ]
+    };
+    const options = {
+        method: 'POST',
+        headers: {
+          'x-api-key': psKey,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
+        },
+        body: JSON.stringify(inputs),
+    };
+    const responseJson = await fetch(apiUrl, options).then(response => {
+        return response.json();
+    });
+    console.log(responseJson);
+    console.log(responseJson._links.self.href);
+}
+
+async function deleteThumbnail() {
+    //move up to wrpaper level
+    const wrapper = '';
+    wrapper.dataset.action = "delete";
+
+}
+
+async function changeThumbnail() {
+    
+    //update image source to new image
+    //move up to wrpaper level
+    const wrapper = '';
+    wrapper.dataset.action = "change";
+
+
 }
 
 async function editTextLayer() {
