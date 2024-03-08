@@ -4,7 +4,7 @@ import {
 import {
   getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
 } from '../../scripts/site-config.js';
-import { getUserProfile, getAvatarUrl, isPublicPage } from '../../scripts/security.js';
+import { getUserProfile, getAvatarUrl, isPublicPage, checkAddAssetsAccess } from '../../scripts/security.js';
 import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/shared.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
@@ -227,7 +227,7 @@ export default async function decorate(block) {
     if (!window.unifiedShellRuntime) {
       await createUserInfo(nav);
     }
-    initQuickLinks();
+    initQuickLinks(await checkAddAssetsAccess());
     initBanner(nav);
   }
 }
@@ -315,7 +315,7 @@ async function handleRemoveMultiSelectedAssetsFromCollection() {
   window.location.reload();
 }
 
-function initQuickLinks() {
+function initQuickLinks(addAssetsAccess) {
   if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
     return;
   }
@@ -341,18 +341,19 @@ function initQuickLinks() {
     quickLinks.append(itemEl);
   });
 
-  const navDiv = document.createElement('div');
-  navDiv.classList.add('item');
-  const addAssetsButton = document.createElement('button');
-  addAssetsButton.classList.add('action', 'add-assets');
-  navDiv.appendChild(addAssetsButton);
-  addAssetsButton.appendChild(document.createTextNode('Add Assets'));
-  addAssetsButton.addEventListener('click', () => {
+  if (addAssetsAccess) {
+    const navDiv = document.createElement('div');
+    navDiv.classList.add('item');
+    const addAssetsButton = document.createElement('button');
+    addAssetsButton.classList.add('action', 'add-assets');
+    navDiv.appendChild(addAssetsButton);
+    addAssetsButton.appendChild(document.createTextNode('Add Assets'));
+    addAssetsButton.addEventListener('click', () => {
     openUploadDialog();
-  });
-  quickLinks.appendChild(navDiv);
-
-  // set aria-selected on quick links
+    });
+    quickLinks.appendChild(navDiv);
+  }
+  //set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {
     if (item.querySelector('a')?.dataset.page === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');

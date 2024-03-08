@@ -1,13 +1,14 @@
 import { openUploadDialog } from '../../contenthub/hydration/hydration.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
+import { checkAddAssetsAccess } from '../../scripts/security.js';
 import { isContentHub } from '../../scripts/site-config.js';
 
 export default async function decorate(block) {
   block.innerHTML = '';
   const assetActionsDiv = document.createElement('div');
   assetActionsDiv.className = 'actions-container';
-  // add Asset actions button
-  if (await isContentHub()) {
+  //add Asset actions button
+  if (await isContentHub() && await checkAddAssetsAccess()) {
     const addAssetsButton = document.createElement('button');
     addAssetsButton.classList.add('action', 'add-assets');
     const addAssetsSpan = document.createElement('span');

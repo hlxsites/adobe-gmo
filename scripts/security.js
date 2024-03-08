@@ -1,5 +1,7 @@
 import { fetchCached } from './fetch-util.js';
 import { isUnifiedShellRuntimeAvailable, shell, user } from '../contenthub/unified-shell.js';
+import { getAdminConfig } from './site-config.js';
+import { getSecurityGroupMemberships } from './security-imslib.js';
 
 /**
  * @return {Promise<{imsOrgWithoutDomain: {string}, imsEnvironment: {string}, imsOrgID: {string}}|null>}
@@ -112,13 +114,11 @@ export async function checkUserAccess() {
   }
 }
 
-export async function checkUserUploadAccess() {
+export async function checkAddAssetsAccess() {
   await getBearerToken();
-  const { imsUserGroup } = await getIMSConfig();
-  const imsLibSecurityModule = await import('./security-imslib.js');
-  const targetGroupName = 'Deployment Manager - Cloud Service';
+  const adminConfig = await getAdminConfig();
+  const targetGroupName = adminConfig.imsAddAssetsGroup;
   const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
   const filteredIMSUserGroup = await securityGroupMemberships.filter((obj) => obj.groupName === targetGroupName);
-  console.log('in the function', filteredIMSUserGroup);
   return filteredIMSUserGroup.length > 0 ? true : false;
   }
