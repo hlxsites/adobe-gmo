@@ -115,10 +115,7 @@ export async function checkUserAccess() {
 }
 
 export async function checkAddAssetsAccess() {
-  await getBearerToken();
   const adminConfig = await getAdminConfig();
-  const targetGroupName = adminConfig.imsAddAssetsGroup;
   const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
-  const filteredIMSUserGroup = await securityGroupMemberships.filter((obj) => obj.groupName === targetGroupName);
-  return filteredIMSUserGroup.length > 0 ? true : false;
-  }
+  return securityGroupMemberships.some((grp) => grp.groupName === adminConfig.imsAuthorGroup);
+}

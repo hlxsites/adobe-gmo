@@ -227,7 +227,7 @@ export default async function decorate(block) {
     if (!window.unifiedShellRuntime) {
       await createUserInfo(nav);
     }
-    initQuickLinks(await checkAddAssetsAccess());
+    initQuickLinks();
     initBanner(nav);
   }
 }
@@ -315,7 +315,7 @@ async function handleRemoveMultiSelectedAssetsFromCollection() {
   window.location.reload();
 }
 
-function initQuickLinks(addAssetsAccess) {
+async function initQuickLinks() {
   if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
     return;
   }
@@ -341,7 +341,7 @@ function initQuickLinks(addAssetsAccess) {
     quickLinks.append(itemEl);
   });
 
-  if (addAssetsAccess) {
+  if (await checkAddAssetsAccess()) {
     const navDiv = document.createElement('div');
     navDiv.classList.add('item');
     const addAssetsButton = document.createElement('button');
@@ -349,7 +349,7 @@ function initQuickLinks(addAssetsAccess) {
     navDiv.appendChild(addAssetsButton);
     addAssetsButton.appendChild(document.createTextNode('Add Assets'));
     addAssetsButton.addEventListener('click', () => {
-    openUploadDialog();
+      openUploadDialog();
     });
     quickLinks.appendChild(navDiv);
   }
