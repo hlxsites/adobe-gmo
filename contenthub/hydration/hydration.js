@@ -126,7 +126,7 @@ export async function openUploadDialog() {
           },
           onMetadataFormChange: (e) => {
             if (e.property === 'gmo:licensedContent') {
-              const licenseExpirationIndex = metadataSchema.findIndex((field) => field.mapToProperty === 'gmo:licenseDateXXX');
+              const licenseExpirationIndex = metadataSchema.findIndex((field) => field.mapToProperty === 'gmo:licenseExpiryDate');
               if (e.value === 'yes-perpetuity') {
                 metadataSchema[licenseExpirationIndex] = licenseDateFieldHidden;
               }else{
