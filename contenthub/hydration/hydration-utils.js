@@ -294,12 +294,6 @@ export function getMetadataSchema(facetOptions){
           ],
         },
         {
-          mapToProperty: 'dc:subject',
-          label: 'Keywords',
-          placeholder: 'Enter comma-separated list',
-          element: 'text',
-        },
-        {
           mapToProperty: 'gmo:contentType',
           label: 'Content Type',
           placeholder: 'Select one',
