@@ -36,13 +36,13 @@ export function formIsComplete(metadataSchema, formValues) {
 
   if(formValues['gmo:licensedContent'] !== 'no'){
     if(!formValues['gmo:usageTerms']) return false;
-    if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseDateXXX']) return false;
+    if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseExpiryDate']) return false;
   }
   return true;
 };
 
 export const licenseDateFieldShow  = {
-  mapToProperty: 'gmo:licenseDateXXX',
+  mapToProperty: 'gmo:licenseExpiryDate',
   label: 'Expiration Date',
   placeholder: 'Select date',
   required: true,
@@ -55,7 +55,7 @@ licenseExpirePerpitytity.setFullYear(licenseExpirePerpitytity.getFullYear() + 20
 licenseExpirePerpitytity.setHours(23,59,59,999);
 
 export const licenseDateFieldHidden = {
-  mapToProperty: 'gmo:licenseDateXXX',
+  mapToProperty: 'gmo:licenseExpiryDate',
   element: 'hidden',
   value: licenseExpirePerpitytity.toISOString()
 };
@@ -401,5 +401,5 @@ export function getMetadataSchema(facetOptions){
           value: 'approved',
           element: 'hidden',
         },
-      ]
+    ];
 }
