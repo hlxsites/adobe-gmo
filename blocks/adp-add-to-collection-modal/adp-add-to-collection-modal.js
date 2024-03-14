@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  searchListCollection, createCollection, patchCollection, getCollection,
+  listCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
 import { getSelectedAssetsFromInfiniteResultsBlock, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
@@ -43,18 +43,38 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
     dropdownSelect.classList.add('add-to-existing-dropdown'); // Add the new class
 
     // Function to load more data when reaching the end of the dropdown
-    const loadMoreData = async (page) => {
-      // Call to get the nbHits for the total number of Collections
-      const collectionMax = await searchListCollection(0, 0);
-      // Get all the collections
-      const collectionData = await searchListCollection(collectionMax.nbHits, page);
+    const loadMoreData = async (cursor) => {
+      const collectionData = await listCollection({ cursor, limit: 10 }); // Adjust the limit as needed
       return collectionData;
     };
 
-    const page = 0;
+    let cursor = null;
+
+    // Event listener to detect scroll and load more data when at the bottom
+    dropdownSelect.addEventListener('scroll', async () => {
+      if (dropdownSelect.scrollTop + dropdownSelect.clientHeight >= dropdownSelect.scrollHeight) {
+        const moreData = await loadMoreData(cursor);
+        if (moreData.items.length > 0) {
+          // Update the cursor for the next load
+          cursor = moreData.cursor;
+
+          // Populate the options in the dropdown from the additional data
+          moreData.items.forEach((collection) => {
+            const option = document.createElement('option');
+            option.value = collection.id;
+            option.textContent = collection.title;
+            dropdownSelect.appendChild(option);
+          });
+        }
+      }
+    });
+
     // Initial data loading
-    const initialData = await loadMoreData(page);
+    const initialData = await loadMoreData(cursor);
     if (initialData.items.length > 0) {
+      // Update the cursor for the next load
+      cursor = initialData.cursor;
+
       // Populate the options in the dropdown with the initial data
       initialData.items.forEach((collection) => {
         const option = document.createElement('option');
@@ -140,7 +160,6 @@ export async function openModal(items) {
           const { etag } = collection;
           patchCollection(collectionId, etag, payload);
         });
-
       resetDialogState();
     }
 
