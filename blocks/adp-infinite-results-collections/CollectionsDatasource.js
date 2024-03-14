@@ -2,23 +2,29 @@ import { createLinkHref, navigateTo } from '../../scripts/shared.js';
 import {
   getCollectionID,
   getCollectionTitle,
-  listCollection,
+  searchListCollection,
 } from '../../scripts/collections.js';
 import { createCollectionCardElement } from '../../scripts/card-html-builder.js';
 
 export default class CollectionsDatasource {
-  cursor;
-
   infiniteResultsContainer = null;
 
   container = null;
 
   pageNumber = 0;
 
+  lastPage = false;
+
   async showMore() {
-    const list = await listCollection(5, this.cursor);
-    this.cursor = list.cursor;
+
+    const list = await searchListCollection(5, this.pageNumber);
+
     this.pageNumber += 1;
+
+    if (this.pageNumber >= list.nbPages){
+      this.lastPage = true;
+    }
+
     this.infiniteResultsContainer.resultsCallback(
       this.container,
       list.items,
@@ -31,14 +37,15 @@ export default class CollectionsDatasource {
   }
 
   isLastPage() {
-    return !this.cursor;
+    return this.lastPage;
   }
 
   async registerResultsCallback(container, infiniteResultsContainer) {
     this.infiniteResultsContainer = infiniteResultsContainer;
     this.container = container;
-    const list = await listCollection(5, this.cursor);
-    this.cursor = list.cursor;
+
+    const list = await searchListCollection(5, this.pageNumber);
+
     infiniteResultsContainer.resultsCallback(
       container,
       list.items,

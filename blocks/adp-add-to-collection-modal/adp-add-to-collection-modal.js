@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
-  listCollection, createCollection, patchCollection, getCollection,
+  searchListCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
 import { populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import { getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/shared.js';
@@ -41,38 +41,18 @@ async function createDropdown(addToExistingRadioDropboxContainer) {
     dropdownSelect.classList.add('add-to-existing-dropdown'); // Add the new class
 
     // Function to load more data when reaching the end of the dropdown
-    const loadMoreData = async (cursor) => {
-      const collectionData = await listCollection({ cursor, limit: 10 }); // Adjust the limit as needed
+    const loadMoreData = async (page) => {
+      // Call to get the nbHits for the total number of Collections
+      const collectionMax = await searchListCollection(0, 0);
+      // Get all the collections
+      const collectionData = await searchListCollection(collectionMax.nbHits, page);
       return collectionData;
     };
 
-    let cursor = null;
-
-    // Event listener to detect scroll and load more data when at the bottom
-    dropdownSelect.addEventListener('scroll', async () => {
-      if (dropdownSelect.scrollTop + dropdownSelect.clientHeight >= dropdownSelect.scrollHeight) {
-        const moreData = await loadMoreData(cursor);
-        if (moreData.items.length > 0) {
-          // Update the cursor for the next load
-          cursor = moreData.cursor;
-
-          // Populate the options in the dropdown from the additional data
-          moreData.items.forEach((collection) => {
-            const option = document.createElement('option');
-            option.value = collection.id;
-            option.textContent = collection.title;
-            dropdownSelect.appendChild(option);
-          });
-        }
-      }
-    });
-
+    const page = 0;
     // Initial data loading
-    const initialData = await loadMoreData(cursor);
+    const initialData = await loadMoreData(page);
     if (initialData.items.length > 0) {
-      // Update the cursor for the next load
-      cursor = initialData.cursor;
-
       // Populate the options in the dropdown with the initial data
       initialData.items.forEach((collection) => {
         const option = document.createElement('option');
@@ -158,6 +138,7 @@ export async function openModal(items) {
           const { etag } = collection;
           patchCollection(collectionId, etag, payload);
         });
+
       resetDialogState();
     }
 
