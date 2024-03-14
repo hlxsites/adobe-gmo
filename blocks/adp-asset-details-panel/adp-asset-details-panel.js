@@ -6,7 +6,7 @@ import { openDownloadModal } from '../adp-download-modal/adp-download-modal.js';
 import { openAssetDetailsModal } from '../adp-asset-details-modal/adp-asset-details-modal.js';
 import { fetchMetadataAndCreateHTML } from '../../scripts/metadata-html-builder.js';
 import {
-  getAssetMimeType, getAssetTitle, getAssetName, getAssetHeight, getAssetWidth,
+  getAssetMimeType, getAssetTitle, getAssetName, getAssetHeight, getAssetWidth, isLicensedContent,
 } from '../../scripts/metadata.js';
 import {
   getAssetMetadata,
@@ -74,7 +74,8 @@ export async function openAssetDetailsPanel(assetId, resultsManagerObj) {
   // ensure express button only shows for valid asset types
   const expressBtn = assetDetailsPanel.querySelector('.action-edit-asset');
   const validCheck = fileValidity(fileFormat);
-  if (isCCEConfigured() && validCheck.isValid) {
+  if (isCCEConfigured() && validCheck.isValid && !isLicensedContent(assetJSON)) {
+    //Only show express button for content that is not licensed.
     expressBtn.classList.remove('hidden');
   } else if (!expressBtn.classList.contains('hidden')) {
     expressBtn.classList.add('hidden');
