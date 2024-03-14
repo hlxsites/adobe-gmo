@@ -1,4 +1,4 @@
-import { safeCSSId } from './shared.js';
+import { safeCSSId } from './scripts.js';
 import {
   formatConfidence,
   formatDate,

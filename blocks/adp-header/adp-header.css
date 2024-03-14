@@ -3,9 +3,11 @@ header .nav-wrapper {
   z-index: 2;
   position: fixed;
   width: 100%;
+  border-bottom: #d5d5d5 0.2px solid;
+  box-shadow: 0 0 4px rgba(0 0 0 / 5%);
 }
 
-header nav .nav-top {
+header nav .nav-top{
   box-sizing: border-box;
   display: grid;
   align-items: center;
@@ -14,13 +16,9 @@ header nav .nav-top {
   padding: 0 1rem;
   font-family: var(--body-font-family);
   color: var(--header-text-color);
+  background-color: var(--header-background-color);
   width: 100%;
   grid-area: nav-top;
-}
-
-.contenthub header .nav-top {
-  padding-top: 36px;
-  padding-bottom: 29px;
 }
 
 header nav a.user-switcher {
@@ -90,20 +88,11 @@ header nav[aria-expanded="true"] .nav-top {
 header .nav-wrapper .banner {
   position: fixed;
   background-color: var(--checkbox-checked-background-color);
-  height: var(--header-banner-height);
+  height: var(--banner-height);
   width: 100%;
-  top: calc(var(--nav-height) - var(--header-banner-height));
+  top: 65px;
   justify-content: space-between;
   display: none;
-  color: var(--banner-text-color);
-}
-
-.contenthub header .nav-wrapper .banner {
-  background-color: #fff;
-  box-shadow: var(--contenthub-header-box-shadow);
-  border-bottom: var(--contenthub-header-border-bottom);
-  color: #222;
-  flex-direction: row-reverse;
 }
 
 header .nav-wrapper .banner.show {
@@ -114,17 +103,15 @@ header .nav-wrapper .banner .banner-left {
   display: flex;
   align-items: center;
   font: var(--bold-font-size-ms);
+  color: var(--banner-text-color);
   padding-left: 25px;
-}
-
-.contenthub header .nav-wrapper .banner .banner-left {
-  padding-right: 25px;
 }
 
 header .nav-wrapper .banner .banner-right {
   display: flex;
   align-items: center;
   font: var(--bold-font-size-ms);
+  color: var(--banner-text-color);
   padding-right: 30px;
   gap: 24px;
 }
@@ -135,7 +122,7 @@ header .nav-wrapper .banner .banner-right .actions {
   justify-self: center;
 }
 
-header .nav-wrapper .banner .banner-right .actions:hover {
+header .nav-wrapper .banner .banner-right .actions:hover{
   cursor: pointer;
 }
 
@@ -178,14 +165,6 @@ header .nav-wrapper .banner .action-close .icon svg {
   width: 10px;
   height: 10px;
   fill: white;
-}
-
-.contenthub .nav-wrapper .banner .banner-right .icon svg {
-  fill: #222;
-}
-
-.contenthub header .nav-wrapper .banner .action-close .icon svg {
-  fill: #222;
 }
 
 @media (min-width: 720px) {
@@ -482,20 +461,17 @@ header nav .quick-links {
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
-  height: var(--header-banner-height);
 }
 
 header nav .quick-links .item {
-  display: flex;
-  align-items: center;
-  padding-top: 0;
-  padding-bottom: 15px;
+  padding-top: 7px;
+  padding-bottom: 11px;
   text-align: left;
   font: normal normal normal 16px/20px var(--body-font-family);
   letter-spacing: 0;
   color: var(--label-color);
   opacity: 1;
-  margin: 10px 10px 0;
+  margin: 10px;
 }
 
 header nav .quick-links .item a:hover {
@@ -505,12 +481,14 @@ header nav .quick-links .item a:hover {
 header nav .quick-links .item[aria-selected="true"] {
   font-weight: bold;
   color: var(--text-color);
-  border-bottom: solid black 2px;
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 24px;
 }
 
 header nav .nav-bottom {
   grid-area: nav-bottom;
-  padding: 0;
+  padding: 0 1rem;
   width: 100%;
 }
 
@@ -519,27 +497,7 @@ header nav {
   grid-template-areas: 
     "nav-top"
     "nav-bottom";
-  grid-template-rows: calc(var(--nav-height) - var(--header-banner-height)) var(--header-banner-height);
+  grid-template-rows: 65px 58px;
   align-items: center;
   background-color: var(--header-background-color);
-  border-bottom: 1px solid rgba(233 233 233 / 100%);
-  box-shadow: 0 0 4px rgba(233 233 233 / 100%);
-}
-
-.contenthub header nav {
-  background: var(--contenthub-header-background);
-  border-bottom: unset;
-  box-shadow: unset;
-}
-
-.quick-links button {
-  background-color: var(--button-focus-outline-color);
-  border-radius: 16px;
-  font: var(--bold-font-size-s);
-  color: var(--button-text-color);
-  height: 37px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 16px;
 }

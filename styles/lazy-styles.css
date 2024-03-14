@@ -142,7 +142,7 @@
 /* End styles for multi-selected-assets-table */
 
 /* Start confirm-dialog styles - see /scripts/confirm-dialog.js */
-.adp-confirm-dialog {
+.confirm-dialog-wrapper dialog {
   width: 450px;
   border-radius: 6px;
   border: none;
@@ -151,25 +151,25 @@
   text-transform: initial;
 }
 
-.adp-confirm-dialog .dialog-container {
+.confirm-dialog-wrapper dialog .dialog-container {
   display: flex;
   flex-direction: column;
   row-gap: 30px;
   margin: 28px 35px;
 }
 
-.adp-confirm-dialog .dialog-container .dialog-header {
+.confirm-dialog-wrapper dialog .dialog-container .dialog-header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
 
-.adp-confirm-dialog .dialog-container .dialog-header span.icon {
+.confirm-dialog-wrapper dialog .dialog-container .dialog-header span.icon {
   display: flex;
   align-items: center;
 }
 
-.adp-confirm-dialog .dialog-container .dialog-header .dialog-header-left {
+.confirm-dialog-wrapper dialog .dialog-container .dialog-header .dialog-header-left {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -177,18 +177,18 @@
   text-transform: initial;
 }
 
-.adp-confirm-dialog .dialog-container .dialog-header .dialog-header-right {
+.confirm-dialog-wrapper dialog .dialog-container .dialog-header .dialog-header-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
 
-.adp-confirm-dialog .dialog-container .dialog-body {
+.confirm-dialog-wrapper dialog .dialog-container .dialog-body {
   font: var(--stats-label-font);
   padding-bottom: 30px;
 }
 
-.adp-confirm-dialog .dialog-container .dialog-footer .actions-container {
+.confirm-dialog-wrapper dialog .dialog-container .dialog-footer .actions-container {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -196,7 +196,7 @@
   width: 100%;
 }
 
-.adp-confirm-dialog .dialog-footer .adp-action {
+.confirm-dialog-wrapper dialog .dialog-footer .adp-action {
   text-wrap: nowrap;
   align-items: center;
   width: 100%;

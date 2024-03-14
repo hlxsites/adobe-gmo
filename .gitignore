@@ -15,4 +15,3 @@ helix-importer-ui
 .env
 server.crt
 server.key
-/test/e2e/test-results

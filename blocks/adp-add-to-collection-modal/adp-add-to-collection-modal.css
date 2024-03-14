@@ -10,6 +10,7 @@
   flex-direction: column;
   row-gap: 31px;
   width: 100%;
+  height: 100%;
 }
 
 .adp-add-to-collection-modal-container .dialog-header {

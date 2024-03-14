@@ -13,22 +13,10 @@ import { openModal as openShareModal } from '../blocks/adp-share-modal/adp-share
 import { closeAssetDetailsPanel } from '../blocks/adp-asset-details-panel/adp-asset-details-panel.js';
 import { getLicenseAgreementFlags } from './site-config.js';
 import { logError } from './scripts.js';
-import { getCSSVar } from './shared.js';
 import { openAddToCollectionModalHandler } from '../blocks/adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 
 const licenseAgreementFlags = await getLicenseAgreementFlags();
 let assetObj;
-
-function getMaxThumbnailWidth() {
-  let maxWidth = getCSSVar('--card-image-max-width');
-  if (maxWidth) {
-    maxWidth = maxWidth.replace('px', '');
-    if (!Number.isNaN(Number(maxWidth))) {
-      return Number(maxWidth);
-    }
-  }
-  return 350;
-}
 
 function getVideoOverlayCSSClass(format) {
   if (isVideo(format)) {
@@ -44,7 +32,7 @@ export function createFailedImageReplacement(previewElem, imgElem, mimeType) {
 
 function createAssetThumbnail(card, id, name, title, mimeType) {
   const previewElem = card.querySelector('.preview .thumbnail');
-  getOptimizedPreviewUrl(id, name, getMaxThumbnailWidth()).then((url) => {
+  getOptimizedPreviewUrl(id, name, 350).then((url) => {
     const img = document.createElement('img');
     img.src = url;
     img.alt = title;
@@ -139,7 +127,7 @@ export function createAssetCardElement(
     options,
   );
 
-  const metadataElem = card.querySelector('.metadata-container');
+  const metadataElem = card.querySelector('.metadata');
   const cardMetadataElem = createCardMetadataHTML(assetMetadataConfig, asset, hideEmptyMetadataProperty);
   metadataElem.appendChild(cardMetadataElem);
 
@@ -186,7 +174,7 @@ function createCollectionThumbnail(card, collectionId, title) {
     }
     for (let index = 0; index < imagesToFetch.length; index += 1) {
       const item = imagesToFetch[index];
-      getOptimizedPreviewUrl(item.id, null, getMaxThumbnailWidth())
+      getOptimizedPreviewUrl(item.id, null, 120)
         .then((url) => {
           const img = document.createElement('img');
           img.src = url;
@@ -225,7 +213,7 @@ export function createCollectionCardElement(
     title,
     options,
   );
-  const metadataElem = card.querySelector('.metadata-container');
+  const metadataElem = card.querySelector('.metadata');
   const cardMetadataElem = createCardMetadataHTML(config, collection, true, metadataElem);
   metadataElem.appendChild(cardMetadataElem);
   return card;
@@ -251,11 +239,11 @@ function createCardElement(
       <div class="filetype-icon-overlay"><span class="icon"></span></div>
     </div>
     <div class="title"></div>
-    <div class="metadata-container"></div>
+    <div class="metadata"></div>
   `;
   options.createThumbnailHandler(card, id, name, title, mimeType);
 
-  card.querySelector('.metadata-container').addEventListener('click', (e) => {
+  card.querySelector('.metadata').addEventListener('click', (e) => {
     e.preventDefault();
     updateCheckboxState(card, id, options);
   });

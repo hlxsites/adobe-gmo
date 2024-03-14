@@ -1,7 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { logError, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
-import { createLinkHref } from '../../scripts/shared.js';
-import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
+import { createLinkHref, logError, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
 import { createDateInput } from '../../scripts/date-input.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
 import { createLinkShare } from '../../scripts/link-share.js';
@@ -155,7 +153,6 @@ async function openModalHelper(dialog, assetIds, title) {
 export async function populateShareModalInfo(containerElement, assetIds, title) {
   // Create expiry date calendar dialog
   const calendarDialog = document.createElement('dialog');
-  calendarDialog.dataset.testid = 'popover';
   calendarDialog.id = 'share-link-expiry-date-calendar-dialog';
   containerElement.appendChild(calendarDialog);
 
@@ -250,7 +247,7 @@ export function addShareModalHandler(shareElement, assetId, assetName, title, fo
 }
 
 export default async function decorate(block) {
-  block.innerHTML = `<dialog>
+  block.innerHTML = `<dialog autofocus>
     <div class='adp-share-modal-block'>
       <div class='dialog-header'>
         <div class='dialog-header-left'></div>
@@ -294,7 +291,6 @@ export default async function decorate(block) {
 
   await decorateIcons(block);
   const dialog = block.querySelector('dialog');
-  addDialogEventListeners(dialog);
   dialog.querySelector('.action-close').addEventListener('click', () => {
     closeDialog(dialog);
   });

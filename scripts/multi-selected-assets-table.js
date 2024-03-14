@@ -1,6 +1,6 @@
 import { decorateIcons } from './lib-franklin.js';
 import { getOptimizedPreviewUrl } from './polaris.js';
-import { getSelectedAssetsFromInfiniteResultsBlock } from './shared.js';
+import { getSelectedAssetsFromInfiniteResultsBlock } from './scripts.js';
 
 /**
  * Create a single row for the table of multi selected assets
