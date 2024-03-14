@@ -2,15 +2,12 @@ import { getBearerToken } from './security.js';
 import {
   getAssetHandlerApiKey,
   getDeliveryEnvironment,
-  getBackendApiKey,
 } from './polaris.js';
 import { getPathParams, logError } from './scripts.js';
 import { emitEvent, EventNames } from './events.js';
 
-import { getAdminConfig } from './site-config.js';
-
 export function getCollectionIdFromURL() {
-  if (window.location.pathname.includes('/collection/')) {
+  if (window.location.pathname.startsWith('/collection/')) {
     return getPathParams().at(-1);
   }
   return undefined;
@@ -31,54 +28,24 @@ export function getAssetIdFromCollectionItem(assetItem) {
   return assetItem.id;
 }
 
-async function getRequestHeadersSearchCollections() {
-  const token = await getBearerToken();
-  return {
-    'Content-Type': 'application/json',
-    'x-api-key': getBackendApiKey(),
-    Authorization: token,
-    'x-adobe-accept-experimental': '1',
-    'x-adp-request': 'search',
-  };
-}
-
 async function getRequestHeaders() {
-
   const token = await getBearerToken();
-
   return {
     'Content-Type': 'application/json',
     'x-api-key': await getAssetHandlerApiKey(),
     Authorization: token,
-    'X-Adobe-Accept-Experimental': '1',
   };
 }
 
-async function getRequestHeadersWithEtag(etag) {
-
+async function getRequestHeadersWithIfMatch(etag) {
   const token = await getBearerToken();
-
   return {
     'Content-Type': 'application/json',
     'x-api-key': await getAssetHandlerApiKey(),
     Authorization: token,
-    'X-Adobe-Accept-Experimental': '1',
     'If-Match': etag,
   };
 }
-
-async function getRequestHeadersWithIfMatchPatchJSON(etag) {
-  const token = await getBearerToken();
-  return {
-    'Content-Type': 'application/json-patch+json',
-    'x-api-key': await getAssetHandlerApiKey(),
-    Authorization: token,
-    'X-Adobe-Accept-Experimental': '1',
-    'If-Match': etag,
-  };
-}
-
-
 /**
  * Constructs and returns the base URL for collections.
  *
@@ -86,26 +53,6 @@ async function getRequestHeadersWithIfMatchPatchJSON(etag) {
  */
 export function getBaseCollectionsUrl() {
   return `${getDeliveryEnvironment()}/adobe/collections`;
-}
-
-/**
- * Constructs and returns the base URL for search collections.
- *
- * @returns {string} The search collections URL.
- */
-export function getSearchCollectionsUrl() {
-  return `${getDeliveryEnvironment()}/adobe/assets/search`;
-}
-
-
-
-/**
- * Constructs and returns the base URL for assets collections. (New)
- *
- * @returns {string} The base collections URL.
- */
-export function getBaseAssetsCollectionsUrl() {
-  return `${getDeliveryEnvironment()}/adobe/assets/collections`;
 }
 
 /**
@@ -117,22 +64,18 @@ export function getBaseAssetsCollectionsUrl() {
  */
 export async function getCollection(collectionId) {
   try {
-
-
     const options = {
       method: 'GET',
       headers: await getRequestHeaders(),
     };
 
-    const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}/items`, options);
+    const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
 
     // Handle response codes
     if (response.status === 200) {
-
+      // Collection retrieved successfully
       const responseBody = await response.json();
-
-      responseBody.etag = response.headers.get('Etag');
-      responseBody.title = responseBody.self[0].collectionMetadata?.title ?? '';
+      responseBody.etag = response.headers.get('If-none-match');
       return responseBody;
     } if (response.status === 404) {
       // Handle 404 error
@@ -167,7 +110,7 @@ export async function createCollection(title, description, items) {
       body: JSON.stringify({ title, description, items }),
     };
 
-    const response = await fetch(`${getBaseAssetsCollectionsUrl()}`, options);
+    const response = await fetch(`${getBaseCollectionsUrl()}`, options);
 
     // Handle response codes
     if (response.status === 200) {
@@ -205,15 +148,14 @@ export async function createCollection(title, description, items) {
 }
 
 /**
- * Search Lists collections with optional limit and page parameters.
+ * Lists collections with optional limit and cursor parameters.
  *
  * @param {number} - The optional maximum number of collections to retrieve.
- * @param {number} - The optional page number for paginating the results.
+ * @param {string} - The optional cursor for paginating the results.
  * @returns {Promise<object>} A promise that resolves with a list of collections.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-
-export async function searchListCollection(limit = undefined, page = 0) {
+export async function listCollection(limit = undefined, cursor = '') {
   // Construct the query parameters
   const queryParams = new URLSearchParams();
 
@@ -221,38 +163,18 @@ export async function searchListCollection(limit = undefined, page = 0) {
     queryParams.append('limit', limit);
   }
 
-  if (page) {
-    queryParams.append('page', page);
+  if (cursor) {
+    queryParams.append('cursor', cursor);
   }
 
-  const adminConfig = await getAdminConfig();
-  const indexName = adminConfig.searchCollectionIndex;
-  const data = {
-    requests: [
-      {
-        indexName: indexName,
-        params: {
-          facets: [],
-          highlightPostTag: '__/ais-highlight__',
-          highlightPreTag: '__ais-highlight__',
-          hitsPerPage: limit,
-          page: page,
-          query: '',
-          tagFilters: ''
-        }
-      }
-    ]
-  };
-
   const options = {
-    method: 'POST',
-    headers: await getRequestHeadersSearchCollections(),
-    body: JSON.stringify(data),
+    method: 'GET',
+    headers: await getRequestHeaders(),
   };
 
   // Include the query parameters in the URL
   const queryString = queryParams.toString();
-  const url = `${getSearchCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
+  const url = `${getBaseCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
 
   try {
     const response = await fetch(url, options);
@@ -260,25 +182,12 @@ export async function searchListCollection(limit = undefined, page = 0) {
     if (response.status === 200) {
       // Collection retrieved successfully
       const responseBody = await response.json();
-
-      // Transform the data
-      const transformedData = {
-        page: responseBody.results[0].page,
-        nbHits: responseBody.results[0].nbHits,
-        nbPages: responseBody.results[0].nbPages,
-        items: responseBody.results[0].hits.map(hit => ({
-          id: hit.collectionId,
-          title: hit.collectionMetadata.metadata?.title ?? hit.collectionMetadata.title,
-          description: hit.collectionMetadata.metadata?.description ?? hit.collectionMetadata.description
-        }))
-      };
-
-      return transformedData;
+      return responseBody;
     }
     // Handle other response codes
-    throw new Error(`Failed to search list collection: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to list collection: ${response.status} ${response.statusText}`);
   } catch (error) {
-    logError('searchListCollection', error);
+    logError('listCollection', error);
     throw error;
   }
 }
@@ -295,50 +204,47 @@ export async function searchListCollection(limit = undefined, page = 0) {
  */
 export async function patchCollection(collectionId, etag, addOperation = '', deleteOperation = '') {
   try {
-
     const patchOperations = [];
     if (addOperation) {
       for (const op of addOperation) {
-        patchOperations.push({ 'op': 'add', 'id': op.value.id, 'type': 'asset' });
+        op.op = 'add';
+        patchOperations.push(op);
       }
     }
     if (deleteOperation) {
       for (const op of deleteOperation) {
-        patchOperations.push({ 'op': 'remove', 'id': op.value.id, 'type': 'asset' });
+        op.op = 'remove';
+        patchOperations.push(op);
       }
     }
-
     const options = {
-      method: 'POST',
-      headers: await getRequestHeadersWithIfMatchPatchJSON(etag),
+      method: 'PATCH',
+      headers: await getRequestHeadersWithIfMatch(etag),
       body: JSON.stringify(patchOperations),
     };
+    const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
 
-    const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}/items`, options);
-
-    if (response.status === 200 || response.status === 204) {
-
-      const responseBody = await getCollection(collectionId);
-
-      const collectionData = responseBody.self[0];
+    if (response.status === 200) {
+      const responseBody = await response.json();
 
       if (addOperation) {
         const assetsArray = addOperation.map((obj) => ({ assetId: obj.value.id, assetName: obj.value.name }));
         const collectionDetails = {
-          collectionName: collectionData.collectionMetadata.title,
-          collectionId: collectionData.id,
+          collectionName: responseBody.title,
+          collectionId: responseBody.id,
           assets: assetsArray,
         };
         emitEvent(document.documentElement, EventNames.ADD_TO_COLLECTION, collectionDetails);
       } else if (deleteOperation) {
         const assetsArray = deleteOperation.map((obj) => ({ assetId: obj.value.id, assetName: obj.value.name }));
         const collectionDetails = {
-          collectionName: collectionData.collectionMetadata.title,
-          collectionId: collectionData.id,
+          collectionName: responseBody.title,
+          collectionId: responseBody.id,
           assets: assetsArray,
         };
         emitEvent(document.documentElement, EventNames.DELETE_FROM_COLLECTION, collectionDetails);
       }
+
       return responseBody;
     } if (response.status === 400) {
       // Handle 400 error
@@ -365,20 +271,17 @@ export async function patchCollection(collectionId, etag, addOperation = '', del
  * Deletes a collection.
  *
  * @param {string} collectionId - The unique identifier of the collection to delete.
- * @param {string} collectionName - Collection name used for emit delete event.
- * @param {string} etag - Used for in the header for the delete operation.
  * @returns {Promise<void>} A promise that resolves when the collection is updated.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-export async function deleteCollection(collectionId, collectionName, etag) {
+export async function deleteCollection(collectionId, collectionName) {
   try {
-
     const options = {
       method: 'DELETE',
-      headers: await getRequestHeadersWithEtag(etag),
+      headers: await getRequestHeaders(),
     };
 
-    const response = await fetch(`${getBaseAssetsCollectionsUrl()}/${collectionId}`, options);
+    const response = await fetch(`${getBaseCollectionsUrl()}/${collectionId}`, options);
 
     if (response.status !== 204) {
       throw new Error(`Failed to delete collection: ${response.status} ${response.statusText}`);
