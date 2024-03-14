@@ -10,7 +10,7 @@ import {
 import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
-  getAssetName, getAssetMimeType, getAssetTitle,
+  getAssetName, getAssetMimeType, getAssetTitle, isLicensedContent,
 } from '../../scripts/metadata.js';
 // eslint-disable-next-line import/no-cycle
 import { disableActionButtons } from '../adp-asset-details-panel/adp-asset-details-panel.js';
@@ -97,7 +97,8 @@ function createHeaderPanel(modal) {
   // ensure express button only shows for valid asset types
   const expressBtn = modal.querySelector('.action-edit-asset');
   const validCheck = fileValidity(format);
-  if (isCCEConfigured() && validCheck.isValid) {
+  if (isCCEConfigured() && validCheck.isValid && !isLicensedContent(assetJSON)) {
+    //Only show express button for content that is not licensed.
     expressBtn.classList.remove('hidden');
   } else if (!expressBtn.classList.contains('hidden')) {
     expressBtn.classList.add('hidden');

@@ -6,20 +6,20 @@ import { logError } from '../../scripts/scripts.js';
 
 const GENERAL_METRICS = [{
   category: 'Total assets',
-  amount: 59475,
+  amount: 60882,
 }, {
   category: 'Total size',
-  amount: 1024 * 1024 * 1024 * 331.6,
+  amount: 1024 * 1024 * 1024 * 334,
   unit: 'bytes',
 }, {
   category: 'Uploads year-to-date',
-  amount: 59475,
+  amount: 261,
 }, {
   category: 'Uploads quarter-to-date',
-  amount: 56629,
+  amount: 57865,
 }, {
   category: 'Uploads last 30 days',
-  amount: 56486,
+  amount: 261,
 }];
 
 function formatNumber(number) {
@@ -57,40 +57,42 @@ function formatAmount(metric) {
 }
 
 const MIME_TYPES = [
-  { category: 'video/mp4', amount: 3579 },
-  { category: 'image/jpeg', amount: 51258 },
-  { category: 'image/png', amount: 2102 },
-  { category: 'video/quicktime', amount: 422 },
-  { category: 'image/vnd.adobe.photoshop', amount: 380 },
-  { category: 'audio/x-wav', amount: 104 },
-  { category: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', amount: 102 },
-  { category: 'application/vnd.adobe.sparkler.project+dcx', amount: 578 },
-  { category: 'application/pdf', amount: 571 },
-  { category: 'application/octet-stream', amount: 48 },
-  { category: 'application/postscript', amount: 33 },
-  { category: 'application/json', amount: 30 },
-  { category: 'application/vnd.audiograph', amount: 19 },
-  { category: 'application/x-subrip', amount: 18 },
-  { category: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', amount: 15 },
-  { category: 'application/zip', amount: 21 },
-  { category: 'image/svg+xml', amount: 9 },
-  { category: 'image/gif', amount: 11 },
-  { category: 'application/vnd.3gpp.pic-bw-small', amount: 9 },
-  { category: 'video/ogg', amount: 9 },
-  { category: 'image/tiff', amount: 8 },
+  { category: 'image/jpeg', amount: 51595 },
+  { category: 'video/mp4', amount: 3794 },
+  { category: 'image/png', amount: 2404 },
+  { category: 'application/vnd.adobe.sparkler.project+dcx', amount: 632 },
+  { category: 'application/pdf', amount: 631 },
+  { category: 'video/quicktime', amount: 598 },
+  { category: 'image/vnd.adobe.photoshop', amount: 402 },
   { category: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', amount: 170 },
+  { category: 'audio/x-wav', amount: 166 },
+  { category: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', amount: 137 },
+  { category: 'application/octet-stream', amount: 56 },
+  { category: 'image/tiff', amount: 50 },
+  { category: 'application/postscript', amount: 48 },
+  { category: 'image/svg+xml', amount: 35 },
+  { category: 'application/x-subrip', amount: 30 },
+  { category: 'application/zip', amount: 30 },
+  { category: 'application/x-font-otf', amount: 22 },
+  { category: 'application/vnd.audiograph', amount: 19 },
+  { category: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', amount: 15 },
+  { category: 'application/vnd.3gpp.pic-bw-small', amount: 11 },
+  { category: 'image/gif', amount: 11 },
+  { category: 'video/ogg', amount: 9 },
   { category: 'audio/mpeg', amount: 4 },
+  { category: 'image/dng', amount: 3 },
   { category: 'text/html', amount: 3 },
   { category: 'text/plain', amount: 2 },
+  { category: 'application/x-indesign', amount: 1 },
 ];
 
-const BUSINESS_UNITS = [{
+/*const BUSINESS_UNITS = [{
   category: 'Digital Media',
   amount: 2517,
 }, {
   category: 'Other',
   amount: 509,
-}];
+}];*/
 
 const PRODUCTS = [{
   category: 'Photoshop',
@@ -323,7 +325,10 @@ function sortByAmount(values) {
 export default async function decorate(block) {
   const config = readBlockConfig(block);
   block.innerHTML = `
-    <h1>${config.title || 'Asset Metrics'}</h1>
+    <div class="title">
+      <h1>${config.title || 'Asset Metrics'}</h1>
+      <h1 class="subtitle-right">Updated: ${config.updated}</h1>
+    </div>
     <div class="graph-container">
       <div>
         <h2>Asset Statistics</h2>

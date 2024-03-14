@@ -1,6 +1,7 @@
 import { loadScript } from './lib-franklin.js';
 import { getAdminConfig } from './site-config.js';
 import { fetchCached } from './fetch-util.js';
+import { isPublicPage } from './security.js';
 
 let isIMSInitialized = false;
 
@@ -25,7 +26,7 @@ async function getBearerTokenFromIMS(callWithToken) {
   }
   if (!isIMSInitialized) {
     window.adobeid = {
-      client_id: IMSLIB_ENV_CONFIG.clientId,
+      client_id: imsLibConfig.clientId,
       scope: IMSLIB_ENV_CONFIG.scope,
       locale: 'en_US',
       autoValidateToken: true,
@@ -39,8 +40,10 @@ async function getBearerTokenFromIMS(callWithToken) {
           }
           const token = tokenDetails && tokenDetails.token;
           callWithToken(token);
-        } else {
-          window.adobeIMS.reAuthenticate();
+          return;
+        } 
+        if (!isPublicPage()) {
+              window.adobeIMS.reAuthenticate();
         }
       },
     };
@@ -48,9 +51,9 @@ async function getBearerTokenFromIMS(callWithToken) {
     // load ims.min.js
     await loadScript(IMSLIB_ENV_CONFIG.urls[imsLibConfig.imsEnvironment]);
     isIMSInitialized = true;
-  } else {
-    window.adobeIMS.reAuthenticate();
+    return;
   }
+    window.adobeIMS.reAuthenticate();
 }
 
 /**

@@ -181,6 +181,14 @@ export function getAssetSize(assetJSON) {
 }
 
 /**
+ * Is licensed content
+ * Returns true for gmo:licensedContent != 'no'
+ */
+export function isLicensedContent(assetJSON) {
+  return getMetadataValue('gmo:licensedContent', assetJSON) !== 'no';
+}
+
+/**
  * Predefined metadata fields that have special handling, can have compound values and a
  * special formatter.
  *

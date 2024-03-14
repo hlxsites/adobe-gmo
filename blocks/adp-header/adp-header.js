@@ -106,13 +106,14 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
  */
 export default async function decorate(block) {
   block.textContent = '';
+  
   // decorate nav DOM
   const nav = document.createElement('nav');
   nav.id = 'nav';
   nav.innerHTML = `
   <div class="nav-top">
     <div class="nav-brand">
-      <a class="adp-logo" href="/"></a>
+      <a class="adp-logo" href="${getBaseConfigPath()}/"></a>
       <div></div>
     </div>
     <div class="nav-sections">
@@ -222,7 +223,8 @@ export default async function decorate(block) {
     });
   }
 
-  if (!isPublicPage()) {
+  if (await getUserProfile() !== null) {
+    document.querySelector('.adp-logo').href = getBaseConfigPath() + '/assets';
     loadSearchField(nav);
     if (!window.unifiedShellRuntime) {
       await createUserInfo(nav);
@@ -355,7 +357,7 @@ async function initQuickLinks() {
   }
   //set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {
-    if (item.querySelector('a')?.dataset.page === window.location.pathname) {
+    if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');
     }
   });

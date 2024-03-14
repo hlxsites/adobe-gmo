@@ -1,0 +1,55 @@
+
+.adp-share-header {
+    display: flex;
+    height: 62px;
+}
+
+.adp-share-header-left {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+    font-size: var(--header-font-size);
+    padding: 0;
+    top: 0.01rem;
+    padding-top: 0.88rem;
+    padding-bottom: 0.88rem;
+    z-index: 1;
+}
+
+.adp-share-subinfo {
+    display: flex;
+    /* justify-content: space-between; /* Aligns items to the left and select all to the right */
+    align-items: center; /* Centers items vertically */
+}
+
+.adp-share-select-all {
+    display: flex;
+    align-items: center; /* This will vertically align the checkbox and label */
+}
+
+.adp-share-select-all input[type="checkbox"] {
+    margin-right: 5px; /* Adds some space between the checkbox and the label */
+}
+
+.adp-share-header-share-info {
+    display: flex;
+    flex-direction: column; /* Stack the title and sub-info vertically */
+}
+
+.adp-share-header {
+    font: var(--collection-heading-font);
+    width: 100%;
+}
+
+.adp-share-header .actions .adp-action {
+    text-wrap: nowrap;
+    align-items: center;
+}
+
+.adp-share-header .actions {
+    /* vertically align center */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

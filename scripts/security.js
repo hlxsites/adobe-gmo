@@ -97,20 +97,15 @@ export function isPublicPage() {
 }
 
 export async function checkUserAccess() {
-  if (isPublicPage()) {
-    return true;
-  }
-  if (isUnifiedShellRuntimeAvailable()) {
-    return !!user.get('imsProfile');
-  } else {
-    await getBearerToken();
-    const { imsUserGroup } = await getIMSConfig();
-    if (imsUserGroup) {
-      const imsLibSecurityModule = await import('./security-imslib.js');
-      return await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
-    } else {
+  if (isUnifiedShellRuntimeAvailable()) return !!user.get('imsProfile');
+  await getBearerToken();
+  const { imsUserGroup } = await getIMSConfig();
+  if (imsUserGroup) {
+    const imsLibSecurityModule = await import('./security-imslib.js');
+    if (isPublicPage()) {
       return true;
-    }
+    } 
+    return await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
   }
 }
 
