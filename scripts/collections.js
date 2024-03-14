@@ -4,7 +4,8 @@ import {
   getDeliveryEnvironment,
   getBackendApiKey,
 } from './polaris.js';
-import { getPathParams, logError } from './scripts.js';
+import { logError } from './scripts.js';
+import { getPathParams } from './shared.js';
 import { emitEvent, EventNames } from './events.js';
 
 import { getAdminConfig } from './site-config.js';

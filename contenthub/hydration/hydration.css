@@ -1,0 +1,77 @@
+#hydration-upload-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 90vw;
+  height: 90vh;
+  background-color: rgb(248, 248, 248);
+}
+
+#hydration-upload-dialog .dialog-header {
+  display: grid;
+  padding: 28px 34px 0 35px;
+  grid-template:
+    'dialog-header-left dialog-header-right' 1fr
+    / 1fr 1fr;
+}
+
+#hydration-upload-dialog .dialog-header span.icon {
+  display: flex;
+  align-items: center;
+}
+
+#hydration-upload-dialog .dialog-header .dialog-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-area: dialog-header-left;
+  font: var(--bold-font-size-l);
+  text-transform: initial;
+}
+
+#hydration-upload-dialog .dialog-header .dialog-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  grid-area: dialog-header-right;
+}
+
+#hydration-upload-dialog .dialog-body {
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 4em);
+  height: 100%;
+  padding: 0 2em 1em 2em;
+}
+
+#hydration-upload-dialog h4 {
+  font-size: large;
+  font-weight: normal;
+  margin: 1em 0;
+}
+
+#hydration-upload-dialog .dialog-body #hydration-container {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+#hydration-upload-dialog .dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0em 2em 0.5em 2em;
+
+}
+
+#hydration-upload-dialog .dialog-footer button{
+  float: right;
+  margin-left: 1em;
+}
+
+#hydration-upload-dialog .upload-actions button.disabled {
+  background-color: var(--overlay-background-color);
+}
+
+#hydration-upload-dialog .upload-actions button.close-upload-assets {
+  background-color: inherit;
+  color: inherit;
+  border: solid;
+}

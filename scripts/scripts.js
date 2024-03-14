@@ -11,7 +11,7 @@ import {
   loadBlocks,
   loadCSS,
 } from './lib-franklin.js';
-import { getAdminConfig, getBrandingConfig } from './site-config.js';
+import { getAdminConfig, getBrandingConfig, isContentHub } from './site-config.js';
 import { getBearerToken, checkUserAccess, isPublicPage } from './security.js';
 import {
   getSearchIndex,
@@ -21,6 +21,8 @@ import {
 } from './polaris.js';
 import { EventNames, emitEvent } from './events.js';
 import { showNextPageToast } from './toast-message.js';
+import { bootstrapUnifiedShell, getUserSettings } from '../contenthub/unified-shell.js';
+import { createLinkHref, navigateTo, setCSSVar } from './shared.js';
 
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
@@ -92,24 +94,14 @@ export function decorateMain(main) {
   decorateBlocks(main);
 }
 
-export function setCSSVar(cssVariableName, configValue, shouldPrependToCommaSeparatedList = false) {
-  if (configValue) {
-    const currentFontFamily = getComputedStyle(document.documentElement)
-      .getPropertyValue(cssVariableName);
-    let newValue = configValue;
-    if (shouldPrependToCommaSeparatedList) {
-      newValue = `${configValue}, ${currentFontFamily}`;
-    }
-    document.documentElement.style.setProperty(cssVariableName, newValue);
-  }
-}
-
 async function applySiteBranding() {
   const brandingConfig = await getBrandingConfig();
   setCSSVar('--header-background-color', brandingConfig.menubarColor);
   setCSSVar('--header-text-color', brandingConfig.brandTextColor);
   setCSSVar('--body-font-family', brandingConfig.font, true);
-
+  if (brandingConfig.portalTheme) {
+    document.body.classList.add(brandingConfig.portalTheme);
+  }
   addFavIcon(brandingConfig.favicon);
 }
 
@@ -264,7 +256,14 @@ async function loadLazy(doc) {
       return;
     }
     await waitForDependency('search');
-    await initDeliveryEnvironment();
+    if (!await initDeliveryEnvironment()) {
+      // eslint-disable-next-line no-console
+      console.warn('User is not authorized for any delivery environment');
+      if (window.location.pathname !== NO_ACCESS_PATH) {
+        navigateTo(createLinkHref(NO_ACCESS_PATH));
+      }
+      return;
+    }
     await initSearch();
   }
   if (!(document.querySelector('head meta[name="hide-header"]')?.getAttribute('content') === 'true')) {
@@ -328,232 +327,32 @@ function loadDelayed() {
   // load anything that can be postponed to the latest here
 }
 
-async function loadPage() {
-  await loadEager(document);
-  await loadLazy(document);
-  loadDelayed();
-}
+export async function loadPage() {
+  // load resource in parallel
+  if(await isContentHub()){
+    const unifiedShellPromise = bootstrapUnifiedShell();
+  }
+  
+  const eagerPromise = loadEager(document);
 
-export function isElement(element) {
-  return element instanceof Element || element instanceof Document;
-}
-
-/**
- * Get the value of a query string parameter from the URL
- * e.g. http://localhost:3000?assetId=1234
- * @param {*} variable The name of the parameter to get the value of
- * @returns The value of the parameter
- */
-export function getQueryVariable(variable) {
-  const query = window.location.search.substring(1);
-  if (!query) return null;
-  const vars = query.split('&');
-  for (let i = 0; i < vars.length; i += 1) {
-    const pair = vars[i].split('=');
-    if (decodeURIComponent(pair[0]) === variable) {
-      return decodeURIComponent(pair[1]);
+  // await unifiedShellPromise;
+  if (await isContentHub()) {
+    const settings = await getUserSettings();
+    if (window.location.pathname !== '/onboarding' && !settings.isOnboardingCompleted) {
+      // TODO: activate onboarding
+      // navigateTo(createLinkHref('/onboarding'));
+      // return;
     }
   }
-  return null;
-}
 
-export function getAnchorVariable(variable) {
-  return new URLSearchParams(window.location.hash.substring(1)).get(variable);
+  await eagerPromise;
+  await loadLazy(document);
+  loadDelayed();
 }
 
 loadPage();
 //Load Adobe Data Layer
 loadDataLayer();
-
-export function safeCSSId(str) {
-  return encodeURIComponent(str)
-    .toLowerCase()
-    .replace(/\.|%[0-9a-z]{2}/gi, '');
-}
-
-export function getPathParams() {
-  return window.location.pathname
-    .split('/')
-    .filter((p) => p)
-    // restore the character "_"  back to ":", as ":" isn't valid in a Franklin folder URL
-    .map((p) => p.replaceAll('_', ':'));
-}
-
-function setParamInHashParams(url, paramName, paramValue) {
-  const urlObject = new URL(url);
-  const params = new URLSearchParams(urlObject.hash.replace('#', ''));
-  params.set(paramName, paramValue);
-  urlObject.hash = decodeURIComponent(params.toString());
-  return urlObject;
-}
-
-export function setHashParamInWindowURL(paramName, paramValue) {
-  const newURL = setParamInHashParams(window.location.href, paramName, paramValue);
-  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
-}
-
-/**
- * @param url current url
- * @param paramName new param name
- * @param paramValue new param value
- * @return {URL}
- */
-function addParamToHashParams(url, paramName, paramValue) {
-  const urlObject = new URL(url);
-  const params = new URLSearchParams(urlObject.hash.replace('#', ''));
-  params.append(paramName, paramValue);
-  urlObject.hash = decodeURIComponent(params.toString());
-  return urlObject;
-}
-
-export function addHashParamToWindowURL(paramName, paramValue) {
-  const newURL = addParamToHashParams(window.location.href, paramName, paramValue);
-  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
-}
-
-export function createTag(tag, attributes) {
-  const element = document.createElement(tag);
-  if (attributes) {
-    Object.entries(attributes).forEach(([key, val]) => {
-      element.setAttribute(key, val);
-    });
-  }
-  return element;
-}
-
-export function getSelectedAssetsFromInfiniteResultsBlock() {
-  return [...document.querySelectorAll('.adp-infinite-results.block .adp-result-item.checked')];
-}
-
-export function closeDialogEvent(dialog) {
-  dialog.addEventListener('click', (event) => {
-    // only react to clicks outside the dialog. https://stackoverflow.com/a/70593278/79461
-    const dialogDimensions = dialog.getBoundingClientRect();
-    if (event.clientX < dialogDimensions.left || event.clientX > dialogDimensions.right
-      || event.clientY < dialogDimensions.top || event.clientY > dialogDimensions.bottom) {
-      dialog.close();
-      // document.body.classList.remove('no-scroll');
-    }
-  });
-}
-
-export function sortMetadata(metadataElement) {
-  const metadataGroups = {};
-  const metadataElem = metadataElement;
-  const metadataParent = metadataElem.querySelector('.metadata-fields');
-  const metadataItems = metadataParent.querySelectorAll('[data-metagroup]');
-  const metadataFragment = document.createDocumentFragment();
-
-  // get unique values for metadata group/category
-  const metadataCategories = [];
-  metadataItems.forEach((elem) => {
-    metadataCategories.push(elem.getAttribute('data-metagroup'));
-  });
-  const uniqueCategories = [...new Set(metadataCategories)];
-
-  uniqueCategories.forEach((category) => {
-    metadataGroups[category] = createMetadataGroup(category);
-  });
-
-  metadataItems.forEach((elem) => {
-    const metadataType = elem.getAttribute('data-metagroup');
-    metadataGroups[metadataType].appendChild(elem);
-  });
-
-  Object.keys(metadataGroups).forEach((key) => {
-    metadataFragment.appendChild(metadataGroups[key]);
-  });
-
-  metadataParent.appendChild(metadataFragment);
-  return metadataElem;
-}
-
-function createMetadataGroup(headingText) {
-  const metadataGroup = document.createElement('div');
-  metadataGroup.classList.add('metadata-group');
-  metadataGroup.innerHTML = `<span>${headingText}</span>`;
-  return metadataGroup;
-}
-
-/**
- * returns a relative URL if possible, otherwise an absolute URL with origin
- * @param path
- * @param queryParams
- * @param hashParams
- * @param options {{absolute: boolean}}
- * @return {string} URL
- */
-export function createLinkHref(path, queryParams = {}, hashParams = {}, options = { absolute: false }) {
-  const url = new URL(path, window.location.href);
-  url.search = '';
-  url.hash = '';
-  // replace the character ":" with "_" because  as ":" isn't valid in a Franklin folder URL
-  url.pathname = url.pathname.replaceAll(':', '_');
-
-  if (queryParams) {
-    Object.entries(queryParams).forEach(([key, val]) => {
-      url.searchParams.set(key, val);
-    });
-  }
-  if (hashParams) {
-    const params = new URLSearchParams();
-    // eslint-disable-next-line guard-for-in
-    for (const key in hashParams) {
-      params.set(key, hashParams[key]);
-    }
-    url.hash = decodeURIComponent(params.toString());
-  }
-  // remove domain for relative urls
-  const urlWithoutOrigin = url.toString().replace(url.origin, '');
-  if (options.absolute) {
-    return url.toString();
-  }
-  return urlWithoutOrigin;
-}
-
-/**
- * Removes a given parameter from a URL's query string and hash parameter string.
- * @param {string} url URL to be modified.
- * @param {string} paramName Name of the parameter to remove.
- * @returns {URL} Modified URL
- */
-export function removeParamFromUrl(url, paramName) {
-  const urlObject = new URL(url);
-  const params = new URLSearchParams(urlObject.search);
-  const hashParams = new URLSearchParams(urlObject.hash.replace('#', ''));
-
-  // Remove paramName from query parameters
-  if (params.has(paramName)) {
-    params.delete(paramName);
-    urlObject.search = params.toString();
-  }
-
-  // Remove paramName from hash parameters
-  if (hashParams.has(paramName)) {
-    hashParams.delete(paramName);
-    urlObject.hash = decodeURIComponent(hashParams.toString());
-  }
-
-  return urlObject;
-}
-
-/**
- * Removes a given parameter from the current URL's query string and hash parameter string.
- * The window's history will be modified in place.
- * @param {string} paramName The name of the parameter to remove.
- */
-export function removeParamFromWindowURL(paramName) {
-  const newURL = removeParamFromUrl(window.location.href, paramName);
-  window.history.replaceState({}, '', newURL.toString().replace(newURL.origin, ''));
-}
-
-/**
- * call this instead of changing window.location directly
- * @param url {string} to navigate to
- */
-export function navigateTo(url) {
-  window.location.href = url;
-}
 
 /**
  * Populates the asset view with the asset image and name to the left body of the dialog.

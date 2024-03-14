@@ -1,9 +1,10 @@
 import { decorateIcons } from './lib-franklin.js';
+import { addDialogEventListeners } from './dialog-html-builder.js';
 
 export default async function createConfirmDialog(title, text, onConfirm, confirmButtonText, onCancel, cancelButtonText) {
-  const dialogContainer = document.createElement('div');
-  dialogContainer.classList.add('confirm-dialog-wrapper');
-  dialogContainer.innerHTML = `<dialog autofocus>
+  const dialog = document.createElement('dialog');
+  dialog.classList.add('adp-confirm-dialog');
+  dialog.innerHTML = `
     <div class='dialog-container'>
       <div class='dialog-header'>
         <div class='dialog-header-left'></div>
@@ -22,34 +23,33 @@ export default async function createConfirmDialog(title, text, onConfirm, confir
         <button class="adp-action adp-danger action-confirm"></button>
         </div>
       </div>
-    </div>
-  </dialog>`;
-  addContent(dialogContainer.querySelector('.dialog-header-left'), title);
-  addContent(dialogContainer.querySelector('.dialog-body-content'), text);
-  addContent(dialogContainer.querySelector('.action-cancel'), cancelButtonText || 'Cancel');
-  addContent(dialogContainer.querySelector('.action-confirm'), confirmButtonText || 'Confirm');
+    </div>`;
+  addContent(dialog.querySelector('.dialog-header-left'), title);
+  addContent(dialog.querySelector('.dialog-body-content'), text);
+  addContent(dialog.querySelector('.action-cancel'), cancelButtonText || 'Cancel');
+  addContent(dialog.querySelector('.action-confirm'), confirmButtonText || 'Confirm');
 
-  dialogContainer.querySelector('.action-cancel').addEventListener('click', () => {
+  dialog.querySelector('.action-cancel').addEventListener('click', () => {
     if (onCancel) onCancel();
-    closeConfirmationDialog(dialogContainer);
+    dialog.close();
   });
-  dialogContainer.querySelector('.action-confirm').addEventListener('click', () => {
+  dialog.querySelector('.action-confirm').addEventListener('click', () => {
     onConfirm();
-    closeConfirmationDialog(dialogContainer);
+    dialog.close();
   });
-  document.body.appendChild(dialogContainer);
-  dialogContainer.querySelector('dialog').showModal();
-  decorateIcons(dialogContainer);
+  document.body.appendChild(dialog);
+  dialog.showModal();
+  decorateIcons(dialog);
 
-  dialogContainer.querySelector('.action-close').addEventListener('click', () => {
+  dialog.querySelector('.action-close').addEventListener('click', () => {
     if (onCancel) onCancel();
-    closeConfirmationDialog(dialogContainer);
+    dialog.close();
   });
-}
 
-function closeConfirmationDialog(dialog) {
-  // remove dialog from DOM
-  dialog.remove();
+  addDialogEventListeners(dialog.querySelector('dialog'), {
+    removeDialogElementOnClose: true,
+    closeModalOnEscape: true,
+  });
 }
 
 function addContent(containerElem, content) {

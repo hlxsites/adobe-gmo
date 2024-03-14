@@ -4,14 +4,15 @@ import {
 import {
   getBrandingConfig, getQuickLinkConfig, isUrlPathNonRoot, getBaseConfigPath,
 } from '../../scripts/site-config.js';
-import { getUserProfile, getAvatarUrl, isPublicPage } from '../../scripts/security.js';
-import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/scripts.js';
+import { getUserProfile, getAvatarUrl, isPublicPage, checkAddAssetsAccess } from '../../scripts/security.js';
+import { closeDialogEvent, createLinkHref, getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/shared.js';
 import { EventNames, addEventListener, emitEvent } from '../../scripts/events.js';
 import { openShareModalMultiSelectedAssets } from '../adp-share-modal/adp-share-modal.js';
 import { openMultiSelectDownloadModal } from '../adp-download-modal/adp-download-modal.js';
 import { addAddToCollectionModalHandler } from '../adp-add-to-collection-modal/adp-add-to-collection-modal.js';
 import { getCollection, getCollectionIdFromURL, patchCollection } from '../../scripts/collections.js';
 import createConfirmDialog from '../../scripts/confirm-dialog.js';
+import { openUploadDialog } from '../../contenthub/hydration/hydration.js';
 
 const quickLinksConfig = await getQuickLinkConfig();
 
@@ -205,25 +206,29 @@ export default async function decorate(block) {
   navWrapper.append(nav);
   block.append(navWrapper);
 
-  getBrandingConfig().then((brandingConfig) => {
-    if (brandingConfig.logo) {
-      const logoContainer = nav.querySelector('.nav-brand .adp-logo');
-      const img = document.createElement('img');
-      img.loading = 'lazy';
-      img.src = brandingConfig.logo;
-      img.alt = brandingConfig.brandText;
-      logoContainer.appendChild(img);
-    }
-    if (brandingConfig.brandText) {
-      nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
-      document.title = brandingConfig.brandText;
-    }
-  });
+  if (!window.unifiedShellRuntime) {
+    getBrandingConfig().then((brandingConfig) => {
+      if (brandingConfig.logo) {
+        const logoContainer = nav.querySelector('.nav-brand .adp-logo');
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.src = brandingConfig.logo;
+        img.alt = brandingConfig.brandText;
+        logoContainer.appendChild(img);
+      }
+      if (brandingConfig.brandText) {
+        nav.querySelector('.nav-brand div').textContent = brandingConfig.brandText;
+        document.title = brandingConfig.brandText;
+      }
+    });
+  }
 
   if (await getUserProfile() !== null) {
     document.querySelector('.adp-logo').href = getBaseConfigPath() + '/assets';
     loadSearchField(nav);
-    await createUserInfo(nav);
+    if (!window.unifiedShellRuntime) {
+      await createUserInfo(nav);
+    }
     initQuickLinks();
     initBanner(nav);
   }
@@ -312,7 +317,7 @@ async function handleRemoveMultiSelectedAssetsFromCollection() {
   window.location.reload();
 }
 
-function initQuickLinks() {
+async function initQuickLinks() {
   if (document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content') === 'true') {
     return;
   }
@@ -338,7 +343,19 @@ function initQuickLinks() {
     quickLinks.append(itemEl);
   });
 
-  // set aria-selected on quick links
+  if (await checkAddAssetsAccess()) {
+    const navDiv = document.createElement('div');
+    navDiv.classList.add('item');
+    const addAssetsButton = document.createElement('button');
+    addAssetsButton.classList.add('action', 'add-assets');
+    navDiv.appendChild(addAssetsButton);
+    addAssetsButton.appendChild(document.createTextNode('Add Assets'));
+    addAssetsButton.addEventListener('click', () => {
+      openUploadDialog();
+    });
+    quickLinks.appendChild(navDiv);
+  }
+  //set aria-selected on quick links
   quickLinks.querySelectorAll('.item').forEach((item) => {
     if (item.querySelector('a')?.getAttribute('href') === window.location.pathname) {
       item.setAttribute('aria-selected', 'true');
