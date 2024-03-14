@@ -1,4 +1,4 @@
-import { createLinkHref, navigateTo } from '../../scripts/shared.js';
+import { createLinkHref, navigateTo } from '../../scripts/scripts.js';
 import {
   getCollectionID,
   getCollectionTitle,

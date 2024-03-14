@@ -3,15 +3,11 @@
   max-height: calc(100vh - 155px);
   min-height: calc(100vh - 235px);
   position: sticky;
-  top: calc(var(--nav-height) + var(--main-container-padding-top));
+  top: 151px;
   box-shadow: 0 0 7px rgb(0 0 0 / 10%);
   border-radius: 10px;
   scrollbar-width: none;
   overflow: auto;
-}
-
-.contenthub .adp-asset-details-panel-wrapper {
-  top: calc(var(--nav-height) + var(--main-container-padding-top) + 46px);
 }
 
 .adp-asset-details-panel-wrapper::-webkit-scrollbar {

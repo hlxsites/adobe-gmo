@@ -39,15 +39,6 @@
   --stats-label-color: var(--label-color);
   --radio-background-color: #fdfdfd;
 
-  /** Padding **/
-  --main-container-padding-top: 12px;
-
-  /** ContentHub */
-  --contenthub-header-background: linear-gradient(269deg, #FBAB7E 0%, #F7CE68 100%);
-  --contenthub-header-box-shadow: 0px 4px 12.8px 0px rgba(0 0 0 / 7%);
-  border-bottom: 1px solid var(--palette-gray-200, #E6E6E6);
-
-
   /* borders */
   --border-color: #6d6d6d;
   --assets-browser-selected-border-color: #5258e4;
@@ -92,33 +83,18 @@
   --current-refinement-font: normal normal normal 12px/15px var(--body-font-family);
   --share-modal-font: var(--metadata-font);
   --add-to-collection-modal-font: var(--metadata-font);
-
+ 
   /* heading sizes */
   --header-font-size: 14px;
   --heading-font-size-s: 20px;
   --collection-heading-font: normal normal bold var(--heading-font-size-xs)/27px var(--heading-font-family);
-
+ 
   /* nav height */
   --nav-height: 123px;
-  --header-banner-height: 60px;
+  --banner-height: 60px;
 
   /* body panel sizes */
   --body-current-refinements-block-height: 34px;
-
-  /* card sizes */
-  --card-image-height: 190px;
-  --card-image-max-width: 310px;
-  --card-min-width: 210px;
-}
-
-body.contenthub {
-  --contexthub-default-button-background-color: #292929;
-  --nav-height: 150px;
-  --card-image-height: 249px;
-  --card-image-max-width: 400px;
-  --card-min-width: 330px;
-  --header-banner-height: 50px;
-  --button-focus-outline-color: var(--contexthub-default-button-background-color);
 }
 
 @media (min-width: 900px) {
@@ -153,6 +129,7 @@ body {
   color: var(--text-color);
   background-color: var(--white-background-color);
   display: none;
+  text-transform: capitalize;
 }
 
 body.appear {
@@ -383,7 +360,7 @@ main .section {
 */
 
 main > .section {
-  padding: 0 32px;
+  padding: 0 1.5rem;
 }
 
 /* section metadata */
@@ -622,25 +599,19 @@ START: Common blocks/*-infinite-results block styling
 }
 
 .section.adp-infinite-results-instantsearch-container, .section.adp-infinite-results-collections-container {
-  padding-top: var(--main-container-padding-top);
+  padding-top: 10px;
   display: grid;
   grid-template-columns: min-content max-content max-content auto min-content;
-  grid-template-rows: 46px auto;
+  grid-template-rows: minmax(46px, auto) auto;
   /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
   grid-template-areas:
     "refinements selection-items stats current-refinements asset-details"
     "refinements infinite-results infinite-results infinite-results asset-details";
   align-items: start;
   background-color: var(--assets-browser-background-color);
+  border-top: solid #F1F1F1 2px;
   column-gap: 11px;
   row-gap: 11px;
-}
-
-.contenthub .section.adp-infinite-results-instantsearch-container, .section.adp-infinite-results-collections-container {
-  grid-template-columns: min-content max-content max-content auto auto min-content;
-  grid-template-areas:
-  "refinements selection-items stats current-refinements assets-actions assets-actions"
-  "refinements infinite-results infinite-results infinite-results infinite-results asset-details";
 }
 
 .section.adp-infinite-results-instantsearch-container.closed, .section.adp-infinite-results-collections-container.closed {
@@ -648,13 +619,6 @@ START: Common blocks/*-infinite-results block styling
   grid-template-areas:
     "refinements selection-items stats current-refinements asset-details"
     "infinite-results infinite-results infinite-results infinite-results asset-details";
-}
-
-.contenthub .section.adp-infinite-results-instantsearch-container.closed, .section.adp-infinite-results-collections-container.closed {
-  grid-template-columns: min-content max-content max-content auto auto min-content;
-  grid-template-areas:
-  "refinements selection-items stats current-refinements assets-actions assets-actions"
-  "infinite-results infinite-results infinite-results infinite-results infinite-results asset-details";
 }
 
 .adp-result-item .actions {
@@ -673,15 +637,9 @@ START: Common blocks/*-infinite-results block styling
   flex: 1;
   display: flex;
   flex-flow: row wrap;
-  gap: 22px;
+  gap: 25px;
   justify-content: space-between;
   container-type: inline-size;
-}
-
-.contenthub .adp-infinite-results .items {
-  gap: unset;
-  column-gap: 18px;
-  row-gap: 28px;
 }
 
 .adp-infinite-results .items .status-and-sort {
@@ -716,10 +674,10 @@ START: Common blocks/*-infinite-results block styling
 
 .adp-result-item {
   display: grid;
-  grid-template-rows: calc(var(--card-image-height) + 10px) auto auto auto;
+  grid-template-rows: 200px auto auto auto;
   flex: 1;
-  min-width: var(--card-min-width);
-  max-width: calc(var(--card-image-max-width) + 24px);
+  min-width: 210px;
+  max-width: 320px;
   border-radius: 10px;
   background-color: white;
   box-shadow: 0 0 7px rgb(0 0 0 / 10%);
@@ -754,7 +712,7 @@ START: Common blocks/*-infinite-results block styling
   display: flex;
   justify-content: center;
   width: 100%;
-  height: var(--card-image-height);
+  height: 184px;
   background-color: #e1e1e1;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -850,7 +808,7 @@ input[type="checkbox"]:indeterminate {
   grid-template-rows: repeat(2, 1fr);
   gap: 1px; /* Adjust the gap as needed */
   width: 100%;
-  height: var(--card-image-height);
+  height: 184px; 
   background-color: #e1e1e1;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -870,7 +828,7 @@ input[type="checkbox"]:indeterminate {
 
 .adp-result-item .preview-collection a.thumbnail.one-image > img {
   width: 100%;
-  height: var(--card-image-height);
+  height: 184px;
   object-fit: cover;
 }
 
@@ -966,12 +924,6 @@ input[type="checkbox"]:indeterminate {
   padding: 4px 4px 10px;
 }
 
-.contenthub .adp-result-item.checked,
-.contenthub .adp-result-item.selected {
-  border: unset;
-  padding: 6px 6px 12px;
-}
-
 .adp-result-item .title {
   font-size: 0.9rem;
   font-weight: bold;
@@ -979,11 +931,6 @@ input[type="checkbox"]:indeterminate {
   text-overflow: ellipsis;
   white-space: nowrap;
   word-break: break-all;
-}
-
-.adp-result-item > .metadata-container {
-  margin-top: 10px;
-  margin-bottom: 10px;
 }
 
 .adp-result-item .metadata-fields {
@@ -995,6 +942,8 @@ input[type="checkbox"]:indeterminate {
   overflow: hidden;
   padding: 0;
   gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   white-space: nowrap;
   font-size: 0.75rem;
 }
@@ -1195,13 +1144,3 @@ END: blocks/adp-collection-header and blocks/adp-stats
   padding-bottom: 35px;
   justify-content: end;
 }
-
-/**
-START: dialog css - see scripts/dialog-html-builder.js
-*/
-.dialog-container {
-  border-radius: 6px;
-  border: none;
-  padding: 0;
-}
-

@@ -7,7 +7,7 @@ const DRAFTS_BASE_PATH = 'drafts';
 function parseValue(value) {
   if (value === 'true' || value === 'false') {
     return value === 'true';
-  } if (!Number.isNaN(Number(value))) {
+  } if (!Number.isNaN(value)) {
     return Number(value);
   }
   return value;
@@ -19,13 +19,11 @@ function parseValue(value) {
  * @property {string} imsOrg
  * @property {string} imsUserGroup
  * @property {string} apiKey
- * @property {string} adobeExpressClientId
- * @property {string} adobeExpressAppName
  * @property {'prod'|'stage'|undefined} imsEnvironment (Optional)
  */
 
 /**
- * @returns {Promise<AdminConfig>}
+ * @returns {AdminConfig}
  */
 export async function getAdminConfig() {
   const response = await getConfig('admin-config.json');
@@ -51,7 +49,6 @@ export async function getAdminConfig() {
  * @property {string} dateFormat
  * @property {string} defaultSort
  * @property {string} fontCSSURL
- * @property {string} portalTheme
  */
 
 /**
@@ -64,14 +61,6 @@ export async function getBrandingConfig() {
     result[toCamelCase(row.ID)] = row.Value;
   });
   return result;
-}
-
-export async function isContentHub() {
-  const brandingConfig = await getBrandingConfig();
-  if (brandingConfig.portalTheme === 'contenthub') {
-    return true;
-  }
-  return false;
 }
 
 /**
@@ -227,7 +216,6 @@ export async function getSearchFieldConfig() {
     enableSearchSuggestions: false,
     searchMinChars: 3,
     hideExpiredAssets: true,
-    placeholderText: 'Search all assets',
   };
   response[configId]?.data.forEach((row) => {
     if (row.Value) {

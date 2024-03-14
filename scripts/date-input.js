@@ -1,5 +1,4 @@
-import { waitForDependency } from './scripts.js';
-import { setCSSVar } from './shared.js';
+import { setCSSVar, waitForDependency } from './scripts.js';
 
 const FLATPICKR_CALENDAR_HEIGHT = 300;
 /**

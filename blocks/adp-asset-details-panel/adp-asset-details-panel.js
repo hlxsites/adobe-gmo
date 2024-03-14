@@ -129,7 +129,7 @@ export async function openAssetDetailsPanel(assetId, resultsManagerObj) {
 }
 
 export default async function decorate(block) {
-  block.innerHTML = `
+  block.innerHTML = ` 
         <div class="asset-details-header-container">
           <div class="asset-details-header">
             <div class="top-left">

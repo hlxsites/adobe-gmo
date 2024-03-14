@@ -4,7 +4,7 @@ import {
 import { createAssetCardElement } from '../../scripts/card-html-builder.js';
 import {
   getAnchorVariable, getQueryVariable, setHashParamInWindowURL, removeParamFromWindowURL, getPathParams,
-} from '../../scripts/shared.js';
+} from '../../scripts/scripts.js';
 import { getCardViewConfig, getCardViewSettings } from '../../scripts/site-config.js';
 import { openAssetDetailsPanel, closeAssetDetailsPanel } from '../adp-asset-details-panel/adp-asset-details-panel.js';
 import { getAssetMetadata } from '../../scripts/polaris.js';

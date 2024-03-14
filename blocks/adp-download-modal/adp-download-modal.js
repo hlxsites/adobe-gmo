@@ -1,8 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getAvailableRenditions } from '../../scripts/renditions.js';
-import { logError } from '../../scripts/scripts.js';
-import { createTag, closeDialogEvent } from '../../scripts/shared.js';
-import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
+import { createTag, closeDialogEvent, logError } from '../../scripts/scripts.js';
 import { addAssetToContainer } from '../../scripts/asset-panel-html-builder.js';
 import { emitEvent, EventNames } from '../../scripts/events.js';
 import { getBearerToken } from '../../scripts/security.js';
@@ -33,15 +31,14 @@ export default function decorate(block) {
   </dialog>`;
   decorateIcons(block);
   const dialog = block.querySelector('dialog');
-  addDialogEventListeners(dialog, {
-    removeDialogElementOnClose: false,
-    closeModalOnEscape: true,
-    closeModalOnOutsideClick: true,
-  });
   dialog.querySelector('.action-close').addEventListener('click', () => {
-    dialog.close();
+    closeDialog(dialog);
   });
-
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && dialog.open) {
+      closeDialog(dialog);
+    }
+  });
   closeDialogEvent(dialog);
 }
 
@@ -312,6 +309,7 @@ export async function openDownloadModal(assetId) {
   const format = getAssetMimeType(assetJSON);
 
   // add no-scroll to disable scrolling for the main page in the background
+  document.body.classList.add('no-scroll');
   const dialog = document.querySelector('.adp-download-modal.block dialog');
   dialog.classList.remove('multi-select');
   dialog.querySelector('.modal-header-left').textContent = 'Download';
@@ -335,7 +333,13 @@ export async function openDownloadModal(assetId) {
   document.querySelector('.adp-download-modal.block .action-close').blur();
 }
 
+function closeDialog(dialog) {
+  dialog.close();
+  document.body.classList.remove('no-scroll');
+}
+
 export async function openMultiSelectDownloadModal() {
+  document.body.classList.add('no-scroll');
   const dialog = document.querySelector('.adp-download-modal.block dialog');
   dialog.classList.add('multi-select');
 

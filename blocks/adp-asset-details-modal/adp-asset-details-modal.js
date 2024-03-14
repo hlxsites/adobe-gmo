@@ -3,11 +3,10 @@ import {
   getAnchorVariable,
   createTag,
   sortMetadata,
-  setHashParamInWindowURL,
   removeParamFromWindowURL,
-  closeAssetDetailsModal,
-} from '../../scripts/shared.js';
-import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
+  setHashParamInWindowURL,
+} from '../../scripts/scripts.js';
+import { closeModal } from '../../scripts/shared.js';
 import { authorizeURL, getAssetMetadata } from '../../scripts/polaris.js';
 import {
   getAssetName, getAssetMimeType, getAssetTitle, isLicensedContent,
@@ -120,6 +119,9 @@ export async function openAssetDetailsModal(id, resultsManager) {
     setHashParamInWindowURL('assetId', assetId);
   }
   if (assetId) {
+    if (!document.body.classList.contains('no-scroll')) {
+      document.body.classList.add('no-scroll');
+    }
     const modal = document.querySelector('.modal-container');
     if (!modal.classList.contains('open')) {
       modal.classList.add('open');
@@ -273,16 +275,15 @@ export default function decorate(block) {
       </div>
     </dialog>`;
   decorateIcons(block);
-  const dialog = block.querySelector('dialog');
+
   block.querySelector('#asset-details-close').addEventListener('click', () => {
-    dialog.close();
+    closeModal(block);
   });
-  addDialogEventListeners(dialog, {
-    closeModalOnEscape: true,
-    closeModalOnOutsideClick: true,
-    onClose: () => {
-      closeAssetDetailsModal(block);
-    },
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && block.querySelector('.modal-container').open) {
+      closeModal(block);
+    }
   });
 
   // eslint-disable-next-line func-names

@@ -2,7 +2,7 @@ import {
   getAnchorVariable,
   getQueryVariable,
   isElement,
-} from './shared.js';
+} from './scripts.js';
 import {
   addMetadataFields,
   formatAssetMetadata,
