@@ -17,9 +17,8 @@ export default class CollectionsDatasource {
 
   async showMore() {
 
-    const list = await searchListCollection(5, this.pageNumber);
-
     this.pageNumber += 1;
+    const list = await searchListCollection(5, this.pageNumber);
 
     if (this.pageNumber >= list.nbPages){
       this.lastPage = true;
