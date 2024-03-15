@@ -13,7 +13,8 @@ let s3;
 let psAssetJSON, psAssetName, psAssetTitle, psAssetId, psAssetFormat;
 let downloadUrl, psUploadUrl;
 
-const testPsd = 'newtestpsd.psd';
+//const testPsd = 'newtestpsd.psd';
+const testPsd = 'branding.psd';
 
 export default async function decorate(block) {
 
@@ -73,14 +74,17 @@ export default async function decorate(block) {
             </div>
             <div aria-label="Controls" class="control-rail hidden">
                 <div class="ps-dialog-apis-buttons">
-                    <div id="psdtest" class="button api psdtest">
+                    <div id="psdtest" class="button api psdtest hidden">
                         <span class="button-text">PSD Presigned Get</span>
                     </div>
-                    <div id="psdlayers" class="button api psdlayer">
+                    <div id="psdlayers" class="button api psdlayer hidden">
                         <span class="button-text">PSD Layer Info</span>
                     </div>
-                    <div id="textedit" class="button api textedit">
+                    <div id="textedit" class="button api textedit hidden">
                         <span class="button-text">Test Text Edit</span>
+                    </div>
+                    <div id="smartobj" class="button api smartobj">
+                        <span class="button-text">Apply</span>
                     </div>
                 </div>
                 <div class="ps-dialog-close-button">
@@ -99,6 +103,7 @@ export default async function decorate(block) {
                 <div id="psdstatus" class="button psdstatus">
                     <span class="button-text">Check PSD Status</span>
                 </div>
+                <div id="psdstatusdisplay" class="psdstatustext"></div>
             </div>    
         </div>
     </dialog>`;
@@ -142,6 +147,10 @@ export default async function decorate(block) {
     const editTextBtn = block.querySelector("#textedit");
     editTextBtn.addEventListener('click', async () => {
         editTextLayer();
+    });
+    const smartObjBtn = block.querySelector("#smartobj");
+    smartObjBtn.addEventListener('click', async () => {
+        updateSmartObject();
     });
     const psdLayerBtn = block.querySelector("#psdlayers");
     psdLayerBtn.addEventListener('click', async () => {
@@ -345,7 +354,7 @@ async function getPresignedURL(type, fileName) {
     var params = {
         Bucket: bucketName,
         Key: fileName, //path the uploaded file will live in
-        Expires: 3600 // expiration time for the presigned URL in seconds
+        Expires: 6000 // expiration time for the presigned URL in seconds
     };
  
     const presignedUrl = await s3.getSignedUrl(type, params);
@@ -431,6 +440,12 @@ async function pollJobStatus() {
         }
     }
 
+    if (operation == "smartobj" || operation == "edittext") {
+        if (responseJson.outputs[0].status == 'succeeded') {
+            console.log(responseJson);
+            statusBtn.dataset.completed = "true";
+        }
+    }    
 }
 
 async function base64Encode(image) {
@@ -485,11 +500,10 @@ export async function openModal(assetId) {
     const dialog = document.querySelector('.gmo-photoshop.block dialog');
     //if (psAssetFormat == "image/vnd.adobe.photoshop") {
     // testing
-    const testFormat = "image/vnd.adobe.photoshop";
-    if (testFormat == "image/vnd.adobe.photoshop") {
+    //const testFormat = "image/vnd.adobe.photoshop";
+    if (psAssetFormat == "image/vnd.adobe.photoshop") {
         dialog.querySelector(".psd-functions").classList.remove('hidden');
         await getLayerInfo();
-
     } else {
         dialog.querySelector(".image-functions").classList.remove('hidden');
         appendImgToRoot(downloadUrl, false);
@@ -508,7 +522,10 @@ async function getLayerInfo() {
     const apiUrl = 'https://image.adobe.io/pie/psdService/documentManifest';
     const storageType = 'external';
     //console.log(psUploadUrl);
-    const getPsdURL = await getPresignedURL('getObject', testPsd);
+    // below was used for testing. let's try using the download URL from Polaris
+    //const getPsdURL = await getPresignedURL('getObject', testPsd);
+    console.log(downloadUrl);
+    const getPsdURL = downloadUrl;
     //const putPsdURl = await getPresignedURL('putObject', '')
     const inputs = {
         'inputs': [
@@ -569,14 +586,14 @@ async function checkLayerInfoStatus() {
     const output = responseJson.outputs[0];
     console.log(output.status);
     console.log(output.layers);
-    output.layers.forEach((layer) => {
+    /*output.layers.forEach((layer) => {
         console.log("layer name: " + layer.name)
         console.log("layer thumbnail: " + layer.thumbnail)
         console.log("layer children: " + layer.children)
         // get the thumbnail for a child's smart object?
         // get any text layers and display. how do we do textupdate?
     
-    })
+    })*/
     
 
     if (operation == "layerinfo") {
@@ -590,90 +607,238 @@ async function checkLayerInfoStatus() {
             //appendImgToRoot(resultImg, true);
             statusBtn.dataset.completed = "true";
             console.log('good result');
+            console.log(output);
             document.querySelector(".loader").classList.add('hidden');
             document.querySelector(".psd-functions .control-rail.hidden").classList.remove('hidden');
             document.querySelector("#psd-wrapper").classList.remove('hidden');
 
+
             output.layers.forEach((layer) => {
-                console.log("layer name: " + layer.name)
-                console.log("layer thumbnail: " + layer.thumbnail)
-                console.log("layer children: " + layer.children)
+                //console.log("layer name: " + layer.name)
+                //console.log("layer thumbnail: " + layer.thumbnail)
+                //console.log("layer children: " + layer.children)
+                //console.log("layer id: " + layer.id)
                 // get the thumbnail for a child's smart object?
                 // get any text layers and display. how do we do textupdate?
                 // handle text layer manipulation
                 const textEditArea = document.querySelector('#text-adjust');
                 const bgEditArea = document.querySelector('#background-replace');
-                const textLayers = layer.children.filter(child => child.type === "textLayer");
-                const smartObjLayers = layer.children.filter(child => child.type === "smartObject");
-                console.log(textLayers);
-
-                smartObjLayers.forEach((layer) => {
-                    console.log(layer.name);
-                    //<textarea id="newtext" name="newtext" role="text2image" class="input" maxlength="1024" placeholder="Add your new text here"></textarea>
+                //let textLayers, smartObjLayers;
+                console.log("layer: ");
+                console.log(layer);
+                let textLayers, smartObjLayers;
+                let childTextLayers, childObjLayers = false;
+                if (layer.type === "textLayer") {
+                    textLayers = layer;
+                }
+                if (layer.type === "smartObject") {
+                    smartObjLayers = layer;
+                }
+                //textLayers = layer.children.filter(child => child.type === "textLayer");
+                //smartObjLayers = layer.children.filter(child => child.type === "smartObject");
+                if (!(textLayers) && !(smartObjLayers)) {
+                    try {
+                        textLayers = layer.children.filter(child => child.type === "textLayer");    
+                        childTextLayers = true;
+                    } catch(e) {
+                        console.log("No text layer");
+                    }
                     
-                    const wrapper = document.createElement('div');
-                    wrapper.classList.add('thumbnail-wrapper');
-                    wrapper.dataset.name = layer.name;
-                    const buttonWrapper = document.createElement('div');
-                    buttonWrapper.className = ('thumbnail-control-wrapper');
-                    const uploadBtn = document.createElement('div');
-                    uploadBtn.className = ('button upload-img');
-                    uploadBtn.dataset.name = layer.name;
-                    uploadBtn.dataset.action = "change";
-                    uploadBtn.textContent = "Upload";
-                    uploadBtn.addEventListener('click', (event) => {
-                        console.log(event.target);
-                        changeThumbnail(event.target);
+                    try {
+                        smartObjLayers = layer.children.filter(child => child.type === "smartObject");
+                        childObjLayers = true;
+                    } catch(e) {
+                        console.log("no smartobj layer");
+                    }
+                }
+                if (!(textLayers) && !(smartObjLayers)) {
+                    //try this
+                    return;
+                }
+                //textLayers = layer.children.filter(child => child.type === "textLayer");
+                //smartObjLayers = layer.children.filter(child => child.type === "smartObject");
+                
+                
+                console.log("before foreach");
+                console.log(textLayers);
+                console.log(textLayers?.length)
+                console.log(smartObjLayers?.length);
+                if (childObjLayers) {
+                    smartObjLayers.forEach((layer) => {
+                        processSmartObjLayer(layer, bgEditArea);
+                        
+                        console.log("layer name in filtered smartobjs: " + layer.name)
+                        console.log("layer id in filtered smartobjs: " + layer.id);
+                        //<textarea id="newtext" name="newtext" role="text2image" class="input" maxlength="1024" placeholder="Add your new text here"></textarea>
+                        /*
+                        const wrapper = document.createElement('div');
+                        wrapper.classList.add('thumbnail-wrapper');
+                        wrapper.dataset.name = layer.name;
+                        wrapper.dataset.id = layer.id;
+                        const buttonWrapper = document.createElement('div');
+                        buttonWrapper.className = ('thumbnail-control-wrapper');
+                        const uploadBtn = document.createElement('div');
+                        uploadBtn.className = ('button upload-img');
+                        uploadBtn.dataset.name = layer.name;
+                        uploadBtn.dataset.id = layer.id;
+                        uploadBtn.dataset.action = "change";
+                        uploadBtn.textContent = "Upload";
+                        uploadBtn.addEventListener('click', (event) => {
+                            console.log(event.target);
+                            const input = document.getElementById(layer.name + '_input');
+                            console.log(input);
+                            input.click();
+                        })
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = "file";
+                        hiddenInput.dataset.name = layer.name;
+                        hiddenInput.dataset.id = layer.id;
+                        hiddenInput.classList.add('hidden');
+                        hiddenInput.id = layer.name + '_input';
+                        hiddenInput.addEventListener('change', (event) => {
+                            console.log(event.target);
+                            changeThumbnail(event.target);
+                        })
+                        const deleteBtn = document.createElement('div');
+                        deleteBtn.className = ('button delete-img');
+                        deleteBtn.dataset.name = layer.name;
+                        deleteBtn.dataset.action = "delete";
+                        deleteBtn.textContent = "Delete" // this isn't actually deleting, the layer is being hidden
+                        deleteBtn.addEventListener('click', (event) => {
+                            console.log(event.target);
+                            deleteThumbnail(event.target);
+                        })
+                        const thumbnail = document.createElement('img');
+                        thumbnail.src = layer.thumbnail;
+                        thumbnail.id = layer.name;
+                        thumbnail.name = layer.name;
+                        wrapper.appendChild(thumbnail);
+                        buttonWrapper.appendChild(deleteBtn);
+                        buttonWrapper.appendChild(uploadBtn);
+                        buttonWrapper.appendChild(hiddenInput);
+                        wrapper.appendChild(buttonWrapper);
+                        bgEditArea.appendChild(wrapper);
+                        */
+                       //=================
+                        /*const textInput = document.createElement('textarea');
+                        textInput.id = layer.name;
+                        textInput.name = layer.name;
+                        textInput.classList.add('textinput');
+                        textInput.placeholder = layer.text.content;
+                        textInput.dataset.original = layer.text.content;
+                        textEditArea.appendChild(textInput);
+                        */
                     })
-                    const deleteBtn = document.createElement('div');
-                    deleteBtn.className = ('button delete-img');
-                    deleteBtn.dataset.name = layer.name;
-                    deleteBtn.dataset.action = "delete";
-                    deleteBtn.textContent = "Delete" // this isn't actually deleting, the layer is being hidden
-                    deleteBtn.addEventListener('click', (event) => {
-                        console.log(event.target);
-                        deleteThumbnail(event.target);
+                } else {
+                    if (smartObjLayers) {
+                        processSmartObjLayer(smartObjLayers, bgEditArea);
+                    }
+                }
+                
+                if (childTextLayers) {
+                    textLayers.forEach((layer) => {
+                        //<textarea id="newtext" name="newtext" role="text2image" class="input" maxlength="1024" placeholder="Add your new text here"></textarea>
+                        processTextLayer(layer, textEditArea);
+                        /*
+                        const textInput = document.createElement('textarea');
+                        textInput.id = layer.name;
+                        textInput.name = layer.name;
+                        textInput.classList.add('textinput');
+                        textInput.placeholder = layer.text.content;
+                        textInput.dataset.original = layer.text.content;
+                        textInput.dataset.name = layer.name;
+                        textInput.dataset.id = layer.id;
+                        textEditArea.appendChild(textInput);
+                        */
                     })
-                    const thumbnail = document.createElement('img');
-                    thumbnail.src = layer.thumbnail;
-                    thumbnail.id = layer.name;
-                    thumbnail.name = layer.name;
-                    wrapper.appendChild(thumbnail);
-                    buttonWrapper.appendChild(deleteBtn);
-                    buttonWrapper.appendChild(uploadBtn);
-                    wrapper.appendChild(buttonWrapper);
-                    bgEditArea.appendChild(wrapper);
-                    /*const textInput = document.createElement('textarea');
-                    textInput.id = layer.name;
-                    textInput.name = layer.name;
-                    textInput.classList.add('textinput');
-                    textInput.placeholder = layer.text.content;
-                    textInput.dataset.original = layer.text.content;
-                    textEditArea.appendChild(textInput);
-                    */
-                })
-
-                textLayers.forEach((layer) => {
-                    //<textarea id="newtext" name="newtext" role="text2image" class="input" maxlength="1024" placeholder="Add your new text here"></textarea>
-                    const textInput = document.createElement('textarea');
-                    textInput.id = layer.name;
-                    textInput.name = layer.name;
-                    textInput.classList.add('textinput');
-                    textInput.placeholder = layer.text.content;
-                    textInput.dataset.original = layer.text.content;
-                    textEditArea.appendChild(textInput);
-                })
+                } else {
+                    if (textLayers) {
+                        processTextLayer(textLayers, textEditArea);
+                    }
+                }
             })
         }
     }
+    if (operation == "smartobj") {
+        if (output.status == 'succeeded') {
+            console.log(output);
+        }
+    }
+    const statusDisplay = document.querySelector("#psdstatusdisplay");
+    statusDisplay.textContent = output.status;
 }
 
+function processSmartObjLayer(layer, bgEditArea) {
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('thumbnail-wrapper');
+    wrapper.dataset.name = layer.name;
+    wrapper.dataset.id = layer.id;
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.className = ('thumbnail-control-wrapper');
+    const uploadBtn = document.createElement('div');
+    uploadBtn.className = ('button upload-img');
+    uploadBtn.dataset.name = layer.name;
+    uploadBtn.dataset.id = layer.id;
+    uploadBtn.dataset.action = "change";
+    uploadBtn.textContent = "Upload";
+    uploadBtn.addEventListener('click', (event) => {
+        console.log(event.target);
+        const input = document.getElementById(layer.name + '_input');
+        console.log(input);
+        input.click();
+    })
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = "file";
+    hiddenInput.dataset.name = layer.name;
+    hiddenInput.dataset.id = layer.id;
+    hiddenInput.classList.add('hidden');
+    hiddenInput.id = layer.name + '_input';
+    hiddenInput.addEventListener('change', (event) => {
+        console.log(event.target);
+        changeThumbnail(event.target);
+    })
+    const deleteBtn = document.createElement('div');
+    deleteBtn.className = ('button delete-img');
+    deleteBtn.dataset.name = layer.name;
+    deleteBtn.dataset.action = "delete";
+    deleteBtn.textContent = "Delete" // this isn't actually deleting, the layer is being hidden
+    deleteBtn.addEventListener('click', (event) => {
+        console.log(event.target);
+        deleteThumbnail(event.target);
+    })
+    const thumbnail = document.createElement('img');
+    thumbnail.src = layer.thumbnail;
+    thumbnail.id = layer.name;
+    thumbnail.name = layer.name;
+    wrapper.appendChild(thumbnail);
+    buttonWrapper.appendChild(deleteBtn);
+    buttonWrapper.appendChild(uploadBtn);
+    buttonWrapper.appendChild(hiddenInput);
+    wrapper.appendChild(buttonWrapper);
+    bgEditArea.appendChild(wrapper);
+}
+function processTextLayer(layer, textEditArea) {
+    const textInput = document.createElement('textarea');
+    textInput.id = layer.name;
+    textInput.name = layer.name;
+    textInput.classList.add('textinput');
+    textInput.placeholder = layer.text.content;
+    textInput.dataset.original = layer.text.content;
+    textInput.dataset.name = layer.name;
+    textInput.dataset.id = layer.id;
+    textEditArea.appendChild(textInput);
+}
 async function updateSmartObject() {
+    // check all thumbnail wrappers for actions
+    // construct layer modifications based on same
+    // --> data-action
+
     const token = await getPSToken();
-    const apiUrl = 'https://image.adobe.io/pie/psdService/text';
+    //const apiUrl = 'https://image.adobe.io/pie/psdService/smartObject'; // should this be documentOperations? probably
+    const apiUrl = 'https://image.adobe.io/pie/psdService/documentOperations';
     const storageType = 'external';
     const timestamp = Date.now();
-    const resultFileName = 'textedit-' + timestamp + '.psd'
+    const resultFileName = 'smartobj-' + timestamp + '.psd'
     const getPsdURL = await getPresignedURL('getObject', testPsd);
     const putPsdURL = await getPresignedURL('putObject', resultFileName)
     let layers = [];
@@ -681,18 +846,53 @@ async function updateSmartObject() {
     const imgInputs = document.querySelectorAll('.thumbnail-wrapper');
     console.log(imgInputs.length);
     imgInputs.forEach((input) => {
-        const imgHide = input.dataset.delete; // dummy value
-        if (imgHide) {
+        console.log(input.dataset.action);
+        if (!(input.dataset.action === undefined)) {
+            if (input.dataset.action == 'delete') {
+                layers[count] = {
+                    'name': input.dataset.name,
+                    'id': +input.dataset.id,
+                    'delete': {}
+                }
+                /*
 
-        }
-        layers[count] = {
-            'name': input.name,
-            'text': {
-                'content': input.value
+                        'includeChildren': true,
+                        'name': input.dataset.name
+                */
+            } else {
+                const thumbnailHref = input.dataset.href // must upload the supplied thumbnail to s3.
+                layers[count] = {
+                    "edit":{},
+                    'name': input.dataset.name,
+                    'id': +input.dataset.id,
+                    'input': {
+                        'storage': storageType,
+                        'href': thumbnailHref
+                    }
+                }
             }
+            count++;
         }
-        count++;
     })
+    console.log(layers)
+
+    //testing text updates at same time as image
+    const textInputs = document.querySelectorAll('.textinput');
+    textInputs.forEach((input) => {
+        if (!(input.value === '') && !(input.value === input.dataset.original)) {
+            layers[count] = {
+                'name': input.name,
+                'id': +input.dataset.id,
+                'edit': {},
+                'text': {
+                    'content': input.value
+                }
+            }
+            count++;
+        }
+    })
+    //end testing.. delete after if fail
+    console.log(layers);
     const inputs = {
         'inputs': [
             {
@@ -703,7 +903,7 @@ async function updateSmartObject() {
         'options': { layers },
         'outputs': [
             {
-              'href': putPsdURl,
+              'href': putPsdURL,
               'storage': storageType,
               'type': 'vnd.adobe.photoshop'
             }
@@ -724,39 +924,65 @@ async function updateSmartObject() {
     });
     console.log(responseJson);
     console.log(responseJson._links.self.href);
+    const checkBtn = document.querySelector("#psdstatus");
+    checkBtn.dataset.status = responseJson._links.self.href;
+    checkBtn.dataset.operation = "smartobj";
+    checkBtn.dataset.completed = "false";
 }
 
-async function deleteThumbnail() {
+async function deleteThumbnail(button) {
     //move up to wrpaper level
-    const wrapper = '';
+    const wrapper = button.parentElement.parentElement;
     wrapper.dataset.action = "delete";
-
+    // this will tell the 'apply' button to hide the layer
 }
 
-async function changeThumbnail() {
-    
-    //update image source to new image
-    //move up to wrpaper level
-    const wrapper = '';
+async function changeThumbnail(button) {
+    let response;
+    const wrapper = button.parentElement.parentElement;
     wrapper.dataset.action = "change";
 
-
+    const input = button;
+    
+    const file = input.files[0];
+    const fileName = file.name;
+    const timestamp = Date.now();
+    const resultFileName = timestamp + fileName;
+    const putBgUrl = await getPresignedURL('putObject', resultFileName)
+    const existingImage = wrapper.querySelector('img');
+    console.log(existingImage);
+    if (input.files && file) {
+        response = await fetch(putBgUrl, {
+            method: 'PUT',
+            body: file,
+            headers: {
+                'Content-Type': 'image/*',
+                'Access-Control-Allow-Origin': 'https://localhost.corp.adobe.com'
+            }
+        });
+        console.log(response);
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            existingImage.src = e.target.result;
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+    const getBgUrl = await getPresignedURL('getObject', resultFileName);
+    wrapper.dataset.href = getBgUrl;
 }
 
 async function editTextLayer() {
-    // get new text for each layer
 
     const token = await getPSToken();
     const apiUrl = 'https://image.adobe.io/pie/psdService/text';
     const storageType = 'external';
-    //console.log(psUploadUrl);
     const timestamp = Date.now();
     const resultFileName = 'textedit-' + timestamp + '.psd'
     const getPsdURL = await getPresignedURL('getObject', testPsd);
     const putPsdURl = await getPresignedURL('putObject', resultFileName)
-    // count # of text layers
     const textInputs = document.querySelectorAll('.textinput');
-    console.log(textInputs.length);
     let layers = [];
     let count = 0;
     textInputs.forEach((input) => {
@@ -768,20 +994,6 @@ async function editTextLayer() {
         }
         count++;
     })
-    console.log(layers);
-
-    /*
-        'options': {
-            'layers':[
-              {
-                'name': "Sleepy Cats",
-                "text": {
-                    "content": "CHANGED TO NEW TEXT"
-                }
-              }
-            ]
-        },
-    */
     const inputs = {
         'inputs': [
             {
@@ -816,6 +1028,6 @@ async function editTextLayer() {
     console.log(responseJson._links.self.href);
     const checkBtn = document.querySelector("#psdstatus");
     checkBtn.dataset.status = responseJson._links.self.href;
-    checkBtn.dataset.operation = "layerinfo";
+    checkBtn.dataset.operation = "edittext";
     checkBtn.dataset.completed = "false";
 }

@@ -92,9 +92,14 @@
   }
   #psd-wrapper {
     display: flex;
+    justify-content: space-between;
   }
   #background-replace {
-    max-width: 400px;
+    max-width: 100%;
+    display:flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
   }
   #psd-col1 {
     margin-right: 50px;
@@ -108,11 +113,29 @@
   }
   
   .thumbnail-wrapper img {
-    max-width: 75%;
+    max-width: 85%;
+    max-height: 150px;
   }
   .thumbnail-control-wrapper {
+    width:14%;
     margin-left: 20px;
   }
   .thumbnail-control-wrapper .button {
-    width: 60px;
+    width: 80%;
+    padding: 5px;
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  .psdstatustext {
+    margin-left: 15px;
+    font-size: 20px;
+    line-height: 20px;
+    height: 20px;
+    text-align: center;
+    border: 2px dashed #ff0000bd;
+    padding: 0.35em;
+  }
+  .psdstatustext:empty {
+    display: none;
+    visibility: hidden;
   }
