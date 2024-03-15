@@ -139,3 +139,9 @@
     display: none;
     visibility: hidden;
   }
+  .psd-results-download a {
+    color: white;
+  }
+  .psd-results-download a:hover {
+    text-decoration: none;
+  }
