@@ -2,12 +2,10 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import {
   searchListCollection, createCollection, patchCollection, getCollection,
 } from '../../scripts/collections.js';
-import { getSelectedAssetsFromInfiniteResultsBlock, populateAssetViewLeftDialog } from '../../scripts/scripts.js';
+import { populateAssetViewLeftDialog } from '../../scripts/scripts.js';
+import { getSelectedAssetsFromInfiniteResultsBlock } from '../../scripts/shared.js';
 import createMultiSelectedAssetsTable from '../../scripts/multi-selected-assets-table.js';
-
-function closeDialog(dialog) {
-  dialog.close();
-}
+import { addDialogEventListeners } from '../../scripts/dialog-html-builder.js';
 
 // Function to create the new collection input
 function createNewCollectionInput(newCollectionRadioInputContainer) {
@@ -145,12 +143,11 @@ export async function openModal(items) {
     }
 
     // Close the dialog
-    closeDialog(dialog);
+    dialog.close();
   });
 
   dialog.querySelector('.action-cancel').addEventListener('click', () => {
-    resetDialogState();
-    closeDialog(dialog);
+    dialog.close();
   });
 
   dialog.showModal();
@@ -240,8 +237,10 @@ async function populateMultiAssetView(dialog) {
 }
 
 export default async function decorate(block) {
-  block.innerHTML = `<dialog autofocus aria-label="Add To Collection">
-    <div class='adp-add-to-collection-modal-container'>
+  block.innerHTML = '';
+  const dialog = document.createElement('dialog');
+  dialog.setAttribute('aria-label', 'Add To Collection');
+  dialog.innerHTML = `<div class='adp-add-to-collection-modal-container'>
       <div class='dialog-header'>
         <div class='dialog-header-left'>Add To Collection</div>
         <div class='dialog-header-right'>
@@ -274,19 +273,19 @@ export default async function decorate(block) {
         </div>
 
       </div>
-    </div>
-  </dialog>`;
-
-  await decorateIcons(block);
-  const dialog = block.querySelector('dialog');
+    </div>`;
+  await decorateIcons(dialog);
+  block.appendChild(dialog);
   dialog.querySelector('.action-close').addEventListener('click', () => {
-    resetDialogState();
-    closeDialog(dialog);
+    dialog.close();
   });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && dialog.open) {
-      closeDialog(dialog);
-    }
+
+  addDialogEventListeners(dialog, {
+    closeModalOnEscape: false,
+    closeModalOnOutsideClick: true,
+    onClose: () => {
+      resetDialogState();
+    },
   });
 
   const newCollectionRadio = dialog.querySelector('#collection-selector-new-collection');
@@ -305,15 +304,6 @@ export default async function decorate(block) {
     if (addToExistingRadio.checked) {
       resetDialogState();
       createDropdown(addToExistingRadioDropboxContainer);
-    }
-  });
-
-  dialog.addEventListener('click', (event) => {
-    // only react to clicks outside the dialog. https://stackoverflow.com/a/70593278/79461
-    const dialogDimensions = dialog.getBoundingClientRect();
-    if (event.clientX < dialogDimensions.left || event.clientX > dialogDimensions.right
-      || event.clientY < dialogDimensions.top || event.clientY > dialogDimensions.bottom) {
-      closeDialog(dialog);
     }
   });
 }

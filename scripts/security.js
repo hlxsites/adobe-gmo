@@ -1,9 +1,36 @@
 import { fetchCached } from './fetch-util.js';
+import { isUnifiedShellRuntimeAvailable, shell, user } from '../contenthub/unified-shell.js';
+import { getAdminConfig } from './site-config.js';
+import { getSecurityGroupMemberships } from './security-imslib.js';
+
+/**
+ * @return {Promise<{imsOrgWithoutDomain: {string}, imsEnvironment: {string}, imsOrgID: {string}}|null>}
+ */
+async function getIMSUnfiedShellConfig() {
+  if (isUnifiedShellRuntimeAvailable()) {
+    const imsOrg = await user.get('imsOrg');
+    return {
+      imsEnvironment: await shell.get('imsEnvironment'),
+      imsOrgID: imsOrg,
+      imsOrgWithoutDomain: imsOrg?.replace('@AdobeOrg', ''),
+      // no group in unifiedShellRuntime - assuming user is in the group
+    };
+  }
+  return null;
+}
+
+async function getUnifiedShellIMSToken() {
+  return await user.get('imsToken');
+}
 
 /**
  * @return {Promise<{imsOrgWithoutDomain: {string}, imsEnvironment: {string}, imsOrgID: {string}}>}
  */
-async function getIMSConfig() {
+export async function getIMSConfig() {
+  const imsConfig = await getIMSUnfiedShellConfig();
+  if (imsConfig) {
+    return imsConfig;
+  }
   const imsLibSecurityModule = await import('./security-imslib.js');
   return await imsLibSecurityModule.getIMSLIBConfig();
 }
@@ -18,12 +45,25 @@ async function getCcCollabUrl() {
  * @returns {string} the bearer token
  */
 export async function getBearerToken() {
+  return `Bearer ${await getImsToken()}`;
+}
+
+/**
+ * Get the bearer token from local storage or prompt for it.
+ * @returns {string} the bearer token
+ */
+export async function getImsToken() {
+  if (isUnifiedShellRuntimeAvailable()) {
+    return await getUnifiedShellIMSToken();
+  }
   const securityIMSLIB = await import('./security-imslib.js');
-  const token = await securityIMSLIB.getIMSBearerToken();
-  return `Bearer ${token}`;
+  return await securityIMSLIB.getIMSBearerToken();
 }
 
 export async function getUserProfile() {
+  if (isUnifiedShellRuntimeAvailable()) {
+    return await user.get('imsProfile');
+  }
   const securityIMSLIB = await import('./security-imslib.js');
   return await securityIMSLIB.getIMSUserProfile();
 }
@@ -43,8 +83,13 @@ async function getCCCollabProfile() {
 }
 
 export async function getAvatarUrl() {
-  const ccProfile = await getCCCollabProfile();
-  return ccProfile?.user?.avatar;
+  if (isUnifiedShellRuntimeAvailable()) {
+    // noinspection ES6RedundantAwait
+    return (await user.get('imsProfile')).avatar;
+  } else {
+    const ccProfile = await getCCCollabProfile();
+    return ccProfile?.user?.avatar;
+  }
 }
 
 export function isPublicPage() {
@@ -52,6 +97,7 @@ export function isPublicPage() {
 }
 
 export async function checkUserAccess() {
+  if (isUnifiedShellRuntimeAvailable()) return !!user.get('imsProfile');
   await getBearerToken();
   const { imsUserGroup } = await getIMSConfig();
   if (imsUserGroup) {
@@ -61,5 +107,10 @@ export async function checkUserAccess() {
     } 
     return await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
   }
-  return true;
+}
+
+export async function checkAddAssetsAccess() {
+  const adminConfig = await getAdminConfig();
+  const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
+  return securityGroupMemberships.some((grp) => grp.groupName === adminConfig.imsAuthorGroup);
 }
