@@ -29,7 +29,7 @@ export default class InsightsContainer {
     const bearerToken = await getBearerToken();
     const imsOrg = await user.get('imsOrg');
     const repoID = await getRepositoryIDWithFilter({ env: imsEnv, 'aem-tier': 'author' });
-    const apiKey = 'assets-distribution-portal';
+    const apiKey = 'content-at-adobe';
     const insightsProps = {
       imsOrg,
       repoID,

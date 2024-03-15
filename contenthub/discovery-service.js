@@ -9,7 +9,7 @@ const REL_REPOSITORY = 'http://ns.adobe.com/adobecloud/rel/repository';
 async function getDiscoveryJson() {
   PlatformConnector.init({
     accessToken: await getImsToken(),
-    apiKey: 'aem-assets-frontend-1',
+    apiKey: 'content-at-adobe',
     platformUrl: 'https://aem-discovery.adobe.io',
   });
 
@@ -62,7 +62,7 @@ export async function getAEMDiscoveryInfo() {
       method: 'GET',
       headers: {
         Authorization: token,
-        'x-api-key': 'aem-assets-content-hub-1',
+        'x-api-key': 'content-at-adobe',
         'Content-Type': 'application/json',
       },
     },

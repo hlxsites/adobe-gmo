@@ -16,7 +16,7 @@ export async function getDiscovery(bearerToken) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': 'assets-distribution-portal',
+        'x-api-key': 'content-at-adobe',
         Authorization: bearerToken,
       },
     };
