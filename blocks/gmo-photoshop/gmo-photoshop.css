@@ -92,7 +92,7 @@
   }
   #psd-wrapper {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
   }
   #background-replace {
     max-width: 100%;
@@ -106,6 +106,7 @@
   }
   .thumbnail-wrapper {
     display: flex;
+    justify-content: space-between;
     width: 400px;
     border: 2px solid black;
     margin-bottom: 40px;
