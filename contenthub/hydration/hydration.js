@@ -90,7 +90,7 @@ export async function openUploadDialog() {
     dialogBody.appendChild(container);
 
     const folderUUID = crypto.randomUUID();
-    const targetUploadPath = `/content/dam/hydrated-assets/${folderUUID.substring(0, 2)}/${folderUUID.substring(
+    const targetUploadPath = `/content/dam/gmo/upload/${folderUUID.substring(0, 2)}/${folderUUID.substring(
       2,
       4,
     )}/${folderUUID}`;
