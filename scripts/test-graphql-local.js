@@ -1,18 +1,18 @@
-import { getBearerToken } from './security.js';
-
-export async function graphqlTestCampaignGet() {
-  const baseApiUrl = 'https://author-p108396-e1046543.adobeaemcloud.com/graphql/execute.json';
-  const projectId = 'gmo';
-  const queryName = 'test-campaign';
+export async function graphqlDemoGet() {
+  const baseApiUrl = 'http://localhost:4502/graphql/execute.json';
+  const projectId = 'my-project';
+  const queryName = 'all-teams';
   const queryParams = ''; // Adjust if needed
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${queryParams}`;
-  const jwtToken = await getBearerToken();
+  const username = 'admin';
+  const password = 'admin';
+  const base64Credentials = btoa(username + ':' + password);
 
   // Return the fetch promise chain so that it can be awaited outside
   return fetch(graphqlEndpoint, {
       method: 'GET',
       headers: {
-          Authorization: jwtToken,
+          'Authorization': `Basic ${base64Credentials}`,
       },
   }).then(response => {
       if (!response.ok) {
@@ -26,3 +26,4 @@ export async function graphqlTestCampaignGet() {
       throw error; // Rethrow or handle error as appropriate
   });
 }
+

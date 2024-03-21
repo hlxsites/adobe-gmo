@@ -41,8 +41,9 @@ import {
   loadDataLayer
 } from './adobe-data-layer.js';
 
+
 import {
-  graphqlDemoGet
+  graphqlTestCampaignGet
 } from './test-graphql.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
@@ -359,16 +360,18 @@ loadPage();
 //Load Adobe Data Layer
 loadDataLayer();
 
-//GraphQL Demo
+
+//graphqlTestCampaignGet Demo
 try {
-    const demoResponse = await graphqlDemoGet();
-    if (demoResponse != null) {
-        console.log('demoData');
-        console.log(demoResponse);
+    const response = await graphqlTestCampaignGet();
+    if (response != null) {
+        console.log('TestCampaign Data');
+        console.log(response);
     }
 } catch (error) {
-    console.error('Error in GraphQL Demo:', error);
+    console.error('Error in GraphQL Campaign Demo:', error);
 }
+
 
 
 
