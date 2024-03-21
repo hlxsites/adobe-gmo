@@ -24,6 +24,7 @@ import { showNextPageToast } from './toast-message.js';
 import { bootstrapUnifiedShell, getUserSettings } from '../contenthub/unified-shell.js';
 import { createLinkHref, navigateTo, setCSSVar } from './shared.js';
 
+
 // Load a list of dependencies the site needs
 const loadDependenciesPromise = fetch(`${window.hlx.codeBasePath}/scripts/dependencies.json`)
   .then((res) => res.json())
@@ -39,6 +40,10 @@ const NO_ACCESS_PATH = '/no-access';
 import {
   loadDataLayer
 } from './adobe-data-layer.js';
+
+import {
+  graphqlDemoGet
+} from './test-graphql.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -247,7 +252,7 @@ async function loadLazy(doc) {
       }
       // This is a dev only service worker that caches the algolia JS SDK
       // check if we are on localhost
-      await initializeServiceWorkers();
+//      await initializeServiceWorkers();
       // Make sure all dependencies are loaded before initializing search
       // - we load them in parallel by leveraging the promise
     } else if (await checkUserAccess()) {
@@ -353,6 +358,20 @@ export async function loadPage() {
 loadPage();
 //Load Adobe Data Layer
 loadDataLayer();
+
+//GraphQL Demo
+try {
+    const demoResponse = await graphqlDemoGet();
+    if (demoResponse != null) {
+        console.log('demoData');
+        console.log(demoResponse);
+    }
+} catch (error) {
+    console.error('Error in GraphQL Demo:', error);
+}
+
+
+
 
 /**
  * Populates the asset view with the asset image and name to the left body of the dialog.
