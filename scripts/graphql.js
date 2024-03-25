@@ -5,7 +5,7 @@ export async function graphqlAllCampaigns() {
 
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
-  const queryName = 'test-campaign'; //Todo Shivani will rename query to allCampaigns
+  const queryName = 'getAllCampaigns'; //Todo Shivani will rename query to allCampaigns
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}`;
   const jwtToken = await getBearerToken();
 
