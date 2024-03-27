@@ -96,6 +96,9 @@ export function isPublicPage() {
   return document.querySelector('head meta[name="public-access"]')?.getAttribute('content').toLowerCase() === 'true';
 }
 
+export function isReportingAccessPage() {
+  return document.querySelector('head meta[name="reporting-access"]')?.getAttribute('content').toLowerCase() === 'true';
+}
 export async function checkUserAccess() {
   if (isUnifiedShellRuntimeAvailable()) return !!user.get('imsProfile');
   await getBearerToken();
@@ -104,8 +107,17 @@ export async function checkUserAccess() {
     const imsLibSecurityModule = await import('./security-imslib.js');
     if (isPublicPage()) {
       return true;
-    } 
-    return await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
+    }
+
+    const isIMSUser = await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
+    //Check if IMS Users have access to Reporting Page
+    if (isReportingAccessPage() && isIMSUser) {
+      const adminConfig = await getAdminConfig();
+      //The name of the group is in property imsReportingGroup in admin-config.xslx
+      return await checkGroupAccess('imsReportingGroup');
+    } else {
+      return isIMSUser;
+    }
   }
 }
 
@@ -113,4 +125,15 @@ export async function checkAddAssetsAccess() {
   const adminConfig = await getAdminConfig();
   const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
   return securityGroupMemberships.some((grp) => grp.groupName === adminConfig.imsAuthorGroup);
+}
+
+/**
+ * Checks Group Access for the group that is stored in the admin-config.xslx for
+ * for the property name in parameter adminConfigGroupPropertyName
+ * @returns {boolean} for access to the group
+ */
+export async function checkGroupAccess(adminConfigGroupPropertyName) {
+  const adminConfig = await getAdminConfig();
+  const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
+  return securityGroupMemberships.some((grp) => grp.groupName === adminConfig[adminConfigGroupPropertyName]);
 }
