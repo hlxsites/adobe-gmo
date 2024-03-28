@@ -1,6 +1,6 @@
 import { fetchCached } from './fetch-util.js';
 import { toCamelCase } from './lib-franklin.js';
-import { checkGroupAccess } from './security.js';
+import { checkPageGroupAccess } from './security.js';
 
 const QA_BASE_PATH = 'qa';
 const DRAFTS_BASE_PATH = 'drafts';
@@ -294,7 +294,7 @@ export async function getQuickLinkConfig() {
         page: row.Page,
       });
     } else if (row.Title && row.Page && row.Group) {
-      if (await checkGroupAccess(row.Group))
+      if (await checkPageGroupAccess(row.Group))
       {
         result.push({
           title: row.Title,
@@ -303,7 +303,6 @@ export async function getQuickLinkConfig() {
       }
     }
   }
-
   return result;
 }
 

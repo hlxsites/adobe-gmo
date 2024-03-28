@@ -1,6 +1,6 @@
 import { fetchCached } from './fetch-util.js';
 import { isUnifiedShellRuntimeAvailable, shell, user } from '../contenthub/unified-shell.js';
-import { getAdminConfig } from './site-config.js';
+import { getAdminConfig, getBrandingConfig, isContentHub, getQuickLinkConfig, getBaseConfigPath } from './site-config.js';
 import { getSecurityGroupMemberships } from './security-imslib.js';
 
 /**
@@ -96,9 +96,6 @@ export function isPublicPage() {
   return document.querySelector('head meta[name="public-access"]')?.getAttribute('content').toLowerCase() === 'true';
 }
 
-export function isReportingAccessPage() {
-  return document.querySelector('head meta[name="reporting-access"]')?.getAttribute('content').toLowerCase() === 'true';
-}
 export async function checkUserAccess() {
   if (isUnifiedShellRuntimeAvailable()) return !!user.get('imsProfile');
   await getBearerToken();
@@ -109,15 +106,16 @@ export async function checkUserAccess() {
       return true;
     }
 
-    const isIMSUser = await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
-    //Check if IMS Users have access to Reporting Page
-    if (isReportingAccessPage() && isIMSUser) {
-      const adminConfig = await getAdminConfig();
-      //The name of the group is in property imsReportingGroup in admin-config.xslx
-      return await checkGroupAccess('imsReportingGroup');
-    } else {
-      return isIMSUser;
-    }
+      const isIMSUser = await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
+      if (isIMSUser) {
+        //Check if current page is present in the array of pages returned by function getQuickLinkConfig()
+        const presentInQuickLinks = (await getQuickLinkConfig()).some((grp) => grp.page === (window.location.pathname.replace(getBaseConfigPath((window.location.pathname)),'')));
+        return presentInQuickLinks;
+      }
+      else
+      { //Not IMSUser
+        return isIMSUser;
+      }
   }
 }
 
@@ -132,7 +130,7 @@ export async function checkAddAssetsAccess() {
  * for the property name in parameter adminConfigGroupPropertyName
  * @returns {boolean} for access to the group
  */
-export async function checkGroupAccess(adminConfigGroupPropertyName) {
+export async function checkPageGroupAccess(adminConfigGroupPropertyName) {
   const adminConfig = await getAdminConfig();
   const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
   return securityGroupMemberships.some((grp) => grp.groupName === adminConfig[adminConfigGroupPropertyName]);
