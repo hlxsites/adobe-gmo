@@ -1,5 +1,6 @@
 import { fetchCached } from './fetch-util.js';
 import { toCamelCase } from './lib-franklin.js';
+import { checkPageGroupAccess } from './security.js';
 
 const QA_BASE_PATH = 'qa';
 const DRAFTS_BASE_PATH = 'drafts';
@@ -285,14 +286,23 @@ async function mapUserSettingsForId(configId, result) {
 export async function getQuickLinkConfig() {
   const result = [];
   const response = await getConfig('site-config.json');
-  response.quicklinks?.data.forEach((row) => {
-    if (row.Title && row.Page) {
+
+  for (const row of response.quicklinks?.data || []) {
+    if (row.Title && row.Page && row.Group == '') {
       result.push({
         title: row.Title,
         page: row.Page,
       });
+    } else if (row.Title && row.Page && row.Group) {
+      if (await checkPageGroupAccess(row.Group))
+      {
+        result.push({
+          title: row.Title,
+          page: row.Page,
+        });
+      }
     }
-  });
+  }
   return result;
 }
 
