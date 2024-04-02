@@ -98,8 +98,6 @@ export function getSearchCollectionsUrl() {
   return `${getDeliveryEnvironment()}/adobe/assets/search`;
 }
 
-
-
 /**
  * Constructs and returns the base URL for assets collections. (New)
  *
@@ -283,6 +281,99 @@ export async function searchListCollection(limit = undefined, page = 0) {
     throw error;
   }
 }
+
+
+/**
+ * List Campaign Collections with required campaignName, indexName and page parameters.
+ *
+ * @param {String} - Campaign Name
+ * @param {String} - The Index Name
+ * @param {Number} - Page Number
+ * @returns {Promise<object>} A promise that resolves with a list of collections.
+ * @throws {Error} If an HTTP error or network error occurs.
+ */
+export async function listCampaignCollections(campaignName, indexName, page = 0) {
+
+  // Construct the query parameters
+  const queryParams = new URLSearchParams();
+
+  if (campaignName) {
+    queryParams.append('campaignName', campaignName);
+  }
+
+  if (indexName) {
+    queryParams.append('indexName', indexName);
+  }
+
+  if (page) {
+    queryParams.append('page', page);
+  }
+
+  const data = {
+    requests: [
+      {
+        indexName: indexName,
+        params: {
+          facetFilters: [
+            campaignName
+          ],
+          highlightPostTag: '__/ais-highlight__',
+          highlightPreTag: '__ais-highlight__',
+          hitsPerPage: 40,
+          maxValuesPerFacet: 20,
+          page: page,
+          query: '',
+          tagFilters: ''
+        }
+      }
+    ]
+  };
+
+  const options = {
+    method: 'POST',
+    headers: await getRequestHeadersSearchCollections(),
+    body: JSON.stringify(data),
+  };
+
+  // Include the query parameters in the URL
+  const queryString = queryParams.toString();
+  //Uses Search Collections URL
+  const url = `${getSearchCollectionsUrl()}${queryString ? `?${queryString}` : ''}`;
+
+  try {
+    const response = await fetch(url, options);
+    // Handle response codes
+    if (response.status === 200) {
+      // Collection retrieved successfully
+      const responseBody = await response.json();
+      const hits  = responseBody.results[0].hits;
+      const uniqueCollectionIds = Array.from(new Set(hits.reduce((acc, {collectionIds}) => [...acc, ...collectionIds], [])));
+
+      let collections = [];
+      for (const collectionId of uniqueCollectionIds) {
+          //collectionId is missing urn:cid:aem:
+          const  fixedCollectionId = `urn:cid:aem:${collectionId}`;
+          const collectionBody = await getCollection(fixedCollectionId);
+          collections.push({id:collectionBody.self[0].id, title:collectionBody.self[0].collectionMetadata.title, description:collectionBody.self[0].collectionMetadata.description});
+      }
+
+      const transformedData = {
+        page: responseBody.results[0].page,
+        nbHits: uniqueCollectionIds.length,
+        nbPages: 1,
+        items:  collections
+      };
+
+      return transformedData;
+    }
+    // Handle other response codes
+    throw new Error(`Failed to search campaign collection: ${response.status} ${response.statusText}`);
+  } catch (error) {
+    logError('listCampaignCollection', error);
+    throw error;
+  }
+}
+
 
 /**
  * Updates a collection using JSON patch operations.
