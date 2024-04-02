@@ -295,6 +295,12 @@ export function getMetadataSchema(facetOptions){
           ],
         },
         {
+          mapToProperty: 'gmo:owner',
+          label:'Campaign/Asset Owner',
+          element: 'textarea',
+          required: true,
+        },
+        {
           mapToProperty: 'gmo:contentType',
           label: 'Content Type',
           placeholder: 'Select one',
