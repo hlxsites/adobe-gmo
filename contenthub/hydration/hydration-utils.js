@@ -31,9 +31,8 @@ export function formIsComplete(metadataSchema, formValues) {
 
   if(formValues['gmo:campaignName']){
     if(!formValues['gmo:programName']) return false;
-    if(!formValues['gmo:deliverableType']) return false;
   }
-
+  
   if(formValues['gmo:licensedContent'] !== 'no'){
     if(!formValues['gmo:usageTerms']) return false;
     if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseExpiryDate']) return false;
@@ -145,6 +144,7 @@ export function getMetadataSchema(facetOptions){
             { name: 'Digital Editions', id: 'digital-editions' },
             { name: 'Dreamweaver', id: 'dreamweaver' },
             { name: 'Fill Sign', id: 'fill-sign' },
+            { name: 'Firefly', id: 'firefly' },
             { name: 'Frame.io', id: 'frame-io' },
             { name: 'Fresco', id: 'fresco' },
             { name: 'Http Dynamic Streaming', id: 'http-dynamic-streaming' },
@@ -254,11 +254,6 @@ export function getMetadataSchema(facetOptions){
               name: 'Tutorial',
             },
           ],
-          requires: [{
-            property: 'gmo:campaignName',
-            expectedValue: '',
-            operator: '!=='
-          }]
         },
         {
           mapToProperty: 'gmo:licensedContent',
@@ -292,6 +287,12 @@ export function getMetadataSchema(facetOptions){
             { property: 'gmo:licensedContent', expectedValue: 'no', operator: '!==' },
             { property: 'gmo:licensedContent', expectedValue: '', operator: '!==' }
           ],
+        },
+        {
+          mapToProperty: 'gmo:owner',
+          label:'Campaign/Asset Owner',
+          element: 'textarea',
+          required: true,
         },
         {
           mapToProperty: 'gmo:contentType',
