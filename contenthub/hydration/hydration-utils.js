@@ -32,9 +32,7 @@ export function formIsComplete(metadataSchema, formValues) {
   if(formValues['gmo:campaignName']){
     if(!formValues['gmo:programName']) return false;
   }
-
-  if(!formValues['gmo:deliverableType']) return false;
-
+  
   if(formValues['gmo:licensedContent'] !== 'no'){
     if(!formValues['gmo:usageTerms']) return false;
     if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseExpiryDate']) return false;
