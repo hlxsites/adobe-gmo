@@ -21,7 +21,7 @@ export default class CollectionsDatasource {
     this.pageNumber += 1;
 
     //Todo Pass in the campaignName
-    const list = await listCampaignCollections('gmo-campaignName:Everyone Can',pageNumber);
+    const list = await listCampaignCollections('gmo-campaignName:Everyone Can',this.pageNumber);
 
     if (this.pageNumber >= list.nbPages){
       this.lastPage = true;
