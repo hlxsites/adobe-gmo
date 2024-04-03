@@ -31,8 +31,9 @@ export function formIsComplete(metadataSchema, formValues) {
 
   if(formValues['gmo:campaignName']){
     if(!formValues['gmo:programName']) return false;
-    if(!formValues['gmo:deliverableType']) return false;
   }
+
+  if(!formValues['gmo:deliverableType']) return false;
 
   if(formValues['gmo:licensedContent'] !== 'no'){
     if(!formValues['gmo:usageTerms']) return false;
@@ -255,11 +256,6 @@ export function getMetadataSchema(facetOptions){
               name: 'Tutorial',
             },
           ],
-          requires: [{
-            property: 'gmo:campaignName',
-            expectedValue: '',
-            operator: '!=='
-          }]
         },
         {
           mapToProperty: 'gmo:licensedContent',
