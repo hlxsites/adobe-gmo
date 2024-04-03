@@ -20,7 +20,8 @@ export default class CollectionsDatasource {
 
     this.pageNumber += 1;
 
-    const list = await listCampaignCollections('gmo-campaignName:Everyone Can', '108396-1046543',pageNumber);
+    //Todo Pass in the campaignName
+    const list = await listCampaignCollections('gmo-campaignName:Everyone Can',pageNumber);
 
     if (this.pageNumber >= list.nbPages){
       this.lastPage = true;
@@ -45,7 +46,8 @@ export default class CollectionsDatasource {
     this.infiniteResultsContainer = infiniteResultsContainer;
     this.container = container;
 
-    const list = await listCampaignCollections('gmo-campaignName:Everyone Can', '108396-1046543',this.pageNumber);
+    //Todo Pass in the campaignName
+    const list = await listCampaignCollections('gmo-campaignName:Everyone Can',this.pageNumber);
 
     infiniteResultsContainer.resultsCallback(
       container,

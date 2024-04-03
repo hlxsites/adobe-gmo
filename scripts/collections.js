@@ -1,5 +1,6 @@
 import { getBearerToken } from './security.js';
 import {
+  getSearchIndex,
   getAssetHandlerApiKey,
   getDeliveryEnvironment,
   getBackendApiKey,
@@ -292,10 +293,12 @@ export async function searchListCollection(limit = undefined, page = 0) {
  * @returns {Promise<object>} A promise that resolves with a list of collections.
  * @throws {Error} If an HTTP error or network error occurs.
  */
-export async function listCampaignCollections(campaignName, indexName, page = 0) {
+export async function listCampaignCollections(campaignName, page = 0) {
 
   // Construct the query parameters
   const queryParams = new URLSearchParams();
+
+  const indexName = getSearchIndex();
 
   if (campaignName) {
     queryParams.append('campaignName', campaignName);
