@@ -1,0 +1,136 @@
+.section.adp-collection-header-left-container {
+    padding-right: 0;
+}
+
+.adp-collection-header {
+    display: flex;
+    height: 124px;
+}
+
+.adp-collection-header-left {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+    font-size: var(--header-font-size);
+    padding: 0;
+    top: 0.01rem;
+    padding-top: 0.88rem;
+    padding-bottom: 0.88rem;
+    z-index: 1;
+}
+
+.adp-collection-header-right {
+    margin-left: auto; /* This will push the element to the far right */
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    font-size: var(--header-font-size);
+    padding: 0;
+    top: 0.01rem;
+    padding-top: 0.88rem;
+    padding-bottom: 0.88rem;
+    z-index: 1;
+}
+
+
+.adp-collection-header-left .adp-collection-title {
+    margin-bottom: 12px; /* Keeps space between title and items */
+}
+
+.adp-collection-subinfo {
+    display: flex;
+    /* justify-content: space-between; /* Aligns items to the left and select all to the right */
+    align-items: center; /* Centers items vertically */
+}
+
+.adp-collection-stats {
+    border: #E6E6E6 1px solid;
+    border-radius: 6px;
+    font: 11px/14px var(--body-font-family);
+    padding: 6px 10px;
+    flex-shrink: 0;
+    margin-right: 20px; /* Adjust the 20px to whatever fixed space you want between the items and the checkbox */
+}
+
+.adp-collection-select-all {
+    display: flex;
+    align-items: center; /* This will vertically align the checkbox and label */
+}
+
+.adp-collection-select-all input[type="checkbox"] {
+    margin-right: 5px; /* Adds some space between the checkbox and the label */
+}
+
+
+.adp-collection-header-left .back-button .icon {
+    height: 10px;
+    width: 18px;
+    vertical-align: text-bottom;
+}
+
+.adp-collection-header-collection-info {
+    display: flex;
+    flex-direction: column; /* Stack the title and sub-info vertically */
+}
+
+.adp-collection-header .adp-collection-title {
+    font: var(--collection-heading-font);
+    width: 100%;
+}
+
+.adp-collection-header .actions .adp-action {
+    text-wrap: nowrap;
+    align-items: center;
+}
+
+.adp-collection-header .actions {
+    /* vertically align center */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    background-color: #5258E4; /* Site used blue background */
+    color: white; /* White text color */
+    padding: 12px 24px; /* Padding inside the toast */
+    position: fixed; /* Positioning relative to the viewport */
+    z-index: 1; /* Make sure it is above other items */
+    bottom: 30px; /* Distance from the bottom */
+    left: 50%; /* Center the toast */
+    transform: translateX(-50%); /* Center the toast horizontally */
+    border-radius: 4px; /* Rounded corners */
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2); /* Shadow for 3D effect */
+    font-family: var(--body-font-family); /* Use site default font */
+    font-size: 0.9rem; /* Font size */
+    visibility: hidden; /* Hidden by default */
+    opacity: 0; /* Fully transparent */
+    transition: visibility 0s, opacity 0.5s linear; /* Transition for the toast */
+}
+
+.toast.show {
+    visibility: visible; /* Make the toast visible */
+    opacity: 1; /* Fully opaque */
+}
+
+.toast-icon {
+    margin-right: 12px; /* Space between icon and message */
+    font-size: 1.2rem; /* Icon size */
+}
+
+.toast-close {
+    margin-left: auto; /* Push the close button to the right */
+    background: none; /* No background */
+    border: none; /* No border */
+    color: white; /* White text color */
+    padding: 0; /* No padding */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 1.2rem; /* Size of the close button */
+}
+
+.toast-close:focus {
+    outline: none; /* Remove focus outline */
+}
