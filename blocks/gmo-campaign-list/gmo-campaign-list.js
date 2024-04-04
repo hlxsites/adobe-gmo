@@ -130,25 +130,16 @@ const testConfig = [
 
 export default async function decorate(block) {
     //const config = readBlockConfig(block); // this will be for final implementation
-    const numPerPage = 2;
+    const numPerPage = 2; // retrieve dynamically
     const campaignCount = testCampaigns.length;
     const config = testConfig;
     const listHeaders = buildListHeaders(config);
     const listItems = buildCampaignList(testCampaigns, numPerPage);
     const listFooter = buildListFooter(campaignCount, numPerPage);
-    //paginate(listItems);
 
     block.innerHTML = `
         <div class="list-container">
         </div>`
-
-    /*
-                <div class="list-header">
-                ${listHeaders}
-            </div>
-            <div class="list-items">
-            </div>
-    */
     const listContainer = block.querySelector('.list-container');
     listContainer.appendChild(listHeaders);
     listContainer.appendChild(listItems);
@@ -159,6 +150,7 @@ export default async function decorate(block) {
 function buildCampaignList(campaigns, numPerPage) {
     const listWrapper = document.createElement('div');
     listWrapper.classList.add('list-items');
+    listWrapper.dataset.totalresults = campaigns.length;
 
     campaigns.forEach((campaign, index) => {
         const campaignRow = document.createElement('div');
@@ -185,7 +177,7 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignLaunch.textContent = campaign.launch;
         campaignLaunch.classList.add('column-3', 'campaign-launch-date');
         campaignLaunch.dataset.property = 'launch';
-        const campaignProducts = buildProducts(campaign.products);
+        const campaignProducts = buildProductsList(campaign.products);
         campaignProducts.classList.add('column-4');
         const campaignLanguage = document.createElement('div');
         campaignLanguage.textContent = campaign.languages;
@@ -194,7 +186,7 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6');
         const campaignStatus = document.createElement('div');
         campaignStatus.textContent = campaign.status;
-        campaignStatus.classList.add(determineStatusColor(campaign.status)); // this will need additional processing
+        campaignStatus.classList.add(determineStatusColor(campaign.status)); 
         campaignStatus.classList.add('status');
         campaignStatus.dataset.property = 'status';
         campaignStatusWrapper.appendChild(campaignStatus);
@@ -210,35 +202,37 @@ function buildCampaignList(campaigns, numPerPage) {
     return listWrapper;
 }
 
-function buildProducts(products) {
+function buildProductsList(productList) {
     const campaignProducts = document.createElement('div');
-    if (products.length > 1) {
-        products.forEach((product) => {
-            console.log(product);
-            const productEl = document.createElement('div');
-            productEl.classList.add('product-entry');
-            productEl.innerHTML = `
-                <span class='icon icon-${product}'></span>
-                <span class='product-label'>${product}</span>
-            `
+    if (productList.length > 1) {
+        productList.forEach((product) => {
+            const productEl = buildProduct(product);
             campaignProducts.appendChild(productEl);
         })
     } else {
-
+        const productEl = buildProduct(productList);
+        campaignProducts.appendChild(productEl);
     }
 
-    //campaignProducts.textContent = products; // this will need additional processing
     return campaignProducts;
 }
 
+function buildProduct(product) {
+    const productEl = document.createElement('div');
+    productEl.classList.add('product-entry');
+    productEl.innerHTML = `
+        <span class='icon icon-${product}'></span>
+        <span class='product-label'>${product}</span>
+    `
+    return productEl;
+}
+
 function buildListHeaders(headerConfig) {
-    //console.log(headerConfig);
     const config = headerConfig;
     const listHeaders = document.createElement('div');
     listHeaders.classList.add('list-header');
     let columnCounter = 1;
     config.forEach((column)  => {
-        //console.log(column);
         const columnWrapper = document.createElement('div');
         columnWrapper.classList.add('column-header-wrapper');
         columnWrapper.classList.add(`column-${columnCounter}`);
@@ -256,20 +250,15 @@ function buildListHeaders(headerConfig) {
             const columnSort = document.createElement('div');
             columnSort.classList.add('column-sort-wrapper');
             const columnSortAsc = document.createElement('span');
-            // <span class="icon icon-previous"></span>
             columnSortAsc.classList.add('column-sort-asc', 'icon', 'icon-chevronUp');
-            //columnSortAsc.dataset.property = column.attribute;
             columnSortAsc.addEventListener('click', () => {
                 sortColumn('asc', column.attribute);
             })
-            //columnSortAsc.textContent = "^";
             const columnSortDesc = document.createElement('span');
             columnSortDesc.classList.add('column-sort-desc', 'icon', 'icon-chevronDown');
-            //columnSortDesc.dataset.property = column.attribute;
             columnSortDesc.addEventListener('click', () => {
                 sortColumn('desc', column.attribute);
             })
-            //columnSortDesc.textContent = "v";
             columnSort.appendChild(columnSortAsc);
             columnSort.appendChild(columnSortDesc);
             columnWrapper.appendChild(columnSort);
@@ -284,11 +273,11 @@ function buildListFooter(rows, rowsPerPage) {
     const pages = Math.ceil(rows / rowsPerPage);
     const footerWrapper = document.createElement('div');
     footerWrapper.classList.add('list-footer', 'footer-wrapper');
-    console.log('calculated num of pages: ' + pages);
     footerWrapper.dataset.pages = pages;
     const footerTotal = document.createElement('div');
     footerTotal.textContent = `Page 1 of ${pages} -- ${rows} total results`;
     footerTotal.classList.add('footer-total');
+
     // pagination
     const footerPagination = document.createElement('div');
     footerPagination.classList.add('footer-pagination');
@@ -298,26 +287,13 @@ function buildListFooter(rows, rowsPerPage) {
     footerPrev.addEventListener('click', (event) => {
         prevPage(event.target);
     })
+
     const footerPageBtnsWrapper = document.createElement('div');
     footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
-    const footerPageBtn = document.createElement('div');
-    footerPageBtn.classList.add('footer-pagination-pages', 'currentpage');
-    footerPageBtn.id = "current-page";
-    footerPageBtn.textContent = '1';
-    footerPageBtn.dataset.pagenumber = 1;
-    footerPageBtnsWrapper.appendChild(footerPageBtn);
     const footerNext = document.createElement('div');
     footerNext.classList.add('footer-pagination-button', 'next');
-    if (pages > 1) {
-        footerNext.classList.add('active');
-        for (let i = 2; i <= pages; i++) {
-            const footerPageBtns = document.createElement('div');
-            footerPageBtns.classList.add('footer-pagination-pages');
-            footerPageBtns.textContent = i;
-            footerPageBtns.dataset.pagenumber = i;
-            footerPageBtnsWrapper.appendChild(footerPageBtns);
-        }
-    }
+    buildPageSelector(pages, footerPageBtnsWrapper, footerNext);
+
     footerNext.addEventListener('click', (event) => { 
         nextPage(event.target);
     })
@@ -333,9 +309,10 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPerPageLabel = document.createElement('div');
     footerPerPageLabel.textContent = 'Per Page';
     footerPerPageLabel.classList.add('footer-perPage-label');
-    const footerPerPageDropdown = document.createElement('div');
+    const footerPerPageDropdownWrapper = document.createElement('div');
+    const footerPerPageDropdown = document.createElement('select');
+    footerPerPageDropdown.id = 'per-page';
     footerPerPageDropdown.innerHTML = `
-    <select name="per-page" id="per-page">
         <option value="2">2</option>
         <option value="4">4</option>
         <option value="8">8</option>
@@ -344,11 +321,14 @@ function buildListFooter(rows, rowsPerPage) {
         <option value="48">48</option>
         <option value="64">64</option>
         <option value="80">80</option>
-    </select>
-    `
-    footerPerPageDropdown.classList.add('footer-perPage-dropdown');
+    `;
+    footerPerPageDropdown.addEventListener('change', (event) => {
+        repaginate(event.target);
+    });
+    footerPerPageDropdownWrapper.appendChild(footerPerPageDropdown);
+    footerPerPageDropdownWrapper.classList.add('footer-perPage-dropdown');
     footerPerPage.appendChild(footerPerPageLabel);
-    footerPerPage.appendChild(footerPerPageDropdown);
+    footerPerPage.appendChild(footerPerPageDropdownWrapper);
     // end per-page controls
 
     footerWrapper.appendChild(footerTotal);
@@ -357,8 +337,103 @@ function buildListFooter(rows, rowsPerPage) {
     return footerWrapper;
 }
 
-function paginate(listItems) {
+function buildPageSelector(pageCount, footerPageSelectorWrapper, footerNext) {
+    const footerPageBtn = document.createElement('div');
+    footerPageBtn.classList.add('footer-pagination-pages', 'currentpage');
+    footerPageBtn.id = "current-page";
+    footerPageBtn.textContent = '1';
+    footerPageBtn.dataset.pagenumber = 1;
+    footerPageBtn.addEventListener('click', (event) => {
+        changePage(event.target.dataset.pagenumber);
+    })
+    footerPageSelectorWrapper.appendChild(footerPageBtn);
+    if (pageCount > 1) {
+        footerNext.classList.add('active');
+        for (let i = 2; i <= pageCount; i++) {
+            const footerPageBtns = document.createElement('div');
+            footerPageBtns.classList.add('footer-pagination-pages');
+            footerPageBtns.textContent = i;
+            footerPageBtns.dataset.pagenumber = i;
+            footerPageBtns.addEventListener('click', (event) => {
+                changePage(event.target.dataset.pagenumber);
+            })
+            footerPageSelectorWrapper.appendChild(footerPageBtns);
+        }
+    } else {
+        footerNext.classList.remove('active');
+    }
+}
 
+function repaginate(dropdown) {
+    const numPerPage = dropdown.value;
+    const listItems = document.querySelectorAll('.campaign-row');
+    if (listItems.length > 1 ) {
+        listItems.forEach((row, index) => {
+            row.classList.remove('hidden');
+            if ((index + 1) > numPerPage) row.classList.add('hidden');
+        })
+    }
+    const totalResults = parseInt(document.querySelector('.list-items').dataset.totalresults);
+    const pageCount = Math.ceil(totalResults / numPerPage);
+    document.querySelector('.list-footer.footer-wrapper').dataset.pages = pageCount;
+
+    const pagesText = `Page 1 of ${pageCount} -- ${totalResults} total results`;
+    document.querySelector('.footer-total').textContent = pagesText;
+
+    const footerPageSelectorWrapper = document.querySelector('.footer-pages-wrapper');
+    footerPageSelectorWrapper.replaceChildren();
+
+    const footerNext = document.querySelector('.footer-pagination-button.next');
+    const footerPrev = document.querySelector('.footer-pagination-button.prev');
+    footerPrev.classList.remove('active');
+    buildPageSelector(pageCount, footerPageSelectorWrapper, footerNext);
+}
+
+function changePage(targetPage) {
+    // if targetPage = currentPage, do nothing
+    const nextBtn = document.querySelector('.footer-pagination-button.next');
+    const prevBtn = document.querySelector('.footer-pagination-button.prev');
+    const currentPageBtn = document.querySelector('#current-page');
+    const currentPage = parseInt(currentPageBtn.dataset.pagenumber);
+
+    if (currentPage == targetPage) {
+        return;
+    }
+
+    const newPageSelector = "[data-pagenumber='" + (targetPage) + "']";
+    const newPageBtn = document.querySelector(newPageSelector);
+    const itemsPerPage = document.querySelector('#per-page').value;
+    const listItems = document.querySelectorAll('.campaign-row');
+
+    const lowerBound = ((targetPage * itemsPerPage) - itemsPerPage);
+    const upperBound = (targetPage * itemsPerPage);
+
+    listItems.forEach((row, index) => {
+        if ((index + 1) <= (lowerBound) || (index + 1) > (upperBound)) {
+            row.classList.add('hidden');
+        } else {
+            row.classList.remove('hidden');
+        }
+    })
+    const totalPages = document.querySelector('.list-footer.footer-wrapper').dataset.pages;
+    const totalResults = document.querySelector('.list-items').dataset.totalresults;
+    const pagesText = `Page ${targetPage} of ${totalPages} -- ${totalResults} total results`;
+    document.querySelector('.footer-total').textContent = pagesText;
+    if (totalPages == targetPage) {
+        nextBtn.classList.remove('active')
+     } else {
+        nextBtn.classList.add('active');
+    } 
+    if (targetPage == "1") {
+        prevBtn.classList.remove('active')
+    } else {
+        prevBtn.classList.add('active');
+    }
+    currentPageBtn.id = '';
+    currentPageBtn.classList.remove('currentpage');
+    newPageBtn.id = 'current-page';
+    newPageBtn.classList.add('currentpage');
+    // update next and prev according to which page we're on
 }
 
 function nextPage(nextBtn) {
@@ -369,30 +444,8 @@ function nextPage(nextBtn) {
     const currentPageBtn = document.querySelector('#current-page');
     const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
     const targetPage = (currentPageValue + 1);
-    const nextSelector = "[data-pagenumber='" + (targetPage) + "']";
-    const nextPageBtn = document.querySelector(nextSelector);
-    const itemsPerPage = document.querySelector('#per-page').value;
-    const listItems = document.querySelectorAll('.campaign-row');
-
-    const lowerBound = ((targetPage * itemsPerPage) - itemsPerPage);
-    const upperBound = (targetPage * itemsPerPage);
-
-    listItems.forEach((row, index) => {
-        //if ((index + 1) <= (currentPageValue * itemsPerPage) || (index + 1) > (targetPage * itemsPerPage)) {
-        if ((index + 1) <= (lowerBound) || (index + 1) > (upperBound)) {
-            row.classList.add('hidden');
-        } else {
-            row.classList.remove('hidden');
-        }
-    })
-    //increment page counter
+    changePage(targetPage);
     prevBtn.classList.add('active');
-    const totalPages = parseInt(document.querySelector('.list-footer.footer-wrapper').dataset.pages);
-    if (totalPages == targetPage) nextBtn.classList.remove('active');
-    currentPageBtn.id = '';
-    currentPageBtn.classList.remove('currentpage');
-    nextPageBtn.id = 'current-page';
-    nextPageBtn.classList.add('currentpage');
 }
 
 function prevPage(prevBtn) {
@@ -403,36 +456,11 @@ function prevPage(prevBtn) {
     const currentPageBtn = document.querySelector('#current-page');
     const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
     const targetPage = (currentPageValue - 1);
-    const prevSelector = "[data-pagenumber='" + (targetPage) + "']";
-    const prevPageBtn = document.querySelector(prevSelector);
-    const itemsPerPage = document.querySelector('#per-page').value;
-    const listItems = document.querySelectorAll('.campaign-row');
-
-    const lowerBound = ((targetPage * itemsPerPage) - itemsPerPage);
-    //console.log('test lower bound: ' + lowerBound);
-    const upperBound = (targetPage * itemsPerPage);
-    //console.log('test upper bound: ' + upperBound);
-
-    listItems.forEach((row, index) => {
-        //if ((index + 1) <= (currentPageValue * itemsPerPage) || (index + 1) > (targetPage * itemsPerPage)) {
-        if ((index + 1) < (lowerBound) || (index + 1) > (upperBound)) {
-            row.classList.add('hidden');
-        } else {
-            row.classList.remove('hidden');
-        }
-    })
+    changePage(targetPage)
     nextBtn.classList.add('active');
-    //const totalPages = parseInt(document.querySelector('.list-footer.footer-wrapper').dataset.pages);
-    if (targetPage == 1) prevBtn.classList.remove('active');
-    currentPageBtn.id = '';
-    currentPageBtn.classList.remove('currentpage');
-    prevPageBtn.id = 'current-page';
-    prevPageBtn.classList.add('currentpage');
 }
 
 function sortColumn(dir, property) {
-    // need to handle dates
-    console.log('clicked sort: ' + dir + ', ' + property);
     const container = document.querySelector('.list-items');
     if (!container) {
         console.error("Could not locate list container.");
@@ -440,22 +468,15 @@ function sortColumn(dir, property) {
     }
 
     const selector = '[data-property="' + property + '"]';
-    console.log(selector)
     const divs = document.querySelectorAll(selector);
-    console.log(divs.length);
-    //document.querySelectorAll('[data-property="description"]')
     const sortArray = [];
 
-    // Retrieve text content of each div and store it in an array
     divs.forEach(div => {
         const textContent = div.textContent.trim();
-        //const row = div.parentElement; // need to make this more general
         const row = div.closest('.campaign-row');
-        console.log(row);
         sortArray.push({ textContent, row });
     });
 
-    // Sort the divs based on their text content
     if (property == 'launch') {
         if (dir == 'asc') {
             sortArray.sort((a,b) => {
@@ -478,7 +499,6 @@ function sortColumn(dir, property) {
         }
     }
 
-    // Update the container with the sorted divs
     sortArray.forEach(({ row }, index) => {
         container.appendChild(row);
     });
