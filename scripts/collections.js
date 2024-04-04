@@ -323,7 +323,6 @@ export async function listCampaignCollections(campaignName, page = 0) {
           highlightPostTag: '__/ais-highlight__',
           highlightPreTag: '__ais-highlight__',
           hitsPerPage: 40,
-          maxValuesPerFacet: 20,
           page: page,
           query: '',
           tagFilters: ''
