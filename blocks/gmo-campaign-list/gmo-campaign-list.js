@@ -1,5 +1,6 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
+import { graphqlAllCampaigns } from '../../scripts/graphql.js';
 
 const icon = 'https://delivery-p108396-e1046543.adobeaemcloud.com/adobe/assets/deliver/urn:aaid:aem:acdaa42f-00ae-42f4-97e5-8309c42d9076/marketing-hub-102023-lockup-video.png'
 const testCampaigns = [
@@ -96,7 +97,7 @@ const testCampaigns = [
 ]
 const testConfig = [
     {
-        'name': 'Campaign',
+        'name': 'Marketing Moments',
         'attribute': 'campaign',
         'sortable': 'true'
     },
@@ -116,11 +117,6 @@ const testConfig = [
         'attribute': 'products'
     },
     {
-        'name': 'Language',
-        'attribute': 'language',
-        'type': 'string'
-    },
-    {
         'name': 'Status',
         'attribute': 'status',
         'sortable': 'true'
@@ -130,11 +126,15 @@ const testConfig = [
 
 export default async function decorate(block) {
     //const config = readBlockConfig(block); // this will be for final implementation
-    const numPerPage = 2; // retrieve dynamically
-    const campaignCount = testCampaigns.length;
+    const campaignResponse = await graphqlAllCampaigns();
+    const campaigns = campaignResponse.data.campaignList.items;
+    console.log(campaignResponse.data.campaignList.items);
+    //console.log(testCampaigns);
+    const numPerPage = 4; 
+    const campaignCount = campaigns.length;
     const config = testConfig;
     const listHeaders = buildListHeaders(config);
-    const listItems = buildCampaignList(testCampaigns, numPerPage);
+    const listItems = buildCampaignList(campaigns, numPerPage);
     const listFooter = buildListFooter(campaignCount, numPerPage);
 
     block.innerHTML = `
@@ -160,41 +160,47 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignInfoWrapper.classList.add('campaign-info-wrapper','column-1');
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
-        campaignIcon.innerHTML = `<img src=${icon}></img>`;
+        //campaignIcon.innerHTML = `<img src=${icon}></img>`;
         const campaignName = document.createElement('div');
-        campaignName.classList.add('campaign-name-wrapper');
+        campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
         campaignName.innerHTML = `
-            <div class='campaign-name-label'>Campaign Name</div>
-            <div class='campaign-name' data-property='campaign'>${campaign.name}</div>
+            <div class='campaign-name-label'>${checkBlankString(campaign.campaignName)}</div>
+            <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.programName)}</div>
         `
         campaignInfoWrapper.appendChild(campaignIcon);
         campaignInfoWrapper.appendChild(campaignName);
+        const campaignOverviewWrapper = document.createElement('div');
+        campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper','vertical-center');
         const campaignOverview = document.createElement('div');
-        campaignOverview.textContent = campaign.description;
-        campaignOverview.classList.add('column-2', 'campaign-description');
+        campaignOverview.textContent = checkBlankString(campaign.marketingGoal.plaintext);
+        campaignOverview.classList.add('campaign-description');
         campaignOverview.dataset.property = 'description';
+        campaignOverviewWrapper.appendChild(campaignOverview);
         const campaignLaunch = document.createElement('div');
-        campaignLaunch.textContent = campaign.launch;
-        campaignLaunch.classList.add('column-3', 'campaign-launch-date');
+        campaignLaunch.textContent = checkBlankString(campaign.launchDate);
+        campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
-        const campaignProducts = buildProductsList(campaign.products);
-        campaignProducts.classList.add('column-4');
+        const campaignProducts = buildProductsList(checkBlankString(campaign.productOffering));
+        campaignProducts.classList.add('column-4', 'vertical-center');
+        /*
         const campaignLanguage = document.createElement('div');
         campaignLanguage.textContent = campaign.languages;
         campaignLanguage.classList.add('column-5');
+        */
         const campaignStatusWrapper = document.createElement('div');
-        campaignStatusWrapper.classList.add('status-wrapper', 'column-6');
+        campaignStatusWrapper.classList.add('status-wrapper', 'column-6','vertical-center');
         const campaignStatus = document.createElement('div');
-        campaignStatus.textContent = campaign.status;
-        campaignStatus.classList.add(determineStatusColor(campaign.status)); 
+        const statusString = checkBlankString(campaign.status);
+        campaignStatus.textContent = statusString;
+        campaignStatus.classList.add(determineStatusColor(statusString)); 
         campaignStatus.classList.add('status');
         campaignStatus.dataset.property = 'status';
         campaignStatusWrapper.appendChild(campaignStatus);
         campaignRow.appendChild(campaignInfoWrapper);
-        campaignRow.appendChild(campaignOverview);
+        campaignRow.appendChild(campaignOverviewWrapper);
         campaignRow.appendChild(campaignLaunch);
         campaignRow.appendChild(campaignProducts);
-        campaignRow.appendChild(campaignLanguage);
+        //campaignRow.appendChild(campaignLanguage);
         campaignRow.appendChild(campaignStatusWrapper);
 
         listWrapper.appendChild(campaignRow);
@@ -204,24 +210,29 @@ function buildCampaignList(campaigns, numPerPage) {
 
 function buildProductsList(productList) {
     const campaignProducts = document.createElement('div');
-    if (productList.length > 1) {
+    //structure of the data for this is different than expected.
+    //may need to break strings up on some delimiter
+    /*if (productList.length > 1) {
         productList.forEach((product) => {
             const productEl = buildProduct(product);
             campaignProducts.appendChild(productEl);
         })
-    } else {
+    } else {*/
         const productEl = buildProduct(productList);
         campaignProducts.appendChild(productEl);
-    }
+    //}
 
     return campaignProducts;
 }
 
 function buildProduct(product) {
     const productEl = document.createElement('div');
+    let productIcon = product;
+    if (product == null) product = 'None';
+    if (product == 'Not Available') productIcon = "gear";
     productEl.classList.add('product-entry');
     productEl.innerHTML = `
-        <span class='icon icon-${product}'></span>
+        <span class='icon icon-${productIcon}'></span>
         <span class='product-label'>${product}</span>
     `
     return productEl;
@@ -313,7 +324,6 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPerPageDropdown = document.createElement('select');
     footerPerPageDropdown.id = 'per-page';
     footerPerPageDropdown.innerHTML = `
-        <option value="2">2</option>
         <option value="4">4</option>
         <option value="8">8</option>
         <option value="16">16</option>
@@ -506,7 +516,7 @@ function sortColumn(dir, property) {
 
 function determineStatusColor(status) {
     switch(status) {
-        case 'On Track':
+        case 'Current':
             return 'green';
         case 'Delayed':
             return 'yellow';
@@ -514,5 +524,14 @@ function determineStatusColor(status) {
             return 'red';
         default:
             return 'red';       
+    }
+}
+
+// supply dummy data if none present
+function checkBlankString(string) {
+    if (string == undefined || string == '' ) {
+        return 'Not Available';
+    } else {
+        return string;
     }
 }
