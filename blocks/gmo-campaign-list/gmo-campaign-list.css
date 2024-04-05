@@ -58,6 +58,7 @@ body {
     display: flex;
     font-size: 14px;
     margin-bottom: 20px;
+    height: 80px;
 }
 .campaign-info-wrapper {
     display: flex;
@@ -67,6 +68,11 @@ body {
     width: 80px;
     height: 80px;
     margin-right: 14px;
+    background: #e2e2e2;
+    border-radius: 18px;
+}
+.campaign-name-wrapper {
+    width: 220px;
 }
 .campaign-name-label {
     font-weight: bold;
@@ -74,8 +80,13 @@ body {
 .campaign-name {
     color: #959595;
 }
-.campaign-description {
+.campaign-description-wrapper {
     color: #505050;
+}
+.campaign-description {
+    line-height:20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .campaign-launch-date {
     color: black;
@@ -177,11 +188,11 @@ select {
     border-radius: 4px;
 }
 .column-1 {
-    width: 21%;
+    width: 28%;
     margin-right: 1%;
 }
 .column-2 {
-    width: 26%;
+    width: 40%;
     margin-right: 1%;
 }
 .column-3 {
@@ -189,7 +200,7 @@ select {
     margin-right: 1%;
 }
 .column-4 {
-    width: 13%;
+    width: 16%;
     margin-right: 1%;
 }
 .column-5 {
@@ -217,4 +228,9 @@ select {
 .status.yellow {
     background-color: rgb(248, 243, 181);
     color: rgba(150, 138, 4, 0.945);
+}
+.vertical-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
