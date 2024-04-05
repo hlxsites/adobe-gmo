@@ -145,6 +145,7 @@ export function getMetadataSchema(facetOptions){
             { name: 'Digital Editions', id: 'digital-editions' },
             { name: 'Dreamweaver', id: 'dreamweaver' },
             { name: 'Fill Sign', id: 'fill-sign' },
+            { name: 'Firefly', id: 'firefly' },
             { name: 'Frame.io', id: 'frame-io' },
             { name: 'Fresco', id: 'fresco' },
             { name: 'Http Dynamic Streaming', id: 'http-dynamic-streaming' },
