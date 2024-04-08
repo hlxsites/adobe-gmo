@@ -288,7 +288,7 @@ export async function getQuickLinkConfig() {
   const response = await getConfig('site-config.json');
 
   for (const row of response.quicklinks?.data || []) {
-    if (row.Title && row.Page && row.Group == '') {
+    if (row.Title && row.Page && (row.Group ?? '') === '') {
       result.push({
         title: row.Title,
         page: row.Page,
