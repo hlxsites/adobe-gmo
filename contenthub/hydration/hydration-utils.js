@@ -194,14 +194,14 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:campaignName',
           label: 'Campaign',
-          placeholder: 'Select campaign',
+          placeholder: 'Select one',
           element: 'dropdown',
           dropdownOptions: [{id: '', name: 'N/A'}, ...facetOptions['gmo-campaignName']],
         },
         {
           mapToProperty: 'gmo:programName',
           label: 'Program',
-          placeholder: 'Select program name',
+          placeholder: 'Select one',
           element: 'dropdown',
           dropdownOptions: facetOptions['gmo-programName'],
           required: true,
@@ -214,6 +214,7 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:deliverableType',
           label: 'Select deliverable type',
+          placeholder: 'Select one',
           element: 'dropdown',
           required: true,
           dropdownOptions: [
@@ -344,7 +345,7 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:ddomStage',
           label: 'DDOM Stage',
-          placeholder: 'Select multiple',
+          placeholder: 'Select one or more',
           element: 'tags',
           dropdownOptions: [
             {
@@ -372,7 +373,7 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:p0TargetMarketGeo',
           label: 'Target Market',
-          placeholder: 'Select One',
+          placeholder: 'Select one  or more',
           element: 'dropdown',
           dropdownOptions: [
             {
