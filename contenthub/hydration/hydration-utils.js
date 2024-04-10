@@ -374,7 +374,7 @@ export function getMetadataSchema(facetOptions){
           mapToProperty: 'gmo:p0TargetMarketGeo',
           label: 'Target Market',
           placeholder: 'Select one  or more',
-          element: 'dropdown',
+          element: 'tags',
           dropdownOptions: [
             {
               id: 'apac',
