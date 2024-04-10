@@ -1,0 +1,36 @@
+.gmo-campaign-header.block {
+    display: flex;
+    height: 50px;
+    margin-top: 20px;
+}
+.campaign-search {
+    width: 400px;
+    height: 32px;
+    margin-top: 18px;
+    margin-right: 10px;
+}
+.filter-wrapper {
+    height: 100%;
+    & label {
+        font: normal normal normal 12px/15px Adobe Clean;
+        display: block;
+        height: 18px;
+        color: #747474;
+    }
+    &:not(:last-child) {
+        margin-right: 10px;
+    }
+}
+.filters {
+    font: normal normal normal 14px/17px Adobe Clean;
+    color: #505050;
+    letter-spacing: 0px;
+    width: 176px;
+    height: 32px;
+    &.categories {
+        width: 200px;
+    }
+    &.status {
+        width: 200px;
+    }
+}
