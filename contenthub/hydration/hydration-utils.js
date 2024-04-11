@@ -194,7 +194,7 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:campaignName',
           label: 'Campaign',
-          placeholder: 'Select campaign',
+          placeholder: 'Select one',
           element: 'text',
           getSuggestions: async (value) => {
             return  [
