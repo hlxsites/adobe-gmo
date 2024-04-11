@@ -194,16 +194,33 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:campaignName',
           label: 'Campaign',
-          placeholder: 'Select one',
-          element: 'dropdown',
-          dropdownOptions: [{id: '', name: 'N/A'}, ...facetOptions['gmo-campaignName']],
+          placeholder: 'Select campaign',
+          element: 'text',
+          getSuggestions: async (value) => {
+            return  [
+              {id: '', name: 'N/A'}, 
+              ...facetOptions['gmo-campaignName'].filter(
+                (option) => {
+                  const name = option.name.toLowerCase();
+                  return value.toLowerCase().split(' ').every((val) => name.includes(val));
+                }
+              )
+            ]
+          },
         },
         {
           mapToProperty: 'gmo:programName',
           label: 'Program',
           placeholder: 'Select one',
-          element: 'dropdown',
-          dropdownOptions: facetOptions['gmo-programName'],
+          element: 'text',
+          getSuggestions: async (value) => {
+            return  facetOptions['gmo-programName'].filter(
+              (option) => {
+                const name = option.name.toLowerCase();
+                return value.toLowerCase().split(' ').every((val) => name.includes(val));
+              }
+            )
+          },
           required: true,
           requires: [{
             property: 'gmo:campaignName',
