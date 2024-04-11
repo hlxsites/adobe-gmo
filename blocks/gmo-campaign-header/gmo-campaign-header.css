@@ -3,15 +3,37 @@
     height: 50px;
     margin-top: 20px;
 }
-.campaign-search {
-    width: 400px;
-    height: 32px;
+.search-wrapper {
+    background-color: #FFF;
     margin-top: 18px;
     margin-right: 10px;
+    border: 1px solid #D3d3d3;
+    border-radius: 4px;
+    & > .icon {
+        background-color: #FFF;
+        height: 14px;
+    }
+}
+.campaign-search {
+    width: 400px;
+    height: 26px;
+    border: none;
+    &:focus {
+        outline: none;
+    }
 }
 .filter-wrapper {
     height: 100%;
+    width: 176px;
+    display: flex;
+    flex-direction: column;
     & label {
+        font: normal normal normal 12px/15px Adobe Clean;
+        display: block;
+        height: 18px;
+        color: #747474;
+    }
+    & .label {
         font: normal normal normal 12px/15px Adobe Clean;
         display: block;
         height: 18px;
@@ -32,5 +54,56 @@
     }
     &.status {
         width: 200px;
+    }
+}
+
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
+    font: normal normal normal 14px/17px Adobe Clean;
+    letter-spacing: 0px;
+    height: 32px;
+    background-color: #FFF;
+    width: 100%;
+    border: 1px solid #D3D3D3;
+    border-radius: 4px;
+    & > .dropdown-button {
+        height: 32px;
+        line-height: 32px;
+        padding-left: 10px;
+        display: flex;
+        justify-content: space-between;
+        & > .icon {
+            padding-top: 4px;
+            height: 16px;
+        }
+        & > .icon.inactive {
+            display: none;
+            visibility: hidden;
+        }
+    }
+    & > .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        z-index: 1;
+        width: 174px;
+    }
+    &.active .dropdown-content {
+        display: block;
+    }
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    &:hover {
+        background-color: #ddd;
     }
 }
