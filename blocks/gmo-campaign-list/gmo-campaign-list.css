@@ -1,7 +1,11 @@
 body {
     background-color: rgb(247, 246, 246);
 }
-.gmo-campaign-list-wrapper {
+.refresh-notification {
+    text-align: right;
+    font-size: 14px;
+}
+.list-container {
     background-color: #FFF;
     padding-left: 12px;
     padding-right: 12px;
