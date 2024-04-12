@@ -1,7 +1,11 @@
 .gmo-campaign-header.block {
     display: flex;
-    height: 50px;
+    flex-direction: column;
     margin-top: 20px;
+}
+.inputs-wrapper {
+    display: flex;
+    height: 50px;
 }
 .search-wrapper {
     background-color: #FFF;
@@ -9,9 +13,15 @@
     margin-right: 10px;
     border: 1px solid #D3d3d3;
     border-radius: 4px;
+    display: flex;
+    align-items: center;
     & > .icon {
         background-color: #FFF;
         height: 14px;
+        border-radius: 4px;
+        & > svg {
+            padding-bottom: 10px;
+        }
     }
 }
 .campaign-search {
@@ -73,13 +83,12 @@
         padding-left: 10px;
         display: flex;
         justify-content: space-between;
+        & > .dropdown-label {
+            overflow: hidden;
+        }
         & > .icon {
             padding-top: 4px;
             height: 16px;
-        }
-        & > .icon.inactive {
-            display: none;
-            visibility: hidden;
         }
     }
     & > .dropdown-content {
@@ -98,6 +107,13 @@
     }
 }
 
+.dropoption.selected {
+    background-color:#959595;
+}
+.icon.inactive {
+    display: none;
+    visibility: hidden;
+}
 .dropdown-content a {
     display: block;
     padding: 10px;
@@ -105,5 +121,43 @@
     color: #333;
     &:hover {
         background-color: #ddd;
+    }
+}
+.selections-wrapper {
+    margin-top: 10px;
+    min-height: 22px;
+    display: flex;
+    justify-content: space-between;
+    & > .selected-filters-list {
+        display: flex;
+        max-width: 90%;
+        flex-wrap: wrap;
+        & > .selected-filter {
+            background: #FFFFFF;
+            border: 1px solid #959595;
+            border-radius: 4px;
+            text-align: left;
+            font: normal normal normal 12px/15px Adobe Clean;
+            letter-spacing: 0px;
+            color: #747474;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 7px 0 7px;
+            margin-right: 5px;
+            & > .label {
+                margin-right: 4px;
+            }
+            & > .icon-close {
+                height: 8px;
+                width: 6px;
+            }
+        }
+    }
+    & > .reset-filters {
+        font: normal normal normal 14px/17px Adobe Clean;
+        &.inactive {
+            display: none;
+            visibility: hidden;
+        }
     }
 }
