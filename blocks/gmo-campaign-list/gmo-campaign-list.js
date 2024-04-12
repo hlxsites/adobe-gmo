@@ -125,11 +125,10 @@ const testConfig = [
 
 
 export default async function decorate(block) {
-    //const config = readBlockConfig(block); // this will be for final implementation
     const campaignResponse = await graphqlAllCampaigns();
+    console.log(campaignResponse);
     const campaigns = campaignResponse.data.campaignList.items;
     console.log(campaignResponse.data.campaignList.items);
-    //console.log(testCampaigns);
     const numPerPage = 4; 
     const campaignCount = campaigns.length;
     const config = testConfig;
@@ -138,6 +137,7 @@ export default async function decorate(block) {
     const listFooter = buildListFooter(campaignCount, numPerPage);
 
     block.innerHTML = `
+        <div class="refresh-notification">Last refreshed date: TBD</div>
         <div class="list-container">
         </div>`
     const listContainer = block.querySelector('.list-container');
@@ -160,7 +160,6 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignInfoWrapper.classList.add('campaign-info-wrapper','column-1');
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
-        //campaignIcon.innerHTML = `<img src=${icon}></img>`;
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
         campaignName.innerHTML = `
@@ -182,11 +181,6 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignLaunch.dataset.property = 'launch';
         const campaignProducts = buildProductsList(checkBlankString(campaign.productOffering));
         campaignProducts.classList.add('column-4', 'vertical-center');
-        /*
-        const campaignLanguage = document.createElement('div');
-        campaignLanguage.textContent = campaign.languages;
-        campaignLanguage.classList.add('column-5');
-        */
         const campaignStatusWrapper = document.createElement('div');
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6','vertical-center');
         const campaignStatus = document.createElement('div');
@@ -200,7 +194,6 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignRow.appendChild(campaignOverviewWrapper);
         campaignRow.appendChild(campaignLaunch);
         campaignRow.appendChild(campaignProducts);
-        //campaignRow.appendChild(campaignLanguage);
         campaignRow.appendChild(campaignStatusWrapper);
 
         listWrapper.appendChild(campaignRow);
@@ -210,18 +203,8 @@ function buildCampaignList(campaigns, numPerPage) {
 
 function buildProductsList(productList) {
     const campaignProducts = document.createElement('div');
-    //structure of the data for this is different than expected.
-    //may need to break strings up on some delimiter
-    /*if (productList.length > 1) {
-        productList.forEach((product) => {
-            const productEl = buildProduct(product);
-            campaignProducts.appendChild(productEl);
-        })
-    } else {*/
-        const productEl = buildProduct(productList);
-        campaignProducts.appendChild(productEl);
-    //}
-
+    const productEl = buildProduct(productList);
+    campaignProducts.appendChild(productEl);
     return campaignProducts;
 }
 
@@ -443,7 +426,6 @@ function changePage(targetPage) {
     currentPageBtn.classList.remove('currentpage');
     newPageBtn.id = 'current-page';
     newPageBtn.classList.add('currentpage');
-    // update next and prev according to which page we're on
 }
 
 function nextPage(nextBtn) {

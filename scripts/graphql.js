@@ -6,7 +6,7 @@ export async function graphqlAllCampaigns() {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
   const queryName = 'getAllCampaigns'; //Todo Shivani will rename query to allCampaigns
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}`;
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName};offset=0;limit=15;`;
   const jwtToken = await getBearerToken();
 
   // Return the fetch promise chain so that it can be awaited outside
