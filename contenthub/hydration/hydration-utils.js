@@ -285,11 +285,11 @@ export function getMetadataSchema(facetOptions){
               name: 'No',
             },
             {
-              id: 'yes-expire',
+              id: 'yes-expires',
               name: 'Yes (Expires)',
             },
             {
-              id: 'yes-perpetuity',
+              id: 'yes-in-perpetuity',
               name: 'Yes (in Perpetuity)',
             },
           ],
