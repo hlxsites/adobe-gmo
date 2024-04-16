@@ -24,7 +24,7 @@ export function formIsComplete(metadataSchema, formValues) {
   const incomplete = metadataSchema.find((schema) => {
     if(!schema.required) return;
     if(schema.requires) return;
-    return Array.isArray(formValues[schema.mapToProperty]) ? formValues[schema.mapToProperty].length === 0 : formValues[schema.mapToProperty] === '';
+    return !(schema.mapToProperty in formValues) || Array.isArray(formValues[schema.mapToProperty]) ? formValues[schema.mapToProperty].length === 0 : formValues[schema.mapToProperty] === '';
   });
     
   if(incomplete) return false;
@@ -197,15 +197,12 @@ export function getMetadataSchema(facetOptions){
           placeholder: 'Select one',
           element: 'text',
           getSuggestions: async (value) => {
-            return  [
-              {id: '', name: 'N/A'}, 
-              ...facetOptions['gmo-campaignName'].filter(
-                (option) => {
-                  const name = option.name.toLowerCase();
-                  return value.toLowerCase().split(' ').every((val) => name.includes(val));
-                }
-              )
-            ]
+            return facetOptions['gmo-campaignName'].filter(
+              (option) => {
+                const name = option.name.toLowerCase();
+                return value.toLowerCase().split(' ').every((val) => name.includes(val));
+              }
+            )
           },
         },
         {
