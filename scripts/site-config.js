@@ -288,15 +288,8 @@ export async function getQuickLinkConfig() {
   const response = await getConfig('site-config.json');
 
   for (const row of response.quicklinks?.data || []) {
-    if (row.Title && row.Page && (row.Group ?? '') === '') {
-      result.push({
-        title: row.Title,
-        page: row.Page,
-        hide: row.Hide,
-      });
-    } else if (row.Title && row.Page && row.Group) {
-      if (await checkPageGroupAccess(row.Group))
-      {
+    if (row.Title && row.Page) {
+      if (!row.Group || (await checkPageGroupAccess(row.Group))) {
         result.push({
           title: row.Title,
           page: row.Page,
