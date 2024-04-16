@@ -96,11 +96,6 @@ export function isPublicPage() {
   return document.querySelector('head meta[name="public-access"]')?.getAttribute('content').toLowerCase() === 'true';
 }
 
-
-export function hideQuickLinks() {
-  return document.querySelector('head meta[name="hide-quicklinks"]')?.getAttribute('content').toLowerCase() === 'true';
-}
-
 export async function checkUserAccess() {
   if (isUnifiedShellRuntimeAvailable()) return !!user.get('imsProfile');
   await getBearerToken();
@@ -112,12 +107,13 @@ export async function checkUserAccess() {
     }
       const isIMSUser = await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
       if (isIMSUser) {
-
-        if (hideQuickLinks()) {
-          return true;
-        }
         //Check if current page is present in the array of pages returned by function getQuickLinkConfig()
-        const presentInQuickLinks = (await getQuickLinkConfig()).some((grp) => grp.page === (window.location.pathname.replace(getBaseConfigPath((window.location.pathname)),'')));
+        //Split the URL into parts
+        const currentUrlParts=window.location.pathname.replace(getBaseConfigPath((window.location.pathname)),'').split('/');
+        //Current url beginning with /
+        const currentURL = '/'+currentUrlParts[1];
+        const presentInQuickLinks = (await getQuickLinkConfig()).some((grp) => grp.page === (currentURL));
+
         return presentInQuickLinks;
       }
       else

@@ -292,6 +292,7 @@ export async function getQuickLinkConfig() {
       result.push({
         title: row.Title,
         page: row.Page,
+        hide: row.Hide,
       });
     } else if (row.Title && row.Page && row.Group) {
       if (await checkPageGroupAccess(row.Group))
@@ -299,6 +300,7 @@ export async function getQuickLinkConfig() {
         result.push({
           title: row.Title,
           page: row.Page,
+          hide: row.Hide,
         });
       }
     }
