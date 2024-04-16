@@ -35,7 +35,7 @@ export function formIsComplete(metadataSchema, formValues) {
   
   if(formValues['gmo:licensedContent'] !== 'no'){
     if(!formValues['gmo:usageTerms']) return false;
-    if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseExpiryDate']) return false;
+    if(formValues['gmo:licensedContent'] === 'yes-expires' && !formValues['gmo:licenseExpiryDate']) return false;
   }
   return true;
 };
@@ -46,7 +46,7 @@ export const licenseDateFieldShow  = {
   placeholder: 'Select date',
   required: true,
   element: 'datepicker',
-  requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes-expire' }],
+  requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes-expires' }],
 };
 
 const licenseExpirePerpitytity = new Date();
