@@ -24,7 +24,7 @@ export function formIsComplete(metadataSchema, formValues) {
   const incomplete = metadataSchema.find((schema) => {
     if(!schema.required) return;
     if(schema.requires) return;
-    return Array.isArray(formValues[schema.mapToProperty]) ? formValues[schema.mapToProperty].length === 0 : formValues[schema.mapToProperty] === '';
+    return !(schema.mapToProperty in formValues) || Array.isArray(formValues[schema.mapToProperty]) ? formValues[schema.mapToProperty].length === 0 : formValues[schema.mapToProperty] === '';
   });
     
   if(incomplete) return false;
@@ -35,7 +35,7 @@ export function formIsComplete(metadataSchema, formValues) {
   
   if(formValues['gmo:licensedContent'] !== 'no'){
     if(!formValues['gmo:usageTerms']) return false;
-    if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseExpiryDate']) return false;
+    if(formValues['gmo:licensedContent'] === 'yes-expires' && !formValues['gmo:licenseExpiryDate']) return false;
   }
   return true;
 };
@@ -46,7 +46,7 @@ export const licenseDateFieldShow  = {
   placeholder: 'Select date',
   required: true,
   element: 'datepicker',
-  requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes-expire' }],
+  requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes-expires' }],
 };
 
 const licenseExpirePerpitytity = new Date();
@@ -195,15 +195,29 @@ export function getMetadataSchema(facetOptions){
           mapToProperty: 'gmo:campaignName',
           label: 'Campaign',
           placeholder: 'Select one',
-          element: 'dropdown',
-          dropdownOptions: [{id: '', name: 'N/A'}, ...facetOptions['gmo-campaignName']],
+          element: 'text',
+          getSuggestions: async (value) => {
+            return facetOptions['gmo-campaignName'].filter(
+              (option) => {
+                const name = option.name.toLowerCase();
+                return value.toLowerCase().split(' ').every((val) => name.includes(val));
+              }
+            )
+          },
         },
         {
           mapToProperty: 'gmo:programName',
           label: 'Program',
           placeholder: 'Select one',
-          element: 'dropdown',
-          dropdownOptions: facetOptions['gmo-programName'],
+          element: 'text',
+          getSuggestions: async (value) => {
+            return  facetOptions['gmo-programName'].filter(
+              (option) => {
+                const name = option.name.toLowerCase();
+                return value.toLowerCase().split(' ').every((val) => name.includes(val));
+              }
+            )
+          },
           required: true,
           requires: [{
             property: 'gmo:campaignName',
@@ -268,11 +282,11 @@ export function getMetadataSchema(facetOptions){
               name: 'No',
             },
             {
-              id: 'yes-expire',
+              id: 'yes-expires',
               name: 'Yes (Expires)',
             },
             {
-              id: 'yes-perpetuity',
+              id: 'yes-in-perpetuity',
               name: 'Yes (in Perpetuity)',
             },
           ],
