@@ -28,6 +28,114 @@ export async function graphqlAllCampaigns() {
   });
 }
 
+
+
+
+export async function graphqlCampaignCount() {
+  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
+  const projectId = 'gmo';
+  const queryName = 'campaign-names';
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}`;
+  const jwtToken = await getBearerToken();
+
+  try {
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: jwtToken,
+      },
+    };
+    const response = await fetch(`${graphqlEndpoint}`, options);
+    // Handle response codes
+    if (response.status === 200) {
+      const responseBody = await response.json();
+      return responseBody.data.campaignList.items.length;
+    } if (response.status === 404) {
+      // Handle 404 error
+      const errorResponse = await response.json();
+      throw new Error(`Failed to get graphqlCampaignCount (404): ${errorResponse.detail}`);
+    } else {
+      // Handle other response codes
+      throw new Error(`Failed to retrieve graphqlCampaignCount: ${response.status} ${response.statusText}`);
+    }
+  } catch (error) {
+    // Handle network or other errors
+    logError('graphqlCampaignCount', error);
+    throw error;
+  }
+
+}
+
+
+export async function graphqlCampaignPaginated(first,cursor) {
+  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
+  const projectId = 'gmo';
+  const queryName = 'getAllCampaigns';
+  const encodedFirst = encodeURIComponent(first);
+  const encodedSemiColon = encodeURIComponent(';');
+  const encodedCursor = encodeURIComponent(cursor);
+
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}first=${encodedFirst}${encodedSemiColon}cursor=${encodedCursor}`;
+  const jwtToken = await getBearerToken();
+
+  try {
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: jwtToken,
+      },
+    };
+    const response = await fetch(`${graphqlEndpoint}`, options);
+    // Handle response codes
+    if (response.status === 200) {
+      const responseBody = await response.json();
+      return responseBody;
+    } if (response.status === 404) {
+      // Handle 404 error
+      const errorResponse = await response.json();
+      throw new Error(`Failed to get graphqlCampaignPaginated (404): ${errorResponse.detail}`);
+    } else {
+      // Handle other response codes
+      throw new Error(`Failed to retrieve graphqlCampaignPaginated: ${response.status} ${response.statusText}`);
+    }
+  } catch (error) {
+    // Handle network or other errors
+    logError('graphqlCampaignPaginated', error);
+    throw error;
+  }
+
+}
+
+
+
+
+export async function graphqlAllCampaignsOffsetLimit(offset,limit) {
+
+  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
+  const projectId = 'gmo';
+  const queryName = 'getCampaigns';
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName};offset=${offset};limit=${limit};`;
+  const jwtToken = await getBearerToken();
+
+  // Return the fetch promise chain so that it can be awaited outside
+  return fetch(graphqlEndpoint, {
+      method: 'GET',
+      headers: {
+          Authorization: jwtToken,
+      },
+  }).then(response => {
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+  }).then(data => {
+      return data; // Make sure to return the data so that the promise resolves with it
+  }).catch(error => {
+      console.error('Error fetching data: ', error);
+      throw error; // Rethrow or handle error as appropriate
+  });
+}
+
 export async function graphqlCampaignByName(campaignName) {
 
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
