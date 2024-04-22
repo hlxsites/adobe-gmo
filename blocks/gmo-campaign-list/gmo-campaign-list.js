@@ -127,11 +127,12 @@ let currentPageInfo = {};
 
 var cursorArray = [];
 var currentPage = 1;
+var currentNumberPerPage = 4
 //Get Campaign Count for pagination
 const campaignCount = await graphqlCampaignCount();
 console.log('campaignCount =',campaignCount);
 
-export default async function decorate(block, numPerPage = 4, cursor = '', previousPage = false, nextPage = false) {
+export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false) {
 
 console.log('currentPage='+currentPage);
 
@@ -151,6 +152,8 @@ console.log('currentPage='+currentPage);
 
 
     currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
+    //Used for repaginate()
+    currentPageInfo.currentCursor = cursor;
     if (previousPage==false && nextPage==false)
     {
 
@@ -200,6 +203,25 @@ console.log('currentPage='+currentPage);
     listContainer.appendChild(listHeaders);
     listContainer.appendChild(listItems);
     listContainer.appendChild(listFooter);
+    //Show Hide Previous and Next Page buttons
+    const footerNext = document.querySelector('.footer-pagination-button.next');
+    const footerPrev = document.querySelector('.footer-pagination-button.prev');
+    if (currentPageInfo.hasPreviousPage){
+      footerPrev.classList.add('active');
+    }
+    else
+    {
+      footerPrev.classList.remove('active');
+    }
+
+    if (currentPageInfo.hasNextPage){
+      footerNext.classList.add('active');
+    }
+    else
+    {
+      footerNext.classList.remove('active');
+    }
+
     decorateIcons(block);
 
 }
@@ -262,65 +284,6 @@ function buildCampaignList(campaigns, numPerPage) {
     return listWrapper;
 }
 
-/* Michael Dickson original
-function buildCampaignList(campaigns, numPerPage) {
-    const listWrapper = document.createElement('div');
-    listWrapper.classList.add('list-items');
-    listWrapper.dataset.totalresults = campaigns.length;
-
-    campaigns.forEach((campaign, index) => {
-
-    console.log('index ',index);
-
-        const campaignRow = document.createElement('div');
-        campaignRow.classList.add('campaign-row');
-        if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
-        const campaignInfoWrapper = document.createElement('div');
-        campaignInfoWrapper.classList.add('campaign-info-wrapper','column-1');
-        const campaignIcon = document.createElement('div');
-        campaignIcon.classList.add('campaign-icon');
-        const campaignName = document.createElement('div');
-        campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
-        campaignName.innerHTML = `
-            <div class='campaign-name-label'>${checkBlankString(campaign.campaignName)}</div>
-            <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.programName)}</div>
-        `
-        campaignInfoWrapper.appendChild(campaignIcon);
-        campaignInfoWrapper.appendChild(campaignName);
-        const campaignOverviewWrapper = document.createElement('div');
-        campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper','vertical-center');
-        const campaignOverview = document.createElement('div');
-        campaignOverview.textContent = checkBlankString(campaign.marketingGoal.plaintext);
-        campaignOverview.classList.add('campaign-description');
-        campaignOverview.dataset.property = 'description';
-        campaignOverviewWrapper.appendChild(campaignOverview);
-        const campaignLaunch = document.createElement('div');
-        campaignLaunch.textContent = checkBlankString(campaign.launchDate);
-        campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
-        campaignLaunch.dataset.property = 'launch';
-        const campaignProducts = buildProductsList(checkBlankString(campaign.productOffering));
-        campaignProducts.classList.add('column-4', 'vertical-center');
-        const campaignStatusWrapper = document.createElement('div');
-        campaignStatusWrapper.classList.add('status-wrapper', 'column-6','vertical-center');
-        const campaignStatus = document.createElement('div');
-        const statusString = checkBlankString(campaign.status);
-        campaignStatus.textContent = statusString;
-        campaignStatus.classList.add(determineStatusColor(statusString)); 
-        campaignStatus.classList.add('status');
-        campaignStatus.dataset.property = 'status';
-        campaignStatusWrapper.appendChild(campaignStatus);
-        campaignRow.appendChild(campaignInfoWrapper);
-        campaignRow.appendChild(campaignOverviewWrapper);
-        campaignRow.appendChild(campaignLaunch);
-        campaignRow.appendChild(campaignProducts);
-        campaignRow.appendChild(campaignStatusWrapper);
-
-        listWrapper.appendChild(campaignRow);
-    });
-    return listWrapper;
-}
-
-*/
 
 function buildProductsList(productList) {
     const campaignProducts = document.createElement('div');
@@ -390,7 +353,8 @@ function buildListFooter(rows, rowsPerPage) {
     footerWrapper.classList.add('list-footer', 'footer-wrapper');
     footerWrapper.dataset.pages = pages;
     const footerTotal = document.createElement('div');
-    footerTotal.textContent = `Page 1 of ${pages} -- ${rows} total results`;
+
+    footerTotal.textContent = `Page ${currentPage} of ${pages} -- ${rows} total results`;
     footerTotal.classList.add('footer-total');
 
     // pagination
@@ -407,7 +371,8 @@ function buildListFooter(rows, rowsPerPage) {
     footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
     const footerNext = document.createElement('div');
     footerNext.classList.add('footer-pagination-button', 'next');
-    buildPageSelector(pages, footerPageBtnsWrapper, footerNext);
+    //Show current page
+    buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
 
     footerNext.addEventListener('click', (event) => { 
         nextPage(event.target);
@@ -436,6 +401,15 @@ function buildListFooter(rows, rowsPerPage) {
         <option value="64">64</option>
         <option value="80">80</option>
     `;
+
+    // Selecting the item based on the value of currentNumberPerPage
+    var options = footerPerPageDropdown.querySelectorAll('option');
+    options.forEach(option => {
+        if (option.value === currentNumberPerPage.toString()) {
+            option.selected = true;
+        }
+    });
+
     footerPerPageDropdown.addEventListener('change', (event) => {
         repaginate(event.target);
     });
@@ -451,56 +425,23 @@ function buildListFooter(rows, rowsPerPage) {
     return footerWrapper;
 }
 
-function buildPageSelector(pageCount, footerPageSelectorWrapper, footerNext) {
-    const footerPageBtn = document.createElement('div');
-    footerPageBtn.classList.add('footer-pagination-pages', 'currentpage');
-    footerPageBtn.id = "current-page";
-    footerPageBtn.textContent = '1';
-    footerPageBtn.dataset.pagenumber = 1;
-    footerPageBtn.addEventListener('click', (event) => {
-        changePage(event.target.dataset.pagenumber);
-    })
-    footerPageSelectorWrapper.appendChild(footerPageBtn);
-    if (pageCount > 1) {
-        footerNext.classList.add('active');
-        for (let i = 2; i <= pageCount; i++) {
-            const footerPageBtns = document.createElement('div');
-            footerPageBtns.classList.add('footer-pagination-pages');
-            footerPageBtns.textContent = i;
-            footerPageBtns.dataset.pagenumber = i;
-            footerPageBtns.addEventListener('click', (event) => {
-                changePage(event.target.dataset.pagenumber);
-            })
-            footerPageSelectorWrapper.appendChild(footerPageBtns);
-        }
-    } else {
-        footerNext.classList.remove('active');
-    }
+//Show current page
+function buildCurrentPageDivElement(pageNumber,footerPageBtnsWrapper)
+{
+     const footerPageBtn = document.createElement('div');
+     footerPageBtn.classList.add('footer-pagination-pages', 'currentpage');
+     footerPageBtn.id = "current-page";
+     footerPageBtn.textContent = pageNumber;
+     footerPageBtn.dataset.pagenumber = pageNumber;
+     footerPageBtnsWrapper.appendChild(footerPageBtn);
 }
 
 function repaginate(dropdown) {
-    const numPerPage = dropdown.value;
-    const listItems = document.querySelectorAll('.campaign-row');
-    if (listItems.length > 1 ) {
-        listItems.forEach((row, index) => {
-            row.classList.remove('hidden');
-            if ((index + 1) > numPerPage) row.classList.add('hidden');
-        })
-    }
-    const totalResults = parseInt(document.querySelector('.list-items').dataset.totalresults);
-    const pageCount = Math.ceil(totalResults / numPerPage);
-    document.querySelector('.list-footer.footer-wrapper').dataset.pages = pageCount;
+    currentNumberPerPage = dropdown.value;
+    //const numPerPage = dropdown.value;
 
-    const pagesText = `Page 1 of ${pageCount} -- ${totalResults} total results`;
-    document.querySelector('.footer-total').textContent = pagesText;
-
-    const footerPageSelectorWrapper = document.querySelector('.footer-pages-wrapper');
-    footerPageSelectorWrapper.replaceChildren();
-
-    const footerNext = document.querySelector('.footer-pagination-button.next');
-    const footerPrev = document.querySelector('.footer-pagination-button.prev');
-    footerPrev.classList.remove('active');
-    buildPageSelector(pageCount, footerPageSelectorWrapper, footerNext);
+    const block = document.querySelector('.gmo-campaign-list.block');
+    decorate(block, currentNumberPerPage, currentPageInfo.currentCursor, false, false);
 }
 
 function changePage(targetPage) {
@@ -531,6 +472,7 @@ function changePage(targetPage) {
     })
     const totalPages = document.querySelector('.list-footer.footer-wrapper').dataset.pages;
     const totalResults = document.querySelector('.list-items').dataset.totalresults;
+
     const pagesText = `Page ${targetPage} of ${totalPages} -- ${totalResults} total results`;
     document.querySelector('.footer-total').textContent = pagesText;
     if (totalPages == targetPage) {
@@ -553,22 +495,11 @@ function nextPage(nextBtn) {
 
     console.log('currentPageInfo');
     console.log(currentPageInfo);
-
-    /*Todo my test code*/
-
-    const offset = currentPage * 4;
-    const limit = 4;
+    //Calculate Next Page
     currentPage++;
 
-console.log('offset=',offset);
-console.log('limit=',limit);
-
-
-    //Hardcode for now
-    const numPerPage = 4
-
     const block = document.querySelector('.gmo-campaign-list.block');
-    decorate(block, numPerPage, currentPageInfo.nextCursor, false, true);
+    decorate(block, currentNumberPerPage, currentPageInfo.nextCursor, false, true);
 
 
     /*Todo my test code*/
@@ -579,12 +510,6 @@ console.log('limit=',limit);
 
 
     const prevBtn = document.querySelector('.footer-pagination-button.prev');
-/*
-    const currentPageBtn = document.querySelector('#current-page');
-    const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
-    const targetPage = (currentPageValue + 1);
-    changePage(targetPage);
-*/
     prevBtn.classList.add('active');
 }
 
@@ -597,15 +522,11 @@ function prevPage(prevBtn) {
 
     const block = document.querySelector('.gmo-campaign-list.block');
 
-    //Hardcode for now
-    const numPerPage = 4
-
     //Calculate cursor for previous page
-    // Todo 4 is number of items of page change later
-    const indexCursor = cursorArray.indexOf(currentPageInfo.nextCursor) - currentPageInfo.itemCount - numPerPage;
+    const indexCursor = cursorArray.indexOf(currentPageInfo.nextCursor) - currentPageInfo.itemCount - currentNumberPerPage;
     console.log('cursor index =', indexCursor);
 
-    decorate(block, numPerPage, cursorArray[indexCursor], true, false);
+    decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false);
 
 
     /*Todo my test code*/
