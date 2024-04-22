@@ -258,6 +258,9 @@ body {
 }
 .row {
     height: 56px;
+    &:not(:last-child) {
+        border-bottom: 2px solid #F4F4F4;
+    }
     &.datarow {
         display: flex;
     }
@@ -281,8 +284,17 @@ body {
             }
         }
     }
+
     & .property {
         line-height: 56px;
+    }
+}
+.subheader {
+    &:nth-child(2) {
+        border-top: 2px solid #F4F4F4;
+    }
+    & > .row:nth-child(2) {
+        border-top: 2px solid #F4F4F4;
     }
 }
 .column1 {

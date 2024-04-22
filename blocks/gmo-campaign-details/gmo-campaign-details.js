@@ -472,7 +472,7 @@ function buildRows(data) {
         const subCats = getUniqueValues(matchingCampaigns, 'subcategory');
         subCats.forEach((subCat) => {
             const subCatHeader = document.createElement('div');
-            subCatHeader.classList.add('row', 'collapsible', 'header', 'inactive');
+            subCatHeader.classList.add('row', 'collapsible', 'header', 'inactive', 'subheader');
             subCatHeader.innerHTML = `
             <div class="heading-wrapper subheading">
                 <span class="icon icon-next"></span>
