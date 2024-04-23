@@ -1,101 +1,10 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlAllCampaigns } from '../../scripts/graphql.js';
+import { graphqlAllCampaigns, graphqlCampaignCount } from '../../scripts/graphql.js';
 
 const icon = 'https://delivery-p108396-e1046543.adobeaemcloud.com/adobe/assets/deliver/urn:aaid:aem:acdaa42f-00ae-42f4-97e5-8309c42d9076/marketing-hub-102023-lockup-video.png'
-const testCampaigns = [
-    {
-        'name': 'test campaign 1',
-        'type': 'testType1',
-        'status': 'On Track',
-        'activeQuarter': 'testQuarter1',
-        'launch': '03/07/2024', 
-        'products': [
-            'Photoshop',
-            'Lightroom',
-            'Express'
-        ],
-        'entitlements': 'testEntitlement1',
-        'audiences': 'testAudiences1',
-        'languages': 'English (WW)',
-        'kpi': 'testKPI1',
-        'categories': 'testCategories1', 
-        'ddom': 'testDdom1',
-        'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-    },
-    {
-        'name': 'campaign 2',
-        'type': 'testType2',
-        'status': 'On Track',
-        'activeQuarter': 'testQuarter2',
-        'launch': '04/03/2024', 
-        'products': [
-            'Photoshop',
-            'Acrobat'
-        ],
-        'entitlements': 'testEntitlement2',
-        'audiences': 'testAudiences2',
-        'languages': 'English (WW)',
-        'kpi': 'testKPI2',
-        'categories': 'testCategories2', 
-        'ddom': 'testDdom2',
-        'description': 'Express mobile public beta is not a major at scale marketing moment (due to the limited nature of beta experience) with key audiences of Existing Express users, investors, and media.'
-    },
-    {
-        'name': 'my third campaign',
-        'type': 'testType3',
-        'status': 'On Track',
-        'activeQuarter': 'testQuarter3',
-        'launch': '10/08/2020', 
-        'products': [
-            'Express'
-        ],
-        'entitlements': 'testEntitlement3',
-        'audiences': 'testAudiences3',
-        'languages': 'English (WW)',
-        'kpi': 'testKPI3',
-        'categories': 'testCategories3', 
-        'ddom': 'testDdom3',
-        'description': 'Drive content review and approval through the platform, increase visibility and efficiency across multiplie verticals.'
-    },
-    {
-        'name': 'your fourth campaign',
-        'type': 'testType4',
-        'status': 'Delayed',
-        'activeQuarter': 'testQuarter4',
-        'launch': '12/10/2023', 
-        'products': [
-            'Acrobat',
-            'Express'
-        ],
-        'entitlements': 'testEntitlement4',
-        'audiences': 'testAudiences4',
-        'languages': 'English (WW)',
-        'kpi': 'testKPI4',
-        'categories': 'testCategories4', 
-        'ddom': 'testDdom4',
-        'description': 'Drive new unique visitors early in their careers to engage with Acrobat (US/APAC/JP) and change perception through focus on BSV (Germany).'
-    },
-    {
-        'name': 'five campaigns in',
-        'type': 'testType5',
-        'status': 'Canceled',
-        'activeQuarter': 'testQuarter5',
-        'launch': '06/21/2023', 
-        'products': [
-            'AEM',
-            'Illustrator'
-        ],
-        'entitlements': 'testEntitlement5',
-        'audiences': 'testAudiences5',
-        'languages': 'English (WW)',
-        'kpi': 'testKPI5',
-        'categories': 'testCategories5',
-        'ddom': 'testDdom5',
-        'description': 'Optimize media strategy to target Hybrid Hobbyists and drive home Lightroom\'s value props.'
-    }
-]
-const testConfig = [
+
+const headerConfig = [
     {
         'name': 'Marketing Moments',
         'attribute': 'campaign',
@@ -123,16 +32,34 @@ const testConfig = [
     }
 ]
 
+//Global variables used by helper functions
+let currentPageInfo = {};
+let cursorArray = [];
+let currentPage = 1;
+let currentNumberPerPage = 4
+//Get Campaign Count for pagination
+const campaignCount = await graphqlCampaignCount();
 
-export default async function decorate(block) {
-    const campaignResponse = await graphqlAllCampaigns();
-    console.log(campaignResponse);
-    const campaigns = campaignResponse.data.campaignList.items;
-    console.log(campaignResponse.data.campaignList.items);
-    const numPerPage = 4; 
-    const campaignCount = campaigns.length;
-    const config = testConfig;
-    const listHeaders = buildListHeaders(config);
+export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false) {
+
+    const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
+    const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
+    currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
+
+    currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
+    if (!previousPage && !nextPage)
+    {
+      cursorArray = campaigns.map(item => item.cursor);
+    }
+    else if (nextPage){
+
+      campaigns.forEach(item => {
+          cursorArray.push(item.cursor);
+      });
+    }
+    currentPageInfo.itemCount = campaigns.length;
+
+    const listHeaders = buildListHeaders(headerConfig);
     const listItems = buildCampaignList(campaigns, numPerPage);
     const listFooter = buildListFooter(campaignCount, numPerPage);
 
@@ -144,7 +71,27 @@ export default async function decorate(block) {
     listContainer.appendChild(listHeaders);
     listContainer.appendChild(listItems);
     listContainer.appendChild(listFooter);
+    //Show Hide Previous and Next Page buttons
+    const footerNext = document.querySelector('.footer-pagination-button.next');
+    const footerPrev = document.querySelector('.footer-pagination-button.prev');
+    if (currentPageInfo.hasPreviousPage){
+      footerPrev.classList.add('active');
+    }
+    else
+    {
+      footerPrev.classList.remove('active');
+    }
+
+    if (currentPageInfo.hasNextPage){
+      footerNext.classList.add('active');
+    }
+    else
+    {
+      footerNext.classList.remove('active');
+    }
+
     decorateIcons(block);
+
 }
 
 function buildCampaignList(campaigns, numPerPage) {
@@ -163,30 +110,30 @@ function buildCampaignList(campaigns, numPerPage) {
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
         campaignName.innerHTML = `
-            <div class='campaign-name-label'>${checkBlankString(campaign.campaignName)}</div>
-            <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.programName)}</div>
+            <div class='campaign-name-label'>${checkBlankString(campaign.node.campaignName)}</div>
+            <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.node.programName)}</div>
         `
         campaignInfoWrapper.appendChild(campaignIcon);
         campaignInfoWrapper.appendChild(campaignName);
         const campaignOverviewWrapper = document.createElement('div');
         campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper','vertical-center');
         const campaignOverview = document.createElement('div');
-        campaignOverview.textContent = checkBlankString(campaign.marketingGoal.plaintext);
+        campaignOverview.textContent = checkBlankString(campaign.node.marketingGoal.plaintext);
         campaignOverview.classList.add('campaign-description');
         campaignOverview.dataset.property = 'description';
         campaignOverviewWrapper.appendChild(campaignOverview);
         const campaignLaunch = document.createElement('div');
-        campaignLaunch.textContent = checkBlankString(campaign.launchDate);
+        campaignLaunch.textContent = checkBlankString(campaign.node.launchDate);
         campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
-        const campaignProducts = buildProductsList(checkBlankString(campaign.productOffering));
+        const campaignProducts = buildProductsList(checkBlankString(campaign.node.productOffering));
         campaignProducts.classList.add('column-4', 'vertical-center');
         const campaignStatusWrapper = document.createElement('div');
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6','vertical-center');
         const campaignStatus = document.createElement('div');
-        const statusString = checkBlankString(campaign.status);
+        const statusString = checkBlankString(campaign.node.status);
         campaignStatus.textContent = statusString;
-        campaignStatus.classList.add(determineStatusColor(statusString)); 
+        campaignStatus.classList.add(determineStatusColor(statusString));
         campaignStatus.classList.add('status');
         campaignStatus.dataset.property = 'status';
         campaignStatusWrapper.appendChild(campaignStatus);
@@ -269,7 +216,8 @@ function buildListFooter(rows, rowsPerPage) {
     footerWrapper.classList.add('list-footer', 'footer-wrapper');
     footerWrapper.dataset.pages = pages;
     const footerTotal = document.createElement('div');
-    footerTotal.textContent = `Page 1 of ${pages} -- ${rows} total results`;
+
+    footerTotal.textContent = `Page ${currentPage} of ${pages} -- ${rows} total results`;
     footerTotal.classList.add('footer-total');
 
     // pagination
@@ -286,7 +234,8 @@ function buildListFooter(rows, rowsPerPage) {
     footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
     const footerNext = document.createElement('div');
     footerNext.classList.add('footer-pagination-button', 'next');
-    buildPageSelector(pages, footerPageBtnsWrapper, footerNext);
+    //Show current page
+    buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
 
     footerNext.addEventListener('click', (event) => { 
         nextPage(event.target);
@@ -315,6 +264,15 @@ function buildListFooter(rows, rowsPerPage) {
         <option value="64">64</option>
         <option value="80">80</option>
     `;
+
+    // Selecting the item based on the value of currentNumberPerPage
+    var options = footerPerPageDropdown.querySelectorAll('option');
+    options.forEach(option => {
+        if (option.value === currentNumberPerPage.toString()) {
+            option.selected = true;
+        }
+    });
+
     footerPerPageDropdown.addEventListener('change', (event) => {
         repaginate(event.target);
     });
@@ -330,126 +288,62 @@ function buildListFooter(rows, rowsPerPage) {
     return footerWrapper;
 }
 
-function buildPageSelector(pageCount, footerPageSelectorWrapper, footerNext) {
-    const footerPageBtn = document.createElement('div');
-    footerPageBtn.classList.add('footer-pagination-pages', 'currentpage');
-    footerPageBtn.id = "current-page";
-    footerPageBtn.textContent = '1';
-    footerPageBtn.dataset.pagenumber = 1;
-    footerPageBtn.addEventListener('click', (event) => {
-        changePage(event.target.dataset.pagenumber);
-    })
-    footerPageSelectorWrapper.appendChild(footerPageBtn);
-    if (pageCount > 1) {
-        footerNext.classList.add('active');
-        for (let i = 2; i <= pageCount; i++) {
-            const footerPageBtns = document.createElement('div');
-            footerPageBtns.classList.add('footer-pagination-pages');
-            footerPageBtns.textContent = i;
-            footerPageBtns.dataset.pagenumber = i;
-            footerPageBtns.addEventListener('click', (event) => {
-                changePage(event.target.dataset.pagenumber);
-            })
-            footerPageSelectorWrapper.appendChild(footerPageBtns);
-        }
-    } else {
-        footerNext.classList.remove('active');
-    }
+//Show current page
+function buildCurrentPageDivElement(pageNumber,footerPageBtnsWrapper)
+{
+     const footerPageBtn = document.createElement('div');
+     footerPageBtn.classList.add('footer-pagination-pages', 'currentpage');
+     footerPageBtn.id = "current-page";
+     footerPageBtn.textContent = pageNumber;
+     footerPageBtn.dataset.pagenumber = pageNumber;
+     footerPageBtnsWrapper.appendChild(footerPageBtn);
 }
 
 function repaginate(dropdown) {
-    const numPerPage = dropdown.value;
-    const listItems = document.querySelectorAll('.campaign-row');
-    if (listItems.length > 1 ) {
-        listItems.forEach((row, index) => {
-            row.classList.remove('hidden');
-            if ((index + 1) > numPerPage) row.classList.add('hidden');
-        })
-    }
-    const totalResults = parseInt(document.querySelector('.list-items').dataset.totalresults);
-    const pageCount = Math.ceil(totalResults / numPerPage);
-    document.querySelector('.list-footer.footer-wrapper').dataset.pages = pageCount;
-
-    const pagesText = `Page 1 of ${pageCount} -- ${totalResults} total results`;
-    document.querySelector('.footer-total').textContent = pagesText;
-
-    const footerPageSelectorWrapper = document.querySelector('.footer-pages-wrapper');
-    footerPageSelectorWrapper.replaceChildren();
-
-    const footerNext = document.querySelector('.footer-pagination-button.next');
-    const footerPrev = document.querySelector('.footer-pagination-button.prev');
-    footerPrev.classList.remove('active');
-    buildPageSelector(pageCount, footerPageSelectorWrapper, footerNext);
-}
-
-function changePage(targetPage) {
-    // if targetPage = currentPage, do nothing
-    const nextBtn = document.querySelector('.footer-pagination-button.next');
-    const prevBtn = document.querySelector('.footer-pagination-button.prev');
-    const currentPageBtn = document.querySelector('#current-page');
-    const currentPage = parseInt(currentPageBtn.dataset.pagenumber);
-
-    if (currentPage == targetPage) {
-        return;
-    }
-
-    const newPageSelector = "[data-pagenumber='" + (targetPage) + "']";
-    const newPageBtn = document.querySelector(newPageSelector);
-    const itemsPerPage = document.querySelector('#per-page').value;
-    const listItems = document.querySelectorAll('.campaign-row');
-
-    const lowerBound = ((targetPage * itemsPerPage) - itemsPerPage);
-    const upperBound = (targetPage * itemsPerPage);
-
-    listItems.forEach((row, index) => {
-        if ((index + 1) <= (lowerBound) || (index + 1) > (upperBound)) {
-            row.classList.add('hidden');
-        } else {
-            row.classList.remove('hidden');
-        }
-    })
-    const totalPages = document.querySelector('.list-footer.footer-wrapper').dataset.pages;
-    const totalResults = document.querySelector('.list-items').dataset.totalresults;
-    const pagesText = `Page ${targetPage} of ${totalPages} -- ${totalResults} total results`;
-    document.querySelector('.footer-total').textContent = pagesText;
-    if (totalPages == targetPage) {
-        nextBtn.classList.remove('active')
-     } else {
-        nextBtn.classList.add('active');
-    } 
-    if (targetPage == "1") {
-        prevBtn.classList.remove('active')
-    } else {
-        prevBtn.classList.add('active');
-    }
-    currentPageBtn.id = '';
-    currentPageBtn.classList.remove('currentpage');
-    newPageBtn.id = 'current-page';
-    newPageBtn.classList.add('currentpage');
+    currentNumberPerPage = dropdown.value;
+    //Reset current page to 1
+    currentPage = 1;
+    const block = document.querySelector('.gmo-campaign-list.block');
+    //Reset cursor to ''
+    decorate(block, currentNumberPerPage, '', false, false);
 }
 
 function nextPage(nextBtn) {
-    if (!(nextBtn.classList.contains('active'))) {
-        return;
+    if (currentPageInfo.hasNextPage) {
+      //Calculate Next Page
+      currentPage++;
+
+      const block = document.querySelector('.gmo-campaign-list.block');
+
+      decorate( block, currentNumberPerPage, currentPageInfo.nextCursor, false, true);
+
+      if (!(nextBtn.classList.contains('active'))) {
+          return;
+      }
+      const prevBtn = document.querySelector('.footer-pagination-button.prev');
+      prevBtn.classList.add('active');
+
     }
-    const prevBtn = document.querySelector('.footer-pagination-button.prev');
-    const currentPageBtn = document.querySelector('#current-page');
-    const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
-    const targetPage = (currentPageValue + 1);
-    changePage(targetPage);
-    prevBtn.classList.add('active');
 }
 
 function prevPage(prevBtn) {
-    if (!(prevBtn.classList.contains('active'))) {
-        return;
+    if (currentPageInfo.hasPreviousPage) {
+      currentPage--;
+
+      const block = document.querySelector('.gmo-campaign-list.block');
+      //Calculate cursor for previous page
+      const indexCursor = cursorArray.indexOf(currentPageInfo.nextCursor) - currentPageInfo.itemCount - currentNumberPerPage;
+      decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false);
+      if (!(prevBtn.classList.contains('active'))) {
+          return;
+      }
+      const nextBtn = document.querySelector('.footer-pagination-button.next');
+      const currentPageBtn = document.querySelector('#current-page');
+      const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
+      const targetPage = (currentPageValue - 1);
+
+      nextBtn.classList.add('active');
     }
-    const nextBtn = document.querySelector('.footer-pagination-button.next');
-    const currentPageBtn = document.querySelector('#current-page');
-    const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
-    const targetPage = (currentPageValue - 1);
-    changePage(targetPage)
-    nextBtn.classList.add('active');
 }
 
 function sortColumn(dir, property) {
