@@ -1,6 +1,6 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlAllCampaigns, graphqlAllCampaignsOffsetLimit, graphqlCampaignPaginated, graphqlCampaignCount } from '../../scripts/graphql.js';
+import { graphqlAllCampaigns, graphqlCampaignCount } from '../../scripts/graphql.js';
 
 const icon = 'https://delivery-p108396-e1046543.adobeaemcloud.com/adobe/assets/deliver/urn:aaid:aem:acdaa42f-00ae-42f4-97e5-8309c42d9076/marketing-hub-102023-lockup-video.png'
 const testCampaigns = [
@@ -123,47 +123,22 @@ const testConfig = [
     }
 ]
 
+//Global variables used by helper functions
 let currentPageInfo = {};
-
-var cursorArray = [];
-var currentPage = 1;
-var currentNumberPerPage = 4
+let cursorArray = [];
+let currentPage = 1;
+let currentNumberPerPage = 4
 //Get Campaign Count for pagination
 const campaignCount = await graphqlCampaignCount();
-console.log('campaignCount =',campaignCount);
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false) {
 
-console.log('currentPage='+currentPage);
-
-    const campaignPaginatedResponse = await graphqlCampaignPaginated(numPerPage, cursor);
-
-    //Todo Remove console.log
-    console.log('campaignPaginatedResponse');
-    console.log(campaignPaginatedResponse);
-    //Todo Remove console.log
-
+    const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
     const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
-
-    //Todo Delete console.log
-    console.log('campaigns');
-    console.log(campaigns);
-    //Todo Delete console.log
-
-
     currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
-    //Used for repaginate()
-    currentPageInfo.currentCursor = cursor;
-    if (previousPage==false && nextPage==false)
+    if (!previousPage && !nextPage)
     {
-
       cursorArray = campaigns.map(item => item.cursor);
-
-      //Todo Delete console.log
-      console.log('cursorArray');
-      console.log(cursorArray);
-      //Todo Delete console.log
-
       currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
     }
     else if (nextPage){
@@ -172,24 +147,11 @@ console.log('currentPage='+currentPage);
           cursorArray.push(item.cursor);
       });
 
-      //Todo Delete console.log
-      console.log('cursorArray');
-      console.log(cursorArray);
-      //Todo Delete console.log
-
-
       currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
 
     }
     currentPageInfo.itemCount = campaigns.length;
 
-    //Todo Remove console.log
-    console.log('currentPageInfo');
-    console.log(currentPageInfo);
-    //Todo Remove console.log
-
-
-    //const campaignCount = campaigns.length;
     const config = testConfig;
     const listHeaders = buildListHeaders(config);
     const listItems = buildCampaignList(campaigns, numPerPage);
@@ -283,7 +245,6 @@ function buildCampaignList(campaigns, numPerPage) {
     });
     return listWrapper;
 }
-
 
 function buildProductsList(productList) {
     const campaignProducts = document.createElement('div');
@@ -438,108 +399,50 @@ function buildCurrentPageDivElement(pageNumber,footerPageBtnsWrapper)
 
 function repaginate(dropdown) {
     currentNumberPerPage = dropdown.value;
-    //const numPerPage = dropdown.value;
-
+    //Reset current page to 1
+    currentPage = 1;
     const block = document.querySelector('.gmo-campaign-list.block');
-    decorate(block, currentNumberPerPage, currentPageInfo.currentCursor, false, false);
-}
-
-function changePage(targetPage) {
-    // if targetPage = currentPage, do nothing
-    const nextBtn = document.querySelector('.footer-pagination-button.next');
-    const prevBtn = document.querySelector('.footer-pagination-button.prev');
-    const currentPageBtn = document.querySelector('#current-page');
-    const currentPage = parseInt(currentPageBtn.dataset.pagenumber);
-
-    if (currentPage == targetPage) {
-        return;
-    }
-
-    const newPageSelector = "[data-pagenumber='" + (targetPage) + "']";
-    const newPageBtn = document.querySelector(newPageSelector);
-    const itemsPerPage = document.querySelector('#per-page').value;
-    const listItems = document.querySelectorAll('.campaign-row');
-
-    const lowerBound = ((targetPage * itemsPerPage) - itemsPerPage);
-    const upperBound = (targetPage * itemsPerPage);
-
-    listItems.forEach((row, index) => {
-        if ((index + 1) <= (lowerBound) || (index + 1) > (upperBound)) {
-            row.classList.add('hidden');
-        } else {
-            row.classList.remove('hidden');
-        }
-    })
-    const totalPages = document.querySelector('.list-footer.footer-wrapper').dataset.pages;
-    const totalResults = document.querySelector('.list-items').dataset.totalresults;
-
-    const pagesText = `Page ${targetPage} of ${totalPages} -- ${totalResults} total results`;
-    document.querySelector('.footer-total').textContent = pagesText;
-    if (totalPages == targetPage) {
-        nextBtn.classList.remove('active')
-     } else {
-        nextBtn.classList.add('active');
-    } 
-    if (targetPage == "1") {
-        prevBtn.classList.remove('active')
-    } else {
-        prevBtn.classList.add('active');
-    }
-    currentPageBtn.id = '';
-    currentPageBtn.classList.remove('currentpage');
-    newPageBtn.id = 'current-page';
-    newPageBtn.classList.add('currentpage');
+    //Reset cursor to ''
+    decorate(block, currentNumberPerPage, '', false, false);
 }
 
 function nextPage(nextBtn) {
 
-    console.log('currentPageInfo');
-    console.log(currentPageInfo);
-    //Calculate Next Page
-    currentPage++;
+    if (currentPageInfo.hasNextPage) {
+      //Calculate Next Page
+      currentPage++;
 
-    const block = document.querySelector('.gmo-campaign-list.block');
-    decorate(block, currentNumberPerPage, currentPageInfo.nextCursor, false, true);
+      const block = document.querySelector('.gmo-campaign-list.block');
 
+      decorate( block, currentNumberPerPage, currentPageInfo.nextCursor, false, true);
 
-    /*Todo my test code*/
+      if (!(nextBtn.classList.contains('active'))) {
+          return;
+      }
+      const prevBtn = document.querySelector('.footer-pagination-button.prev');
+      prevBtn.classList.add('active');
 
-    if (!(nextBtn.classList.contains('active'))) {
-        return;
     }
-
-
-    const prevBtn = document.querySelector('.footer-pagination-button.prev');
-    prevBtn.classList.add('active');
 }
 
 function prevPage(prevBtn) {
-    /*Todo my test code*/
-    currentPage--;
-    const offset = currentPage * 4;
-    const limit = 4;
+    if (currentPageInfo.hasPreviousPage) {
+      currentPage--;
 
+      const block = document.querySelector('.gmo-campaign-list.block');
+      //Calculate cursor for previous page
+      const indexCursor = cursorArray.indexOf(currentPageInfo.nextCursor) - currentPageInfo.itemCount - currentNumberPerPage;
+      decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false);
+      if (!(prevBtn.classList.contains('active'))) {
+          return;
+      }
+      const nextBtn = document.querySelector('.footer-pagination-button.next');
+      const currentPageBtn = document.querySelector('#current-page');
+      const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
+      const targetPage = (currentPageValue - 1);
 
-    const block = document.querySelector('.gmo-campaign-list.block');
-
-    //Calculate cursor for previous page
-    const indexCursor = cursorArray.indexOf(currentPageInfo.nextCursor) - currentPageInfo.itemCount - currentNumberPerPage;
-    console.log('cursor index =', indexCursor);
-
-    decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false);
-
-
-    /*Todo my test code*/
-
-    if (!(prevBtn.classList.contains('active'))) {
-        return;
+      nextBtn.classList.add('active');
     }
-    const nextBtn = document.querySelector('.footer-pagination-button.next');
-    const currentPageBtn = document.querySelector('#current-page');
-    const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
-    const targetPage = (currentPageValue - 1);
-    //changePage(targetPage)
-    nextBtn.classList.add('active');
 }
 
 function sortColumn(dir, property) {

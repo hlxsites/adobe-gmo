@@ -1,36 +1,6 @@
 import { getBearerToken } from './security.js';
 import { getAdminConfig } from './site-config.js';
 
-export async function graphqlAllCampaigns() {
-
-  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
-  const projectId = 'gmo';
-  const queryName = 'getAllCampaigns'; //Todo Shivani will rename query to allCampaigns
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName};offset=0;limit=15;`;
-  const jwtToken = await getBearerToken();
-
-  // Return the fetch promise chain so that it can be awaited outside
-  return fetch(graphqlEndpoint, {
-      method: 'GET',
-      headers: {
-          Authorization: jwtToken,
-      },
-  }).then(response => {
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-  }).then(data => {
-      return data; // Make sure to return the data so that the promise resolves with it
-  }).catch(error => {
-      console.error('Error fetching data: ', error);
-      throw error; // Rethrow or handle error as appropriate
-  });
-}
-
-
-
-
 export async function graphqlCampaignCount() {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
@@ -66,8 +36,7 @@ export async function graphqlCampaignCount() {
 
 }
 
-
-export async function graphqlCampaignPaginated(first,cursor) {
+export async function graphqlAllCampaigns(first,cursor) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
   const queryName = 'getAllCampaigns';
@@ -104,36 +73,6 @@ export async function graphqlCampaignPaginated(first,cursor) {
     throw error;
   }
 
-}
-
-
-
-
-export async function graphqlAllCampaignsOffsetLimit(offset,limit) {
-
-  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
-  const projectId = 'gmo';
-  const queryName = 'getCampaigns';
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName};offset=${offset};limit=${limit};`;
-  const jwtToken = await getBearerToken();
-
-  // Return the fetch promise chain so that it can be awaited outside
-  return fetch(graphqlEndpoint, {
-      method: 'GET',
-      headers: {
-          Authorization: jwtToken,
-      },
-  }).then(response => {
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-  }).then(data => {
-      return data; // Make sure to return the data so that the promise resolves with it
-  }).catch(error => {
-      console.error('Error fetching data: ', error);
-      throw error; // Rethrow or handle error as appropriate
-  });
 }
 
 export async function graphqlCampaignByName(campaignName) {
@@ -195,8 +134,6 @@ export async function graphqlFilterOnMarketingInitiative(marketingInitiative) {
       throw error; // Rethrow or handle error as appropriate
   });
 }
-
-
 
 async function getGraphqlEndpoint() {
     const result = await getAdminConfig();
