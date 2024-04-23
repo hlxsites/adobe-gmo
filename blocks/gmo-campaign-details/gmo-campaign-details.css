@@ -95,11 +95,11 @@ body {
     justify-content: space-between;
     flex-wrap: wrap;
     align-content: center;
-    width: 250px;
+    width: 160px;
     height: 50px;
     font: normal normal normal 14px/17px Adobe Clean;
     border-bottom: 2px solid #EAEAEA;
-    & > .tab {
+    & > .tabBtn {
         color: #747474;
         height: 100%;
         line-height: 50px;
@@ -109,7 +109,7 @@ body {
         }
     }
 }
-.layout.two-column {
+.tab.two-column {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -300,7 +300,10 @@ body {
 .column1 {
     margin-left: 45px;
 }
-.column1, & .column3, & .column4, & .column5, & .column6 {
+.column1 {
+    width: 140px;
+}
+.column3, & .column4, & .column5, & .column6 {
     width: 110px;
 }
 .column2 {
@@ -310,7 +313,7 @@ body {
     width: 170px;
 }
 .column8 {
-    width: 70px;
+    width: 100px;
 }
 .column9 {
     width: 90px;

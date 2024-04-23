@@ -312,11 +312,61 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetHref': '#',
         'kpi': 'KPI',
         'statusUpdate': '17'
+    },
+    {
+        'category': '',
+        'subcategory': '',
+        'name': 'Empty Cat Empty Sub',
+        'type': 'Animated Display',
+        'channel': 'Display',
+        'reviewLinkName': 'Review Link',
+        'reviewLinkHref': '#',
+        'finalAssetName': 'Final Asset',
+        'finalAssetHref': '#',
+        'kpi': 'KPI',
+        'statusUpdate': '35'
+    },
+    {
+        'category': '',
+        'subcategory': 'Empty Category',
+        'name': 'Empty Category Name',
+        'type': 'Animated Display',
+        'channel': 'Display',
+        'reviewLinkName': 'Review Link',
+        'reviewLinkHref': '#',
+        'finalAssetName': 'Final Asset',
+        'finalAssetHref': '#',
+        'kpi': 'KPI',
+        'statusUpdate': '35'
+    },
+    {
+        'subcategory': 'No Category',
+        'name': 'No Category Name',
+        'type': 'Animated Display',
+        'channel': 'Display',
+        'reviewLinkName': 'Review Link',
+        'reviewLinkHref': '#',
+        'finalAssetName': 'Final Asset',
+        'finalAssetHref': '#',
+        'kpi': 'KPI',
+        'statusUpdate': '35'
+    },
+    {
+        'category': '',
+        'name': 'No Subcategory Name',
+        'type': 'Animated Display',
+        'channel': 'Display',
+        'reviewLinkName': 'Review Link',
+        'reviewLinkHref': '#',
+        'finalAssetName': 'Final Asset',
+        'finalAssetHref': '#',
+        'kpi': 'KPI',
+        'statusUpdate': '35'
     }
 ];
 
 export default async function decorate(block) {
-    const rows = buildRows(testData);
+    const rows = buildTable(testData);
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
@@ -338,14 +388,14 @@ export default async function decorate(block) {
             </div>
         </div>
         <div class="tab-wrapper">
-            <div id="tab1toggle" class="tab active">Overview</div>
-            <div id="tab2toggle" class="tab">Deliverables</div>
-            <div id="tab3toggle" class="tab ">Calendar</div>
+            <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
+            <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
+            <div id="tab3toggle" data-target="tab3" class="tabBtn inactive">Calendar</div>
         </div>
-        <div id="tab1" class="two-column overview inactive">
+        <div id="tab1" class="two-column overview tab">
             <div class="overview-wrapper">
                 <span class="h1 overview-heading">At a Glance</span>
-                <span class="h3">Strategy</span>
+                <span class="h3">Product Value</span>
                 <span class="description">
                     Express mobile public beta is not a major at scale marketing moment (due to the limited nature of beta experience) with key audiences of
                     Existing Express users, investors and media. Marketing approach is signaling to the market our continued momentum with the new mobile
@@ -361,14 +411,14 @@ export default async function decorate(block) {
                         <li>100% by EOL</li>
                     </ul>
                 </div>
-                <div class="use-cases-wrapper">
+                <div class="use-cases-wrapper inactive">
                     <span class="h3">Hero Use Cases</span>
                     <div class="tags-wrapper">
                         <div class="use-case-tag">Text to Image</div>
                         <div class="use-case-tag">Use Case 2</div>
                     </div>
                 </div>
-                <div class="links-wrapper">
+                <div class="links-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
                         <a href="#" class="campaign-link">Creative Architecture</a>
@@ -412,9 +462,9 @@ export default async function decorate(block) {
                 </div>
             </div>
         </div>
-        <div id="tab2" class="deliverables">
+        <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
-                <div class="artifacts-wrapper">
+                <div class="artifacts-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
                         <a href="#" class="campaign-link">Creative Architecture</a>
@@ -429,74 +479,83 @@ export default async function decorate(block) {
             </div>
             <div class="table-wrapper">
                 <div class="table-header">
-                    <div class="header table-column column1">Content Name</div>
-                    <div class="header table-column column2">Content Type</div>
+                    <div class="header table-column column1">Deliverable Name</div>
+                    <div class="header table-column column2">Deliverable Type</div>
                     <div class="header table-column column3">Channel</div>
                     <div class="header table-column column4">Review Link</div>
                     <div class="header table-column column5">Final Asset</div>
                     <div class="header table-column column6">KPI</div>
                     <div class="header table-column column7">Status Update</div>
-                    <div class="header table-column column8">Due Date</div>
+                    <div class="header table-column column8">Completion Date</div>
                     <div class="header table-column column9">Lead / Driver</div>
                 </div>
                 <div class="table-content">
                 </div>
             </div>
         </div>
-        <div id="tab3" class="calendar inactive">
+        <div id="tab3" class="calendar tab inactive">
         </div>
     </div>
     `;
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(rows);
+    block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
+        switchTab(event.target);
+    })
     decorateIcons(block);
 }
-function buildRows(data) {
-    console.log(data);
+
+function switchTab(tab) {
+    if (tab.classList.contains('active') || tab.classList.contains('tab-wrapper')) {
+        return;
+    } 
+    document.querySelector('.tabBtn.active').classList.toggle('active');
+    document.querySelector(`.tab:not(.inactive)`).classList.toggle('inactive');
+    const targetTab = tab.dataset.target;
+    const tabElement = document.getElementById(targetTab);
+    tabElement.classList.toggle('inactive');
+    tab.classList.toggle('active');
+}
+
+function buildTable(data) {
     const rows = document.createElement('div');
     const uniqueCategories = getUniqueValues(data, 'category');
+    let isRowHidden = true;
+    let emptyCategory = false;
     uniqueCategories.forEach((category) => {
         // build header row
-        const headerRow = document.createElement('div');
-        headerRow.classList.add('row', 'collapsible', 'header');
-        headerRow.innerHTML = `
-            <div class="heading-wrapper">
-                <span class="icon icon-next"></span>
-                <span class="icon icon-collapse inactive"></span>
-                <div class="headertext">${category}</div>
-            </div>`;
-        attachListener(headerRow);
-        rows.appendChild(headerRow);
+        let headerRow;
+        if (!((category == undefined) || (category === ''))) {
+            headerRow = buildHeaderRow(category, 'header', false);
+            attachListener(headerRow);
+            rows.appendChild(headerRow);
+        } else {
+            emptyCategory = true;
+            headerRow = rows;
+        }
         const matchingCampaigns = data.filter(campaign => campaign.category === category);
         // create subcategory headings
         const subCats = getUniqueValues(matchingCampaigns, 'subcategory');
         subCats.forEach((subCat) => {
-            const subCatHeader = document.createElement('div');
-            subCatHeader.classList.add('row', 'collapsible', 'header', 'inactive', 'subheader');
-            subCatHeader.innerHTML = `
-            <div class="heading-wrapper subheading">
-                <span class="icon icon-next"></span>
-                <span class="icon icon-collapse inactive"></span>
-                <div class="headertext">${subCat}</div>
-            </div>`;
-            attachListener(subCatHeader);
-            headerRow.appendChild(subCatHeader);
+            let subCatHeader;
+            if (!((subCat == undefined) || (subCat === ''))) {
+                if(emptyCategory) {
+                    subCatHeader = buildHeaderRow(subCat, 'category', false);
+                } else {
+                    subCatHeader = buildHeaderRow(subCat, 'subcategory', true);
+                }
+                attachListener(subCatHeader);
+                headerRow.appendChild(subCatHeader);
+            } else {
+                subCatHeader = rows;
+                isRowHidden = false;
+            }
+
             const matchingSubs = data.filter(campaign => campaign.subcategory === subCat);
             matchingSubs.forEach((campaign) => {
-                const dataRow = document.createElement('div');
-                dataRow.classList.add('row', 'datarow', 'inactive');
-                dataRow.innerHTML = `
-                    <div class='property table-column column1'>${campaign.name}</div>
-                    <div class='property table-column column2'>${campaign.type}</div>
-                    <div class='property table-column column3'>${campaign.channel}</div>
-                    <div class='property table-column column4'>${campaign.reviewLinkName}</div>
-                    <div class='property table-column column5'>${campaign.finalAssetName}</div>
-                    <div class='property table-column column6'>${campaign.kpi}</div>
-                    <div class='property table-column column7'>${campaign.statusUpdate}</div>
-                    <div class='property table-column column8'>${campaign.dueDate}</div>
-                    <div class='property table-column column9'>${campaign.driver}</div>
-                `
-                subCatHeader.appendChild(dataRow);
+                const tableRow = buildTableRow(campaign, isRowHidden);
+                subCatHeader.appendChild(tableRow);
+                isRowHidden = true;
             });
         });
     })
@@ -509,6 +568,50 @@ function getUniqueValues(array, filterValue) {
         uniqueValues.add(obj[filterValue]);
     })
     return Array.from(uniqueValues);
+}
+
+/**
+ * @param {string} category - String value of the category property
+ * @param {string} headerType - Type of header. Either 'category' or 'subcategory'
+ * @param {boolean} isInactive - Determines whether or not the header will be hidden initially
+ */
+function buildHeaderRow(category, headerType, isInactive) {
+    const headerRow = document.createElement('div');
+    headerRow.classList.add('row', 'collapsible', 'header');
+    let divopen;
+    if (headerType === 'subcategory') { 
+        headerRow.classList.add('subheader');
+        divopen = '<div class="heading-wrapper subheading">';
+    } else {
+        divopen = '<div class="heading-wrapper">';
+    }
+    if (isInactive) headerRow.classList.add('inactive');
+    headerRow.innerHTML = `
+        ${divopen}
+            <span class="icon icon-next"></span>
+            <span class="icon icon-collapse inactive"></span>
+            <div class="headertext">${category}</div>
+        </div>`;
+    return headerRow;
+}
+
+function buildTableRow(campaignJson, createHidden) {
+    console.log(campaignJson);
+    const dataRow = document.createElement('div');
+    dataRow.classList.add('row', 'datarow');
+    if (createHidden) dataRow.classList.add('inactive');
+    dataRow.innerHTML = `
+        <div class='property table-column column1'>${campaignJson.name}</div>
+        <div class='property table-column column2'>${campaignJson.type}</div>
+        <div class='property table-column column3'>${campaignJson.channel}</div>
+        <div class='property table-column column4'>${campaignJson.reviewLinkName}</div>
+        <div class='property table-column column5'>${campaignJson.finalAssetName}</div>
+        <div class='property table-column column6'>${campaignJson.kpi}</div>
+        <div class='property table-column column7'>${campaignJson.statusUpdate}</div>
+        <div class='property table-column column8'>${campaignJson.dueDate}</div>
+        <div class='property table-column column9'>${campaignJson.driver}</div>
+    `
+    return dataRow;
 }
 
 function attachListener(htmlElement) {
