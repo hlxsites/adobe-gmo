@@ -4,7 +4,7 @@ import { graphqlAllCampaigns, graphqlCampaignCount } from '../../scripts/graphql
 
 const icon = 'https://delivery-p108396-e1046543.adobeaemcloud.com/adobe/assets/deliver/urn:aaid:aem:acdaa42f-00ae-42f4-97e5-8309c42d9076/marketing-hub-102023-lockup-video.png'
 
-const testConfig = [
+const headerConfig = [
     {
         'name': 'Marketing Moments',
         'attribute': 'campaign',
@@ -59,8 +59,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     }
     currentPageInfo.itemCount = campaigns.length;
 
-    const config = testConfig;
-    const listHeaders = buildListHeaders(config);
+    const listHeaders = buildListHeaders(headerConfig);
     const listItems = buildCampaignList(campaigns, numPerPage);
     const listFooter = buildListFooter(campaignCount, numPerPage);
 
