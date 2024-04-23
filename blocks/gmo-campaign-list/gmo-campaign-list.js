@@ -192,10 +192,6 @@ function buildCampaignList(campaigns, numPerPage) {
     listWrapper.dataset.totalresults = campaigns.length;
 
     campaigns.forEach((campaign, index) => {
-
-    //Todo delete console statement
-    console.log('index ',index);
-
         const campaignRow = document.createElement('div');
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
@@ -405,9 +401,6 @@ function repaginate(dropdown) {
 }
 
 function nextPage(nextBtn) {
-console.log('currentPageInfo');
-console.log(currentPageInfo);
-
     if (currentPageInfo.hasNextPage) {
       //Calculate Next Page
       currentPage++;
@@ -426,9 +419,6 @@ console.log(currentPageInfo);
 }
 
 function prevPage(prevBtn) {
-console.log('currentPageInfo');
-console.log(currentPageInfo);
-
     if (currentPageInfo.hasPreviousPage) {
       currentPage--;
 
