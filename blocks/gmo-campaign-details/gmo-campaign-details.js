@@ -472,7 +472,7 @@ export default async function decorate(block) {
                         <a href="#" class="campaign-link">Marketing Brief</a>
                     </div>
                 </div>
-                <div class="total-assets">
+                <div class="total-assets inactive">
                     <div class="h3">Total Assets</div>
                     <span class="description">7</span>
                 </div>
