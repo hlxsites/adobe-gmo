@@ -136,19 +136,17 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
     const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
+
+    currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
     if (!previousPage && !nextPage)
     {
       cursorArray = campaigns.map(item => item.cursor);
-      currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
     }
     else if (nextPage){
 
       campaigns.forEach(item => {
           cursorArray.push(item.cursor);
       });
-
-      currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
-
     }
     currentPageInfo.itemCount = campaigns.length;
 
@@ -407,6 +405,8 @@ function repaginate(dropdown) {
 }
 
 function nextPage(nextBtn) {
+console.log('currentPageInfo');
+console.log(currentPageInfo);
 
     if (currentPageInfo.hasNextPage) {
       //Calculate Next Page
@@ -426,6 +426,9 @@ function nextPage(nextBtn) {
 }
 
 function prevPage(prevBtn) {
+console.log('currentPageInfo');
+console.log(currentPageInfo);
+
     if (currentPageInfo.hasPreviousPage) {
       currentPage--;
 
