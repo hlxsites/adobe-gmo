@@ -12,7 +12,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '03/07/2024',
+        'driver': 'Linda Tan'
     },
     {
         'category': 'Awareness',
@@ -25,7 +27,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '86'
+        'statusUpdate': '86',
+        'dueDate': '03/07/2024',
+        'driver': 'Linda Tan'
     },
     {
         'category': 'Awareness',
@@ -38,7 +42,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '03/07/2024',
+        'driver': 'Linda Tan'
     },
     {
         'category': 'Awareness',
@@ -51,7 +57,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '17'
+        'statusUpdate': '17',
+        'dueDate': '03/07/2024',
+        'driver': 'Aina Tchoshanova'
     },
     {
         'category': 'Awareness',
@@ -64,7 +72,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '0%'
+        'statusUpdate': '0%',
+        'dueDate': '03/17/2024',
+        'driver': 'Aina Tchoshanova'
     },
     {
         'category': 'Education',
@@ -77,7 +87,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '04/12/2024',
+        'driver': 'Leah Walker'
     },
     {
         'category': 'Education',
@@ -90,7 +102,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '86'
+        'statusUpdate': '86',
+        'dueDate': '04/12/2024',
+        'driver': 'Leah Walker'
     },
     {
         'category': 'Education',
@@ -103,7 +117,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '05/09/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -116,7 +132,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '12'
+        'statusUpdate': '12',
+        'dueDate': '05/09/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -129,7 +147,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '5'
+        'statusUpdate': '5',
+        'dueDate': '05/09/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -142,7 +162,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '77'
+        'statusUpdate': '77',
+        'dueDate': '05/23/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -155,7 +177,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '97%'
+        'statusUpdate': '97%',
+        'dueDate': '06/17/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -168,7 +192,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '100'
+        'statusUpdate': '100',
+        'dueDate': '07/11/2024',
+        'driver': 'Rufus Green'
     },
     {
         'category': 'Conversion',
@@ -181,7 +207,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '26'
+        'statusUpdate': '26',
+        'dueDate': '08/01/2024',
+        'driver': 'Rufus Green'
     },
     {
         'category': 'Conversion',
@@ -194,7 +222,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '67'
+        'statusUpdate': '67',
+        'dueDate': '08/01/2024',
+        'driver': 'Rufus Green'
     },
     {
         'category': 'Conversion',
@@ -207,7 +237,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '89'
+        'statusUpdate': '89',
+        'dueDate': '09/21/2024',
+        'driver': 'Marcus Webber'
     },
     {
         'category': 'Use',
@@ -220,7 +252,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '09/21/2024',
+        'driver': 'Marcus Webber'
     },
     {
         'category': 'Use',
@@ -233,7 +267,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '86'
+        'statusUpdate': '86',
+        'dueDate': '10/09/2024',
+        'driver': 'Marcus Webber'
     },
     {
         'category': 'Use',
@@ -246,7 +282,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -259,7 +297,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '17'
+        'statusUpdate': '17',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -272,7 +312,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -285,7 +327,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '17'
+        'statusUpdate': '17',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -298,7 +342,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -311,7 +357,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '17'
+        'statusUpdate': '17',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': '',
@@ -324,7 +372,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '35'
+        'statusUpdate': '35',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': '',
@@ -337,7 +387,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '35'
+        'statusUpdate': '35',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'subcategory': 'No Category',
@@ -349,7 +401,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '35'
+        'statusUpdate': '85',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': '',
@@ -361,7 +415,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '35'
+        'statusUpdate': '35',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     }
 ];
 
@@ -607,7 +663,18 @@ function buildTableRow(campaignJson, createHidden) {
         <div class='property table-column column4'>${campaignJson.reviewLinkName}</div>
         <div class='property table-column column5'>${campaignJson.finalAssetName}</div>
         <div class='property table-column column6'>${campaignJson.kpi}</div>
-        <div class='property table-column column7'>${campaignJson.statusUpdate}</div>
+        <div class='property table-column column7'>
+            <div class='status-wrapper'>
+                <div class='status-heading'>
+                    <div class='status-label'>Progress</div>
+                    <div class='status-percent'>${campaignJson.statusUpdate}%</div>
+                </div>
+                <div class='status-bar-wrapper'>
+                    <div class='status-bar-underlay'></div>
+                    <div class='status-bar' style='width: ${campaignJson.statusUpdate}%'></div>
+                </div>
+            </div>
+        </div>
         <div class='property table-column column8'>${campaignJson.dueDate}</div>
         <div class='property table-column column9'>${campaignJson.driver}</div>
     `

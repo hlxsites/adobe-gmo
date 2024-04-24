@@ -297,6 +297,43 @@ body {
         border-top: 2px solid #F4F4F4;
     }
 }
+.status-wrapper {
+    height: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    & > .status-heading {
+        display: flex;
+        justify-content: space-between;
+        height: 12px;
+        font: normal normal normal 12px/15px Adobe Clean;
+
+    }
+    & > .status-bar-wrapper {
+        position: relative;
+        & > .status-bar-underlay {
+            background-color: #D3D3D3;
+            width: 100%;
+            margin-top: 15px;
+            height: 6px;
+            margin-bottom: 5px;
+            left: 0;
+            top: 0;
+            position: absolute;
+            border-radius: 3px;
+        }
+        & > .status-bar {
+            margin-top: 15px;
+            height: 6px;
+            background-color: #2680EB;
+            margin-bottom: 5px;
+            z-index: 1;
+            position: relative;
+            border-radius: 3px;
+        }
+    }
+
+}
 .column1 {
     margin-left: 45px;
 }
@@ -316,7 +353,7 @@ body {
     width: 100px;
 }
 .column9 {
-    width: 90px;
+    width: 150px;
 }
 .table-column {
     &:not(:last-child) {
