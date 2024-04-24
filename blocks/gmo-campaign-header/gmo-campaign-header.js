@@ -1,4 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
+import { graphqlStatusList, graphqlProductList } from '../../scripts/graphql.js';
+
 
 export default async function decorate(block) {
     block.innerHTML = `
@@ -8,19 +10,15 @@ export default async function decorate(block) {
             <input id="campaign-search" maxlength="512" type="search" class="campaign-search" placeholder="Search Marketing Moments...">
         </div>
         <div class="filter-wrapper">
-            <div class="label">Categories</div>
-            <div class="filter-dropdown" id="campaign-categories">
+            <div class="label">Business Line</div>
+            <div class="filter-dropdown" id="campaign-business-line">
                 <div class="dropdown-button">
-                    <div class="dropdown-label">All Categories</div>
+                    <div class="dropdown-label">All Business Line</div>
                     <span class="icon icon-chevronDown"></span>
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
-                <div class="dropdown-content" id="dropdownOptions">
-                    <a href="#" id="option1" data-value="option1" data-type="category" class="dropoption">Option 1</a>
-                    <a href="#" id="option2" data-value="option2" data-type="category" class="dropoption">Option 2</a>
-                    <a href="#" id="option3" data-value="option3" data-type="category" class="dropoption">Option 3</a>
-                    <a href="#" id="option4" data-value="option4" data-type="category" class="dropoption">Option 4</a>
-                    <a href="#" id="option5" data-value="option5" data-type="category" class="dropoption">Option 5</a>
+                <div class="dropdown-content" id="dropdownBusinessOptions">
+                    <a href="#" id="option1" data-value="digital-media-dme" data-type="category" class="dropoption">Digital Media (DMe)</a>
                 </div>
             </div>
         </div>
@@ -32,7 +30,7 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronDown"></span>
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
-                <div class="dropdown-content" id="dropdownOptions">
+                <div class="dropdown-content" id="dropdownStatusOptions">
                     <a href="#" id="option1" data-value="option1" data-type="status" class="dropoption">Option 1</a>
                     <a href="#" id="option2" data-value="option2" data-type="status" class="dropoption">Option 2</a>
                     <a href="#" id="option3" data-value="option3" data-type="status" class="dropoption">Option 3</a>
@@ -66,29 +64,12 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronDown"></span>
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
-                <div class="dropdown-content" id="dropdownOptions">
+                <div class="dropdown-content" id="dropdownProductOptions">
                     <a href="#" id="option1" data-value="option1" data-type="product" class="dropoption">Option 1</a>
                     <a href="#" id="option2" data-value="option2" data-type="product" class="dropoption">Option 2</a>
                     <a href="#" id="option3" data-value="option3" data-type="product" class="dropoption">Option 3</a>
                     <a href="#" id="option4" data-value="option4" data-type="product" class="dropoption">Option 4</a>
                     <a href="#" id="option5" data-value="option5" data-type="product" class="dropoption">Option 5</a>
-                </div>
-            </div>
-        </div>
-        <div class="filter-wrapper">
-            <div class="label">Other (TBD)</div>
-            <div class="filter-dropdown" id="campaign-other">
-                <div class="dropdown-button">
-                    <div class="dropdown-label">Other</div>
-                    <span class="icon icon-chevronDown"></span>
-                    <span class="icon icon-chevronUp inactive"></span>
-                </div>
-                <div class="dropdown-content" id="dropdownOptions">
-                    <a href="#" id="option1" data-value="option1" data-type="other" class="dropoption">Option 1</a>
-                    <a href="#" id="option2" data-value="option2" data-type="other" class="dropoption">Option 2</a>
-                    <a href="#" id="option3" data-value="option3" data-type="other" class="dropoption">Option 3</a>
-                    <a href="#" id="option4" data-value="option4" data-type="other" class="dropoption">Option 4</a>
-                    <a href="#" id="option5" data-value="option5" data-type="other" class="dropoption">Option 5</a>
                 </div>
             </div>
         </div>
@@ -100,6 +81,57 @@ export default async function decorate(block) {
     </div>
     <span class="icon icon-close inactive"></span>
     `;
+
+    //Status List
+    const statusResponse = await graphqlStatusList();
+    const statuses = statusResponse.data.campaignList.items;
+    console.log('statuses');
+    console.log(statuses);
+    // Extract unique statuses
+    const uniqueStatuses = Array.from(new Set(statuses.map(item => item.status)));
+    let dropdownContent = document.getElementById('dropdownStatusOptions');
+    // Clear existing options
+    dropdownContent.innerHTML = '';
+    // Append new options
+    uniqueStatuses.forEach((status, index) => {
+        // Create a new anchor element for each status
+        var anchor = document.createElement('a');
+        anchor.href = "#";
+        anchor.id = "option" + (index + 1); // increment index for 1-based id
+        anchor.dataset.value = "option" + (index + 1);
+        anchor.dataset.type = "status";
+        anchor.className = "dropoption";
+        anchor.textContent = status; // using the status as the text
+        // Append to the dropdown
+        dropdownContent.appendChild(anchor);
+    });
+
+    //Product List
+    const productResponse = await graphqlProductList();
+    const products = productResponse.data.campaignList.items;
+
+    // Extract unique statuses
+    const uniqueProducts = Array.from(new Set(products.map(item => item.productOffering)));
+    let dropdownProductContent = document.getElementById('dropdownProductOptions');
+    // Clear existing options
+    dropdownProductContent.innerHTML = '';
+    // Append new options
+    uniqueProducts.forEach((product, index) => {
+        // Create a new anchor element for each status
+        var anchor = document.createElement('a');
+        anchor.href = "#";
+        anchor.id = "option" + (index + 1); // increment index for 1-based id
+        anchor.dataset.value = "option" + (index + 1);
+        anchor.dataset.type = "product";
+        anchor.className = "dropoption";
+        anchor.textContent = product; // using the status as the text
+        // Append to the dropdown
+        dropdownProductContent.appendChild(anchor);
+    });
+
+    //End product dropdown
+
+
     document.querySelectorAll('.dropdown-button').forEach((button) => {
         button.addEventListener('click', (event) => {
             toggleDropdown(event.target);
