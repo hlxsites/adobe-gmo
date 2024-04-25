@@ -36,12 +36,30 @@ const headerConfig = [
 let currentPageInfo = {};
 let cursorArray = [];
 let currentPage = 1;
-let currentNumberPerPage = 4
+let currentNumberPerPage = 4;
 //Get Campaign Count for pagination
-const campaignCount = await graphqlCampaignCount();
+let campaignCount = await graphqlCampaignCount();
+
+document.addEventListener('gmoCampaignListBlock', async function() {
+
+      getFilterValues();
+
+      const block = document.querySelector('.gmo-campaign-list.block');
+      //Todo pass filter to graphqlCampaignCount()
+      //Get Campaign Count for pagination
+      campaignCount = await graphqlCampaignCount();
+      //Trigger loading the gmo-campaign-block
+      //Reset page variables
+      currentPageInfo = {};
+      cursorArray = [];
+      currentPage = 1;
+      currentNumberPerPage = 4;
+      decorate( block, currentNumberPerPage, '', false, false);
+});
+
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false) {
-
+    //Todo pass filter to graphqlAllCampaigns()
     const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
     const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
@@ -92,6 +110,22 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
 
     decorateIcons(block);
 
+}
+
+
+function getFilterValues(){
+  // Select all elements with the class 'selected-filter'
+  const filters = document.querySelectorAll('.selected-filter');
+  // Create an array to hold the data-type and data-value attributes
+  const filterAttributes = [];
+  // Loop through each filter element and extract both 'data-type' and 'data-value' attributes
+  filters.forEach(filter => {
+      const dataType = filter.getAttribute('data-type');
+      const dataValue = filter.getAttribute('data-value');
+      filterAttributes.push({ type: dataType, value: dataValue });
+  });
+  // Log the filter attributes to the console or use them as needed
+  console.log(filterAttributes);
 }
 
 function buildCampaignList(campaigns, numPerPage) {

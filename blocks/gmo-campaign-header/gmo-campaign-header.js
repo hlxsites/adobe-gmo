@@ -39,23 +39,7 @@ export default async function decorate(block) {
                 </div>
             </div>
         </div>
-        <div class="filter-wrapper">
-            <div class="label">Cloud Business</div>
-            <div class="filter-dropdown" id="campaign-business">
-                <div class="dropdown-button">
-                    <div class="dropdown-label">All Cloud Businesses</div>
-                    <span class="icon icon-chevronDown"></span>
-                    <span class="icon icon-chevronUp inactive"></span>
-                </div>
-                <div class="dropdown-content" id="dropdownOptions">
-                    <a href="#" id="option1" data-value="option1" data-type="business" class="dropoption">Option 1</a>
-                    <a href="#" id="option2" data-value="option2" data-type="business" class="dropoption">Option 2</a>
-                    <a href="#" id="option3" data-value="option3" data-type="business" class="dropoption">Option 3</a>
-                    <a href="#" id="option4" data-value="option4" data-type="business" class="dropoption">Option 4</a>
-                    <a href="#" id="option5" data-value="option5" data-type="business" class="dropoption">Option 5</a>
-                </div>
-            </div>
-        </div>
+
         <div class="filter-wrapper">
             <div class="label">Products</div>
             <div class="filter-dropdown" id="campaign-products">
@@ -98,7 +82,8 @@ export default async function decorate(block) {
         var anchor = document.createElement('a');
         anchor.href = "#";
         anchor.id = "option" + (index + 1); // increment index for 1-based id
-        anchor.dataset.value = "option" + (index + 1);
+        //anchor.dataset.value = "option" + (index + 1);
+        anchor.dataset.value = status;
         anchor.dataset.type = "status";
         anchor.className = "dropoption";
         anchor.textContent = status; // using the status as the text
@@ -121,7 +106,8 @@ export default async function decorate(block) {
         var anchor = document.createElement('a');
         anchor.href = "#";
         anchor.id = "option" + (index + 1); // increment index for 1-based id
-        anchor.dataset.value = "option" + (index + 1);
+        //anchor.dataset.value = "option" + (index + 1);
+        anchor.dataset.value = product;
         anchor.dataset.type = "product";
         anchor.className = "dropoption";
         anchor.textContent = product; // using the status as the text
@@ -192,6 +178,9 @@ function handleSelectedFilter(option) {
     } else {
         filterTagRoot.removeChild(document.querySelector(`.selected-filter[data-value='${filterValue}'][data-type='${filterType}']`));
     }
+
+    //Trigger the gmo-campaign-list block from the gmo-campaign-header
+    sendGmoCampaignListBlockEvent();
 }
 
 function resetAllFilters() {
@@ -212,4 +201,9 @@ function checkResetBtn() {
     } else {
         resetFiltersBtn.classList.add('inactive');
     }
+}
+
+function sendGmoCampaignListBlockEvent() {
+    const blockEvent = new CustomEvent('gmoCampaignListBlock');
+    document.dispatchEvent(blockEvent);
 }
