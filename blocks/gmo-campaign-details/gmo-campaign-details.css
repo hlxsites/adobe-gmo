@@ -282,7 +282,7 @@ body {
         & .property {
             line-height: 88px;
         }
-        &:first-child {
+        &:first-child, &:nth-child(2) {
             border-top: 2px solid #F4F4F4;
         }
     }
