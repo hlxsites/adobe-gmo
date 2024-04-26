@@ -12,7 +12,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '03/07/2024',
+        'driver': 'Linda Tan'
     },
     {
         'category': 'Awareness',
@@ -25,7 +27,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '86'
+        'statusUpdate': '86',
+        'dueDate': '03/07/2024',
+        'driver': 'Linda Tan'
     },
     {
         'category': 'Awareness',
@@ -38,7 +42,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '03/07/2024',
+        'driver': 'Linda Tan'
     },
     {
         'category': 'Awareness',
@@ -51,7 +57,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '17'
+        'statusUpdate': '17',
+        'dueDate': '03/07/2024',
+        'driver': 'Aina Tchoshanova'
     },
     {
         'category': 'Awareness',
@@ -64,7 +72,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '0%'
+        'statusUpdate': '0%',
+        'dueDate': '03/17/2024',
+        'driver': 'Aina Tchoshanova'
     },
     {
         'category': 'Education',
@@ -77,7 +87,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '04/12/2024',
+        'driver': 'Leah Walker'
     },
     {
         'category': 'Education',
@@ -90,7 +102,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '86'
+        'statusUpdate': '86',
+        'dueDate': '04/12/2024',
+        'driver': 'Leah Walker'
     },
     {
         'category': 'Education',
@@ -103,7 +117,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '05/09/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -116,7 +132,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '12'
+        'statusUpdate': '12',
+        'dueDate': '05/09/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -129,7 +147,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '5'
+        'statusUpdate': '5',
+        'dueDate': '05/09/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -142,7 +162,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '77'
+        'statusUpdate': '77',
+        'dueDate': '05/23/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -155,7 +177,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '97%'
+        'statusUpdate': '97%',
+        'dueDate': '06/17/2024',
+        'driver': 'Benjamin Lee'
     },
     {
         'category': 'Conversion',
@@ -168,7 +192,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '100'
+        'statusUpdate': '100',
+        'dueDate': '07/11/2024',
+        'driver': 'Rufus Green'
     },
     {
         'category': 'Conversion',
@@ -181,7 +207,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '26'
+        'statusUpdate': '26',
+        'dueDate': '08/01/2024',
+        'driver': 'Rufus Green'
     },
     {
         'category': 'Conversion',
@@ -194,7 +222,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '67'
+        'statusUpdate': '67',
+        'dueDate': '08/01/2024',
+        'driver': 'Rufus Green'
     },
     {
         'category': 'Conversion',
@@ -207,7 +237,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '89'
+        'statusUpdate': '89',
+        'dueDate': '09/21/2024',
+        'driver': 'Marcus Webber'
     },
     {
         'category': 'Use',
@@ -220,7 +252,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '09/21/2024',
+        'driver': 'Marcus Webber'
     },
     {
         'category': 'Use',
@@ -233,7 +267,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '86'
+        'statusUpdate': '86',
+        'dueDate': '10/09/2024',
+        'driver': 'Marcus Webber'
     },
     {
         'category': 'Use',
@@ -246,7 +282,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -259,7 +297,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '17'
+        'statusUpdate': '17',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -272,7 +312,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -285,7 +327,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '17'
+        'statusUpdate': '17',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -298,7 +342,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '57'
+        'statusUpdate': '57',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': 'Use',
@@ -311,7 +357,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '17'
+        'statusUpdate': '17',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': '',
@@ -324,7 +372,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '35'
+        'statusUpdate': '35',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': '',
@@ -337,7 +387,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '35'
+        'statusUpdate': '35',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'subcategory': 'No Category',
@@ -349,7 +401,9 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '35'
+        'statusUpdate': '85',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     },
     {
         'category': '',
@@ -361,12 +415,15 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
         'finalAssetName': 'Final Asset',
         'finalAssetHref': '#',
         'kpi': 'KPI',
-        'statusUpdate': '35'
+        'statusUpdate': '35',
+        'dueDate': '11/29/2024',
+        'driver': 'Sean Smith'
     }
 ];
 
 export default async function decorate(block) {
-    const rows = buildTable(testData);
+    //const rows = buildTable(testData);
+    const rows = buildTableNoGroups(testData);
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
@@ -418,6 +475,20 @@ export default async function decorate(block) {
                         <div class="use-case-tag">Use Case 2</div>
                     </div>
                 </div>
+                <div class="main-message-wrapper inactive">
+                    <span class="h3">Main Message</span>
+                    <span class="description">
+                        A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.
+                    </span>
+                </div>
+                <div class="channel-scope-wrapper inactive">
+                    <span class="h3">Key Channel Scope</span>
+                    <div class="tags-wrapper">
+                        <div class="scope-tag">A.com</div>
+                        <div class="scope-tag">Email</div>
+                        <div class="scope-tag">PR</div>
+                    </div>
+                </div>
                 <div class="links-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -431,7 +502,7 @@ export default async function decorate(block) {
                 </div>
             </div>
             <div class="infocards-wrapper">
-                <div class="card milestones">
+                <div class="card milestones inactive">
                     <div class="card-heading h3">Milestones</div>
                     <div class="milestone">
                         <span class="icon icon-trophy"></span>
@@ -453,11 +524,35 @@ export default async function decorate(block) {
                         Adobe Express Mobile App
                     </div>
                 </div>
+                <div class="card scope inactive">
+                    <div class="card-heading h3">Feature Scope</div>
+                    <ul>
+                        <li>Text to image</li>
+                        <li>Generative fill</li>
+                        <li>Text effects</li>
+                    </ul>
+                </div>
                 <div class="card audiences">
                     <div class="card-heading h3">Audiences</div>
                     <div class="audience card-content">
                         <span class="icon icon-gear"></span>
                         Existing Express Users
+                    </div>
+                    <div class="audience card-content">
+                        <span class="icon icon-gear"></span>
+                        Prospects with priority on communicators
+                    </div>
+                    <div class="audience card-content">
+                        <span class="icon icon-gear"></span>
+                        CC entitled members who have not used Express
+                    </div>
+                    <div class="audience card-content">
+                        <span class="icon icon-gear"></span>
+                        CC free unentitled members on mobile (PsX, LR)
+                    </div>
+                    <div class="audience card-content">
+                        <span class="icon icon-gear"></span>
+                        K12
                     </div>
                 </div>
             </div>
@@ -487,7 +582,7 @@ export default async function decorate(block) {
                     <div class="header table-column column6">KPI</div>
                     <div class="header table-column column7">Status Update</div>
                     <div class="header table-column column8">Completion Date</div>
-                    <div class="header table-column column9">Lead / Driver</div>
+                    <div class="header table-column column9">Project Owner</div>
                 </div>
                 <div class="table-content">
                 </div>
@@ -562,6 +657,15 @@ function buildTable(data) {
     return rows;
 }
 
+function buildTableNoGroups(data) {
+    const rows = document.createElement('div');
+    data.forEach((campaign) => {
+        const tableRow = buildTableRow(campaign, false);
+        rows.appendChild(tableRow);
+    })
+    return rows;
+}
+
 function getUniqueValues(array, filterValue) {
     const uniqueValues = new Set();
     array.forEach(obj => {
@@ -596,7 +700,7 @@ function buildHeaderRow(category, headerType, isInactive) {
 }
 
 function buildTableRow(campaignJson, createHidden) {
-    console.log(campaignJson);
+    //console.log(campaignJson);
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
@@ -604,10 +708,25 @@ function buildTableRow(campaignJson, createHidden) {
         <div class='property table-column column1'>${campaignJson.name}</div>
         <div class='property table-column column2'>${campaignJson.type}</div>
         <div class='property table-column column3'>${campaignJson.channel}</div>
-        <div class='property table-column column4'>${campaignJson.reviewLinkName}</div>
-        <div class='property table-column column5'>${campaignJson.finalAssetName}</div>
+        <div class='property table-column column4'>
+            <a href="${campaignJson.reviewLinkHref}" class="campaign-link">Review Link</a>
+        </div>
+        <div class='property table-column column5'>
+            <a href="${campaignJson.finalAssetHref}" class="campaign-link">Final Asset</a>
+        </div>
         <div class='property table-column column6'>${campaignJson.kpi}</div>
-        <div class='property table-column column7'>${campaignJson.statusUpdate}</div>
+        <div class='property table-column column7 justify-center'>
+            <div class='status-wrapper'>
+                <div class='status-heading'>
+                    <div class='status-label'>Progress</div>
+                    <div class='status-percent'>${campaignJson.statusUpdate}%</div>
+                </div>
+                <div class='status-bar-wrapper'>
+                    <div class='status-bar-underlay'></div>
+                    <div class='status-bar' style='width: ${campaignJson.statusUpdate}%'></div>
+                </div>
+            </div>
+        </div>
         <div class='property table-column column8'>${campaignJson.dueDate}</div>
         <div class='property table-column column9'>${campaignJson.driver}</div>
     `
