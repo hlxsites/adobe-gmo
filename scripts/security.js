@@ -105,11 +105,15 @@ export async function checkUserAccess() {
     if (isPublicPage()) {
       return true;
     }
-
       const isIMSUser = await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
       if (isIMSUser) {
         //Check if current page is present in the array of pages returned by function getQuickLinkConfig()
-        const presentInQuickLinks = (await getQuickLinkConfig()).some((grp) => grp.page === (window.location.pathname.replace(getBaseConfigPath((window.location.pathname)),'')));
+        //Split the URL into parts
+        const currentUrlParts=window.location.pathname.replace(getBaseConfigPath((window.location.pathname)),'').split('/');
+        //Current url beginning with /
+        const currentURL = '/'+currentUrlParts[1];
+        const presentInQuickLinks = (await getQuickLinkConfig()).some((grp) => grp.page === (currentURL));
+
         return presentInQuickLinks;
       }
       else
