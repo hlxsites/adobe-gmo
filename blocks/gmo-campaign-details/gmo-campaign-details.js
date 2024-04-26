@@ -474,6 +474,20 @@ export default async function decorate(block) {
                         <div class="use-case-tag">Use Case 2</div>
                     </div>
                 </div>
+                <div class="main-message-wrapper">
+                    <span class="h3">Main Message</span>
+                    <span class="description">
+                        A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.
+                    </span>
+                </div>
+                <div class="channel-scope-wrapper">
+                    <span class="h3">Key Channel Scope</span>
+                    <div class="tags-wrapper">
+                        <div class="scope-tag">A.com</div>
+                        <div class="scope-tag">Email</div>
+                        <div class="scope-tag">PR</div>
+                    </div>
+                </div>
                 <div class="links-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -487,7 +501,7 @@ export default async function decorate(block) {
                 </div>
             </div>
             <div class="infocards-wrapper">
-                <div class="card milestones">
+                <div class="card milestones inactive">
                     <div class="card-heading h3">Milestones</div>
                     <div class="milestone">
                         <span class="icon icon-trophy"></span>
@@ -509,11 +523,35 @@ export default async function decorate(block) {
                         Adobe Express Mobile App
                     </div>
                 </div>
+                <div class="card scope">
+                    <div class="card-heading h3">Feature Scope</div>
+                    <ul>
+                        <li>Text to image</li>
+                        <li>Generative fill</li>
+                        <li>Text effects</li>
+                    </ul>
+                </div>
                 <div class="card audiences">
                     <div class="card-heading h3">Audiences</div>
                     <div class="audience card-content">
                         <span class="icon icon-gear"></span>
                         Existing Express Users
+                    </div>
+                    <div class="audience card-content">
+                        <span class="icon icon-gear"></span>
+                        Prospects with priority on communicators
+                    </div>
+                    <div class="audience card-content">
+                        <span class="icon icon-gear"></span>
+                        CC entitled members who have not used Express
+                    </div>
+                    <div class="audience card-content">
+                        <span class="icon icon-gear"></span>
+                        CC free unentitled members on mobile (PsX, LR)
+                    </div>
+                    <div class="audience card-content">
+                        <span class="icon icon-gear"></span>
+                        K12
                     </div>
                 </div>
             </div>
@@ -543,7 +581,7 @@ export default async function decorate(block) {
                     <div class="header table-column column6">KPI</div>
                     <div class="header table-column column7">Status Update</div>
                     <div class="header table-column column8">Completion Date</div>
-                    <div class="header table-column column9">Lead / Driver</div>
+                    <div class="header table-column column9">Project Owner</div>
                 </div>
                 <div class="table-content">
                 </div>
@@ -660,10 +698,14 @@ function buildTableRow(campaignJson, createHidden) {
         <div class='property table-column column1'>${campaignJson.name}</div>
         <div class='property table-column column2'>${campaignJson.type}</div>
         <div class='property table-column column3'>${campaignJson.channel}</div>
-        <div class='property table-column column4'>${campaignJson.reviewLinkName}</div>
-        <div class='property table-column column5'>${campaignJson.finalAssetName}</div>
+        <div class='property table-column column4'>
+            <a href="${campaignJson.reviewLinkHref}" class="campaign-link">${campaignJson.reviewLinkName}</a>
+        </div>
+        <div class='property table-column column5'>
+            <a href="${campaignJson.finalAssetHref}" class="campaign-link">${campaignJson.finalAssetName}</a>
+        </div>
         <div class='property table-column column6'>${campaignJson.kpi}</div>
-        <div class='property table-column column7'>
+        <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
                 <div class='status-heading'>
                     <div class='status-label'>Progress</div>
