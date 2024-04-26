@@ -422,7 +422,8 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 ];
 
 export default async function decorate(block) {
-    const rows = buildTable(testData);
+    //const rows = buildTable(testData);
+    const rows = buildTableNoGroups(testData);
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
@@ -474,13 +475,13 @@ export default async function decorate(block) {
                         <div class="use-case-tag">Use Case 2</div>
                     </div>
                 </div>
-                <div class="main-message-wrapper">
+                <div class="main-message-wrapper inactive">
                     <span class="h3">Main Message</span>
                     <span class="description">
                         A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.
                     </span>
                 </div>
-                <div class="channel-scope-wrapper">
+                <div class="channel-scope-wrapper inactive">
                     <span class="h3">Key Channel Scope</span>
                     <div class="tags-wrapper">
                         <div class="scope-tag">A.com</div>
@@ -523,7 +524,7 @@ export default async function decorate(block) {
                         Adobe Express Mobile App
                     </div>
                 </div>
-                <div class="card scope">
+                <div class="card scope inactive">
                     <div class="card-heading h3">Feature Scope</div>
                     <ul>
                         <li>Text to image</li>
@@ -656,6 +657,15 @@ function buildTable(data) {
     return rows;
 }
 
+function buildTableNoGroups(data) {
+    const rows = document.createElement('div');
+    data.forEach((campaign) => {
+        const tableRow = buildTableRow(campaign, false);
+        rows.appendChild(tableRow);
+    })
+    return rows;
+}
+
 function getUniqueValues(array, filterValue) {
     const uniqueValues = new Set();
     array.forEach(obj => {
@@ -690,7 +700,7 @@ function buildHeaderRow(category, headerType, isInactive) {
 }
 
 function buildTableRow(campaignJson, createHidden) {
-    console.log(campaignJson);
+    //console.log(campaignJson);
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
@@ -699,10 +709,10 @@ function buildTableRow(campaignJson, createHidden) {
         <div class='property table-column column2'>${campaignJson.type}</div>
         <div class='property table-column column3'>${campaignJson.channel}</div>
         <div class='property table-column column4'>
-            <a href="${campaignJson.reviewLinkHref}" class="campaign-link">${campaignJson.reviewLinkName}</a>
+            <a href="${campaignJson.reviewLinkHref}" class="campaign-link">Review Link</a>
         </div>
         <div class='property table-column column5'>
-            <a href="${campaignJson.finalAssetHref}" class="campaign-link">${campaignJson.finalAssetName}</a>
+            <a href="${campaignJson.finalAssetHref}" class="campaign-link">Final Asset</a>
         </div>
         <div class='property table-column column6'>${campaignJson.kpi}</div>
         <div class='property table-column column7 justify-center'>
