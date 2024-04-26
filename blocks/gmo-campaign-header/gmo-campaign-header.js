@@ -66,11 +66,23 @@ export default async function decorate(block) {
     <span class="icon icon-close inactive"></span>
     `;
 
+
+    // Get the input element by its ID
+    var searchInput = document.getElementById('campaign-search');
+
+    // Add an event listener for 'input' event
+    searchInput.addEventListener('input', function() {
+        // Check if the input length is 3 or more characters
+        if (searchInput.value.length >= 3) {
+            //Trigger the gmo-campaign-list block from the gmo-campaign-header
+            sendGmoCampaignListBlockEvent();
+        }
+    });
+
     //Status List
     const statusResponse = await graphqlStatusList();
     const statuses = statusResponse.data.campaignList.items;
-    console.log('statuses');
-    console.log(statuses);
+
     // Extract unique statuses
     const uniqueStatuses = Array.from(new Set(statuses.map(item => item.status)));
     let dropdownContent = document.getElementById('dropdownStatusOptions');

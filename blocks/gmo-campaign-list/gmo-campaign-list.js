@@ -1,6 +1,6 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlAllCampaigns, graphqlCampaignCount } from '../../scripts/graphql.js';
+import { graphqlAllCampaignsFilter, graphqlAllCampaigns, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
 
 const icon = 'https://delivery-p108396-e1046543.adobeaemcloud.com/adobe/assets/deliver/urn:aaid:aem:acdaa42f-00ae-42f4-97e5-8309c42d9076/marketing-hub-102023-lockup-video.png'
 
@@ -41,26 +41,44 @@ let currentNumberPerPage = 4;
 let campaignCount = await graphqlCampaignCount();
 
 document.addEventListener('gmoCampaignListBlock', async function() {
+    const graphQLFilters = getFilterValues();
 
-      getFilterValues();
+    //Todo Add campaignName to Search for now just get what the user has typed
+    //Todo When the Campaign Name Type Ahead is completed and the user has seleted the value from the dropdown
+    //Todo replace the campaignName operator to '=' instead of CONTAINS
+    const searchInputValue = document.getElementById('campaign-search').value;
+    if (searchInputValue!=='')
+    {
+      graphQLFilters.push({type:'campaignName', value:searchInputValue, operator : 'CONTAINS'})
+    }
 
-      const block = document.querySelector('.gmo-campaign-list.block');
-      //Todo pass filter to graphqlCampaignCount()
-      //Get Campaign Count for pagination
-      campaignCount = await graphqlCampaignCount();
-      //Trigger loading the gmo-campaign-block
-      //Reset page variables
-      currentPageInfo = {};
-      cursorArray = [];
-      currentPage = 1;
-      currentNumberPerPage = 4;
-      decorate( block, currentNumberPerPage, '', false, false);
+    const block = document.querySelector('.gmo-campaign-list.block');
+    //Todo pass filter to graphqlCampaignCount()
+    //Get Campaign Count for pagination
+    campaignCount = await graphqlCampaignCount();
+    //Trigger loading the gmo-campaign-block
+    //Reset page variables
+    currentPageInfo = {};
+    cursorArray = [];
+    currentPage = 1;
+    currentNumberPerPage = 4;
+    decorate( block, currentNumberPerPage, '', false, false, generateFilterJSON(graphQLFilters));
 });
 
 
-export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false) {
-    //Todo pass filter to graphqlAllCampaigns()
-    const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
+export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
+
+    console.log('graphQLFilter');
+    console.log(graphQLFilter);
+
+    const testdata=await graphqlAllCampaignsFilter(4,'',graphQLFilter);
+    console.log('start testdata');
+    console.log(testdata);
+    console.log('end testdata');
+
+    //Todo At the end of coding rename graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter) to graphqlAllCampaigns(numPerPage, cursor,graphQLFilter)
+    //const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
+    const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
 
@@ -122,10 +140,12 @@ function getFilterValues(){
   filters.forEach(filter => {
       const dataType = filter.getAttribute('data-type');
       const dataValue = filter.getAttribute('data-value');
-      filterAttributes.push({ type: dataType, value: dataValue });
+      filterAttributes.push({ type: dataType, value: dataValue, operator : "=" });
   });
   // Log the filter attributes to the console or use them as needed
   console.log(filterAttributes);
+
+  return filterAttributes;
 }
 
 function buildCampaignList(campaigns, numPerPage) {
