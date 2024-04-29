@@ -8,6 +8,8 @@ export default async function decorate(block) {
         <div class="search-wrapper">
             <span class="icon icon-search"></span>
             <input id="campaign-search" maxlength="512" type="search" class="campaign-search" placeholder="Search Marketing Moments...">
+            <!-- autocomplete feature-->
+            <div id="autocomplete-list" class="autocomplete-items"></div>
         </div>
         <div class="filter-wrapper">
             <div class="label">Business Line</div>
@@ -70,7 +72,44 @@ export default async function decorate(block) {
     // Get the input element by its ID
     var searchInput = document.getElementById('campaign-search');
 
+    // autocomplete feature
+    const autocompleteList = document.getElementById('autocomplete-list');
+
+    // Sample data - replace with actual data fetching logic
+    const searchItems = ["Marketing Plan 2021", "Sales Report Q1", "Email Campaigns", "Social Media Outreach"];
+
+    searchInput.addEventListener('input', function() {
+        const value = this.value;
+        autocomplete(value, searchItems);
+    });
+
+    function autocomplete(value, items) {
+        clearAutocomplete();
+        if (!value) return;
+        const filteredItems = items.filter(item => item.toLowerCase().includes(value.toLowerCase()));
+        filteredItems.forEach(item => {
+            const entry = document.createElement('div');
+            entry.innerHTML = item;
+            entry.addEventListener('click', function() {
+                searchInput.value = this.innerText;
+                clearAutocomplete();
+            });
+            autocompleteList.appendChild(entry);
+        });
+    }
+
+    function clearAutocomplete() {
+        while (autocompleteList.firstChild) {
+            autocompleteList.removeChild(autocompleteList.firstChild);
+        }
+    }
+
+    // autocomplete feature end
+
+
     // Add an event listener for 'input' event
+
+    /* Previous without autocomplete
     searchInput.addEventListener('input', function() {
         // Check if the input length is 3 or more characters
         if (searchInput.value.length >= 3) {
@@ -78,6 +117,7 @@ export default async function decorate(block) {
             sendGmoCampaignListBlockEvent();
         }
     });
+    */
 
     //Status List
     const statusResponse = await graphqlStatusList();
