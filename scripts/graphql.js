@@ -177,13 +177,11 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
 
 }
 
-
-
 export async function graphqlCampaignByName(campaignName) {
 
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
-  const queryName = 'campaign-name-in-param';
+  const queryName = 'getCampaignNames';
   const encodedCampaignName = encodeURIComponent(campaignName);
   const encodedSemiColon = encodeURIComponent(';');
   //persisted query URLs have to be encoded together with the first semicolon

@@ -1,6 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlStatusList, graphqlProductList } from '../../scripts/graphql.js';
-
+import { graphqlStatusList, graphqlProductList, graphqlCampaignByName } from '../../scripts/graphql.js';
 
 export default async function decorate(block) {
     block.innerHTML = `
@@ -51,11 +50,11 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownProductOptions">
-                    <a href="#" id="option1" data-value="option1" data-type="product" class="dropoption">Option 1</a>
-                    <a href="#" id="option2" data-value="option2" data-type="product" class="dropoption">Option 2</a>
-                    <a href="#" id="option3" data-value="option3" data-type="product" class="dropoption">Option 3</a>
-                    <a href="#" id="option4" data-value="option4" data-type="product" class="dropoption">Option 4</a>
-                    <a href="#" id="option5" data-value="option5" data-type="product" class="dropoption">Option 5</a>
+                    <a href="#" id="option1" data-value="option1" data-type="productOffering" class="dropoption">Option 1</a>
+                    <a href="#" id="option2" data-value="option2" data-type="productOffering" class="dropoption">Option 2</a>
+                    <a href="#" id="option3" data-value="option3" data-type="productOffering" class="dropoption">Option 3</a>
+                    <a href="#" id="option4" data-value="option4" data-type="productOffering" class="dropoption">Option 4</a>
+                    <a href="#" id="option5" data-value="option5" data-type="productOffering" class="dropoption">Option 5</a>
                 </div>
             </div>
         </div>
@@ -69,18 +68,27 @@ export default async function decorate(block) {
     `;
 
 
-    // Get the input element by its ID
-    var searchInput = document.getElementById('campaign-search');
+
+
 
     // autocomplete feature
     const autocompleteList = document.getElementById('autocomplete-list');
-
-    // Sample data - replace with actual data fetching logic
-    const searchItems = ["Marketing Plan 2021", "Sales Report Q1", "Email Campaigns", "Social Media Outreach"];
-
-    searchInput.addEventListener('input', function() {
+    // Get the input element by its ID
+    const searchInput = document.getElementById('campaign-search');
+    searchInput.addEventListener('input', async function() {
         const value = this.value;
-        autocomplete(value, searchItems);
+        if (value)
+        {
+          const graphqlData = await graphqlCampaignByName(value);
+          //Get unique values
+          const searchItems = Array.from(new Set(graphqlData.data.campaignList.items.map(item => item.campaignName)));
+          autocomplete(value, searchItems);
+        }
+        else
+        {
+          //The value has been cleard so trigger the gmo-campaign-list block from the gmo-campaign-header
+          sendGmoCampaignListBlockEvent();
+        }
     });
 
     function autocomplete(value, items) {
@@ -104,20 +112,17 @@ export default async function decorate(block) {
         }
     }
 
-    // autocomplete feature end
-
-
-    // Add an event listener for 'input' event
-
-    /* Previous without autocomplete
-    searchInput.addEventListener('input', function() {
-        // Check if the input length is 3 or more characters
-        if (searchInput.value.length >= 3) {
-            //Trigger the gmo-campaign-list block from the gmo-campaign-header
-            sendGmoCampaignListBlockEvent();
-        }
+    // Listen for click events on the autocomplete list
+    autocompleteList.addEventListener('click', function(event) {
+        //Trigger the gmo-campaign-list block from the gmo-campaign-header
+        sendGmoCampaignListBlockEvent();
     });
-    */
+
+    // Listen for change events on the autocomplete list
+    autocompleteList.addEventListener('change', function(event) {
+        //Trigger the gmo-campaign-list block from the gmo-campaign-header
+        sendGmoCampaignListBlockEvent();
+    });
 
     //Status List
     const statusResponse = await graphqlStatusList();
@@ -160,7 +165,7 @@ export default async function decorate(block) {
         anchor.id = "option" + (index + 1); // increment index for 1-based id
         //anchor.dataset.value = "option" + (index + 1);
         anchor.dataset.value = product;
-        anchor.dataset.type = "product";
+        anchor.dataset.type = "productOffering";//field in graphQL
         anchor.className = "dropoption";
         anchor.textContent = product; // using the status as the text
         // Append to the dropdown

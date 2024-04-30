@@ -42,14 +42,10 @@ let campaignCount = await graphqlCampaignCount();
 
 document.addEventListener('gmoCampaignListBlock', async function() {
     const graphQLFilters = getFilterValues();
-
-    //Todo Add campaignName to Search for now just get what the user has typed
-    //Todo When the Campaign Name Type Ahead is completed and the user has seleted the value from the dropdown
-    //Todo replace the campaignName operator to '=' instead of CONTAINS
     const searchInputValue = document.getElementById('campaign-search').value;
     if (searchInputValue!=='')
     {
-      graphQLFilters.push({type:'campaignName', value:searchInputValue, operator : 'CONTAINS'})
+      graphQLFilters.push({type:'campaignName', value:searchInputValue, operator:'='})
     }
 
     const block = document.querySelector('.gmo-campaign-list.block');
@@ -68,16 +64,6 @@ document.addEventListener('gmoCampaignListBlock', async function() {
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
 
-    console.log('graphQLFilter');
-    console.log(graphQLFilter);
-
-    const testdata=await graphqlAllCampaignsFilter(4,'',graphQLFilter);
-    console.log('start testdata');
-    console.log(testdata);
-    console.log('end testdata');
-
-    //Todo At the end of coding rename graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter) to graphqlAllCampaigns(numPerPage, cursor,graphQLFilter)
-    //const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
@@ -125,9 +111,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     {
       footerNext.classList.remove('active');
     }
-
     decorateIcons(block);
-
 }
 
 
@@ -143,6 +127,7 @@ function getFilterValues(){
       filterAttributes.push({ type: dataType, value: dataValue, operator : "=" });
   });
   // Log the filter attributes to the console or use them as needed
+  console.log('filterAttributes');
   console.log(filterAttributes);
 
   return filterAttributes;
