@@ -40,25 +40,26 @@ let currentNumberPerPage = 4;
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 
+//Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-campaign-list to update
 document.addEventListener('gmoCampaignListBlock', async function() {
-    const graphQLFilters = getFilterValues();
+    //Build graphq filter that is passed to the graphql persisted queries
+    const graphQLFilterArray = getFilterValues();
     const searchInputValue = document.getElementById('campaign-search').value;
     if (searchInputValue!=='')
     {
-      graphQLFilters.push({type:'campaignName', value:searchInputValue, operator:'='})
+      graphQLFilterArray.push({type:'campaignName', value:searchInputValue, operator:'='})
     }
-
+    const graphqlFilter = generateFilterJSON(graphQLFilterArray);
     const block = document.querySelector('.gmo-campaign-list.block');
-    //Todo pass filter to graphqlCampaignCount()
     //Get Campaign Count for pagination
-    campaignCount = await graphqlCampaignCount();
+    campaignCount = await graphqlCampaignCount(graphqlFilter);
     //Trigger loading the gmo-campaign-block
     //Reset page variables
     currentPageInfo = {};
     cursorArray = [];
     currentPage = 1;
     currentNumberPerPage = 4;
-    decorate( block, currentNumberPerPage, '', false, false, generateFilterJSON(graphQLFilters));
+    decorate( block, currentNumberPerPage, '', false, false, graphqlFilter);
 });
 
 

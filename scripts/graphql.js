@@ -58,11 +58,13 @@ export async function graphqlStatusList() {
 }
 
 
-export async function graphqlCampaignCount() {
+export async function graphqlCampaignCount(filter = {}) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
-  const queryName = 'campaign-names';
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}`;
+  const queryName = 'getCampaignNameFilter';
+  const encodedSemiColon = encodeURIComponent(';');
+  const encodedFilter = encodeURIComponent(JSON.stringify(filter));
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}filter=${encodedFilter}`;
   const jwtToken = await getBearerToken();
 
   try {
@@ -141,12 +143,8 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
   const encodedFirst = encodeURIComponent(first);
   const encodedSemiColon = encodeURIComponent(';');
   const encodedCursor = encodeURIComponent(cursor);
-  //const encodedFilter = encodeURIComponent(JSON.stringify(filter));
   const encodedFilter = encodeURIComponent(JSON.stringify(filter));
-
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}first=${encodedFirst}${encodedSemiColon}cursor=${encodedCursor}${encodedSemiColon}filter=${encodedFilter}`;
-  console.log('graphqlEndpoint');
-  console.log(graphqlEndpoint);
   const jwtToken = await getBearerToken();
 
   try {

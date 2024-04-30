@@ -248,6 +248,8 @@ function resetAllFilters() {
     const filterTagRoot = document.querySelector('.selected-filters-list');
     filterTagRoot.replaceChildren();
     checkResetBtn();
+    //Trigger the gmo-campaign-list block from the gmo-campaign-header
+    sendGmoCampaignListBlockEvent();
 }
 
 function checkResetBtn() {
