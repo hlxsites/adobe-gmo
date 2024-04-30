@@ -127,9 +127,6 @@ function getFilterValues(){
       const dataValue = filter.getAttribute('data-value');
       filterAttributes.push({ type: dataType, value: dataValue, operator : "=" });
   });
-  // Log the filter attributes to the console or use them as needed
-  console.log('filterAttributes');
-  console.log(filterAttributes);
 
   return filterAttributes;
 }
