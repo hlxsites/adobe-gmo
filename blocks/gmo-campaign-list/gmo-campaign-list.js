@@ -69,7 +69,11 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
 
-    currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
+    //Next Page
+    if (currentPageInfo.hasNextPage){
+      currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
+    }
+
     if (!previousPage && !nextPage)
     {
       cursorArray = campaigns.map(item => item.cursor);
