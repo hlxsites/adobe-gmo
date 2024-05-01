@@ -68,7 +68,8 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
-
+    //Current cursor used in previous page logic
+    currentPageInfo.currentCursor = cursor;
     //Next Page
     if (currentPageInfo.hasNextPage){
       currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
@@ -370,10 +371,11 @@ function nextPage(nextBtn) {
 function prevPage(prevBtn) {
     if (currentPageInfo.hasPreviousPage) {
       currentPage--;
-
       const block = document.querySelector('.gmo-campaign-list.block');
+      const currentCursor = currentPageInfo.nextCursor || currentPageInfo.currentCursor;
       //Calculate cursor for previous page
-      const indexCursor = cursorArray.indexOf(currentPageInfo.nextCursor) - currentPageInfo.itemCount - currentNumberPerPage;
+      const indexCursor = cursorArray.indexOf(currentCursor) - currentPageInfo.itemCount - currentNumberPerPage;
+      
       decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false);
       if (!(prevBtn.classList.contains('active'))) {
           return;
