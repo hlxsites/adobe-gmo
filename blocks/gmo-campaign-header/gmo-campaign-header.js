@@ -198,10 +198,23 @@ function toggleDropdown(element) {
 }
 
 function toggleOption(optionValue, optionType) {
+    // Find the currently active option within the same type and deselect it if it's not the clicked one
+    const currentlySelected = document.querySelector(`.dropoption.selected[data-type='${optionType}']`);
+    if (currentlySelected && currentlySelected.dataset.value !== optionValue) {
+        currentlySelected.classList.remove('selected'); // Remove the 'selected' class from the previously selected option
+        handleSelectedFilter(currentlySelected); // Update the UI to reflect this change
+    }
+
+    // Toggle the 'selected' class on the clicked option
     const dropdownOption = document.querySelector(`[data-value='${optionValue}'][data-type='${optionType}']`);
-    dropdownOption.classList.toggle("selected");
-    handleSelectedFilter(dropdownOption)
-    checkResetBtn();
+    if (!dropdownOption.classList.contains('selected')) {
+        dropdownOption.classList.add('selected');
+    } else {
+        dropdownOption.classList.remove('selected');
+    }
+
+    handleSelectedFilter(dropdownOption); // Update the UI for the new selection
+    checkResetBtn(); // Check if the reset button should be active
 }
 
 function handleSelectedFilter(option) {
