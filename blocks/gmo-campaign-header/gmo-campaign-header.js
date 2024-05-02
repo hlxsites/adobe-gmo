@@ -77,7 +77,7 @@ export default async function decorate(block) {
         {
           const graphqlData = await graphqlCampaignByName(value);
           //Get unique values
-          const searchItems = Array.from(new Set(graphqlData.data.campaignList.items.map(item => item.campaignName)));
+          const searchItems = Array.from(new Set(graphqlData.data.programList.items.map(item => item.campaignName)));
           autocomplete(value, searchItems);
         }
         else
@@ -122,7 +122,7 @@ export default async function decorate(block) {
 
     //Status List
     const statusResponse = await graphqlQueryNameList('getStatusList');
-    const statuses = statusResponse.data.campaignList.items;
+    const statuses = statusResponse.data.programList.items;
 
     // Extract unique statuses
     const uniqueStatuses = Array.from(new Set(statuses.map(item => item.status)));
@@ -146,7 +146,7 @@ export default async function decorate(block) {
 
     //Product List
     const productResponse = await graphqlQueryNameList('getProductList');
-    const products = productResponse.data.campaignList.items;
+    const products = productResponse.data.programList.items;
 
     // Extract unique statuses
     const uniqueProducts = Array.from(new Set(products.map(item => item.productOffering)));

@@ -48,7 +48,7 @@ export async function graphqlCampaignCount(filter = {}) {
     // Handle response codes
     if (response.status === 200) {
       const responseBody = await response.json();
-      return responseBody.data.campaignList.items.length;
+      return responseBody.data.programList.items.length;
     } if (response.status === 404) {
       // Handle 404 error
       const errorResponse = await response.json();
