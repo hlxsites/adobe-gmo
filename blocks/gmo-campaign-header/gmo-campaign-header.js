@@ -1,5 +1,5 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlStatusList, graphqlProductList, graphqlCampaignByName } from '../../scripts/graphql.js';
+import { graphqlQueryNameList, graphqlCampaignByName } from '../../scripts/graphql.js';
 
 export default async function decorate(block) {
     block.innerHTML = `
@@ -19,7 +19,7 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownBusinessOptions">
-                    <a href="#" id="option1" data-value="digital-media-dme" data-type="category" class="dropoption">Digital Media (DMe)</a>
+                    <a href="#" id="option1" data-value="digital-media-dme" data-type="businessLine" class="dropoption">Digital Media (DMe)</a>
                 </div>
             </div>
         </div>
@@ -66,10 +66,6 @@ export default async function decorate(block) {
     </div>
     <span class="icon icon-close inactive"></span>
     `;
-
-
-
-
 
     // autocomplete feature
     const autocompleteList = document.getElementById('autocomplete-list');
@@ -125,7 +121,7 @@ export default async function decorate(block) {
     });
 
     //Status List
-    const statusResponse = await graphqlStatusList();
+    const statusResponse = await graphqlQueryNameList('getStatusList');
     const statuses = statusResponse.data.campaignList.items;
 
     // Extract unique statuses
@@ -149,7 +145,7 @@ export default async function decorate(block) {
     });
 
     //Product List
-    const productResponse = await graphqlProductList();
+    const productResponse = await graphqlQueryNameList('getProductList');
     const products = productResponse.data.campaignList.items;
 
     // Extract unique statuses
@@ -174,7 +170,6 @@ export default async function decorate(block) {
 
     //End product dropdown
 
-
     document.querySelectorAll('.dropdown-button').forEach((button) => {
         button.addEventListener('click', (event) => {
             toggleDropdown(event.target);
@@ -183,6 +178,8 @@ export default async function decorate(block) {
     document.querySelectorAll('.dropoption').forEach((button) => {
         button.addEventListener('click', (event) => {
         toggleOption(event.target.dataset.value, event.target.dataset.type);
+        //Closes the dropdown list
+        toggleDropdown(event.target);
         });
     });
     document.querySelector('.reset-filters').addEventListener('click', () => {
@@ -241,6 +238,10 @@ function handleSelectedFilter(option) {
 }
 
 function resetAllFilters() {
+    //Clear the campaignName search field
+    const searchInput = document.getElementById('campaign-search');
+    searchInput.value = '';
+
     const selectedFilters = document.querySelectorAll('.dropoption.selected');
     selectedFilters.forEach((element) => {
         element.classList.toggle('selected');
