@@ -144,6 +144,9 @@ body {
     }
 }
 .use-cases-wrapper {
+    margin-bottom: 30px;
+}
+.use-cases-wrapper, .channel-scope-wrapper {
     display: flex;
     flex-direction: column;
     margin-top: 30px;
@@ -152,7 +155,7 @@ body {
         flex-direction: row;
         margin-top: 10px;
     }
-    & .use-case-tag {
+    & .use-case-tag, .scope-tag {
         font: normal normal normal 14px/17px Adobe Clean;
         color: #505050;
         border: 1px solid #D3D3D3;
@@ -163,6 +166,11 @@ body {
             margin-right: 5px;
         }
     }
+}
+.main-message-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
 }
 .links-wrapper {
     margin-top: 30px;
@@ -194,6 +202,12 @@ body {
     & .card-heading {
         margin-top: 10px;
         margin-bottom: 10px;
+    }
+    &.scope {
+        font: normal normal normal 14px/21px Adobe Clean;
+        & > ul {
+            padding-left: 15px;
+        }
     }
 }
 .milestone, .card-content {
@@ -263,6 +277,14 @@ body {
     }
     &.datarow {
         display: flex;
+        height: 88px;
+        font-weight: 200;
+        & .property {
+            line-height: 88px;
+        }
+        &:first-child, &:nth-child(2) {
+            border-top: 2px solid #F4F4F4;
+        }
     }
     &.collapsible.header {
         height: unset;
@@ -288,6 +310,11 @@ body {
     & .property {
         line-height: 56px;
     }
+    & .justify-center {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 }
 .subheader {
     &:nth-child(2) {
@@ -296,6 +323,43 @@ body {
     & > .row:nth-child(2) {
         border-top: 2px solid #F4F4F4;
     }
+}
+.status-wrapper {
+    height: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    & > .status-heading {
+        display: flex;
+        justify-content: space-between;
+        height: 12px;
+        font: normal normal normal 12px/15px Adobe Clean;
+
+    }
+    & > .status-bar-wrapper {
+        position: relative;
+        & > .status-bar-underlay {
+            background-color: #D3D3D3;
+            width: 100%;
+            margin-top: 15px;
+            height: 6px;
+            margin-bottom: 5px;
+            left: 0;
+            top: 0;
+            position: absolute;
+            border-radius: 3px;
+        }
+        & > .status-bar {
+            margin-top: 15px;
+            height: 6px;
+            background-color: #2680EB;
+            margin-bottom: 5px;
+            z-index: 1;
+            position: relative;
+            border-radius: 3px;
+        }
+    }
+
 }
 .column1 {
     margin-left: 45px;
@@ -316,7 +380,7 @@ body {
     width: 100px;
 }
 .column9 {
-    width: 90px;
+    width: 150px;
 }
 .table-column {
     &:not(:last-child) {
