@@ -1,8 +1,6 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlAllCampaigns, graphqlCampaignCount } from '../../scripts/graphql.js';
-
-const icon = 'https://delivery-p108396-e1046543.adobeaemcloud.com/adobe/assets/deliver/urn:aaid:aem:acdaa42f-00ae-42f4-97e5-8309c42d9076/marketing-hub-102023-lockup-video.png'
+import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
 
 const headerConfig = [
     {
@@ -36,17 +34,45 @@ const headerConfig = [
 let currentPageInfo = {};
 let cursorArray = [];
 let currentPage = 1;
-let currentNumberPerPage = 4
+let currentNumberPerPage = 4;
 //Get Campaign Count for pagination
-const campaignCount = await graphqlCampaignCount();
+let campaignCount = await graphqlCampaignCount();
 
-export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false) {
+//Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-campaign-list to update
+document.addEventListener('gmoCampaignListBlock', async function() {
+    //Build graphq filter that is passed to the graphql persisted queries
+    const graphQLFilterArray = getFilterValues();
+    const searchInputValue = document.getElementById('campaign-search').value;
+    if (searchInputValue!=='')
+    {
+      graphQLFilterArray.push({type:'campaignName', value:searchInputValue, operator:'='})
+    }
+    const graphqlFilter = generateFilterJSON(graphQLFilterArray);
+    const block = document.querySelector('.gmo-campaign-list.block');
+    //Get Campaign Count for pagination
+    campaignCount = await graphqlCampaignCount(graphqlFilter);
+    //Trigger loading the gmo-campaign-block
+    //Reset page variables
+    currentPageInfo = {};
+    cursorArray = [];
+    currentPage = 1;
+    currentNumberPerPage = 4;
+    decorate( block, currentNumberPerPage, '', false, false, graphqlFilter);
+});
 
-    const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
-    const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
-    currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
 
-    currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
+export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
+
+    const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
+    const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
+    currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
+    //Current cursor used in previous page logic
+    currentPageInfo.currentCursor = cursor;
+    //Next Page
+    if (currentPageInfo.hasNextPage){
+      currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
+    }
+
     if (!previousPage && !nextPage)
     {
       cursorArray = campaigns.map(item => item.cursor);
@@ -89,9 +115,23 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     {
       footerNext.classList.remove('active');
     }
-
     decorateIcons(block);
+}
 
+
+function getFilterValues(){
+  // Select all elements with the class 'selected-filter'
+  const filters = document.querySelectorAll('.selected-filter');
+  // Create an array to hold the data-type and data-value attributes
+  const filterAttributes = [];
+  // Loop through each filter element and extract both 'data-type' and 'data-value' attributes
+  filters.forEach(filter => {
+      const dataType = filter.getAttribute('data-type');
+      const dataValue = filter.getAttribute('data-value');
+      filterAttributes.push({ type: dataType, value: dataValue, operator : "=" });
+  });
+
+  return filterAttributes;
 }
 
 function buildCampaignList(campaigns, numPerPage) {
@@ -329,10 +369,11 @@ function nextPage(nextBtn) {
 function prevPage(prevBtn) {
     if (currentPageInfo.hasPreviousPage) {
       currentPage--;
-
       const block = document.querySelector('.gmo-campaign-list.block');
+      const currentCursor = currentPageInfo.nextCursor || currentPageInfo.currentCursor;
       //Calculate cursor for previous page
-      const indexCursor = cursorArray.indexOf(currentPageInfo.nextCursor) - currentPageInfo.itemCount - currentNumberPerPage;
+      const indexCursor = cursorArray.indexOf(currentCursor) - currentPageInfo.itemCount - currentNumberPerPage;
+
       decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false);
       if (!(prevBtn.classList.contains('active'))) {
           return;
