@@ -12,6 +12,7 @@ import { fetchCached } from './fetch-util.js';
 import { getBaseConfigPath, getMetadataConfigs } from './site-config.js';
 
 const SEARCH_FIELD_TO_POLARIS_API_MAP = {
+  uuid: 'assetId',
   'dc-format': 'repositoryMetadata.dc:format',
   'repo-name': 'repositoryMetadata.repo:name',
   'repo-createDate': 'repositoryMetadata.repo:createDate',
