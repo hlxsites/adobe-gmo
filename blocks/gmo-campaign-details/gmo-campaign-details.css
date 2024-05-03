@@ -12,6 +12,7 @@ body {
     align-items: center;
     border: 1px solid #D3D3D3;
     border-radius: 4px;
+    cursor: pointer;
     & > .icon {
         width: 20px;
         height: 30px;
@@ -130,11 +131,18 @@ body {
         font: normal normal normal 14px/21px Adobe Clean;
         letter-spacing: 0px;
         color: black;
+        &.hide-overflow {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
     }
     & .button.no-bg {
         font: normal normal normal 14px/17px Adobe Clean;
         margin-top: 10px;
         color: #505050;
+        cursor: pointer;
     }
 }
 .kpis-wrapper {
@@ -144,6 +152,10 @@ body {
         -webkit-columns: 2;
         -moz-columns: 2;
         font: normal normal normal 14px/21px Adobe Clean;
+    }
+    & div {
+        font-size: 14px;
+        margin-top: 15px;
     }
 }
 .use-cases-wrapper {
@@ -211,6 +223,9 @@ body {
         & > ul {
             padding-left: 15px;
         }
+    }
+    &.audiences > div {
+        font-size: 14px;
     }
 }
 .milestone, .card-content {

@@ -2,6 +2,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramDetails } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
+import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
 
     const testData = [
     {
@@ -465,9 +466,8 @@ export default async function decorate(block) {
             <div class="overview-wrapper">
                 <span class="h1 overview-heading">At a Glance</span>
                 <span class="h3">Product Value</span>
-                <span class="description">${checkBlankString(program.productValue.plaintext)}
-                </span>
-                <div class="button no-bg">Read more</div>
+                <div class="description hide-overflow">${checkBlankString(program.productValue.plaintext)}</div>
+                <div class="button no-bg read-more">Read more</div>
                 <div class="kpis-wrapper">
                     <span class="h3">KPIs to Measure Success</span>
                     ${kpis}
@@ -583,6 +583,9 @@ export default async function decorate(block) {
         const host = location.origin + '/drafts/mdickson';
         document.location.href = host + `/campaigns`;
     })
+    block.querySelector('.read-more').addEventListener('click', (event) => {
+        document.querySelector('.overview-wrapper > .description').classList.toggle('hide-overflow');
+    })
     decorateIcons(block);
 }
 
@@ -599,15 +602,20 @@ function switchTab(tab) {
 }
 
 function buildKPIList(program) {
-    const kpiList = document.createElement('ul');
-    program.primaryKpi.forEach((kpi) => {
+    let kpiList = document.createElement('ul');
+    program.primaryKpi?.forEach((kpi) => {
         const kpiLi = createKPI(kpi);
         kpiList.appendChild(kpiLi);
     })
-    program.additionalKpi.forEach((kpi) => {
+    program.additionalKpi?.forEach((kpi) => {
         const kpiLi = createKPI(kpi);
         kpiList.appendChild(kpiLi);
     })
+    if (kpiList.children.length == 0) {
+        kpiList.remove();
+        kpiList = document.createElement('div');
+        kpiList.textContent = "Not Available";
+    }
     return kpiList;
 }
 
@@ -622,6 +630,7 @@ function buildProductList(program) {
     const product = checkBlankString(program.productOffering);
     const productList = document.createElement('div');
     productList.classList.add('product', 'card-content');
+    /*
     const productMappings = {
         "acrobat-pro": {
             "name": "Acrobat Pro",
@@ -636,6 +645,7 @@ function buildProductList(program) {
             "icon": "gear"
         }
     }
+    */
     const productName = productMappings[product].name;
     const productLabel = productMappings[product].icon;
     productList.innerHTML = `
@@ -647,7 +657,7 @@ function buildProductList(program) {
 
 function buildAudienceList(program) {
     const audienceList = document.createElement('div');
-    program.primaryAudience.forEach((audience) => {
+    program.primaryAudience?.forEach((audience) => {
         const audienceDiv = createAudience(audience);
         audienceList.appendChild(audienceDiv);
     })
@@ -655,18 +665,25 @@ function buildAudienceList(program) {
         const audienceDiv = createAudience(audience);
         audienceList.appendChild(audienceDiv);
     })
+    if (audienceList.children.length == 0) audienceList.textContent = "Not Available";
     return audienceList;
 }
 
 function buildStatus(status) {
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('campaign-status');
+    /*
     const statusMappings = {
         "PLN": {
             "label": "Planning",
             "color": "green"
+        },
+        "CUR": {
+            "label": "Current",
+            "color": "green"
         }
     }
+    */
     const statusLabel = statusMappings[status].label;
     const statusColor = statusMappings[status].color;
     statusDiv.textContent = statusLabel;

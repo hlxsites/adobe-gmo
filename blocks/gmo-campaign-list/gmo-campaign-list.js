@@ -1,6 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaigns, graphqlCampaignCount } from '../../scripts/graphql.js';
+import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
 
 const icon = 'https://delivery-p108396-e1046543.adobeaemcloud.com/adobe/assets/deliver/urn:aaid:aem:acdaa42f-00ae-42f4-97e5-8309c42d9076/marketing-hub-102023-lockup-video.png'
 
@@ -43,8 +44,8 @@ const campaignCount = await graphqlCampaignCount();
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false) {
 
     const campaignPaginatedResponse = await graphqlAllCampaigns(numPerPage, cursor);
-    const campaigns = campaignPaginatedResponse.data.campaignPaginated.edges;
-    currentPageInfo = campaignPaginatedResponse.data.campaignPaginated.pageInfo;
+    const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
+    currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
 
     currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
     if (!previousPage && !nextPage)
@@ -138,9 +139,10 @@ function buildCampaignList(campaigns, numPerPage) {
         const campaignStatusWrapper = document.createElement('div');
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6','vertical-center');
         const campaignStatus = document.createElement('div');
-        const statusString = checkBlankString(campaign.node.status);
+        const statusStr = checkBlankString(campaign.node.status);
+        const statusString = statusMappings[statusStr].label;
         campaignStatus.textContent = statusString;
-        campaignStatus.classList.add(determineStatusColor(statusString));
+        campaignStatus.classList.add(statusMappings[statusStr].color);
         campaignStatus.classList.add('status');
         campaignStatus.dataset.property = 'status';
         campaignStatusWrapper.appendChild(campaignStatus);
@@ -164,13 +166,16 @@ function buildProductsList(productList) {
 
 function buildProduct(product) {
     const productEl = document.createElement('div');
-    let productIcon = product;
-    if (product == null) product = 'None';
-    if (product == 'Not Available') productIcon = "gear";
+    //let productIcon = product;
+    if (product == null) product = 'Not Available';
+    //if (product == 'Not Available') productIcon = "gear";
+    const productLabel = productMappings[product].name;
+    const productIcon = productMappings[product].icon;
+
     productEl.classList.add('product-entry');
     productEl.innerHTML = `
         <span class='icon icon-${productIcon}'></span>
-        <span class='product-label'>${product}</span>
+        <span class='product-label'>${productLabel}</span>
     `
     return productEl;
 }
@@ -397,6 +402,7 @@ function sortColumn(dir, property) {
     });
 }
 
+/*
 function determineStatusColor(status) {
     switch(status) {
         case 'Current':
@@ -409,6 +415,7 @@ function determineStatusColor(status) {
             return 'red';       
     }
 }
+*/
 
 // supply dummy data if none present
 export function checkBlankString(string) {
