@@ -76,44 +76,51 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     const footerPrev = document.querySelector('.footer-pagination-button.prev');
     if (currentPageInfo.hasPreviousPage){
       footerPrev.classList.add('active');
-    }
-    else
-    {
+    } else {
       footerPrev.classList.remove('active');
     }
 
     if (currentPageInfo.hasNextPage){
       footerNext.classList.add('active');
-    }
-    else
-    {
+    } else {
       footerNext.classList.remove('active');
     }
 
     decorateIcons(block);
-
+    
 }
 
 function buildCampaignList(campaigns, numPerPage) {
     const listWrapper = document.createElement('div');
     listWrapper.classList.add('list-items');
     listWrapper.dataset.totalresults = campaigns.length;
-
+    const host = location.origin + '/drafts/mdickson'
     campaigns.forEach((campaign, index) => {
         const campaignRow = document.createElement('div');
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
         const campaignInfoWrapper = document.createElement('div');
         campaignInfoWrapper.classList.add('campaign-info-wrapper','column-1');
+        const campaignIconLink = document.createElement('a');
+        campaignIconLink.href = host + `/campaign-details?programName=${campaign.node.programName}`
+        
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
+        campaignIcon.dataset.programname = campaign.node.programName;
+        campaignIcon.dataset.campaignname = campaign.node.campaignName;
+        //campaignIcon.addEventListener('click', (event) => {
+            
+        //    openCampaignDetails(campaignName);
+        //});
+        campaignIconLink.appendChild(campaignIcon);
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
         campaignName.innerHTML = `
             <div class='campaign-name-label'>${checkBlankString(campaign.node.campaignName)}</div>
             <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.node.programName)}</div>
         `
-        campaignInfoWrapper.appendChild(campaignIcon);
+        //campaignInfoWrapper.appendChild(campaignIcon);
+        campaignInfoWrapper.appendChild(campaignIconLink);
         campaignInfoWrapper.appendChild(campaignName);
         const campaignOverviewWrapper = document.createElement('div');
         campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper','vertical-center');
@@ -404,10 +411,15 @@ function determineStatusColor(status) {
 }
 
 // supply dummy data if none present
-function checkBlankString(string) {
+export function checkBlankString(string) {
     if (string == undefined || string == '' ) {
         return 'Not Available';
     } else {
         return string;
     }
 }
+
+function openCampaignDetails(campaignName) {
+    document.location.href = `/campaign-details?campaignName=${campaignName}`;
+}
+    

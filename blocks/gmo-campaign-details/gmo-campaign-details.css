@@ -54,6 +54,9 @@ body {
             width: 17px;
         }
     }
+    & > .campaign-img {
+        background-color: #e1e1e1;
+    }
     & .header-row1 {
         display: flex;
         align-items: center;
