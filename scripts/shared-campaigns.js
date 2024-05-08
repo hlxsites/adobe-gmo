@@ -20,7 +20,7 @@ export const productMappings = {
     },
     "lightroom": {
         "name": "Lightroom",
-        "icon": "Lightroom",
+        "icon": "lr",
     },
     "adobe-express": {
         "name": "Adobe Express",
