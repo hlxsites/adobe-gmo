@@ -16,19 +16,19 @@ export const statusMappings = {
 export const productMappings = {
     "acrobat-pro": {
         "name": "Acrobat Pro",
-        "icon": "Acrobat"
+        "icon": "acro-icon"
     },
     "lightroom": {
         "name": "Lightroom",
-        "icon": "lr",
+        "icon": "lr-icon",
     },
     "adobe-express": {
         "name": "Adobe Express",
-        "icon": "Express"
+        "icon": "express-icon"
     },
     "photoshop": {
         "name": "Photoshop",
-        "icon": "Photoshop"
+        "icon": "ps-icon"
     },
     "Not Available": {
         "name": "Not Available",
