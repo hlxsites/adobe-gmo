@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
-import { getProgramDetails } from '../../scripts/graphql.js';
+import { getProgramDetails, getProgramInfo } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
 import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
 
@@ -431,7 +431,7 @@ export default async function decorate(block) {
     const programName = getQueryVariable('programName');
     const graphqlData = await getProgramDetails(programName);
     const program = graphqlData.data.programList.items[0];
-    const rows = buildTableNoGroups(testData);
+    //const rows = buildTableNoGroups(testData);
     const kpis = buildKPIList(program).outerHTML;
     const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
@@ -574,8 +574,8 @@ export default async function decorate(block) {
         </div>
     </div>
     `;
-    const tableRoot = block.querySelector('.table-content');
-    tableRoot.appendChild(rows);
+
+
     block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
         switchTab(event.target);
     })
@@ -587,6 +587,15 @@ export default async function decorate(block) {
         document.querySelector('.overview-wrapper > .description').classList.toggle('hide-overflow');
     })
     decorateIcons(block);
+    buildDeliverablesTable(programName, block);
+}
+
+async function buildDeliverablesTable(programName, block) {
+    const deliverables = await getProgramInfo(programName, "deliverables");
+    const deliverableList = deliverables.data.deliverableList.items;
+    const rows = buildTableNoGroups(deliverableList);
+    const tableRoot = block.querySelector('.table-content');
+    tableRoot.appendChild(rows);
 }
 
 function switchTab(tab) {
@@ -768,8 +777,9 @@ function buildTable(data) {
 
 function buildTableNoGroups(data) {
     const rows = document.createElement('div');
-    data.forEach((campaign) => {
-        const tableRow = buildTableRow(campaign, false);
+    console.log(data);
+    data.forEach((deliverable) => {
+        const tableRow = buildTableRow(deliverable, false);
         rows.appendChild(tableRow);
     })
     return rows;
@@ -808,36 +818,36 @@ function buildHeaderRow(category, headerType, isInactive) {
     return headerRow;
 }
 
-function buildTableRow(campaignJson, createHidden) {
+function buildTableRow(deliverableJson, createHidden) {
     //console.log(campaignJson);
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
     dataRow.innerHTML = `
-        <div class='property table-column column1'>${campaignJson.name}</div>
-        <div class='property table-column column2'>${campaignJson.type}</div>
-        <div class='property table-column column3'>${campaignJson.channel}</div>
+        <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
+        <div class='property table-column column2'>${deliverableJson.deliverableType}</div>
+        <div class='property table-column column3'>${deliverableJson.platform}</div>
         <div class='property table-column column4'>
-            <a href="${campaignJson.reviewLinkHref}" class="campaign-link">Review Link</a>
+            <a href="${deliverableJson.reviewLink}" class="campaign-link">Review Link</a>
         </div>
         <div class='property table-column column5'>
-            <a href="${campaignJson.finalAssetHref}" class="campaign-link">Final Asset</a>
+            <a href="#" class="campaign-link">Final Asset</a>
         </div>
-        <div class='property table-column column6'>${campaignJson.kpi}</div>
+        <div class='property table-column column6'>${deliverableJson.kpi}</div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
                 <div class='status-heading'>
                     <div class='status-label'>Progress</div>
-                    <div class='status-percent'>${campaignJson.statusUpdate}%</div>
+                    <div class='status-percent'>${deliverableJson.deliverableStatusUpdate}%</div>
                 </div>
                 <div class='status-bar-wrapper'>
                     <div class='status-bar-underlay'></div>
-                    <div class='status-bar' style='width: ${campaignJson.statusUpdate}%'></div>
+                    <div class='status-bar' style='width: ${deliverableJson.deliverableStatusUpdate}%'></div>
                 </div>
             </div>
         </div>
-        <div class='property table-column column8'>${campaignJson.dueDate}</div>
-        <div class='property table-column column9'>${campaignJson.driver}</div>
+        <div class='property table-column column8'>${deliverableJson.taskCompletionDate}</div>
+        <div class='property table-column column9'>${deliverableJson.driver}</div>
     `
     return dataRow;
 }

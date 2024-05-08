@@ -278,6 +278,7 @@ body {
         margin-left: -20px;
         margin-right: -20px;
         padding-left: 20px;
+        padding-right: 20px;
         height: 64px;
         color: #505050;
         display: flex;
@@ -302,6 +303,11 @@ body {
         }
         &:first-child, &:nth-child(2) {
             border-top: 2px solid #F4F4F4;
+        }
+        & .deliverable-name{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
     &.collapsible.header {
