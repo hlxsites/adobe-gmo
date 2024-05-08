@@ -139,6 +139,12 @@ export async function fetchMetadataAndCreateHTML(metadataViewConfig, assetData, 
   if (assetData === undefined || assetJSON === undefined) {
     assetJSON = await getAssetMetadata(getAssetIdFromURL());
   }
+  // Remove "urn:aaid:aem:" prefix from displayed 'assetId' value
+  if (assetJSON.assetId) {
+    // A deep copy of the assetJSON object is created to avoid modifying the original object
+    assetJSON = JSON.parse(JSON.stringify(assetJSON));
+    assetJSON.assetId = assetJSON.assetId.replace('urn:aaid:aem:', '');
+  }
 
   const metadataContainer = document.createElement('div');
   metadataContainer.classList.add('metadata-container');
