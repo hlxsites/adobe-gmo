@@ -1,4 +1,9 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
+import { getQueryVariable } from '../../scripts/shared.js';
+import { getProgramDetails } from '../../scripts/graphql.js';
+import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
+import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
+import { getBaseConfigPath } from '../../scripts/site-config.js';
 
     const testData = [
     {
@@ -423,7 +428,16 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 
 export default async function decorate(block) {
     //const rows = buildTable(testData);
+    // /graphql/execute.json/gmo/getProgramDetails;programName=<name here>
+    const programName = getQueryVariable('programName');
+    const graphqlData = await getProgramDetails(programName);
+    const program = graphqlData.data.programList.items[0];
     const rows = buildTableNoGroups(testData);
+    const kpis = buildKPIList(program).outerHTML;
+    const products = buildProductList(program).outerHTML;
+    const audiences = buildAudienceList(program).outerHTML;
+    const date = formatDate(program.launchDate);
+    const status = buildStatus(program.status).outerHTML;
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
@@ -435,12 +449,12 @@ export default async function decorate(block) {
             </div>
             <div class="header-title">
                 <div class="header-row1">
-                    <span class="h1">Express Mobile Beta</span>
-                    <div class="campaign-status">In Progress</div>
+                    <span class="h1">${program.programName}</span>
+                    ${status}
                 </div>
                 <div class="header-row2">
                     <span class="icon icon-calendar"></span>
-                    <span class="campaign-date">03/07/2024</span>
+                    <span class="campaign-date">${date}</span>
                 </div>
             </div>
         </div>
@@ -453,20 +467,11 @@ export default async function decorate(block) {
             <div class="overview-wrapper">
                 <span class="h1 overview-heading">At a Glance</span>
                 <span class="h3">Product Value</span>
-                <span class="description">
-                    Express mobile public beta is not a major at scale marketing moment (due to the limited nature of beta experience) with key audiences of
-                    Existing Express users, investors and media. Marketing approach is signaling to the market our continued momentum with the new mobile
-                    beta release, focusing efforts on PR, social/community and in-app surfaces.
-                </span>
-                <div class="button no-bg">Read more</div>
+                <div class="description hide-overflow">${checkBlankString(program.productValue.plaintext)}</div>
+                <div class="button no-bg read-more">Read more</div>
                 <div class="kpis-wrapper">
                     <span class="h3">KPIs to Measure Success</span>
-                    <ul>
-                        <li>PR impressions & dedicated earned stories</li>
-                        <li>Mobile exports</li>
-                        <li>Community & social interactions</li>
-                        <li>100% by EOL</li>
-                    </ul>
+                    ${kpis}
                 </div>
                 <div class="use-cases-wrapper inactive">
                     <span class="h3">Hero Use Cases</span>
@@ -519,10 +524,7 @@ export default async function decorate(block) {
                 </div>
                 <div class="card products">
                     <div class="card-heading h3">Products</div>
-                    <div class="product card-content">
-                        <span class="icon icon-Express"></span>
-                        Adobe Express Mobile App
-                    </div>
+                    ${products}
                 </div>
                 <div class="card scope inactive">
                     <div class="card-heading h3">Feature Scope</div>
@@ -534,26 +536,7 @@ export default async function decorate(block) {
                 </div>
                 <div class="card audiences">
                     <div class="card-heading h3">Audiences</div>
-                    <div class="audience card-content">
-                        <span class="icon icon-gear"></span>
-                        Existing Express Users
-                    </div>
-                    <div class="audience card-content">
-                        <span class="icon icon-gear"></span>
-                        Prospects with priority on communicators
-                    </div>
-                    <div class="audience card-content">
-                        <span class="icon icon-gear"></span>
-                        CC entitled members who have not used Express
-                    </div>
-                    <div class="audience card-content">
-                        <span class="icon icon-gear"></span>
-                        CC free unentitled members on mobile (PsX, LR)
-                    </div>
-                    <div class="audience card-content">
-                        <span class="icon icon-gear"></span>
-                        K12
-                    </div>
+                    ${audiences}
                 </div>
             </div>
         </div>
@@ -597,6 +580,13 @@ export default async function decorate(block) {
     block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
         switchTab(event.target);
     })
+    block.querySelector('.back-button').addEventListener('click', () => {
+        const host = location.origin + getBaseConfigPath();
+        document.location.href = host + `/campaigns`;
+    })
+    block.querySelector('.read-more').addEventListener('click', () => {
+        document.querySelector('.overview-wrapper > .description').classList.toggle('hide-overflow');
+    })
     decorateIcons(block);
 }
 
@@ -610,6 +600,98 @@ function switchTab(tab) {
     const tabElement = document.getElementById(targetTab);
     tabElement.classList.toggle('inactive');
     tab.classList.toggle('active');
+}
+
+function buildKPIList(program) {
+    let kpiList = document.createElement('ul');
+    program.primaryKpi?.forEach((kpi) => {
+        const kpiLi = createKPI(kpi);
+        kpiList.appendChild(kpiLi);
+    })
+    program.additionalKpi?.forEach((kpi) => {
+        const kpiLi = createKPI(kpi);
+        kpiList.appendChild(kpiLi);
+    })
+    if (kpiList.children.length == 0) {
+        kpiList.remove();
+        kpiList = document.createElement('div');
+        kpiList.textContent = "Not Available";
+    }
+    return kpiList;
+}
+
+function createKPI(kpi) {
+    const kpiLi = document.createElement('li');
+    const kpiText = parseString(kpi);
+    kpiLi.textContent = kpiText;
+    return kpiLi;
+}
+
+function buildProductList(program) {
+    const product = checkBlankString(program.productOffering);
+    const productList = document.createElement('div');
+    productList.classList.add('product', 'card-content');
+    const productName = productMappings[product].name;
+    const productLabel = productMappings[product].icon;
+    productList.innerHTML = `
+        <span class="icon icon-${productLabel}"></span>
+        ${productName}
+    `
+    return productList;
+}
+
+function buildAudienceList(program) {
+    const audienceList = document.createElement('div');
+    program.primaryAudience?.forEach((audience) => {
+        const audienceDiv = createAudience(audience);
+        audienceList.appendChild(audienceDiv);
+    })
+    program.additionalAudiences?.forEach((audience) => {
+        const audienceDiv = createAudience(audience);
+        audienceList.appendChild(audienceDiv);
+    })
+    if (audienceList.children.length == 0) audienceList.textContent = "Not Available";
+    return audienceList;
+}
+
+function buildStatus(status) {
+    const statusDiv = document.createElement('div');
+    statusDiv.classList.add('campaign-status');
+    const statusLabel = statusMappings[status].label;
+    const statusColor = statusMappings[status].color;
+    statusDiv.textContent = statusLabel;
+    statusDiv.classList.add(statusColor);
+    return statusDiv;
+}
+
+function createAudience(audience) {
+    const text = parseString(audience);
+    const audienceDiv = document.createElement('div');
+    audienceDiv.classList.add('audience', 'card-content');
+    audienceDiv.innerHTML = `
+        <span class="icon icon-gear"></span>
+        ${text}
+    `;
+    return audienceDiv;
+}
+
+function parseString(text) {
+    let parsed = text.replace(/-/g, ' ').split(' ');
+    parsed[0] = parsed[0].charAt(0).toUpperCase() + parsed[0].slice(1);
+    parsed = parsed.join(' ');
+    return parsed;
+}
+
+function formatDate(dateString) {
+    const parts = dateString.split('-');
+    const yyyy = parts[0];
+    const mm = parts[1];
+    const dd = parts[2];
+
+    // Formatting the date into mm/dd/yyyy format
+    const formattedDate = mm + '/' + dd + '/' + yyyy;
+    
+    return formattedDate;
 }
 
 function buildTable(data) {

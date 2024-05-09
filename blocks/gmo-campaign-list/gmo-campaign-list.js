@@ -1,6 +1,8 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
+import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
+import { getBaseConfigPath } from '../../scripts/site-config.js';
 
 const headerConfig = [
     {
@@ -102,17 +104,13 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     const footerPrev = document.querySelector('.footer-pagination-button.prev');
     if (currentPageInfo.hasPreviousPage){
       footerPrev.classList.add('active');
-    }
-    else
-    {
+    } else {
       footerPrev.classList.remove('active');
     }
 
     if (currentPageInfo.hasNextPage){
       footerNext.classList.add('active');
-    }
-    else
-    {
+    } else {
       footerNext.classList.remove('active');
     }
     decorateIcons(block);
@@ -138,22 +136,29 @@ function buildCampaignList(campaigns, numPerPage) {
     const listWrapper = document.createElement('div');
     listWrapper.classList.add('list-items');
     listWrapper.dataset.totalresults = campaigns.length;
-
+    const host = location.origin + getBaseConfigPath();
+    
     campaigns.forEach((campaign, index) => {
         const campaignRow = document.createElement('div');
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
         const campaignInfoWrapper = document.createElement('div');
         campaignInfoWrapper.classList.add('campaign-info-wrapper','column-1');
+        const campaignIconLink = document.createElement('a');
+        campaignIconLink.href = host + `/campaign-details?programName=${campaign.node.programName}`
+        
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
+        campaignIcon.dataset.programname = campaign.node.programName;
+        campaignIcon.dataset.campaignname = campaign.node.campaignName;
+        campaignIconLink.appendChild(campaignIcon);
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
         campaignName.innerHTML = `
             <div class='campaign-name-label'>${checkBlankString(campaign.node.campaignName)}</div>
             <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.node.programName)}</div>
         `
-        campaignInfoWrapper.appendChild(campaignIcon);
+        campaignInfoWrapper.appendChild(campaignIconLink);
         campaignInfoWrapper.appendChild(campaignName);
         const campaignOverviewWrapper = document.createElement('div');
         campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper','vertical-center');
@@ -171,9 +176,10 @@ function buildCampaignList(campaigns, numPerPage) {
         const campaignStatusWrapper = document.createElement('div');
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6','vertical-center');
         const campaignStatus = document.createElement('div');
-        const statusString = checkBlankString(campaign.node.status);
+        const statusStr = checkBlankString(campaign.node.status);
+        const statusString = statusMappings[statusStr].label;
         campaignStatus.textContent = statusString;
-        campaignStatus.classList.add(determineStatusColor(statusString));
+        campaignStatus.classList.add(statusMappings[statusStr].color);
         campaignStatus.classList.add('status');
         campaignStatus.dataset.property = 'status';
         campaignStatusWrapper.appendChild(campaignStatus);
@@ -197,13 +203,16 @@ function buildProductsList(productList) {
 
 function buildProduct(product) {
     const productEl = document.createElement('div');
-    let productIcon = product;
-    if (product == null) product = 'None';
-    if (product == 'Not Available') productIcon = "gear";
+    //let productIcon = product;
+    if (product == null) product = 'Not Available';
+    //if (product == 'Not Available') productIcon = "gear";
+    const productLabel = productMappings[product].name;
+    const productIcon = productMappings[product].icon;
+
     productEl.classList.add('product-entry');
     productEl.innerHTML = `
         <span class='icon icon-${productIcon}'></span>
-        <span class='product-label'>${product}</span>
+        <span class='product-label'>${productLabel}</span>
     `
     return productEl;
 }
@@ -431,6 +440,7 @@ function sortColumn(dir, property) {
     });
 }
 
+/*
 function determineStatusColor(status) {
     switch(status) {
         case 'Current':
@@ -443,12 +453,18 @@ function determineStatusColor(status) {
             return 'red';       
     }
 }
+*/
 
 // supply dummy data if none present
-function checkBlankString(string) {
+export function checkBlankString(string) {
     if (string == undefined || string == '' ) {
         return 'Not Available';
     } else {
         return string;
     }
 }
+
+function openCampaignDetails(campaignName) {
+    document.location.href = `/campaign-details?campaignName=${campaignName}`;
+}
+    
