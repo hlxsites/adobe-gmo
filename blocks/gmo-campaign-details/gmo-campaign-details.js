@@ -165,12 +165,13 @@ export default async function decorate(block) {
         const host = location.origin + getBaseConfigPath();
         document.location.href = host + `/campaigns`;
     })
-    block.querySelector('.read-more').addEventListener('click', (event) => {
-        const readMore = event.target;
-        const parent = readMore.parentElement;
-        parent.querySelector('.paragraph').classList.toggle('hide-overflow');
-        //document.querySelector('.overview-wrapper > .description').classList.toggle('hide-overflow');
-    })
+    block.querySelectorAll('.read-more').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const readMore = event.target;
+            const parent = readMore.parentElement;
+            parent.querySelector('.paragraph').classList.toggle('hide-overflow');
+        });
+    });
     decorateIcons(block);
     buildChannelScope(await deliverables, block);
     buildDeliverablesTable(await deliverables, block);
@@ -395,7 +396,6 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     const status = (deliverableJson.deliverableStatusUpdate == null) ? "?" : deliverableJson.deliverableStatusUpdate;
     let platformString = '';
     deliverableJson.platforms?.forEach((platform) => {
-        //if (!(platform == undefined || platform == 'undefined')) 
         platformString = platformString + platform + ', ';
     })
     platformString = platformString.slice(0, -2);
