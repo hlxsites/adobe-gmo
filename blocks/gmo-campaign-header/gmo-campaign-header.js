@@ -60,14 +60,14 @@ export default async function decorate(block) {
         </div>
 
         <div class="filter-wrapper">
-            <div class="label">Geography</div>
+            <div class="label">Geo</div>
             <div class="filter-dropdown" id="campaign-products">
                 <div class="dropdown-button">
-                    <div class="dropdown-label">All Geography</div>
+                    <div class="dropdown-label">All Geo</div>
                     <span class="icon icon-chevronDown"></span>
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
-                <div class="dropdown-content" id="dropdownProductOptions">
+                <div class="dropdown-content" id="dropdownGeoOptions">
                     <a href="#" id="option1" data-value="na" data-type="p0TargetGeo" class="dropoption">NA</a>
                     <a href="#" id="option2" data-value="dme" data-type="p0TargetGeo" class="dropoption">DME</a>
                     <a href="#" id="option3" data-value="latam" data-type="p0TargetGeo" class="dropoption">LATAM</a>
@@ -140,6 +140,12 @@ export default async function decorate(block) {
         sendGmoCampaignListBlockEvent();
     });
 
+
+    //Business Line List
+    const businessLineResponse = await graphqlQueryNameList('getBusinessLine');
+    const businessLines = businessLineResponse.data.jsonByPath.item.json.options;
+    populateDropdown(businessLines, 'dropdownBusinessOptions', 'status');
+
     //Status List
     const statusResponse = await graphqlQueryNameList('getStatusList');
     const statuses = statusResponse.data.jsonByPath.item.json.options;
@@ -149,6 +155,11 @@ export default async function decorate(block) {
     const productResponse = await graphqlQueryNameList('getProductList');
     const products = productResponse.data.jsonByPath.item.json.options;
     populateDropdown(products, 'dropdownProductOptions', 'productOffering');
+
+    //Geo List
+    const geoResponse = await graphqlQueryNameList('getGeoList');
+    const geos = geoResponse.data.jsonByPath.item.json.options;
+    populateDropdown(geos, 'dropdownGeoOptions', 'p0TargetGeo');
 
     document.querySelectorAll('.dropdown-button').forEach((button) => {
         button.addEventListener('click', (event) => {
