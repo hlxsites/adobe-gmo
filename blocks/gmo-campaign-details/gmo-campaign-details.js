@@ -45,12 +45,12 @@ export default async function decorate(block) {
                 <span class="h1 overview-heading">At a Glance</span>
                 <div class="product-overview-wrapper">
                     <span class="h3">Marketing Goal</span>
-                    <div class="overview hide-overflow">${checkBlankString(program.marketingGoal.plaintext)}</div>
+                    <div class="overview paragraph hide-overflow">${checkBlankString(program.marketingGoal.plaintext)}</div>
                     <div class="button no-bg read-more">Read more</div>
                 </div>
                 <div class="product-value-wrapper">
                     <span class="h3">Product Value</span>
-                    <div class="description hide-overflow">${checkBlankString(program.productValue.plaintext)}</div>
+                    <div class="description paragraph hide-overflow">${checkBlankString(program.productValue.plaintext)}</div>
                     <div class="button no-bg read-more">Read more</div>
                 </div>
                 <div class="kpis-wrapper">
@@ -71,9 +71,8 @@ export default async function decorate(block) {
                     </span>
                 </div>
                 <div class="channel-scope-wrapper">
-                    <span class="h3">Key Channel Scope</span>
+                    <span class="h3">Deliverable Type</span>
                     <div class="tags-wrapper">
-
                     </div>
                 </div>
                 <div class="links-wrapper inactive">
@@ -166,8 +165,11 @@ export default async function decorate(block) {
         const host = location.origin + getBaseConfigPath();
         document.location.href = host + `/campaigns`;
     })
-    block.querySelector('.read-more').addEventListener('click', () => {
-        document.querySelector('.overview-wrapper > .description').classList.toggle('hide-overflow');
+    block.querySelector('.read-more').addEventListener('click', (event) => {
+        const readMore = event.target;
+        const parent = readMore.parentElement;
+        parent.querySelector('.paragraph').classList.toggle('hide-overflow');
+        //document.querySelector('.overview-wrapper > .description').classList.toggle('hide-overflow');
     })
     decorateIcons(block);
     buildChannelScope(await deliverables, block);
@@ -392,7 +394,7 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     if (createHidden) dataRow.classList.add('inactive');
     const status = (deliverableJson.deliverableStatusUpdate == null) ? "?" : deliverableJson.deliverableStatusUpdate;
     let platformString = '';
-    deliverableJson.platforms.forEach((platform) => {
+    deliverableJson.platforms?.forEach((platform) => {
         //if (!(platform == undefined || platform == 'undefined')) 
         platformString = platformString + platform + ', ';
     })
@@ -400,7 +402,7 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
         <div class='property table-column column2'>${deliverableJson.deliverableType}</div>
-        <div class='property table-column column3'>${platformString}</div>
+        <div class='property table-column column3 platforms'>${platformString}</div>
         <div class='property table-column column4'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
         </div>
