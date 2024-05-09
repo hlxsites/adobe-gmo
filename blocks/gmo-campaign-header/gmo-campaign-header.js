@@ -142,53 +142,13 @@ export default async function decorate(block) {
 
     //Status List
     const statusResponse = await graphqlQueryNameList('getStatusList');
-    const statuses = statusResponse.data.programList.items;
-
-    // Extract unique statuses
-    const uniqueStatuses = Array.from(new Set(statuses.map(item => item.status)));
-    let dropdownContent = document.getElementById('dropdownStatusOptions');
-    // Clear existing options
-    dropdownContent.innerHTML = '';
-    // Append new options
-    uniqueStatuses.forEach((status, index) => {
-        // Create a new anchor element for each status
-        var anchor = document.createElement('a');
-        anchor.href = "#";
-        anchor.id = "option" + (index + 1); // increment index for 1-based id
-        //anchor.dataset.value = "option" + (index + 1);
-        anchor.dataset.value = status;
-        anchor.dataset.type = "status";
-        anchor.className = "dropoption";
-        anchor.textContent = status; // using the status as the text
-        // Append to the dropdown
-        dropdownContent.appendChild(anchor);
-    });
+    const statuses = statusResponse.data.jsonByPath.item.json.options;
+    populateDropdown(statuses, 'dropdownStatusOptions', 'status');
 
     //Product List
     const productResponse = await graphqlQueryNameList('getProductList');
-    const products = productResponse.data.programList.items;
-
-    // Extract unique statuses
-    const uniqueProducts = Array.from(new Set(products.map(item => item.productOffering)));
-    let dropdownProductContent = document.getElementById('dropdownProductOptions');
-    // Clear existing options
-    dropdownProductContent.innerHTML = '';
-    // Append new options
-    uniqueProducts.forEach((product, index) => {
-        // Create a new anchor element for each status
-        var anchor = document.createElement('a');
-        anchor.href = "#";
-        anchor.id = "option" + (index + 1); // increment index for 1-based id
-        //anchor.dataset.value = "option" + (index + 1);
-        anchor.dataset.value = product;
-        anchor.dataset.type = "productOffering";//field in graphQL
-        anchor.className = "dropoption";
-        anchor.textContent = product; // using the status as the text
-        // Append to the dropdown
-        dropdownProductContent.appendChild(anchor);
-    });
-
-    //End product dropdown
+    const products = productResponse.data.jsonByPath.item.json.options;
+    populateDropdown(products, 'dropdownProductOptions', 'productOffering');
 
     document.querySelectorAll('.dropdown-button').forEach((button) => {
         button.addEventListener('click', (event) => {
@@ -207,6 +167,29 @@ export default async function decorate(block) {
     })
     decorateIcons(block);
 }
+
+function populateDropdown(options, dropdownId, type) {
+    let dropdownContent = document.getElementById(dropdownId);
+    // Clear existing options
+    dropdownContent.innerHTML = '';
+
+    // Append new options
+    options.forEach((option, index) => {
+        // Create a new anchor element for each option
+        var anchor = document.createElement('a');
+        anchor.href = "#";
+        anchor.id = "option" + (index + 1); // increment index for 1-based id
+        anchor.dataset.value = option.value;
+        anchor.dataset.type = type;
+        anchor.className = "dropoption";
+        anchor.textContent = option.text; // using the option text
+        // Append to the dropdown
+        dropdownContent.appendChild(anchor);
+    });
+}
+
+
+
 
 function toggleDropdown(element) {
     const dropdown = element.closest('.filter-dropdown');
