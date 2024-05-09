@@ -5,435 +5,11 @@ import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
 import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 
-    const testData = [
-    {
-        'category': 'Awareness',
-        'subcategory': 'Meet AI Assistant',
-        'name': 'Content Name',
-        'type': 'Streaming Video',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '57',
-        'dueDate': '03/07/2024',
-        'driver': 'Linda Tan'
-    },
-    {
-        'category': 'Awareness',
-        'subcategory': 'Meet AI Assistant',
-        'name': 'Content Name',
-        'type': 'Animated Display',
-        'channel': 'All',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '86',
-        'dueDate': '03/07/2024',
-        'driver': 'Linda Tan'
-    },
-    {
-        'category': 'Awareness',
-        'subcategory': 'Customer Story',
-        'name': 'Bryan',
-        'type': 'Streaming Video',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '57',
-        'dueDate': '03/07/2024',
-        'driver': 'Linda Tan'
-    },
-    {
-        'category': 'Awareness',
-        'subcategory': 'Customer Story',
-        'name': 'Maegan',
-        'type': 'Animated Display',
-        'channel': 'Display',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '17',
-        'dueDate': '03/07/2024',
-        'driver': 'Aina Tchoshanova'
-    },
-    {
-        'category': 'Awareness',
-        'subcategory': 'Influencer Videos and Social Owned Content',
-        'name': 'Influencer',
-        'type': 'Streaming Video',
-        'channel': 'Tiktok',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '0%',
-        'dueDate': '03/17/2024',
-        'driver': 'Aina Tchoshanova'
-    },
-    {
-        'category': 'Education',
-        'subcategory': 'Meet AI Assistant',
-        'name': 'Content Name',
-        'type': 'Streaming Video',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '57',
-        'dueDate': '04/12/2024',
-        'driver': 'Leah Walker'
-    },
-    {
-        'category': 'Education',
-        'subcategory': 'Meet AI Assistant',
-        'name': 'Content Name',
-        'type': 'Animated Display',
-        'channel': 'All',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '86',
-        'dueDate': '04/12/2024',
-        'driver': 'Leah Walker'
-    },
-    {
-        'category': 'Education',
-        'subcategory': 'Customer Story',
-        'name': 'Bryan',
-        'type': 'Streaming Video',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '57',
-        'dueDate': '05/09/2024',
-        'driver': 'Benjamin Lee'
-    },
-    {
-        'category': 'Conversion',
-        'subcategory': 'Meet the new AI Assistant',
-        'name': 'Richard',
-        'type': 'Influencer Content',
-        'channel': 'TikTok',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '12',
-        'dueDate': '05/09/2024',
-        'driver': 'Benjamin Lee'
-    },
-    {
-        'category': 'Conversion',
-        'subcategory': 'Meet the new AI Assistant',
-        'name': 'Antonio',
-        'type': 'Influencer Content',
-        'channel': 'YouTube',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '5',
-        'dueDate': '05/09/2024',
-        'driver': 'Benjamin Lee'
-    },
-    {
-        'category': 'Conversion',
-        'subcategory': 'Financial Report',
-        'name': 'Citigroup',
-        'type': 'Documentation',
-        'channel': 'None',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '77',
-        'dueDate': '05/23/2024',
-        'driver': 'Benjamin Lee'
-    },
-    {
-        'category': 'Conversion',
-        'subcategory': 'Adobe Owned Use Cases',
-        'name': 'David',
-        'type': 'Streaming Video',
-        'channel': 'Twitch.tv',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '97%',
-        'dueDate': '06/17/2024',
-        'driver': 'Benjamin Lee'
-    },
-    {
-        'category': 'Conversion',
-        'subcategory': 'Adobe Owned Use Cases',
-        'name': 'Charles',
-        'type': 'Media',
-        'channel': 'x.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '100',
-        'dueDate': '07/11/2024',
-        'driver': 'Rufus Green'
-    },
-    {
-        'category': 'Conversion',
-        'subcategory': 'Early Access Offer',
-        'name': 'Ashley',
-        'type': 'Influencer Content',
-        'channel': 'TikTok',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '26',
-        'dueDate': '08/01/2024',
-        'driver': 'Rufus Green'
-    },
-    {
-        'category': 'Conversion',
-        'subcategory': 'Email - AI Assistant + Early Access Offer',
-        'name': 'Missy',
-        'type': 'Artificial Intelligence',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '67',
-        'dueDate': '08/01/2024',
-        'driver': 'Rufus Green'
-    },
-    {
-        'category': 'Conversion',
-        'subcategory': 'Influencer Use Cases / CAMP',
-        'name': 'Logan',
-        'type': 'Streaming Video',
-        'channel': 'YouTube',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '89',
-        'dueDate': '09/21/2024',
-        'driver': 'Marcus Webber'
-    },
-    {
-        'category': 'Use',
-        'subcategory': 'Content Supply Chain',
-        'name': 'Content Name',
-        'type': 'Streaming Video',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '57',
-        'dueDate': '09/21/2024',
-        'driver': 'Marcus Webber'
-    },
-    {
-        'category': 'Use',
-        'subcategory': 'Content Supply Chain',
-        'name': 'Content Name',
-        'type': 'Animated Display',
-        'channel': 'All',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '86',
-        'dueDate': '10/09/2024',
-        'driver': 'Marcus Webber'
-    },
-    {
-        'category': 'Use',
-        'subcategory': 'Content Supply Chain',
-        'name': 'Bryan',
-        'type': 'Streaming Video',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '57',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'category': 'Use',
-        'subcategory': 'Content Supply Chain',
-        'name': 'Maegan',
-        'type': 'Animated Display',
-        'channel': 'Display',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '17',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'category': 'Use',
-        'subcategory': 'Content Supply Chain',
-        'name': 'Bryan',
-        'type': 'Streaming Video',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '57',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'category': 'Use',
-        'subcategory': 'Content Supply Chain',
-        'name': 'Maegan',
-        'type': 'Animated Display',
-        'channel': 'Display',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '17',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'category': 'Use',
-        'subcategory': 'Customer Story',
-        'name': 'Bryan',
-        'type': 'Streaming Video',
-        'channel': 'Adobe.com',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '57',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'category': 'Use',
-        'subcategory': 'Customer Story',
-        'name': 'Maegan',
-        'type': 'Animated Display',
-        'channel': 'Display',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '17',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'category': '',
-        'subcategory': '',
-        'name': 'Empty Cat Empty Sub',
-        'type': 'Animated Display',
-        'channel': 'Display',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '35',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'category': '',
-        'subcategory': 'Empty Category',
-        'name': 'Empty Category Name',
-        'type': 'Animated Display',
-        'channel': 'Display',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '35',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'subcategory': 'No Category',
-        'name': 'No Category Name',
-        'type': 'Animated Display',
-        'channel': 'Display',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '85',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    },
-    {
-        'category': '',
-        'name': 'No Subcategory Name',
-        'type': 'Animated Display',
-        'channel': 'Display',
-        'reviewLinkName': 'Review Link',
-        'reviewLinkHref': '#',
-        'finalAssetName': 'Final Asset',
-        'finalAssetHref': '#',
-        'kpi': 'KPI',
-        'statusUpdate': '35',
-        'dueDate': '11/29/2024',
-        'driver': 'Sean Smith'
-    }
-];
-
 export default async function decorate(block) {
-    //const rows = buildTable(testData);
-    // /graphql/execute.json/gmo/getProgramDetails;programName=<name here>
     const programName = getQueryVariable('programName');
     const graphqlData = await getProgramDetails(programName);
+    const deliverables = getProgramInfo(programName, "deliverables");
     const program = graphqlData.data.programList.items[0];
-    console.log(program);
-    //const rows = buildTableNoGroups(testData);
     const kpis = buildKPIList(program).outerHTML;
     const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
@@ -494,12 +70,10 @@ export default async function decorate(block) {
                         A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.
                     </span>
                 </div>
-                <div class="channel-scope-wrapper inactive">
+                <div class="channel-scope-wrapper">
                     <span class="h3">Key Channel Scope</span>
                     <div class="tags-wrapper">
-                        <div class="scope-tag">A.com</div>
-                        <div class="scope-tag">Email</div>
-                        <div class="scope-tag">PR</div>
+
                     </div>
                 </div>
                 <div class="links-wrapper inactive">
@@ -567,6 +141,7 @@ export default async function decorate(block) {
                 <div class="table-header">
                     <div class="header table-column column1">Deliverable Name</div>
                     <div class="header table-column column2">Deliverable Type</div>
+                    <div class="header table-column column3">Platforms</div>
                     <div class="header table-column column4">Review Link</div>
                     <div class="header table-column column5">Final Asset</div>
                     <div class="header table-column column6">KPI</div>
@@ -595,14 +170,12 @@ export default async function decorate(block) {
         document.querySelector('.overview-wrapper > .description').classList.toggle('hide-overflow');
     })
     decorateIcons(block);
-    buildDeliverablesTable(programName, block);
+    buildChannelScope(await deliverables, block);
+    buildDeliverablesTable(await deliverables, block);
 }
 
-async function buildDeliverablesTable(programName, block) {
-    const deliverables = await getProgramInfo(programName, "deliverables");
-    //const deliverableList = deliverables.data.deliverableList.items;
-    //const kpi = deliverables.data.programList.items.primaryKpi;
-    const rows = buildTableNoGroups(deliverables,);
+async function buildDeliverablesTable(deliverables, block) {
+    const rows = buildTableNoGroups(deliverables);
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(rows);
 }
@@ -618,6 +191,18 @@ function switchTab(tab) {
     tabElement.classList.toggle('inactive');
     tab.classList.toggle('active');
 }
+
+async function buildChannelScope(deliverables, block) {
+    const list = deliverables.data.deliverableList.items;
+    const uniqueScopes = getUniqueValues(list, 'deliverableType');
+    const scopesParent = block.querySelector('.channel-scope-wrapper .tags-wrapper');
+    uniqueScopes.forEach((scope) => {
+        const tag = document.createElement('div');
+        tag.classList.add('scope-tag');
+        tag.textContent = scope;
+        scopesParent.appendChild(tag);
+    })
+}   
 
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');
@@ -805,10 +390,17 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
-
+    const status = (deliverableJson.deliverableStatusUpdate == null) ? "?" : deliverableJson.deliverableStatusUpdate;
+    let platformString = '';
+    deliverableJson.platforms.forEach((platform) => {
+        //if (!(platform == undefined || platform == 'undefined')) 
+        platformString = platformString + platform + ', ';
+    })
+    platformString = platformString.slice(0, -2);
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
         <div class='property table-column column2'>${deliverableJson.deliverableType}</div>
+        <div class='property table-column column3'>${platformString}</div>
         <div class='property table-column column4'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
         </div>
@@ -819,11 +411,11 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
             <div class='status-wrapper'>
                 <div class='status-heading'>
                     <div class='status-label'>Progress</div>
-                    <div class='status-percent'>${deliverableJson.deliverableStatusUpdate}%</div>
+                    <div class='status-percent'>${status}%</div>
                 </div>
                 <div class='status-bar-wrapper'>
                     <div class='status-bar-underlay'></div>
-                    <div class='status-bar' style='width: ${deliverableJson.deliverableStatusUpdate}%'></div>
+                    <div class='status-bar' style='width: ${status}%'></div>
                 </div>
             </div>
         </div>

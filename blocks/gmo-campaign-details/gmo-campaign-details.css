@@ -393,9 +393,12 @@ body {
     margin-left: 45px;
 }
 .column1 {
-    width: 250px;
+    width: 200px;
 }
-.column3, & .column4, & .column5, & .column6 {
+.column3 {
+    width: 140px;
+}
+.column4, & .column5, & .column6 {
     width: 110px;
 }
 .column2 {
