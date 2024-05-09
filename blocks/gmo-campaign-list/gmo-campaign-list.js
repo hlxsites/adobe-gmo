@@ -114,8 +114,18 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
       footerNext.classList.remove('active');
     }
     decorateIcons(block);
+    
+    //Debug Global Variables
+    //debug_console();
 }
 
+function debug_console(){
+  console.log('currentPageInfo',currentPageInfo);
+  console.log('cursorArray',cursorArray);
+  console.log('currentPage',currentPage);
+  console.log('campaignCount',campaignCount);
+
+}
 
 function getFilterValues(){
   // Select all elements with the class 'selected-filter'
@@ -379,10 +389,10 @@ function prevPage(prevBtn) {
     if (currentPageInfo.hasPreviousPage) {
       currentPage--;
       const block = document.querySelector('.gmo-campaign-list.block');
-      const currentCursor = currentPageInfo.nextCursor || currentPageInfo.currentCursor;
-      //Calculate cursor for previous page
-      const indexCursor = cursorArray.indexOf(currentCursor) - currentPageInfo.itemCount - currentNumberPerPage;
+      const currentCursor = currentPageInfo.currentCursor;
 
+      //Calculate cursor for previous page
+      const indexCursor = cursorArray.indexOf(currentCursor) - currentNumberPerPage;
       decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false);
       if (!(prevBtn.classList.contains('active'))) {
           return;
