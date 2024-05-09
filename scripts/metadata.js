@@ -387,11 +387,6 @@ export function formatAssetMetadata(propertyName, metadataValue) {
     return DATA_TYPES.tags(metadataValue, propertyName);
   }
 
-  // file types
-  if (['dc-format'].includes(propertyName)) {
-    return PREDEFINED_METADATA_FIELDS.format.format(metadataValue);
-  }
-
   // dates
   if (isDate(propertyName, metadataValue)) {
     return formatDate(metadataValue);
