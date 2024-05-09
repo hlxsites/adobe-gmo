@@ -24,19 +24,18 @@ export function formIsComplete(metadataSchema, formValues) {
   const incomplete = metadataSchema.find((schema) => {
     if(!schema.required) return;
     if(schema.requires) return;
-    return Array.isArray(formValues[schema.mapToProperty]) ? formValues[schema.mapToProperty].length === 0 : formValues[schema.mapToProperty] === '';
+    return !(schema.mapToProperty in formValues) || Array.isArray(formValues[schema.mapToProperty]) ? formValues[schema.mapToProperty].length === 0 : formValues[schema.mapToProperty] === '';
   });
     
   if(incomplete) return false;
 
   if(formValues['gmo:campaignName']){
     if(!formValues['gmo:programName']) return false;
-    if(!formValues['gmo:deliverableType']) return false;
   }
-
+  
   if(formValues['gmo:licensedContent'] !== 'no'){
     if(!formValues['gmo:usageTerms']) return false;
-    if(formValues['gmo:licensedContent'] === 'yes-expire' && !formValues['gmo:licenseExpiryDate']) return false;
+    if(formValues['gmo:licensedContent'] === 'yes-expires' && !formValues['gmo:licenseExpiryDate']) return false;
   }
   return true;
 };
@@ -47,7 +46,7 @@ export const licenseDateFieldShow  = {
   placeholder: 'Select date',
   required: true,
   element: 'datepicker',
-  requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes-expire' }],
+  requires: [{ property: 'gmo:licensedContent', expectedValue: 'yes-expires' }],
 };
 
 const licenseExpirePerpitytity = new Date();
@@ -195,16 +194,30 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:campaignName',
           label: 'Campaign',
-          placeholder: 'Select campaign',
-          element: 'dropdown',
-          dropdownOptions: [{id: '', name: 'N/A'}, ...facetOptions['gmo-campaignName']],
+          placeholder: 'Select one',
+          element: 'text',
+          getSuggestions: async (value) => {
+            return facetOptions['gmo-campaignName'].filter(
+              (option) => {
+                const name = option.name.toLowerCase();
+                return value.toLowerCase().split(' ').every((val) => name.includes(val));
+              }
+            )
+          },
         },
         {
           mapToProperty: 'gmo:programName',
           label: 'Program',
-          placeholder: 'Select program name',
-          element: 'dropdown',
-          dropdownOptions: facetOptions['gmo-programName'],
+          placeholder: 'Select one',
+          element: 'text',
+          getSuggestions: async (value) => {
+            return  facetOptions['gmo-programName'].filter(
+              (option) => {
+                const name = option.name.toLowerCase();
+                return value.toLowerCase().split(' ').every((val) => name.includes(val));
+              }
+            )
+          },
           required: true,
           requires: [{
             property: 'gmo:campaignName',
@@ -215,6 +228,7 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:deliverableType',
           label: 'Select deliverable type',
+          placeholder: 'Select one',
           element: 'dropdown',
           required: true,
           dropdownOptions: [
@@ -255,11 +269,6 @@ export function getMetadataSchema(facetOptions){
               name: 'Tutorial',
             },
           ],
-          requires: [{
-            property: 'gmo:campaignName',
-            expectedValue: '',
-            operator: '!=='
-          }]
         },
         {
           mapToProperty: 'gmo:licensedContent',
@@ -273,11 +282,11 @@ export function getMetadataSchema(facetOptions){
               name: 'No',
             },
             {
-              id: 'yes-expire',
+              id: 'yes-expires',
               name: 'Yes (Expires)',
             },
             {
-              id: 'yes-perpetuity',
+              id: 'yes-in-perpetuity',
               name: 'Yes (in Perpetuity)',
             },
           ],
@@ -293,6 +302,12 @@ export function getMetadataSchema(facetOptions){
             { property: 'gmo:licensedContent', expectedValue: 'no', operator: '!==' },
             { property: 'gmo:licensedContent', expectedValue: '', operator: '!==' }
           ],
+        },
+        {
+          mapToProperty: 'gmo:owner',
+          label:'Campaign/Asset Owner',
+          element: 'textarea',
+          required: true,
         },
         {
           mapToProperty: 'gmo:contentType',
@@ -344,7 +359,7 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:ddomStage',
           label: 'DDOM Stage',
-          placeholder: 'Select multiple',
+          placeholder: 'Select one or more',
           element: 'tags',
           dropdownOptions: [
             {
@@ -372,8 +387,8 @@ export function getMetadataSchema(facetOptions){
         {
           mapToProperty: 'gmo:p0TargetMarketGeo',
           label: 'Target Market',
-          placeholder: 'Select One',
-          element: 'dropdown',
+          placeholder: 'Select one  or more',
+          element: 'tags',
           dropdownOptions: [
             {
               id: 'apac',
