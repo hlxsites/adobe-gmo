@@ -2,6 +2,7 @@ import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
 import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
+import { getBaseConfigPath } from '../../scripts/site-config.js';
 
 const headerConfig = [
     {
@@ -135,7 +136,8 @@ function buildCampaignList(campaigns, numPerPage) {
     const listWrapper = document.createElement('div');
     listWrapper.classList.add('list-items');
     listWrapper.dataset.totalresults = campaigns.length;
-    const host = location.origin + '/drafts/mdickson'
+    const host = location.origin + getBaseConfigPath();
+    
     campaigns.forEach((campaign, index) => {
         const campaignRow = document.createElement('div');
         campaignRow.classList.add('campaign-row');
@@ -149,10 +151,6 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignIcon.classList.add('campaign-icon');
         campaignIcon.dataset.programname = campaign.node.programName;
         campaignIcon.dataset.campaignname = campaign.node.campaignName;
-        //campaignIcon.addEventListener('click', (event) => {
-            
-        //    openCampaignDetails(campaignName);
-        //});
         campaignIconLink.appendChild(campaignIcon);
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
@@ -160,7 +158,6 @@ function buildCampaignList(campaigns, numPerPage) {
             <div class='campaign-name-label'>${checkBlankString(campaign.node.campaignName)}</div>
             <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.node.programName)}</div>
         `
-        //campaignInfoWrapper.appendChild(campaignIcon);
         campaignInfoWrapper.appendChild(campaignIconLink);
         campaignInfoWrapper.appendChild(campaignName);
         const campaignOverviewWrapper = document.createElement('div');

@@ -3,6 +3,7 @@ import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramDetails } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
 import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
+import { getBaseConfigPath } from '../../scripts/site-config.js';
 
     const testData = [
     {
@@ -579,11 +580,11 @@ export default async function decorate(block) {
     block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
         switchTab(event.target);
     })
-    block.querySelector('.back-button').addEventListener('click', (event) => {
-        const host = location.origin + '/drafts/mdickson';
+    block.querySelector('.back-button').addEventListener('click', () => {
+        const host = location.origin + getBaseConfigPath();
         document.location.href = host + `/campaigns`;
     })
-    block.querySelector('.read-more').addEventListener('click', (event) => {
+    block.querySelector('.read-more').addEventListener('click', () => {
         document.querySelector('.overview-wrapper > .description').classList.toggle('hide-overflow');
     })
     decorateIcons(block);
@@ -630,22 +631,6 @@ function buildProductList(program) {
     const product = checkBlankString(program.productOffering);
     const productList = document.createElement('div');
     productList.classList.add('product', 'card-content');
-    /*
-    const productMappings = {
-        "acrobat-pro": {
-            "name": "Acrobat Pro",
-            "icon": "Acrobat"
-        },
-        "lightroom": {
-            "name": "Lightroom",
-            "icon": "Lightroom",
-        },
-        "Not Available": {
-            "name": "Not Available",
-            "icon": "gear"
-        }
-    }
-    */
     const productName = productMappings[product].name;
     const productLabel = productMappings[product].icon;
     productList.innerHTML = `
@@ -672,18 +657,6 @@ function buildAudienceList(program) {
 function buildStatus(status) {
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('campaign-status');
-    /*
-    const statusMappings = {
-        "PLN": {
-            "label": "Planning",
-            "color": "green"
-        },
-        "CUR": {
-            "label": "Current",
-            "color": "green"
-        }
-    }
-    */
     const statusLabel = statusMappings[status].label;
     const statusColor = statusMappings[status].color;
     statusDiv.textContent = statusLabel;
