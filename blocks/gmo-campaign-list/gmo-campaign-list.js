@@ -2,10 +2,7 @@ import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
 import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
-<<<<<<< HEAD
-=======
 import { getBaseConfigPath } from '../../scripts/site-config.js';
->>>>>>> assets-12024
 
 const headerConfig = [
     {
@@ -139,12 +136,8 @@ function buildCampaignList(campaigns, numPerPage) {
     const listWrapper = document.createElement('div');
     listWrapper.classList.add('list-items');
     listWrapper.dataset.totalresults = campaigns.length;
-<<<<<<< HEAD
-    const host = location.origin + '/drafts/mdickson'
-=======
     const host = location.origin + getBaseConfigPath();
     
->>>>>>> assets-12024
     campaigns.forEach((campaign, index) => {
         const campaignRow = document.createElement('div');
         campaignRow.classList.add('campaign-row');
@@ -158,13 +151,6 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignIcon.classList.add('campaign-icon');
         campaignIcon.dataset.programname = campaign.node.programName;
         campaignIcon.dataset.campaignname = campaign.node.campaignName;
-<<<<<<< HEAD
-        //campaignIcon.addEventListener('click', (event) => {
-            
-        //    openCampaignDetails(campaignName);
-        //});
-=======
->>>>>>> assets-12024
         campaignIconLink.appendChild(campaignIcon);
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
@@ -172,10 +158,6 @@ function buildCampaignList(campaigns, numPerPage) {
             <div class='campaign-name-label'>${checkBlankString(campaign.node.campaignName)}</div>
             <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.node.programName)}</div>
         `
-<<<<<<< HEAD
-        //campaignInfoWrapper.appendChild(campaignIcon);
-=======
->>>>>>> assets-12024
         campaignInfoWrapper.appendChild(campaignIconLink);
         campaignInfoWrapper.appendChild(campaignName);
         const campaignOverviewWrapper = document.createElement('div');

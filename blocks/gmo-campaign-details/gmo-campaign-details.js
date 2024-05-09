@@ -432,6 +432,7 @@ export default async function decorate(block) {
     const programName = getQueryVariable('programName');
     const graphqlData = await getProgramDetails(programName);
     const program = graphqlData.data.programList.items[0];
+    console.log(program);
     //const rows = buildTableNoGroups(testData);
     const kpis = buildKPIList(program).outerHTML;
     const products = buildProductList(program).outerHTML;
@@ -466,9 +467,16 @@ export default async function decorate(block) {
         <div id="tab1" class="two-column overview tab">
             <div class="overview-wrapper">
                 <span class="h1 overview-heading">At a Glance</span>
-                <span class="h3">Product Value</span>
-                <div class="description hide-overflow">${checkBlankString(program.productValue.plaintext)}</div>
-                <div class="button no-bg read-more">Read more</div>
+                <div class="product-overview-wrapper">
+                    <span class="h3">Marketing Goal</span>
+                    <div class="overview hide-overflow">${checkBlankString(program.marketingGoal.plaintext)}</div>
+                    <div class="button no-bg read-more">Read more</div>
+                </div>
+                <div class="product-value-wrapper">
+                    <span class="h3">Product Value</span>
+                    <div class="description hide-overflow">${checkBlankString(program.productValue.plaintext)}</div>
+                    <div class="button no-bg read-more">Read more</div>
+                </div>
                 <div class="kpis-wrapper">
                     <span class="h3">KPIs to Measure Success</span>
                     ${kpis}
@@ -559,7 +567,6 @@ export default async function decorate(block) {
                 <div class="table-header">
                     <div class="header table-column column1">Deliverable Name</div>
                     <div class="header table-column column2">Deliverable Type</div>
-                    <div class="header table-column column3">Channel</div>
                     <div class="header table-column column4">Review Link</div>
                     <div class="header table-column column5">Final Asset</div>
                     <div class="header table-column column6">KPI</div>
@@ -593,8 +600,9 @@ export default async function decorate(block) {
 
 async function buildDeliverablesTable(programName, block) {
     const deliverables = await getProgramInfo(programName, "deliverables");
-    const deliverableList = deliverables.data.deliverableList.items;
-    const rows = buildTableNoGroups(deliverableList);
+    //const deliverableList = deliverables.data.deliverableList.items;
+    //const kpi = deliverables.data.programList.items.primaryKpi;
+    const rows = buildTableNoGroups(deliverables,);
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(rows);
 }
@@ -748,11 +756,13 @@ function buildTable(data) {
     return rows;
 }
 
-function buildTableNoGroups(data) {
+function buildTableNoGroups(response) {
+    const deliverableList = response.data.deliverableList.items;
+    const programKpi = response.data.programList.items.primaryKpi;
     const rows = document.createElement('div');
-    console.log(data);
-    data.forEach((deliverable) => {
-        const tableRow = buildTableRow(deliverable, false);
+    console.log(response);
+    deliverableList.forEach((deliverable) => {
+        const tableRow = buildTableRow(deliverable, programKpi, false);
         rows.appendChild(tableRow);
     })
     return rows;
@@ -791,22 +801,20 @@ function buildHeaderRow(category, headerType, isInactive) {
     return headerRow;
 }
 
-function buildTableRow(deliverableJson, createHidden) {
-    //console.log(campaignJson);
+function buildTableRow(deliverableJson, kpi, createHidden) {
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
+
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
         <div class='property table-column column2'>${deliverableJson.deliverableType}</div>
-        <div class='property table-column column3'>${deliverableJson.platform}</div>
         <div class='property table-column column4'>
-            <a href="${deliverableJson.reviewLink}" class="campaign-link">Review Link</a>
+            <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
         </div>
         <div class='property table-column column5'>
-            <a href="#" class="campaign-link">Final Asset</a>
         </div>
-        <div class='property table-column column6'>${deliverableJson.kpi}</div>
+        <div class='property table-column column6'>${checkBlankString(kpi)}</div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
                 <div class='status-heading'>
@@ -819,9 +827,16 @@ function buildTableRow(deliverableJson, createHidden) {
                 </div>
             </div>
         </div>
-        <div class='property table-column column8'>${deliverableJson.taskCompletionDate}</div>
-        <div class='property table-column column9'>${deliverableJson.driver}</div>
+        <div class='property table-column column8'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+        <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
     `
+    if (!(deliverableJson.linkedFolderLink == null)) {
+        const finalAssetLink = document.createElement('a');
+        finalAssetLink.href = deliverableJson.linkedFolderLink;
+        finalAssetLink.classList.add('campaign-link');
+        finalAssetLink.target = '_blank';
+        dataRow.querySelector('.column5').appendChild(finalAssetLink);
+    }
     return dataRow;
 }
 

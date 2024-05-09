@@ -222,10 +222,7 @@ export function generateFilterJSON(filterParams) {
   return result;
 }
 
-<<<<<<< HEAD
 // refactor to use combined function
-=======
->>>>>>> assets-12024
 export async function getProgramDetails(programName) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
@@ -254,7 +251,6 @@ export async function getProgramDetails(programName) {
       throw error; // Rethrow or handle error as appropriate
   });
 }
-<<<<<<< HEAD
 
 export async function getProgramInfo(programName, queryType) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
@@ -286,5 +282,3 @@ export async function getProgramInfo(programName, queryType) {
       throw error; // Rethrow or handle error as appropriate
   });
 }
-=======
->>>>>>> assets-12024
