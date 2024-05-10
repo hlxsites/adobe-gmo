@@ -38,9 +38,6 @@ export default async function decorate(block) {
                     <!--
                     <a href="#" id="option1" data-value="option1" data-type="status" class="dropoption">Option 1</a>
                     <a href="#" id="option2" data-value="option2" data-type="status" class="dropoption">Option 2</a>
-                    <a href="#" id="option3" data-value="option3" data-type="status" class="dropoption">Option 3</a>
-                    <a href="#" id="option4" data-value="option4" data-type="status" class="dropoption">Option 4</a>
-                    <a href="#" id="option5" data-value="option5" data-type="status" class="dropoption">Option 5</a>
                     -->
                 </div>
             </div>
@@ -58,9 +55,6 @@ export default async function decorate(block) {
                     <!--
                     <a href="#" id="option1" data-value="option1" data-type="productOffering" class="dropoption">Option 1</a>
                     <a href="#" id="option2" data-value="option2" data-type="productOffering" class="dropoption">Option 2</a>
-                    <a href="#" id="option3" data-value="option3" data-type="productOffering" class="dropoption">Option 3</a>
-                    <a href="#" id="option4" data-value="option4" data-type="productOffering" class="dropoption">Option 4</a>
-                    <a href="#" id="option5" data-value="option5" data-type="productOffering" class="dropoption">Option 5</a>
                     -->
                 </div>
             </div>
@@ -76,11 +70,8 @@ export default async function decorate(block) {
                 </div>
                 <div class="dropdown-content" id="dropdownGeoOptions">
                     <!--
-                    <a href="#" id="option1" data-value="na" data-type="p0TargetGeo" class="dropoption">NA</a>
-                    <a href="#" id="option2" data-value="dme" data-type="p0TargetGeo" class="dropoption">DME</a>
-                    <a href="#" id="option3" data-value="latam" data-type="p0TargetGeo" class="dropoption">LATAM</a>
-                    <a href="#" id="option4" data-value="apac" data-type="p0TargetGeo" class="dropoption">APAC</a>
-                    <a href="#" id="option5" data-value="emea" data-type="p0TargetGeo" class="dropoption">EMEA</a>
+                    <a href="#" id="option1" data-value="apac" data-type="p0TargetGeo" class="dropoption">APAC</a>
+                    <a href="#" id="option2" data-value="emea" data-type="p0TargetGeo" class="dropoption">EMEA</a>
                     -->
                 </div>
             </div>
