@@ -126,7 +126,10 @@ body {
         margin-top: 20px;
         margin-bottom: 20px;
     }
-    & .description {
+    & .product-overview-wrapper {
+        margin-bottom: 20px;
+    }
+    & .description, .overview {
         margin-top: 10px;
         font: normal normal normal 14px/21px Adobe Clean;
         letter-spacing: 0px;
@@ -278,6 +281,7 @@ body {
         margin-left: -20px;
         margin-right: -20px;
         padding-left: 20px;
+        padding-right: 20px;
         height: 64px;
         color: #505050;
         display: flex;
@@ -295,6 +299,7 @@ body {
     }
     &.datarow {
         display: flex;
+        align-items: center;
         height: 88px;
         font-weight: 200;
         & .property {
@@ -302,6 +307,11 @@ body {
         }
         &:first-child, &:nth-child(2) {
             border-top: 2px solid #F4F4F4;
+        }
+        & .deliverable-name, .platforms {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 16px;
         }
     }
     &.collapsible.header {
@@ -383,9 +393,12 @@ body {
     margin-left: 45px;
 }
 .column1 {
+    width: 200px;
+}
+.column3 {
     width: 140px;
 }
-.column3, & .column4, & .column5, & .column6 {
+.column4, & .column5, & .column6 {
     width: 110px;
 }
 .column2 {

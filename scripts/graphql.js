@@ -222,10 +222,11 @@ export function generateFilterJSON(filterParams) {
   return result;
 }
 
-export async function getProgramDetails(programName) {
+// add additional query types as needed
+export async function getProgramInfo(programName, queryType) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
-  const queryName = 'getProgramDetails';
+  const queryName = (queryType == "deliverables") ? "getProgramDeliverables" : "getProgramDetails";
   const encodedProgramName = encodeURIComponent(programName);
   const encodedSemiColon = encodeURIComponent(';');
   //persisted query URLs have to be encoded together with the first semicolon
