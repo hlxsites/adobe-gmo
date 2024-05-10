@@ -398,7 +398,8 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
-    const status = (deliverableJson.deliverableStatusUpdate == null) ? "??" : deliverableJson.deliverableStatusUpdate + "%";
+    const status = (deliverableJson.deliverableStatusUpdate == null) ? "Not Available" : deliverableJson.deliverableStatusUpdate + "%";
+    const statusPct = (deliverableJson.deliverableStatusUpdate == null) ? "0%" : deliverableJson.deliverableStatusUpdate + "%";
     let platformString = '';
     deliverableJson.platforms?.forEach((platform) => {
         platformString = platformString + platform + ', ';
@@ -422,18 +423,20 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
                 </div>
                 <div class='status-bar-wrapper'>
                     <div class='status-bar-underlay'></div>
-                    <div class='status-bar' style='width: ${status}'></div>
+                    <div class='status-bar' style='width: ${statusPct}'></div>
                 </div>
             </div>
         </div>
         <div class='property table-column column8'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
     `
+    console.log(deliverableJson.linkedFolderLink);
     if (!(deliverableJson.linkedFolderLink == null)) {
         const finalAssetLink = document.createElement('a');
         finalAssetLink.href = deliverableJson.linkedFolderLink;
         finalAssetLink.classList.add('campaign-link');
         finalAssetLink.target = '_blank';
+        finalAssetLink.textContent = "Final Asset";
         dataRow.querySelector('.column5').appendChild(finalAssetLink);
     }
     return dataRow;
