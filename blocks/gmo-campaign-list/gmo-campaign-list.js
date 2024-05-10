@@ -39,6 +39,7 @@ let currentPage = 1;
 let currentNumberPerPage = 4;
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
+let blockConfig;
 
 //Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-campaign-list to update
 document.addEventListener('gmoCampaignListBlock', async function() {
@@ -64,7 +65,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
 
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
-
+    blockConfig = readBlockConfig(block);
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
@@ -147,7 +148,7 @@ function buildCampaignList(campaigns, numPerPage) {
     listWrapper.classList.add('list-items');
     listWrapper.dataset.totalresults = campaigns.length;
     const host = location.origin + getBaseConfigPath();
-    
+    const detailsPage = blockConfig.detailspage;
     campaigns.forEach((campaign, index) => {
         const campaignRow = document.createElement('div');
         campaignRow.classList.add('campaign-row');
@@ -155,8 +156,7 @@ function buildCampaignList(campaigns, numPerPage) {
         const campaignInfoWrapper = document.createElement('div');
         campaignInfoWrapper.classList.add('campaign-info-wrapper','column-1');
         const campaignIconLink = document.createElement('a');
-        campaignIconLink.href = host + `/campaign-details?programName=${campaign.node.programName}`
-        
+        campaignIconLink.href = host + `/${detailsPage}?programName=${campaign.node.programName}`
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
         campaignIcon.dataset.programname = campaign.node.programName;
@@ -213,9 +213,7 @@ function buildProductsList(productList) {
 
 function buildProduct(product) {
     const productEl = document.createElement('div');
-    //let productIcon = product;
     if (product == null) product = 'Not Available';
-    //if (product == 'Not Available') productIcon = "gear";
     const productLabel = productMappings[product].name;
     const productIcon = productMappings[product].icon;
 
@@ -450,21 +448,6 @@ function sortColumn(dir, property) {
     });
 }
 
-/*
-function determineStatusColor(status) {
-    switch(status) {
-        case 'Current':
-            return 'green';
-        case 'Delayed':
-            return 'yellow';
-        case 'Canceled':
-            return 'red';
-        default:
-            return 'red';       
-    }
-}
-*/
-
 // supply dummy data if none present
 export function checkBlankString(string) {
     if (string == undefined || string == '' ) {
@@ -473,8 +456,3 @@ export function checkBlankString(string) {
         return string;
     }
 }
-
-function openCampaignDetails(campaignName) {
-    document.location.href = `/campaign-details?campaignName=${campaignName}`;
-}
-    

@@ -1,13 +1,14 @@
-import { decorateIcons } from '../../scripts/lib-franklin.js';
+import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramInfo } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
 import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 
+let blockConfig;
+
 export default async function decorate(block) {
     const programName = getQueryVariable('programName');
-    //const programData = await getProgramDetails(programName);
     const programData = await getProgramInfo(programName, "program");
     const deliverables = getProgramInfo(programName, "deliverables");
     const program = programData.data.programList.items[0];
@@ -16,6 +17,7 @@ export default async function decorate(block) {
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
     const status = buildStatus(program.status).outerHTML;
+    blockConfig = readBlockConfig(block);
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
@@ -164,7 +166,8 @@ export default async function decorate(block) {
     })
     block.querySelector('.back-button').addEventListener('click', () => {
         const host = location.origin + getBaseConfigPath();
-        document.location.href = host + `/campaigns`;
+        const listPage = blockConfig.listpage;
+        document.location.href = host + `/${listPage}`;
     })
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
@@ -430,7 +433,6 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
         <div class='property table-column column8'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
     `
-    console.log(deliverableJson.linkedFolderLink);
     if (!(deliverableJson.linkedFolderLink == null)) {
         const finalAssetLink = document.createElement('a');
         finalAssetLink.href = deliverableJson.linkedFolderLink;
