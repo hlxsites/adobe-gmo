@@ -198,8 +198,13 @@ function switchTab(tab) {
 async function buildChannelScope(deliverables, block) {
     const list = deliverables.data.deliverableList.items;
     const uniqueScopes = getUniqueValues(list, 'deliverableType');
+    if (uniqueScopes.length == 0) {
+        block.querySelector('.channel-scope-wrapper').classList.add('inactive');
+        return;
+    }
     const scopesParent = block.querySelector('.channel-scope-wrapper .tags-wrapper');
     uniqueScopes.forEach((scope) => {
+        if (scope == null || scope == undefined || scope == '') return;
         const tag = document.createElement('div');
         tag.classList.add('scope-tag');
         tag.textContent = scope;
@@ -348,7 +353,6 @@ function buildTableNoGroups(response) {
     const deliverableList = response.data.deliverableList.items;
     const programKpi = response.data.programList.items.primaryKpi;
     const rows = document.createElement('div');
-    console.log(response);
     deliverableList.forEach((deliverable) => {
         const tableRow = buildTableRow(deliverable, programKpi, false);
         rows.appendChild(tableRow);
@@ -393,7 +397,7 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
-    const status = (deliverableJson.deliverableStatusUpdate == null) ? "?" : deliverableJson.deliverableStatusUpdate;
+    const status = (deliverableJson.deliverableStatusUpdate == null) ? "??" : deliverableJson.deliverableStatusUpdate + "%";
     let platformString = '';
     deliverableJson.platforms?.forEach((platform) => {
         platformString = platformString + platform + ', ';
@@ -413,11 +417,11 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
             <div class='status-wrapper'>
                 <div class='status-heading'>
                     <div class='status-label'>Progress</div>
-                    <div class='status-percent'>${status}%</div>
+                    <div class='status-percent'>${status}</div>
                 </div>
                 <div class='status-bar-wrapper'>
                     <div class='status-bar-underlay'></div>
-                    <div class='status-bar' style='width: ${status}%'></div>
+                    <div class='status-bar' style='width: ${status}'></div>
                 </div>
             </div>
         </div>
