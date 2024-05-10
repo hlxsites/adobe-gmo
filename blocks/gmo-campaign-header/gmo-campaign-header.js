@@ -1,6 +1,9 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlQueryNameList, graphqlCampaignByName } from '../../scripts/graphql.js';
 
+// Declared at the top of the file, making it accessible to all functions within this file.
+let allProducts = [];
+
 export default async function decorate(block) {
     block.innerHTML = `
     <div class="inputs-wrapper">
@@ -32,11 +35,13 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownStatusOptions">
+                    <!--
                     <a href="#" id="option1" data-value="option1" data-type="status" class="dropoption">Option 1</a>
                     <a href="#" id="option2" data-value="option2" data-type="status" class="dropoption">Option 2</a>
                     <a href="#" id="option3" data-value="option3" data-type="status" class="dropoption">Option 3</a>
                     <a href="#" id="option4" data-value="option4" data-type="status" class="dropoption">Option 4</a>
                     <a href="#" id="option5" data-value="option5" data-type="status" class="dropoption">Option 5</a>
+                    -->
                 </div>
             </div>
         </div>
@@ -50,11 +55,13 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownProductOptions">
+                    <!--
                     <a href="#" id="option1" data-value="option1" data-type="productOffering" class="dropoption">Option 1</a>
                     <a href="#" id="option2" data-value="option2" data-type="productOffering" class="dropoption">Option 2</a>
                     <a href="#" id="option3" data-value="option3" data-type="productOffering" class="dropoption">Option 3</a>
                     <a href="#" id="option4" data-value="option4" data-type="productOffering" class="dropoption">Option 4</a>
                     <a href="#" id="option5" data-value="option5" data-type="productOffering" class="dropoption">Option 5</a>
+                    -->
                 </div>
             </div>
         </div>
@@ -68,11 +75,13 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownGeoOptions">
+                    <!--
                     <a href="#" id="option1" data-value="na" data-type="p0TargetGeo" class="dropoption">NA</a>
                     <a href="#" id="option2" data-value="dme" data-type="p0TargetGeo" class="dropoption">DME</a>
                     <a href="#" id="option3" data-value="latam" data-type="p0TargetGeo" class="dropoption">LATAM</a>
                     <a href="#" id="option4" data-value="apac" data-type="p0TargetGeo" class="dropoption">APAC</a>
                     <a href="#" id="option5" data-value="emea" data-type="p0TargetGeo" class="dropoption">EMEA</a>
+                    -->
                 </div>
             </div>
         </div>
@@ -140,67 +149,84 @@ export default async function decorate(block) {
         sendGmoCampaignListBlockEvent();
     });
 
+    await initializeDropdowns();
+    attachEventListeners();
+    decorateIcons(block);
+}
 
-    //Business Line List
+async function initializeDropdowns() {
+    // Business Line List
     const businessLineResponse = await graphqlQueryNameList('getBusinessLine');
     const businessLines = businessLineResponse.data.jsonByPath.item.json.options;
-    populateDropdown(businessLines, 'dropdownBusinessOptions', 'status');
+    populateDropdown(businessLines, 'dropdownBusinessOptions', 'businessLine');
 
-    //Status List
+    // Status List
     const statusResponse = await graphqlQueryNameList('getStatusList');
     const statuses = statusResponse.data.jsonByPath.item.json.options;
     populateDropdown(statuses, 'dropdownStatusOptions', 'status');
 
-    //Product List
+    // Product List
     const productResponse = await graphqlQueryNameList('getProductList');
-    const products = productResponse.data.jsonByPath.item.json.options;
-    populateDropdown(products, 'dropdownProductOptions', 'productOffering');
+    allProducts = productResponse.data.jsonByPath.item.json.options;
+    populateDropdown(allProducts, 'dropdownProductOptions', 'productOffering');
 
-    //Geo List
+    // Geo List
     const geoResponse = await graphqlQueryNameList('getGeoList');
     const geos = geoResponse.data.jsonByPath.item.json.options;
     populateDropdown(geos, 'dropdownGeoOptions', 'p0TargetGeo');
+}
 
-    document.querySelectorAll('.dropdown-button').forEach((button) => {
-        button.addEventListener('click', (event) => {
-            toggleDropdown(event.target);
-        });
+// Function to attach event listeners
+function attachEventListeners() {
+    // First remove existing listeners to prevent duplicates
+    removeEventListeners();
+
+    document.querySelectorAll('.dropdown-button').forEach(button => {
+        button.addEventListener('click', dropdownButtonClickHandler);
     });
-    document.querySelectorAll('.dropoption').forEach((button) => {
-        button.addEventListener('click', (event) => {
-        toggleOption(event.target.dataset.value, event.target.dataset.type);
-        //Closes the dropdown list
-        toggleDropdown(event.target);
-        });
+
+    document.querySelectorAll('.dropoption').forEach(option => {
+        option.addEventListener('click', dropOptionClickHandler);
     });
-    document.querySelector('.reset-filters').addEventListener('click', () => {
-        resetAllFilters();
-    })
-    decorateIcons(block);
+
+    const resetFiltersBtn = document.querySelector('.reset-filters');
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', resetFiltersClickHandler);
+    }
 }
 
 function populateDropdown(options, dropdownId, type) {
     let dropdownContent = document.getElementById(dropdownId);
-    // Clear existing options
     dropdownContent.innerHTML = '';
-
-    // Append new options
     options.forEach((option, index) => {
-        // Create a new anchor element for each option
-        var anchor = document.createElement('a');
+        let anchor = document.createElement('a');
         anchor.href = "#";
-        anchor.id = "option" + (index + 1); // increment index for 1-based id
+        anchor.id = `option${index + 1}`;
         anchor.dataset.value = option.value;
         anchor.dataset.type = type;
         anchor.className = "dropoption";
-        anchor.textContent = option.text; // using the option text
-        // Append to the dropdown
+        anchor.textContent = option.text;
         dropdownContent.appendChild(anchor);
     });
 }
 
+// Function to filter products based on selected business line
+function filterProductsByBusinessLine(businessLine) {
+    const filteredProducts = allProducts.filter(product =>
+        product['business-line'].includes(businessLine)
+    );
+    populateDropdown(filteredProducts, 'dropdownProductOptions', 'productOffering');
+}
 
-
+// Function to remove productOffering filters
+function removeSelectedProductOfferingFilters() {
+    // Select all div elements with class 'selected-filter' and data-type 'productOffering'
+    const filters = document.querySelectorAll('.selected-filter[data-type="productOffering"]');
+    // Loop through the NodeList and remove each element
+    filters.forEach(filter => {
+        filter.parentNode.removeChild(filter);
+    });
+}
 
 function toggleDropdown(element) {
     const dropdown = element.closest('.filter-dropdown');
@@ -212,19 +238,32 @@ function toggleDropdown(element) {
 }
 
 function toggleOption(optionValue, optionType) {
-    // Find the currently active option within the same type and deselect it if it's not the clicked one
     const currentlySelected = document.querySelector(`.dropoption.selected[data-type='${optionType}']`);
     if (currentlySelected && currentlySelected.dataset.value !== optionValue) {
         currentlySelected.classList.remove('selected'); // Remove the 'selected' class from the previously selected option
         handleSelectedFilter(currentlySelected); // Update the UI to reflect this change
     }
 
-    // Toggle the 'selected' class on the clicked option
     const dropdownOption = document.querySelector(`[data-value='${optionValue}'][data-type='${optionType}']`);
-    if (!dropdownOption.classList.contains('selected')) {
+    const isSelected = dropdownOption.classList.contains('selected');
+    if (!isSelected) {
         dropdownOption.classList.add('selected');
+        if (optionType === 'businessLine') {
+            // Filter products based on the selected business line
+            filterProductsByBusinessLine(optionValue);
+            //Reset product offering filters
+            removeSelectedProductOfferingFilters();
+            attachEventListeners();
+        }
     } else {
         dropdownOption.classList.remove('selected');
+        if (optionType === 'businessLine') {
+            //Populate all products into  Products dropdown if a Business Line option is deselected
+            populateDropdown(allProducts, 'dropdownProductOptions', 'productOffering');
+            //Reset product offering filters
+            removeSelectedProductOfferingFilters();
+            attachEventListeners();
+        }
     }
 
     handleSelectedFilter(dropdownOption); // Update the UI for the new selection
@@ -288,6 +327,36 @@ function checkResetBtn() {
     } else {
         resetFiltersBtn.classList.add('inactive');
     }
+}
+
+// Define handlers as named functions to easily add and remove them
+function dropdownButtonClickHandler(event) {
+    toggleDropdown(event.target);
+}
+
+function dropOptionClickHandler(event) {
+    toggleOption(event.target.dataset.value, event.target.dataset.type);
+    toggleDropdown(event.target); // Closes the dropdown list
+}
+
+// Function to remove event listeners
+function removeEventListeners() {
+    document.querySelectorAll('.dropdown-button').forEach(button => {
+        button.removeEventListener('click', dropdownButtonClickHandler);
+    });
+
+    document.querySelectorAll('.dropoption').forEach(option => {
+        option.removeEventListener('click', dropOptionClickHandler);
+    });
+
+    const resetFiltersBtn = document.querySelector('.reset-filters');
+    if (resetFiltersBtn) {
+        resetFiltersBtn.removeEventListener('click', resetFiltersClickHandler);
+    }
+}
+
+function resetFiltersClickHandler() {
+    resetAllFilters();
 }
 
 function sendGmoCampaignListBlockEvent() {
