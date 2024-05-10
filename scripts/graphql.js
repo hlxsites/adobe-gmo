@@ -222,42 +222,11 @@ export function generateFilterJSON(filterParams) {
   return result;
 }
 
-// refactor to use combined function
-export async function getProgramDetails(programName) {
-  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
-  const projectId = 'gmo';
-  const queryName = 'getProgramDetails';
-  const encodedProgramName = encodeURIComponent(programName);
-  const encodedSemiColon = encodeURIComponent(';');
-  //persisted query URLs have to be encoded together with the first semicolon
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}programName=${encodedProgramName}`;
-  const jwtToken = await getBearerToken();
-
-  // Return the fetch promise chain so that it can be awaited outside
-  return fetch(graphqlEndpoint, {
-      method: 'GET',
-      headers: {
-          Authorization: jwtToken,
-      },
-  }).then(response => {
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-  }).then(data => {
-      return data; // Make sure to return the data so that the promise resolves with it
-  }).catch(error => {
-      console.error('Error fetching data: ', error);
-      throw error; // Rethrow or handle error as appropriate
-  });
-}
-
+// add additional query types as needed
 export async function getProgramInfo(programName, queryType) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
-  let queryName;
-  if (queryType == "deliverables") queryName = "getProgramDeliverables" || "getProgramDetails";
-  //const queryName = 'getProgramDeliverables';
+  const queryName = (queryType == "deliverables") ? "getProgramDeliverables" : "getProgramDetails";
   const encodedProgramName = encodeURIComponent(programName);
   const encodedSemiColon = encodeURIComponent(';');
   //persisted query URLs have to be encoded together with the first semicolon

@@ -1,15 +1,16 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
-import { getProgramDetails, getProgramInfo } from '../../scripts/graphql.js';
+import { getProgramInfo } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
 import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 
 export default async function decorate(block) {
     const programName = getQueryVariable('programName');
-    const graphqlData = await getProgramDetails(programName);
+    //const programData = await getProgramDetails(programName);
+    const programData = await getProgramInfo(programName, "program");
     const deliverables = getProgramInfo(programName, "deliverables");
-    const program = graphqlData.data.programList.items[0];
+    const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
     const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
