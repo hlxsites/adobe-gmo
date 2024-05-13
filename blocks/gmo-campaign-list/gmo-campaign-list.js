@@ -4,6 +4,8 @@ import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } f
 import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 
+//import { searchAsset } from './AssetsDatasource.js';
+
 const headerConfig = [
     {
         'name': 'Marketing Moments',
