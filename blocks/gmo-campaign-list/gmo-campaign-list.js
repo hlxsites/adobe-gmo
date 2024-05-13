@@ -219,8 +219,7 @@ function buildProduct(product) {
     if (!productMappings[product]) {
         product = 'Not Available';
     }
-
-    // Now, we can safely access the product's name and icon since we handled undefined cases
+    
     const productLabel = productMappings[product].name;
     const productIcon = productMappings[product].icon;
 
