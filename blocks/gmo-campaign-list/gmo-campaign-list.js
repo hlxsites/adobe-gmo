@@ -213,15 +213,22 @@ function buildProductsList(productList) {
 
 function buildProduct(product) {
     const productEl = document.createElement('div');
-    if (product == null) product = 'Not Available';
+    productEl.classList.add('product-entry');
+
+    // Ensure the product exists in the productMappings, otherwise use 'Not Available'
+    if (!productMappings[product]) {
+        product = 'Not Available';
+    }
+
+    // Now, we can safely access the product's name and icon since we handled undefined cases
     const productLabel = productMappings[product].name;
     const productIcon = productMappings[product].icon;
 
-    productEl.classList.add('product-entry');
     productEl.innerHTML = `
         <span class='icon icon-${productIcon}'></span>
         <span class='product-label'>${productLabel}</span>
-    `
+    `;
+
     return productEl;
 }
 
