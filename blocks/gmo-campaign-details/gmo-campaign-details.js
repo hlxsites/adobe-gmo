@@ -182,7 +182,8 @@ export default async function decorate(block) {
 }
 
 async function buildDeliverablesTable(deliverables, block) {
-    const rows = buildTableNoGroups(deliverables);
+    //const rows = buildTableNoGroups(deliverables);
+    const rows = buildTable(deliverables)
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(rows);
 }
@@ -308,23 +309,39 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
-function buildTable(data) {
+function buildTable(jsonResponse) {
+    //console.log(jsonResponse);
+    const deliverableList = jsonResponse.data.deliverableList.items;
+    const programKpi = jsonResponse.data.programList.items.primaryKpi;
+    //console.log(deliverableList);
     const rows = document.createElement('div');
-    const uniqueCategories = getUniqueValues(data, 'category');
+    //const uniqueCategories = getUniqueValues(data, 'deliverableType');
+    const uniqueCategories = getUniqueValues(deliverableList, 'deliverableType');
     let isRowHidden = true;
     let emptyCategory = false;
     uniqueCategories.forEach((category) => {
+        console.log(category);
         // build header row
         let headerRow;
-        if (!((category == undefined) || (category === ''))) {
+        if (category == null || category == undefined || category === '') {
+            console.log('cat is null or empty');
+            emptyCategory = true;
+            headerRow = rows;
+        } else {
             headerRow = buildHeaderRow(category, 'header', false);
             attachListener(headerRow);
             rows.appendChild(headerRow);
-        } else {
-            emptyCategory = true;
-            headerRow = rows;
         }
-        const matchingCampaigns = data.filter(campaign => campaign.category === category);
+        //const matchingCampaigns = data.filter(campaign => campaign.category === category);
+        const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
+        matchingCampaigns.forEach((campaign) => {
+            //isRowHidden = emptyCategory ? false : true;
+            const tableRow = buildTableRow(campaign, programKpi, !emptyCategory);
+            headerRow.appendChild(tableRow);
+            //isRowHidden = true;
+        })
+        emptyCategory = false;
+        /*
         // create subcategory headings
         const subCats = getUniqueValues(matchingCampaigns, 'subcategory');
         subCats.forEach((subCat) => {
@@ -349,7 +366,9 @@ function buildTable(data) {
                 isRowHidden = true;
             });
         });
+        */
     })
+    //sort the rows
     return rows;
 }
 
