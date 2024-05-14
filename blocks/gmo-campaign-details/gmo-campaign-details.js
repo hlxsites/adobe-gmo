@@ -185,6 +185,7 @@ async function buildDeliverablesTable(deliverables, block) {
     //const rows = buildTableNoGroups(deliverables);
     const rows = buildTable(deliverables)
     const tableRoot = block.querySelector('.table-content');
+    decorateIcons(rows);
     tableRoot.appendChild(rows);
 }
 
@@ -320,15 +321,16 @@ function buildTable(jsonResponse) {
         console.log(category);
         // build header row
         let headerRow;
+        const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
+        const matchCount = matchingCampaigns.length;
         if (category == null || category == undefined || category === '') {
             emptyCategory = true;
             headerRow = rows;
         } else {
-            headerRow = buildHeaderRow(category, 'header', false);
+            headerRow = buildHeaderRow(category, 'header', false, matchCount);
             attachListener(headerRow);
             rows.appendChild(headerRow);
         }
-        const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
         matchingCampaigns.forEach((campaign) => {
             const tableRow = buildTableRow(campaign, programKpi, !emptyCategory);
             headerRow.appendChild(tableRow);
@@ -370,7 +372,7 @@ function lookupType(rawType) {
  * @param {string} headerType - Type of header. Either 'category' or 'subcategory'
  * @param {boolean} isInactive - Determines whether or not the header will be hidden initially
  */
-function buildHeaderRow(category, headerType, isInactive) {
+function buildHeaderRow(category, headerType, isInactive, matchCount) {
     //look up friendly name for deliverable type
     const typeLabel = lookupType(category);
     const headerRow = document.createElement('div');
@@ -387,7 +389,7 @@ function buildHeaderRow(category, headerType, isInactive) {
         ${divopen}
             <span class="icon icon-next"></span>
             <span class="icon icon-collapse inactive"></span>
-            <div class="headertext">${typeLabel}</div>
+            <div class="headertext">${typeLabel} (${matchCount})</div>
         </div>`;
     return headerRow;
 }
