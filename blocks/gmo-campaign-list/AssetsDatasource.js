@@ -1,25 +1,17 @@
-import { getBearerToken } from '../../security.js';
+import { getBearerToken } from '../../scripts/security.js';
+
 import {
   getAssetHandlerApiKey,
   getDeliveryEnvironment,
   getBackendApiKey,
-} from '../../polaris.js';
+  getSearchIndex,
+  initDeliveryEnvironment,
+  getOptimizedDeliveryUrl
+} from '../../scripts/polaris.js';
 
-import { getAdminConfig } from '../../site-config.js';
+import { getAdminConfig } from '../../scripts/site-config.js';
 
-import { logError } from '../../scripts.js';
-
-
-/**
- * Constructs and returns the base URL for search assets.
- *
- * @returns {string} The search collections URL.
- */
-export function getSearchAssetsUrl() {
-  return `${getDeliveryEnvironment()}/adobe/assets/search`;
-}
-
-
+import { logError } from '../../scripts/scripts.js';
 
 async function getRequestHeadersSearchAssets() {
   const token = await getBearerToken();
@@ -32,7 +24,6 @@ async function getRequestHeadersSearchAssets() {
   };
 }
 
-
 const getFilters = () => {
   const currentDate = new Date();
   const currentEpoch = Math.floor(currentDate.getTime() / 1000);
@@ -44,28 +35,34 @@ const getFilters = () => {
 
 
 /**
- * Search Lists collections with optional limit and page parameters.
+ * Search Asset for  programName and campaignName parameters.
  *
- * @param {number} - The optional maximum number of collections to retrieve.
- * @param {number} - The optional page number for paginating the results.
- * @returns {Promise<object>} A promise that resolves with a list of collections.
+ * @param {string} - Program Name.
+ * @param {string} - Campaign Name.
+ * @returns {Image <object>} Resolves with image object.
  * @throws {Error} If an HTTP error or network error occurs.
  */
 
 export async function searchAsset(programName, campaignName) {
-
   const adminConfig = await getAdminConfig();
-  const indexName = adminConfig.searchCollectionIndex;
+  const deliveryURL = await initDeliveryEnvironment();
+  const searchURL = `${deliveryURL}/adobe/assets/search`
+  const indexName =  await getSearchIndex();
 
+  // Initialize the facetFilters array
+  const facetFilters = [];
+  if (programName) { // Check if programName is not null
+    facetFilters.push({'gmo-programName': programName});
+  }
+  if (campaignName) { // Check if campaignName is not null
+    facetFilters.push({'gmo-campaignName': campaignName});
+  }
   const data = {
     requests: [
       {
         indexName: indexName,
         params: {
-          facetFilters: [
-            {'gmo-programName': programName},
-            {'gmo-campaignName': campaignName}
-          ],
+          facetFilters: facetFilters,
           filters: getFilters(),
           highlightPostTag: '__/ais-highlight__',
           highlightPreTag: '__ais-highlight__',
@@ -83,34 +80,15 @@ export async function searchAsset(programName, campaignName) {
     headers: await getRequestHeadersSearchAssets(),
     body: JSON.stringify(data),
   };
-
-
-
   try {
-    const response = await fetch(`${getSearchAssetsUrl()}`, options);
+    const response = await fetch(searchURL, options);
     // Handle response codes
     if (response.status === 200) {
-      // Collection retrieved successfully
+      // Asset retrieved successfully
       const responseBody = await response.json();
-
-      return responseBody;
-
-      // Transform the data
-
- /*
-      const transformedData = {
-        page: responseBody.results[0].page,
-        nbHits: responseBody.results[0].nbHits,
-        nbPages: responseBody.results[0].nbPages,
-        items: responseBody.results[0].hits.map(hit => ({
-          id: hit.collectionId,
-          title: hit.collectionMetadata.metadata?.title ?? hit.collectionMetadata.title,
-          description: hit.collectionMetadata.metadata?.description ?? hit.collectionMetadata.description
-        }))
-      };
-
-      return transformedData;
-*/
+      const assetData = responseBody.results[0].hits[0];
+      const thumbnailURL = await getOptimizedDeliveryUrl(assetData.assetId, assetData['repo-name'], 80);
+      return {imageUrl : thumbnailURL, imageAltText: assetData['dc-title']};
     }
     // Handle other response codes
     throw new Error(`Failed to search asset: ${response.status} ${response.statusText}`);
