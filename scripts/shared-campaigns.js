@@ -35,3 +35,33 @@ export const productMappings = {
         "icon": "gear"
     }
 }
+
+export const typeMappings = {
+    "email": {
+        "name": "E-Mail"
+    },
+    "adobe-com": {
+        "name": "Adobe.com"
+    },
+    "other": {
+        "name": "Other"
+    },
+    "in-app": {
+        "name": "In-App"
+    },
+    "paid-media-static": {
+        "name": "Paid Media: Static"
+    },
+    "paid-media-video": {
+        "name": "Paid Media: Video"
+    },
+    "owned-social": {
+        "name": "Owned Social"
+    },
+    "discover": {
+        "name": "Discover"
+    },
+    null: {
+        "name": "Not Available"
+    }
+}

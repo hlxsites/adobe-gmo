@@ -2,7 +2,7 @@ import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramInfo } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
-import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
+import { statusMappings, productMappings, typeMappings } from '../../scripts/shared-campaigns.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 
 let blockConfig;
@@ -310,21 +310,17 @@ function formatDate(dateString) {
 }
 
 function buildTable(jsonResponse) {
-    //console.log(jsonResponse);
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList.items.primaryKpi;
-    //console.log(deliverableList);
     const rows = document.createElement('div');
-    //const uniqueCategories = getUniqueValues(data, 'deliverableType');
     const uniqueCategories = getUniqueValues(deliverableList, 'deliverableType');
-    let isRowHidden = true;
+    //let isRowHidden = true;
     let emptyCategory = false;
     uniqueCategories.forEach((category) => {
         console.log(category);
         // build header row
         let headerRow;
         if (category == null || category == undefined || category === '') {
-            console.log('cat is null or empty');
             emptyCategory = true;
             headerRow = rows;
         } else {
@@ -332,43 +328,15 @@ function buildTable(jsonResponse) {
             attachListener(headerRow);
             rows.appendChild(headerRow);
         }
-        //const matchingCampaigns = data.filter(campaign => campaign.category === category);
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
         matchingCampaigns.forEach((campaign) => {
-            //isRowHidden = emptyCategory ? false : true;
             const tableRow = buildTableRow(campaign, programKpi, !emptyCategory);
             headerRow.appendChild(tableRow);
-            //isRowHidden = true;
         })
         emptyCategory = false;
-        /*
-        // create subcategory headings
-        const subCats = getUniqueValues(matchingCampaigns, 'subcategory');
-        subCats.forEach((subCat) => {
-            let subCatHeader;
-            if (!((subCat == undefined) || (subCat === ''))) {
-                if(emptyCategory) {
-                    subCatHeader = buildHeaderRow(subCat, 'category', false);
-                } else {
-                    subCatHeader = buildHeaderRow(subCat, 'subcategory', true);
-                }
-                attachListener(subCatHeader);
-                headerRow.appendChild(subCatHeader);
-            } else {
-                subCatHeader = rows;
-                isRowHidden = false;
-            }
-
-            const matchingSubs = data.filter(campaign => campaign.subcategory === subCat);
-            matchingSubs.forEach((campaign) => {
-                const tableRow = buildTableRow(campaign, isRowHidden);
-                subCatHeader.appendChild(tableRow);
-                isRowHidden = true;
-            });
-        });
-        */
     })
     //sort the rows
+    sortRows(rows);
     return rows;
 }
 
@@ -391,12 +359,20 @@ function getUniqueValues(array, filterValue) {
     return Array.from(uniqueValues);
 }
 
+function lookupType(rawType) {
+    const typeLookup = typeMappings[rawType]?.name;
+    const deliverableTypeLabel = (typeLookup != undefined) ? typeLookup : deliverableJson.deliverableType;
+    return deliverableTypeLabel;
+}
+
 /**
  * @param {string} category - String value of the category property
  * @param {string} headerType - Type of header. Either 'category' or 'subcategory'
  * @param {boolean} isInactive - Determines whether or not the header will be hidden initially
  */
 function buildHeaderRow(category, headerType, isInactive) {
+    //look up friendly name for deliverable type
+    const typeLabel = lookupType(category);
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
     let divopen;
@@ -411,12 +387,14 @@ function buildHeaderRow(category, headerType, isInactive) {
         ${divopen}
             <span class="icon icon-next"></span>
             <span class="icon icon-collapse inactive"></span>
-            <div class="headertext">${category}</div>
+            <div class="headertext">${typeLabel}</div>
         </div>`;
     return headerRow;
 }
 
 function buildTableRow(deliverableJson, kpi, createHidden) {
+    //look up friendly name for deliverable type
+    const typeLabel = lookupType(deliverableJson.deliverableType);
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
@@ -429,7 +407,7 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     platformString = platformString.slice(0, -2);
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
-        <div class='property table-column column2'>${deliverableJson.deliverableType}</div>
+        <div class='property table-column column2'>${typeLabel}</div>
         <div class='property table-column column3 platforms'>${platformString}</div>
         <div class='property table-column column4'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
@@ -461,6 +439,30 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
         dataRow.querySelector('.column5').appendChild(finalAssetLink);
     }
     return dataRow;
+}
+
+function sortRows(rows) {
+    const rowParent = rows;
+    const nodes = Array.from(rowParent.childNodes);
+    // Sort child nodes by class name
+    nodes.sort((a, b) => {
+        var classA = a.classList ? a.classList.contains('datarow') : false;
+        var classB = b.classList ? b.classList.contains('datarow') : false;
+        
+        if (classA && !classB) {
+            return 1;
+        } else if (!classA && classB) {
+            return -1;
+        } else {
+            return 0;
+        }
+    });
+
+    // Rearrange child nodes
+    nodes.forEach((node) => {
+        rowParent.appendChild(node);
+    });
+    return rowParent;
 }
 
 function attachListener(htmlElement) {
