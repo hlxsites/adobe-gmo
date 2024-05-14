@@ -315,10 +315,8 @@ function buildTable(jsonResponse) {
     const programKpi = jsonResponse.data.programList.items.primaryKpi;
     const rows = document.createElement('div');
     const uniqueCategories = getUniqueValues(deliverableList, 'deliverableType');
-    //let isRowHidden = true;
     let emptyCategory = false;
     uniqueCategories.forEach((category) => {
-        console.log(category);
         // build header row
         let headerRow;
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
@@ -335,11 +333,33 @@ function buildTable(jsonResponse) {
             const tableRow = buildTableRow(campaign, programKpi, !emptyCategory);
             headerRow.appendChild(tableRow);
         })
+        // sort grouped rows by date
+        if (!emptyCategory) {
+            dateSort(headerRow);
+        }
         emptyCategory = false;
     })
     //sort the rows
     sortRows(rows);
     return rows;
+}
+
+function dateSort(parent) {
+    const childNodes = Array.from(parent.getElementsByClassName('datarow'));
+    childNodes.sort((a, b) => {
+        const dateA = new Date(a.querySelector('.completion-date').innerHTML);
+        const dateB = new Date(b.querySelector('.completion-date').innerHTML);
+        // Check if dates are valid
+        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+            return 0; // Move on if date is invalid
+        }
+
+        return dateA - dateB;
+    })
+
+    childNodes.forEach((node) => {
+        parent.appendChild(node);
+    })
 }
 
 function buildTableNoGroups(response) {
@@ -429,7 +449,7 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
                 </div>
             </div>
         </div>
-        <div class='property table-column column8'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+        <div class='property table-column column8 completion-date'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
     `
     if (!(deliverableJson.linkedFolderLink == null)) {
