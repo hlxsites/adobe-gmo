@@ -88,7 +88,7 @@ export async function searchAsset(programName, campaignName) {
       const responseBody = await response.json();
       const assetData = responseBody.results[0].hits[0];
       const thumbnailURL = await getOptimizedDeliveryUrl(assetData.assetId, assetData['repo-name'], 80);
-      return {imageUrl : thumbnailURL, imageAltText: assetData['dc-title']};
+      return {imageUrl : thumbnailURL, imageAltText: assetData['repo-name']};
     }
     // Handle other response codes
     throw new Error(`Failed to search asset: ${response.status} ${response.statusText}`);
