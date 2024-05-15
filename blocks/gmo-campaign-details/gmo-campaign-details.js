@@ -17,6 +17,7 @@ export default async function decorate(block) {
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
     const status = buildStatus(program.status).outerHTML;
+    const artifactLinks = buildArtifactLinks(program).outerHTML;
     blockConfig = readBlockConfig(block);
     block.innerHTML = `
     <div class="back-button">
@@ -78,6 +79,7 @@ export default async function decorate(block) {
                     <div class="tags-wrapper">
                     </div>
                 </div>
+                ${artifactLinks}
                 <div class="links-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -126,6 +128,7 @@ export default async function decorate(block) {
         </div>
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
+                ${artifactLinks}
                 <div class="artifacts-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -134,7 +137,7 @@ export default async function decorate(block) {
                         <a href="#" class="campaign-link">Marketing Brief</a>
                     </div>
                 </div>
-                <div class="total-assets inactive">
+                <div class="total-assets">
                     <div class="h3">Total Assets</div>
                     <span class="description">7</span>
                 </div>
@@ -268,6 +271,28 @@ function buildAudienceList(program) {
     })
     if (audienceList.children.length == 0) audienceList.textContent = "Not Available";
     return audienceList;
+}
+
+function buildArtifactLinks(program) {
+   const artifactLinks = document.createElement('div');
+   artifactLinks.classList.add('links-wrapper');
+   artifactLinks.innerHTML = `
+   <span class="h3">Links to Important Artifacts</span>
+   <div class="links">
+       ${program.creativeArchitectureLink ? '<a href="' + program.creativeArchitectureLink + '" class="campaign-link">Creative Architecture</a> ': ""}
+       ${program.e2eJourney ? '<a href="' + program.e2eJourney + '" class="campaign-link">E2E Journeys</a> ': ""}
+       ${program.gtmSLink ? '<a href="' + program.e2eJourney + '" class="campaign-link">GTM-S</a> ': ""}
+       ${program.gtmPLink ? '<a href="' + program.e2eJourney + '" class="campaign-link">GTM-P</a> ': ""}
+       ${program.marketingBrief ? '<a href="' + program.e2eJourney + '" class="campaign-link">Marketing Brief</a> ': ""}
+       ${program.marketingDoc ? '<a href="' + program.e2eJourney + '" class="campaign-link">Marketing Doc</a> ': ""}
+       ${program.pager ? '<a href="' + program.e2eJourney + '" class="campaign-link">2-Pager</a> ': ""}
+       ${program.adr ? '<a href="' + program.e2eJourney + '" class="campaign-link">ADR</a> ': ""}
+   </div>
+   `
+   // see how many 'links' were made. if none, hide the section
+   const numLinks = artifactLinks.querySelectorAll('.campaign-link')?.length;
+   if (numLinks == 0) artifactLinks.classList.add('inactive');
+   return artifactLinks;
 }
 
 function buildStatus(status) {

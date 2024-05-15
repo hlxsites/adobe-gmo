@@ -6,6 +6,7 @@
 .inputs-wrapper {
     display: flex;
     height: 50px;
+    padding-left: 10px;
 }
 .search-wrapper {
     background-color: #FFF;

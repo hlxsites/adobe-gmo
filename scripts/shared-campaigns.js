@@ -18,6 +18,10 @@ export const productMappings = {
         "name": "Acrobat Pro",
         "icon": "acro-icon"
     },
+    "acrobat-export-pdf": {
+        "name": "Acrobat Export PDF",
+        "icon": "acro-icon"
+    },
     "lightroom": {
         "name": "Lightroom",
         "icon": "lr-icon",
