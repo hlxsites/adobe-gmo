@@ -256,9 +256,15 @@ function createKPI(kpi) {
 }
 
 function buildProductList(program) {
-    const product = checkBlankString(program.productOffering);
+    let product = checkBlankString(program.productOffering);
     const productList = document.createElement('div');
     productList.classList.add('product', 'card-content');
+
+    // Ensure the product exists in the productMappings, otherwise use 'Not Available'
+    if (!productMappings[product]) {
+        product = 'Not Available';
+    }
+
     const productName = productMappings[product].name;
     const productLabel = productMappings[product].icon;
     productList.innerHTML = `
