@@ -3,8 +3,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
 import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
-
-import { searchAsset } from './AssetsDatasource.js';
+import { searchAsset } from '../../scripts/assets.js';
 
 const headerConfig = [
     {
@@ -42,6 +41,7 @@ let currentNumberPerPage = 4;
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
+let initialBlockCall = true;
 
 //Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-campaign-list to update
 document.addEventListener('gmoCampaignListBlock', async function() {
@@ -67,7 +67,11 @@ document.addEventListener('gmoCampaignListBlock', async function() {
 
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
-    blockConfig = readBlockConfig(block);
+    //Only populate blockConfig on the first call the decorate function
+    if (initialBlockCall) {
+      blockConfig = readBlockConfig(block);
+      initialBlockCall = false;
+    }
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;

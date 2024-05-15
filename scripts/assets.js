@@ -1,4 +1,4 @@
-import { getBearerToken } from '../../scripts/security.js';
+import { getBearerToken } from './security.js';
 
 import {
   getAssetHandlerApiKey,
@@ -7,11 +7,11 @@ import {
   getSearchIndex,
   initDeliveryEnvironment,
   getOptimizedDeliveryUrl
-} from '../../scripts/polaris.js';
+} from './polaris.js';
 
-import { getAdminConfig } from '../../scripts/site-config.js';
+import { getAdminConfig } from './site-config.js';
 
-import { logError } from '../../scripts/scripts.js';
+import { logError } from './scripts.js';
 
 async function getRequestHeadersSearchAssets() {
   const token = await getBearerToken();
@@ -43,7 +43,7 @@ const getFilters = () => {
  * @throws {Error} If an HTTP error or network error occurs.
  */
 
-export async function searchAsset(programName, campaignName) {
+export async function searchAsset(programName, campaignName, imageWidth = 80) {
   const adminConfig = await getAdminConfig();
   const deliveryURL = await initDeliveryEnvironment();
   const searchURL = `${deliveryURL}/adobe/assets/search`
@@ -87,7 +87,7 @@ export async function searchAsset(programName, campaignName) {
       // Asset retrieved successfully
       const responseBody = await response.json();
       const assetData = responseBody.results[0].hits[0];
-      const thumbnailURL = await getOptimizedDeliveryUrl(assetData.assetId, assetData['repo-name'], 80);
+      const thumbnailURL = await getOptimizedDeliveryUrl(assetData.assetId, assetData['repo-name'], imageWidth);
       return {imageUrl : thumbnailURL, imageAltText: assetData['repo-name']};
     }
     // Handle other response codes
