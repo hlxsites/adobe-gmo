@@ -95,7 +95,6 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     currentPageInfo.itemCount = campaigns.length;
 
     const listHeaders = buildListHeaders(headerConfig);
-    //const listItems = buildCampaignList(campaigns, numPerPage);
     const listItems = await buildCampaignList(campaigns, numPerPage);
     const listFooter = buildListFooter(campaignCount, numPerPage);
 

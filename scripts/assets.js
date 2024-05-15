@@ -11,7 +11,7 @@ import {
 
 import { getAdminConfig } from './site-config.js';
 
-import { logError } from './scripts.js';
+import { createSearchEndpoint, logError } from './scripts.js';
 
 async function getRequestHeadersSearchAssets() {
   const token = await getBearerToken();
@@ -46,7 +46,7 @@ const getFilters = () => {
 export async function searchAsset(programName, campaignName, imageWidth = 80) {
   const adminConfig = await getAdminConfig();
   const deliveryURL = await initDeliveryEnvironment();
-  const searchURL = `${deliveryURL}/adobe/assets/search`
+
   const indexName =  await getSearchIndex();
 
   // Initialize the facetFilters array
@@ -81,7 +81,7 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
     body: JSON.stringify(data),
   };
   try {
-    const response = await fetch(searchURL, options);
+    const response = await fetch(createSearchEndpoint(), options);
     // Handle response codes
     if (response.status === 200) {
       // Asset retrieved successfully
