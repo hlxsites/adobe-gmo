@@ -33,6 +33,9 @@ body {
     & .h3 {
         font: normal normal bold 14px/21px Adobe Clean;
     }
+    & .subtitle {
+        font: normal normal normal 14px/21px Adobe Clean;
+    }
     & > .main-body-wrapper {
         display: flex;
         flex-direction: column;
@@ -51,6 +54,7 @@ body {
         margin-left: 20px;
         display: flex;
         flex-direction: column;
+        justify-content: space-evenly;
         & .icon-calendar {
             width: 17px;
         }
@@ -68,7 +72,10 @@ body {
     & .header-row2 {
         display: flex;
         align-items: center;
-        margin-top: 20px;
+    }
+    & .header-row3 {
+        display: flex;
+        align-items: center;
     }
     & .campaign-status {
         background-color: #EEF8F5;
@@ -273,23 +280,6 @@ body {
             letter-spacing: 0px;
             color: #0D66D0;
         }
-    }
-}
-
-.artifacts-wrapper {
-    display: flex;
-    flex-direction: column;
-    width: 400px;
-    margin-right: 100px;
-    & .links {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 10px;
-    }
-    & .campaign-link {
-        font: normal normal normal 14px/21px Adobe Clean;
-        letter-spacing: 0px;
-        color: #0D66D0;
     }
 }
 .table-wrapper {

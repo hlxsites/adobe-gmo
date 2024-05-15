@@ -33,7 +33,8 @@ export default async function decorate(block) {
                     <span class="h1">${program.programName}</span>
                     ${status}
                 </div>
-                <div class="header-row2">
+                ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
+                <div class="header-row3">
                     <span class="icon icon-calendar"></span>
                     <span class="campaign-date">${date}</span>
                 </div>
@@ -279,14 +280,14 @@ function buildArtifactLinks(program) {
    artifactLinks.innerHTML = `
    <span class="h3">Links to Important Artifacts</span>
    <div class="links">
-       ${program.creativeArchitectureLink ? '<a href="' + program.creativeArchitectureLink + '" class="campaign-link">Creative Architecture</a> ': ""}
-       ${program.e2eJourney ? '<a href="' + program.e2eJourney + '" class="campaign-link">E2E Journeys</a> ': ""}
-       ${program.gtmSLink ? '<a href="' + program.e2eJourney + '" class="campaign-link">GTM-S</a> ': ""}
-       ${program.gtmPLink ? '<a href="' + program.e2eJourney + '" class="campaign-link">GTM-P</a> ': ""}
-       ${program.marketingBrief ? '<a href="' + program.e2eJourney + '" class="campaign-link">Marketing Brief</a> ': ""}
-       ${program.marketingDoc ? '<a href="' + program.e2eJourney + '" class="campaign-link">Marketing Doc</a> ': ""}
-       ${program.pager ? '<a href="' + program.e2eJourney + '" class="campaign-link">2-Pager</a> ': ""}
-       ${program.adr ? '<a href="' + program.e2eJourney + '" class="campaign-link">ADR</a> ': ""}
+       ${program.creativeArchitectureLink ? '<a href="' + program.creativeArchitectureLink + '" target="_blank" class="campaign-link">Creative Architecture</a> ': ""}
+       ${program.e2eJourney ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">E2E Journeys</a> ': ""}
+       ${program.gtmSLink ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">GTM-S</a> ': ""}
+       ${program.gtmPLink ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">GTM-P</a> ': ""}
+       ${program.marketingBrief ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">Marketing Brief</a> ': ""}
+       ${program.marketingDoc ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">Marketing Doc</a> ': ""}
+       ${program.pager ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">2-Pager</a> ': ""}
+       ${program.adr ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">ADR</a> ': ""}
    </div>
    `
    // see how many 'links' were made. if none, hide the section
