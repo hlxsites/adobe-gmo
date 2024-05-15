@@ -52,10 +52,10 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
   // Initialize the facetFilters array
   const facetFilters = [];
   if (programName) { // Check if programName is not null
-    facetFilters.push({'gmo-programName': programName});
+    facetFilters.push('gmo-programName :'+programName);
   }
   if (campaignName) { // Check if campaignName is not null
-    facetFilters.push({'gmo-campaignName': campaignName});
+    facetFilters.push('gmo-campaignName :'+ campaignName);
   }
   const data = {
     requests: [
@@ -80,6 +80,7 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
     headers: await getRequestHeadersSearchAssets(),
     body: JSON.stringify(data),
   };
+  
   try {
     const response = await fetch(createSearchEndpoint(), options);
     // Handle response codes

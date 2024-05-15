@@ -179,8 +179,7 @@ async function buildCampaignList(campaigns, numPerPage) {
             iconImage.src = imageObject.imageUrl;
             iconImage.alt = imageObject.imageAltText;
         } catch (error) {
-            console.error("Failed to load campaign image:", error);
-            iconImage.alt = "Failed to load image";
+            console.error("No campaign image found:", error);
         }
         // Append the image to the campaignIcon div
         campaignIcon.appendChild(iconImage);
