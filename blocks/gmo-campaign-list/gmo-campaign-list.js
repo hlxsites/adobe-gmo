@@ -41,7 +41,6 @@ let currentNumberPerPage = 4;
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
-let initialBlockCall = true;
 
 //Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-campaign-list to update
 document.addEventListener('gmoCampaignListBlock', async function() {

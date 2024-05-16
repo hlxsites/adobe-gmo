@@ -309,7 +309,7 @@ function buildArtifactLinks(program) {
        ${program.pager ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">2-Pager</a> ': ""}
        ${program.adr ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">ADR</a> ': ""}
    </div>
-   `
+   `;
    // see how many 'links' were made. if none, hide the section
    const numLinks = artifactLinks.querySelectorAll('.campaign-link')?.length;
    if (numLinks == 0) artifactLinks.classList.add('inactive');
@@ -497,7 +497,7 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
         </div>
         <div class='property table-column column8 completion-date'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
-    `
+    `;
     if (!(deliverableJson.linkedFolderLink == null)) {
         const finalAssetLink = document.createElement('a');
         finalAssetLink.href = deliverableJson.linkedFolderLink;
