@@ -75,6 +75,14 @@ body {
     background: #e2e2e2;
     border-radius: 18px;
 }
+
+.campaign-icon img {
+    width: 100%;  /* Ensure the image fills the entire width of its container */
+    height: 100%; /* Ensure the image fills the entire height of its container */
+    object-fit: cover; /* This will cover the area without distorting the aspect ratio */
+    border-radius: 18px; /* Match the border-radius of the container */
+}
+
 .campaign-name-wrapper {
     width: 220px;
 }

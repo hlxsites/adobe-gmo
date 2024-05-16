@@ -3,6 +3,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
 import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
+import { searchAsset } from '../../scripts/assets.js';
 
 const headerConfig = [
     {
@@ -40,6 +41,7 @@ let currentNumberPerPage = 4;
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
+let initialBlockCall = true;
 
 //Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-campaign-list to update
 document.addEventListener('gmoCampaignListBlock', async function() {
@@ -89,7 +91,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     currentPageInfo.itemCount = campaigns.length;
 
     const listHeaders = buildListHeaders(headerConfig);
-    const listItems = buildCampaignList(campaigns, numPerPage);
+    const listItems = await buildCampaignList(campaigns, numPerPage);
     const listFooter = buildListFooter(campaignCount, numPerPage);
 
     block.innerHTML = `
@@ -143,24 +145,40 @@ function getFilterValues(){
   return filterAttributes;
 }
 
-function buildCampaignList(campaigns, numPerPage) {
+async function buildCampaignList(campaigns, numPerPage) {
     const listWrapper = document.createElement('div');
     listWrapper.classList.add('list-items');
     listWrapper.dataset.totalresults = campaigns.length;
     const host = location.origin + getBaseConfigPath();
     const detailsPage = blockConfig.detailspage;
-    campaigns.forEach((campaign, index) => {
+
+    for (const campaign of campaigns) {
+        const index = campaigns.indexOf(campaign);
         const campaignRow = document.createElement('div');
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
+
         const campaignInfoWrapper = document.createElement('div');
-        campaignInfoWrapper.classList.add('campaign-info-wrapper','column-1');
+        campaignInfoWrapper.classList.add('campaign-info-wrapper', 'column-1');
+
         const campaignIconLink = document.createElement('a');
-        campaignIconLink.href = host + `/${detailsPage}?programName=${campaign.node.programName}`
+        campaignIconLink.href = host + `/${detailsPage}?programName=${campaign.node.programName}`;
+
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
         campaignIcon.dataset.programname = campaign.node.programName;
         campaignIcon.dataset.campaignname = campaign.node.campaignName;
+        //Add Icon Image
+        const iconImage = document.createElement('img');
+        try {
+            const imageObject = await searchAsset(campaign.node.programName, campaign.node.campaignName);
+            iconImage.src = imageObject.imageUrl;
+            iconImage.alt = imageObject.imageAltText;
+        } catch (error) {
+            console.error("No campaign image found:", error);
+        }
+        // Append the image to the campaignIcon div
+        campaignIcon.appendChild(iconImage);
         campaignIconLink.appendChild(campaignIcon);
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
@@ -170,21 +188,27 @@ function buildCampaignList(campaigns, numPerPage) {
         `
         campaignInfoWrapper.appendChild(campaignIconLink);
         campaignInfoWrapper.appendChild(campaignName);
+
         const campaignOverviewWrapper = document.createElement('div');
-        campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper','vertical-center');
+        campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper', 'vertical-center');
+
         const campaignOverview = document.createElement('div');
         campaignOverview.textContent = checkBlankString(campaign.node.marketingGoal.plaintext);
         campaignOverview.classList.add('campaign-description');
         campaignOverview.dataset.property = 'description';
         campaignOverviewWrapper.appendChild(campaignOverview);
+
         const campaignLaunch = document.createElement('div');
         campaignLaunch.textContent = checkBlankString(campaign.node.launchDate);
         campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
+
         const campaignProducts = buildProductsList(checkBlankString(campaign.node.productOffering));
         campaignProducts.classList.add('column-4', 'vertical-center');
+
         const campaignStatusWrapper = document.createElement('div');
-        campaignStatusWrapper.classList.add('status-wrapper', 'column-6','vertical-center');
+        campaignStatusWrapper.classList.add('status-wrapper', 'column-6', 'vertical-center');
+
         const campaignStatus = document.createElement('div');
         const statusStr = checkBlankString(campaign.node.status);
         const statusString = statusMappings[statusStr].label;
@@ -193,6 +217,7 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignStatus.classList.add('status');
         campaignStatus.dataset.property = 'status';
         campaignStatusWrapper.appendChild(campaignStatus);
+
         campaignRow.appendChild(campaignInfoWrapper);
         campaignRow.appendChild(campaignOverviewWrapper);
         campaignRow.appendChild(campaignLaunch);
@@ -200,7 +225,7 @@ function buildCampaignList(campaigns, numPerPage) {
         campaignRow.appendChild(campaignStatusWrapper);
 
         listWrapper.appendChild(campaignRow);
-    });
+    }
     return listWrapper;
 }
 
@@ -213,15 +238,21 @@ function buildProductsList(productList) {
 
 function buildProduct(product) {
     const productEl = document.createElement('div');
-    if (product == null) product = 'Not Available';
+    productEl.classList.add('product-entry');
+
+    // Ensure the product exists in the productMappings, otherwise use 'Not Available'
+    if (!productMappings[product]) {
+        product = 'Not Available';
+    }
+
     const productLabel = productMappings[product].name;
     const productIcon = productMappings[product].icon;
 
-    productEl.classList.add('product-entry');
     productEl.innerHTML = `
         <span class='icon icon-${productIcon}'></span>
         <span class='product-label'>${productLabel}</span>
-    `
+    `;
+
     return productEl;
 }
 
