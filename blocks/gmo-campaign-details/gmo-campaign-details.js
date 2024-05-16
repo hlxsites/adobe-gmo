@@ -4,6 +4,7 @@ import { getProgramInfo } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
 import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
+import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
 
@@ -160,6 +161,12 @@ export default async function decorate(block) {
     </div>
     `;
 
+    try {
+        const imageObject = await searchAsset(program.programName, program.campaignName);
+        insertImageIntoCampaignImg(block,imageObject);
+    } catch (error) {
+        console.error("Failed to load campaign image:", error);
+    }
 
     block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
         switchTab(event.target);
@@ -181,6 +188,13 @@ export default async function decorate(block) {
     buildDeliverablesTable(await deliverables, block);
 }
 
+function insertImageIntoCampaignImg(block,imageObject) {
+    const campaignImgDiv = block.querySelector('.campaign-img');
+    const imgElement = document.createElement('img');
+    imgElement.src = imageObject.imageUrl;
+    imgElement.alt = imageObject.imageAltText;
+    campaignImgDiv.appendChild(imgElement);
+}
 async function buildDeliverablesTable(deliverables, block) {
     const rows = buildTableNoGroups(deliverables);
     const tableRoot = block.querySelector('.table-content');
@@ -242,9 +256,15 @@ function createKPI(kpi) {
 }
 
 function buildProductList(program) {
-    const product = checkBlankString(program.productOffering);
+    let product = checkBlankString(program.productOffering);
     const productList = document.createElement('div');
     productList.classList.add('product', 'card-content');
+
+    // Ensure the product exists in the productMappings, otherwise use 'Not Available'
+    if (!productMappings[product]) {
+        product = 'Not Available';
+    }
+
     const productName = productMappings[product].name;
     const productLabel = productMappings[product].icon;
     productList.innerHTML = `

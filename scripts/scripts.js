@@ -127,7 +127,7 @@ async function loadScript(url, attrs) {
   });
 }
 
-function createSearchEndpoint() {
+export function createSearchEndpoint() {
   return `${getDeliveryEnvironment()}/adobe/assets/search`;
 }
 

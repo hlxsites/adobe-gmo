@@ -147,6 +147,7 @@ export default async function decorate(block) {
 
 async function initializeDropdowns() {
     // Business Line List
+
     const businessLineResponse = await graphqlQueryNameList('getBusinessLine');
     const businessLines = businessLineResponse.data.jsonByPath.item.json.options;
     populateDropdown(businessLines, 'dropdownBusinessOptions', 'businessLine');
