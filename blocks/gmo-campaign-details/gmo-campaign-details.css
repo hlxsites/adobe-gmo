@@ -267,7 +267,7 @@ body {
     .links-wrapper {
         display: flex;
         flex-direction: column;
-        width: 400px;
+        max-width: 90%;
         margin-right: 100px;
         margin-top: unset;
         & .links {
