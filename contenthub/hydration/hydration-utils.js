@@ -29,10 +29,6 @@ export function formIsComplete(metadataSchema, formValues) {
     
   if(incomplete) return false;
 
-  if(formValues['gmo:campaignName']){
-    if(!formValues['gmo:programName']) return false;
-  }
-  
   if(formValues['gmo:licensedContent'] !== 'no'){
     if(!formValues['gmo:usageTerms']) return false;
     if(formValues['gmo:licensedContent'] === 'yes-expires' && !formValues['gmo:licenseExpiryDate']) return false;
@@ -116,7 +112,8 @@ export function getMetadataSchema(facetOptions){
           label: 'Product',
           placeholder: 'Select one or more',
           required: true,
-          element: 'tags',
+          element: 'dropdown',
+          multipleSelection: true,
           dropdownOptions: [
             { name: 'N/A', id: 'na' },
             { name: 'Acrobat Export PDF', id: 'acrobat-export-pdf' },
@@ -217,13 +214,7 @@ export function getMetadataSchema(facetOptions){
                 return value.toLowerCase().split(' ').every((val) => name.includes(val));
               }
             )
-          },
-          required: true,
-          requires: [{
-            property: 'gmo:campaignName',
-            expectedValue: '',
-            operator: '!=='
-          }]
+          }
         },
         {
           mapToProperty: 'gmo:deliverableType',
@@ -360,7 +351,8 @@ export function getMetadataSchema(facetOptions){
           mapToProperty: 'gmo:ddomStage',
           label: 'DDOM Stage',
           placeholder: 'Select one or more',
-          element: 'tags',
+          element: 'dropdown',
+          multipleSelection: true,
           dropdownOptions: [
             {
               id: 'discover',
@@ -388,7 +380,8 @@ export function getMetadataSchema(facetOptions){
           mapToProperty: 'gmo:p0TargetMarketGeo',
           label: 'Target Market',
           placeholder: 'Select one  or more',
-          element: 'tags',
+          element: 'dropdown',
+          multipleSelection: true,
           dropdownOptions: [
             {
               id: 'apac',
