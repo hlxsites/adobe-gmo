@@ -12,8 +12,16 @@ export default async function decorate(block) {
     const programName = getQueryVariable('programName');
     const programData = await getProgramInfo(programName, "program");
     const deliverables = getProgramInfo(programName, "deliverables");
+    //Program Details contains data for p0TargetMarketArea and p1TargetMarketArea
+    const details = await getProgramInfo(programName, "details");
+    const p0TargetMarketArea = details.data.programList.items[0].p0TargetMarketArea;
+    const p1TargetMarketArea = details.data.programList.items[0].p1TargetMarketArea;
+
     const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
+
+    const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
+
     const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
@@ -60,6 +68,10 @@ export default async function decorate(block) {
                 <div class="kpis-wrapper">
                     <span class="h3">KPIs to Measure Success</span>
                     ${kpis}
+                </div>
+                <div class="kpis-wrapper">
+                    <span class="h3">Target Market Area</span>
+                    ${targetMarketAreas}
                 </div>
                 <div class="use-cases-wrapper inactive">
                     <span class="h3">Hero Use Cases</span>
@@ -184,6 +196,7 @@ export default async function decorate(block) {
         });
     });
     decorateIcons(block);
+
     buildChannelScope(await deliverables, block);
     buildDeliverablesTable(await deliverables, block);
 }
@@ -233,11 +246,11 @@ async function buildChannelScope(deliverables, block) {
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');
     program.primaryKpi?.forEach((kpi) => {
-        const kpiLi = createKPI(kpi);
+        const kpiLi = createLI(kpi);
         kpiList.appendChild(kpiLi);
     })
     program.additionalKpi?.forEach((kpi) => {
-        const kpiLi = createKPI(kpi);
+        const kpiLi = createLI(kpi);
         kpiList.appendChild(kpiLi);
     })
     if (kpiList.children.length == 0) {
@@ -248,11 +261,30 @@ function buildKPIList(program) {
     return kpiList;
 }
 
-function createKPI(kpi) {
-    const kpiLi = document.createElement('li');
-    const kpiText = parseString(kpi);
-    kpiLi.textContent = kpiText;
-    return kpiLi;
+function buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea) {
+    let ulList = document.createElement('ul');
+    p0TargetMarketArea?.forEach((item) => {
+        const itemLi = createLI(item);
+        ulList.appendChild(itemLi);
+    });
+
+    p1TargetMarketArea?.forEach((item) => {
+        const itemLi = createLI(item);
+        ulList.appendChild(itemLi);
+    })
+    if (ulList.children.length == 0) {
+        ulList.remove();
+        ulList = document.createElement('div');
+        ulList.textContent = "Not Available";
+    }
+    return ulList;
+}
+
+function createLI(li) {
+    const liItem = document.createElement('li');
+    const liText = parseString(li);
+    liItem.textContent = liText;
+    return liItem;
 }
 
 function buildProductList(program) {
