@@ -332,6 +332,18 @@ body {
             text-overflow: ellipsis;
             line-height: 16px;
         }
+        & .date-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content:center;
+            & > .completion-date, .revised-date {
+                line-height: 21px;
+            }
+            & > .revised-date {
+                color: #959595;
+                font: italic normal normal 11px/21px Adobe Clean;
+            }
+        }
     }
     &.collapsible.header {
         height: unset;
@@ -371,6 +383,7 @@ body {
         border-top: 2px solid #F4F4F4;
     }
 }
+
 .status-wrapper {
     height: 56px;
     display: flex;
@@ -408,6 +421,22 @@ body {
     }
 
 }
+.header-row3:hover .date-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+.date-tooltip {
+    background-color: #D3D3D3;
+    border-radius: 2px;
+    visibility: hidden;
+    z-index: 1;
+    position: absolute;
+    text-align: center;
+    width: 100px;
+    padding: 2px 0;
+    font: normal normal normal 12px/17px Adobe Clean;
+    margin-left: 100px;
+}
 .column1 {
     margin-left: 45px;
 }
@@ -427,7 +456,7 @@ body {
     width: 170px;
 }
 .column8 {
-    width: 100px;
+    width: 120px;
 }
 .column9 {
     width: 150px;

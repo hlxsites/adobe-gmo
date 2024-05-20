@@ -37,6 +37,7 @@ export default async function decorate(block) {
                 ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
                 <div class="header-row3">
                     <span class="icon icon-calendar"></span>
+                    <span class="date-tooltip">Launch date</span>
                     <span class="campaign-date">${date}</span>
                 </div>
             </div>
@@ -141,7 +142,7 @@ export default async function decorate(block) {
                 </div>
                 <div class="total-assets">
                     <div class="h3">Total Assets</div>
-                    <span class="description">7</span>
+                    <span id="totalassets" class="description"></span>
                 </div>
             </div>
             <div class="table-wrapper">
@@ -168,6 +169,7 @@ export default async function decorate(block) {
     try {
         const imageObject = await searchAsset(program.programName, program.campaignName);
         insertImageIntoCampaignImg(block,imageObject);
+        document.getElementById('totalassets').textContent = imageObject.assetCount;
     } catch (error) {
         console.error("Failed to load campaign image:", error);
     }
@@ -391,6 +393,7 @@ function buildTable(jsonResponse) {
 }
 
 function dateSort(parent) {
+    // refactor this
     const childNodes = Array.from(parent.getElementsByClassName('datarow'));
     childNodes.sort((a, b) => {
         const dateA = new Date(a.querySelector('.completion-date').innerHTML);
@@ -495,7 +498,10 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
                 </div>
             </div>
         </div>
-        <div class='property table-column column8 completion-date'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+        <div class='property table-column column8 date-wrapper'>
+            <div class='completion-date'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+            ${deliverableJson.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverableJson.previousTaskCompletionDate + '</div> ': ""}
+        </div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
     `;
     if (!(deliverableJson.linkedFolderLink == null)) {

@@ -9,17 +9,17 @@ const headerConfig = [
     {
         'name': 'Marketing Moments',
         'attribute': 'campaign',
-        'sortable': 'true'
+        'sortable': true
     },
     {
         'name': 'Overview',
         'attribute': 'description',
-        'sortable': 'false'
+        'sortable': false
     },
     {
         'name': 'Launch Date',
         'attribute': 'launch',
-        'sortable': 'true',
+        'sortable': true,
         'type': 'date'
     },
     {
@@ -29,7 +29,7 @@ const headerConfig = [
     {
         'name': 'Status',
         'attribute': 'status',
-        'sortable': 'true'
+        'sortable': false
     }
 ]
 
@@ -96,7 +96,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     block.innerHTML = `
         <div class="refresh-notification">Last refreshed date: TBD</div>
         <div class="list-container">
-        </div>`
+        </div>`;
     const listContainer = block.querySelector('.list-container');
     listContainer.appendChild(listHeaders);
     listContainer.appendChild(listItems);
