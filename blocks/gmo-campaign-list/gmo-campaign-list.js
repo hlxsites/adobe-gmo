@@ -1,6 +1,6 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
+import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON, getMappingInfo } from '../../scripts/graphql.js';
 import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
@@ -41,6 +41,7 @@ let currentNumberPerPage = 4;
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
+let statusMapping = await getMappingInfo("getStatusList");
 
 //Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-campaign-list to update
 document.addEventListener('gmoCampaignListBlock', async function() {
@@ -205,18 +206,9 @@ async function buildCampaignList(campaigns, numPerPage) {
         const campaignProducts = buildProductsList(checkBlankString(campaign.node.productOffering));
         campaignProducts.classList.add('column-4', 'vertical-center');
 
-        const campaignStatusWrapper = document.createElement('div');
+        var campaignStatusWrapper = document.createElement('div');
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6', 'vertical-center');
-
-        const campaignStatus = document.createElement('div');
-        const statusStr = checkBlankString(campaign.node.status);
-        const statusString = statusMappings[statusStr].label;
-        campaignStatus.textContent = statusString;
-        campaignStatus.classList.add(statusMappings[statusStr].color);
-        campaignStatus.classList.add('status');
-        campaignStatus.dataset.property = 'status';
-        campaignStatusWrapper.appendChild(campaignStatus);
-
+        campaignStatusWrapper = buildStatus(campaignStatusWrapper, campaign);
         campaignRow.appendChild(campaignInfoWrapper);
         campaignRow.appendChild(campaignOverviewWrapper);
         campaignRow.appendChild(campaignLaunch);
@@ -226,6 +218,20 @@ async function buildCampaignList(campaigns, numPerPage) {
         listWrapper.appendChild(campaignRow);
     }
     return listWrapper;
+}
+
+function buildStatus(statusWrapper, campaign) {
+    const campaignStatus = document.createElement('div');
+    const statusStr = checkBlankString(campaign.node.status);
+    const statusArray = statusMapping.data.jsonByPath.item.json.options;
+    const statusMatch = statusArray.filter(item => item.value === statusStr);
+    const statusText = statusMatch.length > 0 ? statusMatch[0].text : statusStr;
+    campaignStatus.textContent = statusText;
+    campaignStatus.style.backgroundColor = "#" + statusMatch[0]["color-code"];
+    campaignStatus.classList.add('status');
+    campaignStatus.dataset.property = 'status';
+    statusWrapper.appendChild(campaignStatus);
+    return statusWrapper;
 }
 
 function buildProductsList(productList) {

@@ -78,9 +78,9 @@ body {
         align-items: center;
     }
     & .campaign-status {
-        background-color: #EEF8F5;
         border-radius: 4px;
-        color: #33AB84;
+        color: black;
+        filter: saturate(0.5);
         font: normal normal normal 12px/15px Adobe Clean;
         height: 24px;
         line-height: 24px;

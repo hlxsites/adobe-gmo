@@ -231,6 +231,8 @@ select {
     border-radius: 3px;
     height: 24px;
     line-height: 24px;
+    filter: saturate(0.5);
+    color: black;
 }
 .status.green {
     background-color: #E8FFF8;

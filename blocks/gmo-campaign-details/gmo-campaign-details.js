@@ -7,17 +7,16 @@ import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
+const programName = getQueryVariable('programName');
 
 export default async function decorate(block) {
-    const programName = getQueryVariable('programName');
-    const programData = await getProgramInfo(programName, "program");
-    const deliverables = getProgramInfo(programName, "deliverables");
+    const programData = await getProgramInfo(programName, "getProgramDetails");
+    const deliverables = getProgramInfo(programName, "getProgramDeliverables");
     const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
     const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
-    const status = buildStatus(program.status).outerHTML;
     const artifactLinks = buildArtifactLinks(program).outerHTML;
     blockConfig = readBlockConfig(block);
     block.innerHTML = `
@@ -192,6 +191,7 @@ export default async function decorate(block) {
     decorateIcons(block);
     buildChannelScope(await deliverables, block);
     buildDeliverablesTable(await deliverables, block);
+    buildStatus(program.status);
 }
 
 function insertImageIntoCampaignImg(block,imageObject) {
@@ -318,14 +318,18 @@ function buildArtifactLinks(program) {
    return artifactLinks;
 }
 
-function buildStatus(status) {
+async function buildStatus(status) {
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('campaign-status');
-    const statusLabel = statusMappings[status].label;
-    const statusColor = statusMappings[status].color;
-    statusDiv.textContent = statusLabel;
-    statusDiv.classList.add(statusColor);
-    return statusDiv;
+    const statusJson = await getProgramInfo(programName, "getStatusList")
+    // use new function that doesn't require programname
+    const statusArray = statusJson.data.jsonByPath.item.json.options;
+    const statusMatch = statusArray.filter(item => item.value === status);
+    const statusText = statusMatch.length > 0 ? statusMatch[0].text : status;
+    const statusHex = statusMatch[0]["color-code"];
+    statusDiv.textContent = statusText;
+    statusDiv.style.backgroundColor = "#" + statusHex;
+    document.querySelector('.header-row1').appendChild(statusDiv);
 }
 
 function createAudience(audience) {
@@ -393,7 +397,6 @@ function buildTable(jsonResponse) {
 }
 
 function dateSort(parent) {
-    // refactor this
     const childNodes = Array.from(parent.getElementsByClassName('datarow'));
     childNodes.sort((a, b) => {
         const dateA = new Date(a.querySelector('.completion-date').innerHTML);
