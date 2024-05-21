@@ -2,22 +2,22 @@ import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramInfo } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
-import { statusMappings, productMappings } from '../../scripts/shared-campaigns.js';
+import { statusMappings, productMappings, typeMappings } from '../../scripts/shared-campaigns.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
+const programName = getQueryVariable('programName');
 
 export default async function decorate(block) {
-    const programName = getQueryVariable('programName');
-    const programData = await getProgramInfo(programName, "program");
-    const deliverables = getProgramInfo(programName, "deliverables");
+    const programData = await getProgramInfo(programName, "getProgramDetails");
+    const deliverables = getProgramInfo(programName, "getProgramDeliverables");
     const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
     const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
-    const status = buildStatus(program.status).outerHTML;
+    const artifactLinks = buildArtifactLinks(program).outerHTML;
     blockConfig = readBlockConfig(block);
     block.innerHTML = `
     <div class="back-button">
@@ -33,8 +33,10 @@ export default async function decorate(block) {
                     <span class="h1">${program.programName}</span>
                     ${status}
                 </div>
-                <div class="header-row2">
+                ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
+                <div class="header-row3">
                     <span class="icon icon-calendar"></span>
+                    <span class="date-tooltip">Launch date</span>
                     <span class="campaign-date">${date}</span>
                 </div>
             </div>
@@ -79,6 +81,7 @@ export default async function decorate(block) {
                     <div class="tags-wrapper">
                     </div>
                 </div>
+                ${artifactLinks}
                 <div class="links-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -127,6 +130,7 @@ export default async function decorate(block) {
         </div>
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
+                ${artifactLinks}
                 <div class="artifacts-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -135,9 +139,9 @@ export default async function decorate(block) {
                         <a href="#" class="campaign-link">Marketing Brief</a>
                     </div>
                 </div>
-                <div class="total-assets inactive">
+                <div class="total-assets">
                     <div class="h3">Total Assets</div>
-                    <span class="description">7</span>
+                    <span id="totalassets" class="description"></span>
                 </div>
             </div>
             <div class="table-wrapper">
@@ -164,6 +168,7 @@ export default async function decorate(block) {
     try {
         const imageObject = await searchAsset(program.programName, program.campaignName);
         insertImageIntoCampaignImg(block,imageObject);
+        document.getElementById('totalassets').textContent = imageObject.assetCount;
     } catch (error) {
         console.error("Failed to load campaign image:", error);
     }
@@ -186,6 +191,7 @@ export default async function decorate(block) {
     decorateIcons(block);
     buildChannelScope(await deliverables, block);
     buildDeliverablesTable(await deliverables, block);
+    buildStatus(program.status);
 }
 
 function insertImageIntoCampaignImg(block,imageObject) {
@@ -196,8 +202,10 @@ function insertImageIntoCampaignImg(block,imageObject) {
     campaignImgDiv.appendChild(imgElement);
 }
 async function buildDeliverablesTable(deliverables, block) {
-    const rows = buildTableNoGroups(deliverables);
+    //const rows = buildTableNoGroups(deliverables);
+    const rows = buildTable(deliverables)
     const tableRoot = block.querySelector('.table-content');
+    decorateIcons(rows);
     tableRoot.appendChild(rows);
 }
 
@@ -288,14 +296,40 @@ function buildAudienceList(program) {
     return audienceList;
 }
 
-function buildStatus(status) {
+function buildArtifactLinks(program) {
+   const artifactLinks = document.createElement('div');
+   artifactLinks.classList.add('links-wrapper');
+   artifactLinks.innerHTML = `
+   <span class="h3">Links to Important Artifacts</span>
+   <div class="links">
+       ${program.creativeArchitectureLink ? '<a href="' + program.creativeArchitectureLink + '" target="_blank" class="campaign-link">Creative Architecture</a> ': ""}
+       ${program.e2eJourney ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">E2E Journeys</a> ': ""}
+       ${program.gtmSLink ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">GTM-S</a> ': ""}
+       ${program.gtmPLink ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">GTM-P</a> ': ""}
+       ${program.marketingBrief ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">Marketing Brief</a> ': ""}
+       ${program.marketingDoc ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">Marketing Doc</a> ': ""}
+       ${program.pager ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">2-Pager</a> ': ""}
+       ${program.adr ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">ADR</a> ': ""}
+   </div>
+   `;
+   // see how many 'links' were made. if none, hide the section
+   const numLinks = artifactLinks.querySelectorAll('.campaign-link')?.length;
+   if (numLinks == 0) artifactLinks.classList.add('inactive');
+   return artifactLinks;
+}
+
+async function buildStatus(status) {
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('campaign-status');
-    const statusLabel = statusMappings[status].label;
-    const statusColor = statusMappings[status].color;
-    statusDiv.textContent = statusLabel;
-    statusDiv.classList.add(statusColor);
-    return statusDiv;
+    const statusJson = await getProgramInfo(programName, "getStatusList")
+    // use new function that doesn't require programname
+    const statusArray = statusJson.data.jsonByPath.item.json.options;
+    const statusMatch = statusArray.filter(item => item.value === status);
+    const statusText = statusMatch.length > 0 ? statusMatch[0].text : status;
+    const statusHex = statusMatch[0]["color-code"];
+    statusDiv.textContent = statusText;
+    statusDiv.style.backgroundColor = "#" + statusHex;
+    document.querySelector('.header-row1').appendChild(statusDiv);
 }
 
 function createAudience(audience) {
@@ -328,49 +362,56 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
-function buildTable(data) {
+function buildTable(jsonResponse) {
+    const deliverableList = jsonResponse.data.deliverableList.items;
+    const programKpi = jsonResponse.data.programList.items.primaryKpi;
     const rows = document.createElement('div');
-    const uniqueCategories = getUniqueValues(data, 'category');
-    let isRowHidden = true;
+    const uniqueCategories = getUniqueValues(deliverableList, 'deliverableType');
     let emptyCategory = false;
     uniqueCategories.forEach((category) => {
         // build header row
         let headerRow;
-        if (!((category == undefined) || (category === ''))) {
-            headerRow = buildHeaderRow(category, 'header', false);
-            attachListener(headerRow);
-            rows.appendChild(headerRow);
-        } else {
+        const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
+        const matchCount = matchingCampaigns.length;
+        if (category == null || category == undefined || category === '') {
             emptyCategory = true;
             headerRow = rows;
+        } else {
+            headerRow = buildHeaderRow(category, 'header', false, matchCount);
+            attachListener(headerRow);
+            rows.appendChild(headerRow);
         }
-        const matchingCampaigns = data.filter(campaign => campaign.category === category);
-        // create subcategory headings
-        const subCats = getUniqueValues(matchingCampaigns, 'subcategory');
-        subCats.forEach((subCat) => {
-            let subCatHeader;
-            if (!((subCat == undefined) || (subCat === ''))) {
-                if(emptyCategory) {
-                    subCatHeader = buildHeaderRow(subCat, 'category', false);
-                } else {
-                    subCatHeader = buildHeaderRow(subCat, 'subcategory', true);
-                }
-                attachListener(subCatHeader);
-                headerRow.appendChild(subCatHeader);
-            } else {
-                subCatHeader = rows;
-                isRowHidden = false;
-            }
-
-            const matchingSubs = data.filter(campaign => campaign.subcategory === subCat);
-            matchingSubs.forEach((campaign) => {
-                const tableRow = buildTableRow(campaign, isRowHidden);
-                subCatHeader.appendChild(tableRow);
-                isRowHidden = true;
-            });
-        });
+        matchingCampaigns.forEach((campaign) => {
+            const tableRow = buildTableRow(campaign, programKpi, !emptyCategory);
+            headerRow.appendChild(tableRow);
+        })
+        // sort grouped rows by date
+        if (!emptyCategory) {
+            dateSort(headerRow);
+        }
+        emptyCategory = false;
     })
+    //sort the rows
+    sortRows(rows);
     return rows;
+}
+
+function dateSort(parent) {
+    const childNodes = Array.from(parent.getElementsByClassName('datarow'));
+    childNodes.sort((a, b) => {
+        const dateA = new Date(a.querySelector('.completion-date').innerHTML);
+        const dateB = new Date(b.querySelector('.completion-date').innerHTML);
+        // Check if dates are valid
+        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+            return 0; // Move on if date is invalid
+        }
+
+        return dateA - dateB;
+    })
+
+    childNodes.forEach((node) => {
+        parent.appendChild(node);
+    })
 }
 
 function buildTableNoGroups(response) {
@@ -392,12 +433,20 @@ function getUniqueValues(array, filterValue) {
     return Array.from(uniqueValues);
 }
 
+function lookupType(rawType) {
+    const typeLookup = typeMappings[rawType]?.name;
+    const deliverableTypeLabel = (typeLookup != undefined) ? typeLookup : deliverableJson.deliverableType;
+    return deliverableTypeLabel;
+}
+
 /**
  * @param {string} category - String value of the category property
  * @param {string} headerType - Type of header. Either 'category' or 'subcategory'
  * @param {boolean} isInactive - Determines whether or not the header will be hidden initially
  */
-function buildHeaderRow(category, headerType, isInactive) {
+function buildHeaderRow(category, headerType, isInactive, matchCount) {
+    //look up friendly name for deliverable type
+    const typeLabel = lookupType(category);
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
     let divopen;
@@ -412,12 +461,14 @@ function buildHeaderRow(category, headerType, isInactive) {
         ${divopen}
             <span class="icon icon-next"></span>
             <span class="icon icon-collapse inactive"></span>
-            <div class="headertext">${category}</div>
+            <div class="headertext">${typeLabel} (${matchCount})</div>
         </div>`;
     return headerRow;
 }
 
 function buildTableRow(deliverableJson, kpi, createHidden) {
+    //look up friendly name for deliverable type
+    const typeLabel = lookupType(deliverableJson.deliverableType);
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
@@ -430,7 +481,7 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     platformString = platformString.slice(0, -2);
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
-        <div class='property table-column column2'>${deliverableJson.deliverableType}</div>
+        <div class='property table-column column2'>${typeLabel}</div>
         <div class='property table-column column3 platforms'>${platformString}</div>
         <div class='property table-column column4'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
@@ -450,9 +501,12 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
                 </div>
             </div>
         </div>
-        <div class='property table-column column8'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+        <div class='property table-column column8 date-wrapper'>
+            <div class='completion-date'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+            ${deliverableJson.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverableJson.previousTaskCompletionDate + '</div> ': ""}
+        </div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
-    `
+    `;
     if (!(deliverableJson.linkedFolderLink == null)) {
         const finalAssetLink = document.createElement('a');
         finalAssetLink.href = deliverableJson.linkedFolderLink;
@@ -462,6 +516,30 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
         dataRow.querySelector('.column5').appendChild(finalAssetLink);
     }
     return dataRow;
+}
+
+function sortRows(rows) {
+    const rowParent = rows;
+    const nodes = Array.from(rowParent.childNodes);
+    // Sort child nodes by class name
+    nodes.sort((a, b) => {
+        var classA = a.classList ? a.classList.contains('datarow') : false;
+        var classB = b.classList ? b.classList.contains('datarow') : false;
+        
+        if (classA && !classB) {
+            return 1;
+        } else if (!classA && classB) {
+            return -1;
+        } else {
+            return 0;
+        }
+    });
+
+    // Rearrange child nodes
+    nodes.forEach((node) => {
+        rowParent.appendChild(node);
+    });
+    return rowParent;
 }
 
 function attachListener(htmlElement) {

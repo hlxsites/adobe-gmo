@@ -226,11 +226,37 @@ export function generateFilterJSON(filterParams) {
 export async function getProgramInfo(programName, queryType) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
-  const queryName = (queryType == "deliverables") ? "getProgramDeliverables" : "getProgramDetails";
+  //const queryName = (queryType == "deliverables") ? "getProgramDeliverables" : "getProgramDetails";
   const encodedProgramName = encodeURIComponent(programName);
   const encodedSemiColon = encodeURIComponent(';');
   //persisted query URLs have to be encoded together with the first semicolon
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}programName=${encodedProgramName}`;
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryType}${encodedSemiColon}programName=${encodedProgramName}`;
+  const jwtToken = await getBearerToken();
+
+  // Return the fetch promise chain so that it can be awaited outside
+  return fetch(graphqlEndpoint, {
+      method: 'GET',
+      headers: {
+          Authorization: jwtToken,
+      },
+  }).then(response => {
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+  }).then(data => {
+      return data; // Make sure to return the data so that the promise resolves with it
+  }).catch(error => {
+      console.error('Error fetching data: ', error);
+      throw error; // Rethrow or handle error as appropriate
+  });
+}
+
+export async function getMappingInfo(queryType) {
+  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
+  const projectId = 'gmo';
+  //persisted query URLs have to be encoded together with the first semicolon
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryType}`;
   const jwtToken = await getBearerToken();
 
   // Return the fetch promise chain so that it can be awaited outside
