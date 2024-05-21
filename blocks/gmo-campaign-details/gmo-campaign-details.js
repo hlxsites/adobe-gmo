@@ -11,11 +11,18 @@ let blockConfig;
 export default async function decorate(block) {
     const programName = getQueryVariable('programName');
     const programData = await getProgramInfo(programName, "program");
-    const deliverables = getProgramInfo(programName, "deliverables");
+    const deliverables = await getProgramInfo(programName, "deliverables");
     //Program Details contains data for p0TargetMarketArea and p1TargetMarketArea
     const details = await getProgramInfo(programName, "details");
+
     const p0TargetMarketArea = details.data.programList.items[0].p0TargetMarketArea;
     const p1TargetMarketArea = details.data.programList.items[0].p1TargetMarketArea;
+
+    //Get unique array of platforms
+    const platforms = [...new Set(details.data.deliverableList.items
+        .flatMap(item => item.platforms)
+        .filter(platform => platform !== null && platform !== undefined)
+    )];
 
     const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
@@ -86,11 +93,19 @@ export default async function decorate(block) {
                         A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.
                     </span>
                 </div>
-                <div class="channel-scope-wrapper">
+
+                <div id="deliverable-type" class="channel-scope-wrapper">
                     <span class="h3">Deliverable Type</span>
                     <div class="tags-wrapper">
                     </div>
                 </div>
+
+                <div id="platforms" class="channel-scope-wrapper">
+                    <span class="h3">Platforms</span>
+                    <div class="tags-wrapper">
+                    </div>
+                </div>
+
                 <div class="links-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -197,8 +212,20 @@ export default async function decorate(block) {
     });
     decorateIcons(block);
 
-    buildChannelScope(await deliverables, block);
-    buildDeliverablesTable(await deliverables, block);
+    buildChannelScope('deliverable-type',getDeliverableScopes(deliverables), block);
+    buildChannelScope('platforms',platforms, block);
+    buildDeliverablesTable(deliverables, block);
+}
+
+
+/**
+ * @param {object} deliverables - JSON Object for deliverables
+ * return Array of unique deliverable scopes
+ */
+function getDeliverableScopes(deliverables) {
+    const list = deliverables.data.deliverableList.items;
+    const uniqueScopes = getUniqueValues(list, 'deliverableType');
+    return uniqueScopes;
 }
 
 function insertImageIntoCampaignImg(block,imageObject) {
@@ -226,22 +253,20 @@ function switchTab(tab) {
     tab.classList.toggle('active');
 }
 
-async function buildChannelScope(deliverables, block) {
-    const list = deliverables.data.deliverableList.items;
-    const uniqueScopes = getUniqueValues(list, 'deliverableType');
-    if (uniqueScopes.length == 0) {
-        block.querySelector('.channel-scope-wrapper').classList.add('inactive');
+async function buildChannelScope(scopeTypeId, scopes, block) {
+    if (scopes.length == 0) {
+        block.querySelector(`#${scopeTypeId}.channel-scope-wrapper`).classList.add('inactive');
         return;
     }
-    const scopesParent = block.querySelector('.channel-scope-wrapper .tags-wrapper');
-    uniqueScopes.forEach((scope) => {
+    const scopesParent = block.querySelector(`#${scopeTypeId}.channel-scope-wrapper .tags-wrapper`);
+    scopes.forEach((scope) => {
         if (scope == null || scope == undefined || scope == '') return;
         const tag = document.createElement('div');
         tag.classList.add('scope-tag');
         tag.textContent = scope;
         scopesParent.appendChild(tag);
-    })
-}   
+    });
+}
 
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');
