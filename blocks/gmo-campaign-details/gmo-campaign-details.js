@@ -17,11 +17,11 @@ export default async function decorate(block) {
     const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
     const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;
 
-    //Get unique array of platforms
-    const platforms = [...new Set(programData.data.deliverableList.items
-        .flatMap(item => item.platforms)
-        .filter(platform => platform !== null && platform !== undefined)
-    )];
+    // Extract unique deliverable types
+    const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
+    // Extract unique platforms (flattened from arrays within each item)
+    const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
+
     const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
 
@@ -215,21 +215,26 @@ export default async function decorate(block) {
         });
     });
     decorateIcons(block);
-    buildChannelScope('deliverable-type',getDeliverableScopes(deliverables), block);
-    buildChannelScope('platforms',platforms, block);
+    buildChannelScope('deliverable-type',uniqueDeliverableTypes, block);
+    buildChannelScope('platforms',uniquePlatforms, block);
     buildDeliverablesTable(deliverables, block);
     buildStatus(program.status);
 }
 
-
 /**
- * @param {object} deliverables - JSON Object for deliverables
- * return Array of unique deliverable scopes
+ * Extracts unique values from a specified property within an array of objects.
+ *
+ * @param {Array} items - The array of objects to extract values from.
+ * @param {string} property - The property name to extract values from each object.
+ * @returns {Array} - An array of unique values extracted from the specified property.
+ *
+ * This function flattens arrays of values if the property contains arrays within each object,
+ * filters out null and undefined values, and returns a unique set of these values.
  */
-function getDeliverableScopes(deliverables) {
-    const list = deliverables.data.deliverableList.items;
-    const uniqueScopes = getUniqueValues(list, 'deliverableType');
-    return uniqueScopes;
+function getUniqueItems(items, property) {
+    return [...new Set(items.flatMap(item => item[property])
+        .filter(value => value !== null && value !== undefined)
+    )];
 }
 
 function insertImageIntoCampaignImg(block,imageObject) {
