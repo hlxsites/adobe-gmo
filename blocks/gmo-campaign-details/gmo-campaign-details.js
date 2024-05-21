@@ -1,13 +1,14 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
-import { getProgramInfo } from '../../scripts/graphql.js';
+import { getProgramInfo, getMappingInfo } from '../../scripts/graphql.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
-import { statusMappings, productMappings, typeMappings } from '../../scripts/shared-campaigns.js';
+import { productMappings, typeMappings } from '../../scripts/shared-campaigns.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
 const programName = getQueryVariable('programName');
+const deliverableMappings = await resolveMappings("getDeliverableTypeMapping");
 
 export default async function decorate(block) {
     const programData = await getProgramInfo(programName, "getProgramDetails");
@@ -31,7 +32,6 @@ export default async function decorate(block) {
             <div class="header-title">
                 <div class="header-row1">
                     <span class="h1">${program.programName}</span>
-                    ${status}
                 </div>
                 ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
                 <div class="header-row3">
@@ -190,8 +190,12 @@ export default async function decorate(block) {
     });
     decorateIcons(block);
     buildChannelScope(await deliverables, block);
-    buildDeliverablesTable(await deliverables, block);
+    const table = await buildDeliverablesTable(await deliverables, block);
+    const tableRoot = block.querySelector('.table-content');
+    await decorateIcons(table);
+    tableRoot.appendChild(table);
     buildStatus(program.status);
+    //await decorateIcons(block);
 }
 
 function insertImageIntoCampaignImg(block,imageObject) {
@@ -201,12 +205,21 @@ function insertImageIntoCampaignImg(block,imageObject) {
     imgElement.alt = imageObject.imageAltText;
     campaignImgDiv.appendChild(imgElement);
 }
+
 async function buildDeliverablesTable(deliverables, block) {
     //const rows = buildTableNoGroups(deliverables);
-    const rows = buildTable(deliverables)
-    const tableRoot = block.querySelector('.table-content');
-    decorateIcons(rows);
-    tableRoot.appendChild(rows);
+    const rows = buildTable(deliverables);
+    /*
+    rows.then(async (datarows) => {
+        //await decorateIcons(datarows);
+    });
+    */
+    //await decorateIcons(await rows);
+    //const tableRoot = block.querySelector('.table-content');
+    //await decorateIcons(rows);
+    //tableRoot.appendChild(rows);
+    //await decorateIcons(tableRoot);
+    return rows;
 }
 
 function switchTab(tab) {
@@ -237,6 +250,12 @@ async function buildChannelScope(deliverables, block) {
         scopesParent.appendChild(tag);
     })
 }   
+
+async function resolveMappings(mappingType) {
+    const response = await getMappingInfo(mappingType);
+    const mappingArray = response.data.jsonByPath.item.json.options;
+    return mappingArray;
+}
 
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');
@@ -362,13 +381,13 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
-function buildTable(jsonResponse) {
+async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList.items.primaryKpi;
     const rows = document.createElement('div');
     const uniqueCategories = getUniqueValues(deliverableList, 'deliverableType');
     let emptyCategory = false;
-    uniqueCategories.forEach((category) => {
+    uniqueCategories.forEach(async (category) => {
         // build header row
         let headerRow;
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
@@ -377,12 +396,12 @@ function buildTable(jsonResponse) {
             emptyCategory = true;
             headerRow = rows;
         } else {
-            headerRow = buildHeaderRow(category, 'header', false, matchCount);
+            headerRow = await buildHeaderRow(category, 'header', false, matchCount);
             attachListener(headerRow);
             rows.appendChild(headerRow);
         }
-        matchingCampaigns.forEach((campaign) => {
-            const tableRow = buildTableRow(campaign, programKpi, !emptyCategory);
+        matchingCampaigns.forEach(async (campaign) => {
+            const tableRow = await buildTableRow(campaign, programKpi, !emptyCategory);
             headerRow.appendChild(tableRow);
         })
         // sort grouped rows by date
@@ -390,7 +409,7 @@ function buildTable(jsonResponse) {
             dateSort(headerRow);
         }
         emptyCategory = false;
-    })
+    });
     //sort the rows
     sortRows(rows);
     return rows;
@@ -433,10 +452,19 @@ function getUniqueValues(array, filterValue) {
     return Array.from(uniqueValues);
 }
 
-function lookupType(rawType) {
+async function lookupType(rawType) {
+    // use deliverable type mapping here
+    const mappings = await deliverableMappings;
+    const typeMatch = mappings.filter(item => item.value === rawType);
+    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawType;
+    return typeText;
+    /*
+    //console.log(mappings);
+
     const typeLookup = typeMappings[rawType]?.name;
     const deliverableTypeLabel = (typeLookup != undefined) ? typeLookup : deliverableJson.deliverableType;
     return deliverableTypeLabel;
+    */
 }
 
 /**
@@ -444,9 +472,9 @@ function lookupType(rawType) {
  * @param {string} headerType - Type of header. Either 'category' or 'subcategory'
  * @param {boolean} isInactive - Determines whether or not the header will be hidden initially
  */
-function buildHeaderRow(category, headerType, isInactive, matchCount) {
+async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     //look up friendly name for deliverable type
-    const typeLabel = lookupType(category);
+    const typeLabel = await lookupType(category);
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
     let divopen;
@@ -466,9 +494,9 @@ function buildHeaderRow(category, headerType, isInactive, matchCount) {
     return headerRow;
 }
 
-function buildTableRow(deliverableJson, kpi, createHidden) {
+async function buildTableRow(deliverableJson, kpi, createHidden) {
     //look up friendly name for deliverable type
-    const typeLabel = lookupType(deliverableJson.deliverableType);
+    const typeLabel = await lookupType(deliverableJson.deliverableType);
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');

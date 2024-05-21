@@ -1,3 +1,4 @@
+/*
 export const statusMappings = {
     "PLN": {
         "label": "Planning",
@@ -12,6 +13,7 @@ export const statusMappings = {
         "color": "green"
     }
 }
+*/
 
 export const productMappings = {
     "acrobat-pro": {

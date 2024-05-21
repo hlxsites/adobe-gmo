@@ -1,7 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON, getMappingInfo } from '../../scripts/graphql.js';
-import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
+import { productMappings } from '../../scripts/shared-campaigns.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -95,7 +95,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     const listFooter = buildListFooter(campaignCount, numPerPage);
 
     block.innerHTML = `
-        <div class="refresh-notification">Last refreshed date: TBD</div>
+        <div class="refresh-notification"></div>
         <div class="list-container">
         </div>`;
     const listContainer = block.querySelector('.list-container');
