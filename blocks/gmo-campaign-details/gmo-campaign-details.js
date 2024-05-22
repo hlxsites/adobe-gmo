@@ -10,10 +10,23 @@ let blockConfig;
 const programName = getQueryVariable('programName');
 
 export default async function decorate(block) {
+
     const programData = await getProgramInfo(programName, "getProgramDetails");
-    const deliverables = getProgramInfo(programName, "getProgramDeliverables");
+    const deliverables = await getProgramInfo(programName, "getProgramDeliverables");
+
+    const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
+    const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;
+
+    // Extract unique deliverable types
+    const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
+    // Extract unique platforms (flattened from arrays within each item)
+    const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
+
     const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
+
+    const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
+
     const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
@@ -63,6 +76,10 @@ export default async function decorate(block) {
                     <span class="h3">KPIs to Measure Success</span>
                     ${kpis}
                 </div>
+                <div class="kpis-wrapper">
+                    <span class="h3">Target Market Area</span>
+                    ${targetMarketAreas}
+                </div>
                 <div class="use-cases-wrapper inactive">
                     <span class="h3">Hero Use Cases</span>
                     <div class="tags-wrapper">
@@ -76,12 +93,21 @@ export default async function decorate(block) {
                         A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.
                     </span>
                 </div>
-                <div class="channel-scope-wrapper">
+
+                <div id="deliverable-type" class="channel-scope-wrapper">
                     <span class="h3">Deliverable Type</span>
                     <div class="tags-wrapper">
                     </div>
                 </div>
+
+                <div id="platforms" class="channel-scope-wrapper">
+                    <span class="h3">Platforms</span>
+                    <div class="tags-wrapper">
+                    </div>
+                </div>
+
                 ${artifactLinks}
+
                 <div class="links-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -189,9 +215,26 @@ export default async function decorate(block) {
         });
     });
     decorateIcons(block);
-    buildChannelScope(await deliverables, block);
-    buildDeliverablesTable(await deliverables, block);
+    buildFieldScopes('deliverable-type',uniqueDeliverableTypes, block);
+    buildFieldScopes('platforms',uniquePlatforms, block);
+    buildDeliverablesTable(deliverables, block);
     buildStatus(program.status);
+}
+
+/**
+ * Extracts unique values from a specified property within an array of objects.
+ *
+ * @param {Array} items - The array of objects to extract values from.
+ * @param {string} property - The property name to extract values from each object.
+ * @returns {Array} - An array of unique values extracted from the specified property.
+ *
+ * This function flattens arrays of values if the property contains arrays within each object,
+ * filters out null and undefined values, and returns a unique set of these values.
+ */
+function getUniqueItems(items, property) {
+    return [...new Set(items.flatMap(item => item[property])
+        .filter(value => value !== null && value !== undefined)
+    )];
 }
 
 function insertImageIntoCampaignImg(block,imageObject) {
@@ -202,7 +245,6 @@ function insertImageIntoCampaignImg(block,imageObject) {
     campaignImgDiv.appendChild(imgElement);
 }
 async function buildDeliverablesTable(deliverables, block) {
-    //const rows = buildTableNoGroups(deliverables);
     const rows = buildTable(deliverables)
     const tableRoot = block.querySelector('.table-content');
     decorateIcons(rows);
@@ -221,31 +263,30 @@ function switchTab(tab) {
     tab.classList.toggle('active');
 }
 
-async function buildChannelScope(deliverables, block) {
-    const list = deliverables.data.deliverableList.items;
-    const uniqueScopes = getUniqueValues(list, 'deliverableType');
-    if (uniqueScopes.length == 0) {
-        block.querySelector('.channel-scope-wrapper').classList.add('inactive');
+
+async function buildFieldScopes(scopeTypeId, scopes, block) {
+    if (scopes.length == 0) {
+        block.querySelector(`#${scopeTypeId}.channel-scope-wrapper`).classList.add('inactive');
         return;
     }
-    const scopesParent = block.querySelector('.channel-scope-wrapper .tags-wrapper');
-    uniqueScopes.forEach((scope) => {
+    const scopesParent = block.querySelector(`#${scopeTypeId}.channel-scope-wrapper .tags-wrapper`);
+    scopes.forEach((scope) => {
         if (scope == null || scope == undefined || scope == '') return;
         const tag = document.createElement('div');
         tag.classList.add('scope-tag');
         tag.textContent = scope;
         scopesParent.appendChild(tag);
-    })
-}   
+    });
+}
 
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');
     program.primaryKpi?.forEach((kpi) => {
-        const kpiLi = createKPI(kpi);
+        const kpiLi = createLI(kpi);
         kpiList.appendChild(kpiLi);
     })
     program.additionalKpi?.forEach((kpi) => {
-        const kpiLi = createKPI(kpi);
+        const kpiLi = createLI(kpi);
         kpiList.appendChild(kpiLi);
     })
     if (kpiList.children.length == 0) {
@@ -256,11 +297,30 @@ function buildKPIList(program) {
     return kpiList;
 }
 
-function createKPI(kpi) {
-    const kpiLi = document.createElement('li');
-    const kpiText = parseString(kpi);
-    kpiLi.textContent = kpiText;
-    return kpiLi;
+function buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea) {
+    let ulList = document.createElement('ul');
+    p0TargetMarketArea?.forEach((item) => {
+        const itemLi = createLI(item);
+        ulList.appendChild(itemLi);
+    });
+
+    p1TargetMarketArea?.forEach((item) => {
+        const itemLi = createLI(item);
+        ulList.appendChild(itemLi);
+    })
+    if (ulList.children.length == 0) {
+        ulList.remove();
+        ulList = document.createElement('div');
+        ulList.textContent = "Not Available";
+    }
+    return ulList;
+}
+
+function createLI(li) {
+    const liItem = document.createElement('li');
+    const liText = parseString(li);
+    liItem.textContent = liText;
+    return liItem;
 }
 
 function buildProductList(program) {
