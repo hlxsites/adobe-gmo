@@ -215,8 +215,8 @@ export default async function decorate(block) {
         });
     });
     decorateIcons(block);
-    buildChannelScope('deliverable-type',uniqueDeliverableTypes, block);
-    buildChannelScope('platforms',uniquePlatforms, block);
+    buildFieldScopes('deliverable-type',uniqueDeliverableTypes, block);
+    buildFieldScopes('platforms',uniquePlatforms, block);
     buildDeliverablesTable(deliverables, block);
     buildStatus(program.status);
 }
@@ -263,7 +263,8 @@ function switchTab(tab) {
     tab.classList.toggle('active');
 }
 
-async function buildChannelScope(scopeTypeId, scopes, block) {
+
+async function buildFieldScopes(scopeTypeId, scopes, block) {
     if (scopes.length == 0) {
         block.querySelector(`#${scopeTypeId}.channel-scope-wrapper`).classList.add('inactive');
         return;
