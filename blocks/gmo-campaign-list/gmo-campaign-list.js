@@ -1,8 +1,8 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON, getMappingInfo } from '../../scripts/graphql.js';
-import { productMappings } from '../../scripts/shared-campaigns.js'
-import { getBaseConfigPath } from '../../scripts/site-config.js';
+import { resolveMappings, filterArray } from '../../scripts/shared-campaigns.js'
+import { getBaseConfigPath, getProductIconMapping } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 const headerConfig = [
@@ -203,7 +203,7 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
 
-        const campaignProducts = buildProductsList(checkBlankString(campaign.node.productOffering));
+        const campaignProducts = await buildProductsList(checkBlankString(campaign.node.productOffering));
         campaignProducts.classList.add('column-4', 'vertical-center');
 
         var campaignStatusWrapper = document.createElement('div');
@@ -234,28 +234,29 @@ function buildStatus(statusWrapper, campaign) {
     return statusWrapper;
 }
 
-function buildProductsList(productList) {
+async function buildProductsList(productList) {
     const campaignProducts = document.createElement('div');
-    const productEl = buildProduct(productList);
+    const productEl = await buildProduct(productList);
     campaignProducts.appendChild(productEl);
     return campaignProducts;
 }
 
-function buildProduct(product) {
+async function buildProduct(product) {
+    const configPath = getBaseConfigPath();
+    const defaultIcon = configPath + '/logo/products/default-app-icon.svg';
+    const iconMapping = await getProductIconMapping();
+    const iconMatch = filterArray(iconMapping, 'Product-offering', product);
+    const icon = iconMatch ? configPath + iconMatch[0]['Icon-path'] : defaultIcon;
+
+    const nameMapping = await resolveMappings("getProductList");
+    const nameMatch = filterArray(nameMapping, 'value', product);
+    const productName = nameMatch ? nameMatch[0].text : product;
+
     const productEl = document.createElement('div');
     productEl.classList.add('product-entry');
-
-    // Ensure the product exists in the productMappings, otherwise use 'Not Available'
-    if (!productMappings[product]) {
-        product = 'Not Available';
-    }
-
-    const productLabel = productMappings[product].name;
-    const productIcon = productMappings[product].icon;
-
     productEl.innerHTML = `
-        <span class='icon icon-${productIcon}'></span>
-        <span class='product-label'>${productLabel}</span>
+        <img class='icon' src=${icon}></img>
+        <span class='product-label'>${productName}</span>
     `;
 
     return productEl;
