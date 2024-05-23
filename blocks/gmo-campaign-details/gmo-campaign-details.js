@@ -8,7 +8,8 @@ import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
 const programName = getQueryVariable('programName');
-const deliverableMappings = await resolveMappings("getDeliverableTypeMapping");
+const deliverableMappings = resolveMappings("getDeliverableTypeMapping");
+const productMappings = resolveMappings("getProductList");
 
 export default async function decorate(block) {
     const programData = await getProgramInfo(programName, "getProgramDetails");
@@ -226,11 +227,11 @@ async function buildChannelScope(deliverables, block) {
         return;
     }
     const scopesParent = block.querySelector('.channel-scope-wrapper .tags-wrapper');
-    uniqueScopes.forEach((scope) => {
+    uniqueScopes.forEach(async (scope) => {
         if (scope == null || scope == undefined || scope == '') return;
         const tag = document.createElement('div');
         tag.classList.add('scope-tag');
-        tag.textContent = scope;
+        tag.textContent = await lookupType(scope);
         scopesParent.appendChild(tag);
     })
 }   
@@ -268,8 +269,7 @@ async function buildProductList(program) {
     const configMatch = filterArray(config, 'Product-offering', product);
     const icon = configMatch ? configPath + configMatch[0]['Icon-path'] : defaultIcon;
 
-    const productMappings = await resolveMappings("getProductList");
-    const productsMatch = filterArray(productMappings, 'value', product);
+    const productsMatch = filterArray(await productMappings, 'value', product);
     const productsText = productsMatch ? productsMatch[0].text : product;
 
     const productList = document.createElement('div');
@@ -469,14 +469,14 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
     platformString = platformString.slice(0, -2);
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
-        <div class='property table-column column2'>${typeLabel}</div>
+        <div class='property table-column column2 deliverable-type'>${typeLabel}</div>
         <div class='property table-column column3 platforms'>${platformString}</div>
-        <div class='property table-column column4'>
+        <div class='property table-column column4 review-link'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
         </div>
         <div class='property table-column column5'>
         </div>
-        <div class='property table-column column6'>${checkBlankString(kpi)}</div>
+        <div class='property table-column column6 kpi'>${checkBlankString(kpi)}</div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
                 <div class='status-heading'>
