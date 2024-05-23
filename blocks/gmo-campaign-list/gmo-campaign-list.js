@@ -38,6 +38,7 @@ let currentPageInfo = {};
 let cursorArray = [];
 let currentPage = 1;
 let currentNumberPerPage = 4;
+let currentGraphqlFilter = {};
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
@@ -52,22 +53,26 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     {
       graphQLFilterArray.push({type:'campaignName', value:searchInputValue, operator:'='})
     }
-    const graphqlFilter = generateFilterJSON(graphQLFilterArray);
+
+    currentGraphqlFilter= generateFilterJSON(graphQLFilterArray);
     const block = document.querySelector('.gmo-campaign-list.block');
     //Get Campaign Count for pagination
-    campaignCount = await graphqlCampaignCount(graphqlFilter);
+    campaignCount = await graphqlCampaignCount(currentGraphqlFilter);
     //Trigger loading the gmo-campaign-block
     //Reset page variables
     currentPageInfo = {};
     cursorArray = [];
     currentPage = 1;
     currentNumberPerPage = 4;
-    decorate( block, currentNumberPerPage, '', false, false, graphqlFilter);
+
+    decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
+
 });
 
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
+
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
@@ -405,17 +410,13 @@ function nextPage(nextBtn) {
     if (currentPageInfo.hasNextPage) {
       //Calculate Next Page
       currentPage++;
-
       const block = document.querySelector('.gmo-campaign-list.block');
-
-      decorate( block, currentNumberPerPage, currentPageInfo.nextCursor, false, true);
-
+      decorate( block, currentNumberPerPage, currentPageInfo.nextCursor, false, true,currentGraphqlFilter);
       if (!(nextBtn.classList.contains('active'))) {
           return;
       }
       const prevBtn = document.querySelector('.footer-pagination-button.prev');
       prevBtn.classList.add('active');
-
     }
 }
 
@@ -424,10 +425,9 @@ function prevPage(prevBtn) {
       currentPage--;
       const block = document.querySelector('.gmo-campaign-list.block');
       const currentCursor = currentPageInfo.currentCursor;
-
       //Calculate cursor for previous page
       const indexCursor = cursorArray.indexOf(currentCursor) - currentNumberPerPage;
-      decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false);
+      decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false,currentGraphqlFilter);
       if (!(prevBtn.classList.contains('active'))) {
           return;
       }
@@ -435,7 +435,6 @@ function prevPage(prevBtn) {
       const currentPageBtn = document.querySelector('#current-page');
       const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
       const targetPage = (currentPageValue - 1);
-
       nextBtn.classList.add('active');
     }
 }
