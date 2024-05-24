@@ -1,18 +1,20 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramInfo } from '../../scripts/graphql.js';
+import { resolveMappings, filterArray, getProductMapping } from '../../scripts/shared-mappings.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
-import { statusMappings, productMappings, typeMappings } from '../../scripts/shared-campaigns.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
 const programName = getQueryVariable('programName');
+const deliverableMappings = resolveMappings("getDeliverableTypeMapping");
+//const productMappings = resolveMappings("getProductList");
 
 export default async function decorate(block) {
 
     const programData = await getProgramInfo(programName, "getProgramDetails");
-    const deliverables = await getProgramInfo(programName, "getProgramDeliverables");
+    const deliverables = getProgramInfo(programName, "getProgramDeliverables");
 
     const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
     const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;
@@ -27,7 +29,6 @@ export default async function decorate(block) {
 
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
 
-    const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
     const artifactLinks = buildArtifactLinks(program).outerHTML;
@@ -44,10 +45,8 @@ export default async function decorate(block) {
             <div class="header-title">
                 <div class="header-row1">
                     <span class="h1">${program.programName}</span>
-                    ${status}
                 </div>
-                ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
-                <div class="header-row3">
+                <div class="header-row2">
                     <span class="icon icon-calendar"></span>
                     <span class="date-tooltip">Launch date</span>
                     <span class="campaign-date">${date}</span>
@@ -138,7 +137,6 @@ export default async function decorate(block) {
                 </div>
                 <div class="card products">
                     <div class="card-heading h3">Products</div>
-                    ${products}
                 </div>
                 <div class="card scope inactive">
                     <div class="card-heading h3">Feature Scope</div>
@@ -190,7 +188,7 @@ export default async function decorate(block) {
         </div>
     </div>
     `;
-
+    buildProductCard(program);
     try {
         const imageObject = await searchAsset(program.programName, program.campaignName);
         insertImageIntoCampaignImg(block,imageObject);
@@ -217,7 +215,12 @@ export default async function decorate(block) {
     decorateIcons(block);
     buildFieldScopes('deliverable-type',uniqueDeliverableTypes, block);
     buildFieldScopes('platforms',uniquePlatforms, block);
-    buildDeliverablesTable(deliverables, block);
+    const table = await buildTable(await deliverables).then(async (rows) => {
+        await decorateIcons(rows);
+        return rows;
+    })
+    const tableRoot = block.querySelector('.table-content');
+    tableRoot.appendChild(table);
     buildStatus(program.status);
 }
 
@@ -244,12 +247,6 @@ function insertImageIntoCampaignImg(block,imageObject) {
     imgElement.alt = imageObject.imageAltText;
     campaignImgDiv.appendChild(imgElement);
 }
-async function buildDeliverablesTable(deliverables, block) {
-    const rows = buildTable(deliverables)
-    const tableRoot = block.querySelector('.table-content');
-    decorateIcons(rows);
-    tableRoot.appendChild(rows);
-}
 
 function switchTab(tab) {
     if (tab.classList.contains('active') || tab.classList.contains('tab-wrapper')) {
@@ -270,11 +267,11 @@ async function buildFieldScopes(scopeTypeId, scopes, block) {
         return;
     }
     const scopesParent = block.querySelector(`#${scopeTypeId}.channel-scope-wrapper .tags-wrapper`);
-    scopes.forEach((scope) => {
+    scopes.forEach(async (scope) => {
         if (scope == null || scope == undefined || scope == '') return;
         const tag = document.createElement('div');
         tag.classList.add('scope-tag');
-        tag.textContent = scope;
+        tag.textContent = await lookupType(scope);
         scopesParent.appendChild(tag);
     });
 }
@@ -323,23 +320,15 @@ function createLI(li) {
     return liItem;
 }
 
-function buildProductList(program) {
-    let product = checkBlankString(program.productOffering);
+async function buildProductCard(program) {
+    const productMapping = await getProductMapping(program.productOffering);
     const productList = document.createElement('div');
     productList.classList.add('product', 'card-content');
-
-    // Ensure the product exists in the productMappings, otherwise use 'Not Available'
-    if (!productMappings[product]) {
-        product = 'Not Available';
-    }
-
-    const productName = productMappings[product].name;
-    const productLabel = productMappings[product].icon;
     productList.innerHTML = `
-        <span class="icon icon-${productLabel}"></span>
-        ${productName}
+        <img class="icon" src=${productMapping.icon}></img>
+        ${productMapping.label}
     `
-    return productList;
+    document.querySelector('.card.products').appendChild(productList);
 }
 
 function buildAudienceList(program) {
@@ -381,11 +370,9 @@ function buildArtifactLinks(program) {
 async function buildStatus(status) {
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('campaign-status');
-    const statusJson = await getProgramInfo(programName, "getStatusList")
-    // use new function that doesn't require programname
-    const statusArray = statusJson.data.jsonByPath.item.json.options;
-    const statusMatch = statusArray.filter(item => item.value === status);
-    const statusText = statusMatch.length > 0 ? statusMatch[0].text : status;
+    const statusArray = await resolveMappings("getStatusList");
+    const statusMatch = filterArray(statusArray, 'value', status);
+    const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
     statusDiv.textContent = statusText;
     statusDiv.style.backgroundColor = "#" + statusHex;
@@ -422,13 +409,13 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
-function buildTable(jsonResponse) {
+async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList.items.primaryKpi;
     const rows = document.createElement('div');
-    const uniqueCategories = getUniqueValues(deliverableList, 'deliverableType');
+    const uniqueCategories = getUniqueItems(deliverableList, 'deliverableType');
     let emptyCategory = false;
-    uniqueCategories.forEach((category) => {
+    uniqueCategories.forEach(async (category) => {
         // build header row
         let headerRow;
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
@@ -437,12 +424,12 @@ function buildTable(jsonResponse) {
             emptyCategory = true;
             headerRow = rows;
         } else {
-            headerRow = buildHeaderRow(category, 'header', false, matchCount);
+            headerRow = await buildHeaderRow(category, 'header', false, matchCount);
             attachListener(headerRow);
             rows.appendChild(headerRow);
         }
-        matchingCampaigns.forEach((campaign) => {
-            const tableRow = buildTableRow(campaign, programKpi, !emptyCategory);
+        matchingCampaigns.forEach(async (campaign) => {
+            const tableRow = await buildTableRow(campaign, programKpi, !emptyCategory);
             headerRow.appendChild(tableRow);
         })
         // sort grouped rows by date
@@ -450,9 +437,10 @@ function buildTable(jsonResponse) {
             dateSort(headerRow);
         }
         emptyCategory = false;
-    })
+    });
     //sort the rows
     sortRows(rows);
+    await decorateIcons(rows);
     return rows;
 }
 
@@ -465,48 +453,29 @@ function dateSort(parent) {
         if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
             return 0; // Move on if date is invalid
         }
-
         return dateA - dateB;
     })
-
     childNodes.forEach((node) => {
         parent.appendChild(node);
     })
 }
 
-function buildTableNoGroups(response) {
-    const deliverableList = response.data.deliverableList.items;
-    const programKpi = response.data.programList.items.primaryKpi;
-    const rows = document.createElement('div');
-    deliverableList.forEach((deliverable) => {
-        const tableRow = buildTableRow(deliverable, programKpi, false);
-        rows.appendChild(tableRow);
-    })
-    return rows;
-}
-
-function getUniqueValues(array, filterValue) {
-    const uniqueValues = new Set();
-    array.forEach(obj => {
-        uniqueValues.add(obj[filterValue]);
-    })
-    return Array.from(uniqueValues);
-}
-
-function lookupType(rawType) {
-    const typeLookup = typeMappings[rawType]?.name;
-    const deliverableTypeLabel = (typeLookup != undefined) ? typeLookup : deliverableJson.deliverableType;
-    return deliverableTypeLabel;
+async function lookupType(rawType) {
+    const mappings = await deliverableMappings;
+    const typeMatch = mappings.filter(item => item.value === rawType);
+    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawType;
+    return typeText;
 }
 
 /**
  * @param {string} category - String value of the category property
  * @param {string} headerType - Type of header. Either 'category' or 'subcategory'
  * @param {boolean} isInactive - Determines whether or not the header will be hidden initially
+ * @param {number} matchCount - Number of matching items, will display beside the label
  */
-function buildHeaderRow(category, headerType, isInactive, matchCount) {
+async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     //look up friendly name for deliverable type
-    const typeLabel = lookupType(category);
+    const typeLabel = await lookupType(category);
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
     let divopen;
@@ -526,9 +495,9 @@ function buildHeaderRow(category, headerType, isInactive, matchCount) {
     return headerRow;
 }
 
-function buildTableRow(deliverableJson, kpi, createHidden) {
+async function buildTableRow(deliverableJson, kpi, createHidden) {
     //look up friendly name for deliverable type
-    const typeLabel = lookupType(deliverableJson.deliverableType);
+    const typeLabel = await lookupType(deliverableJson.deliverableType);
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
@@ -541,14 +510,14 @@ function buildTableRow(deliverableJson, kpi, createHidden) {
     platformString = platformString.slice(0, -2);
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
-        <div class='property table-column column2'>${typeLabel}</div>
+        <div class='property table-column column2 deliverable-type'>${typeLabel}</div>
         <div class='property table-column column3 platforms'>${platformString}</div>
-        <div class='property table-column column4'>
+        <div class='property table-column column4 review-link'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
         </div>
         <div class='property table-column column5'>
         </div>
-        <div class='property table-column column6'>${checkBlankString(kpi)}</div>
+        <div class='property table-column column6 kpi'>${checkBlankString(kpi)}</div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
                 <div class='status-heading'>

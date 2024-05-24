@@ -1,7 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON, getMappingInfo } from '../../scripts/graphql.js';
-import { productMappings, statusMappings } from '../../scripts/shared-campaigns.js'
+import { getProductMapping } from '../../scripts/shared-mappings.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -72,7 +72,6 @@ document.addEventListener('gmoCampaignListBlock', async function() {
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
-
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
@@ -100,7 +99,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     const listFooter = buildListFooter(campaignCount, numPerPage);
 
     block.innerHTML = `
-        <div class="refresh-notification">Last refreshed date: TBD</div>
+        <div class="refresh-notification"></div>
         <div class="list-container">
         </div>`;
     const listContainer = block.querySelector('.list-container');
@@ -188,8 +187,8 @@ async function buildCampaignList(campaigns, numPerPage) {
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
         campaignName.innerHTML = `
-            <div class='campaign-name-label'>${checkBlankString(campaign.node.programName)}</div>
-            <div class='campaign-name' data-property='campaign'>${checkBlankString(campaign.node.campaignName)}</div>
+            <div class='campaign-name-label' data-property='campaign'>${checkBlankString(campaign.node.programName)}</div>
+            <div class='campaign-name'>${checkBlankString(campaign.node.campaignName)}</div>
         `
         campaignInfoWrapper.appendChild(campaignIconLink);
         campaignInfoWrapper.appendChild(campaignName);
@@ -208,7 +207,7 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
 
-        const campaignProducts = buildProductsList(checkBlankString(campaign.node.productOffering));
+        const campaignProducts = await buildProduct(checkBlankString(campaign.node.productOffering));
         campaignProducts.classList.add('column-4', 'vertical-center');
 
         var campaignStatusWrapper = document.createElement('div');
@@ -239,31 +238,17 @@ function buildStatus(statusWrapper, campaign) {
     return statusWrapper;
 }
 
-function buildProductsList(productList) {
-    const campaignProducts = document.createElement('div');
-    const productEl = buildProduct(productList);
-    campaignProducts.appendChild(productEl);
-    return campaignProducts;
-}
-
-function buildProduct(product) {
+async function buildProduct(product) {
+    const productParent = document.createElement('div');
+    const productMapping = await getProductMapping(product);
     const productEl = document.createElement('div');
     productEl.classList.add('product-entry');
-
-    // Ensure the product exists in the productMappings, otherwise use 'Not Available'
-    if (!productMappings[product]) {
-        product = 'Not Available';
-    }
-
-    const productLabel = productMappings[product].name;
-    const productIcon = productMappings[product].icon;
-
     productEl.innerHTML = `
-        <span class='icon icon-${productIcon}'></span>
-        <span class='product-label'>${productLabel}</span>
+        <img class='icon' src=${productMapping.icon}></img>
+        <span class='product-label'>${productMapping.label}</span>
     `;
-
-    return productEl;
+    productParent.appendChild(productEl);
+    return productParent;
 }
 
 function buildListHeaders(headerConfig) {

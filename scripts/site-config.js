@@ -366,3 +366,12 @@ export async function getLicenseAgreementText() {
   });
   return licenseAgreement;
 }
+
+/**
+ * @returns {Array<ProductIcons>}
+ */
+export async function getProductIconMapping() {
+  const response = await getConfig('site-config.json');
+  //return response;
+  return response['product-icons'].data;
+}
