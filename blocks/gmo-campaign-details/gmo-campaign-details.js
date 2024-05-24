@@ -9,7 +9,7 @@ import { searchAsset } from '../../scripts/assets.js';
 let blockConfig;
 const programName = getQueryVariable('programName');
 const deliverableMappings = resolveMappings("getDeliverableTypeMapping");
-//const productMappings = resolveMappings("getProductList");
+const platformMappings = resolveMappings("getPlatformsMapping");
 
 export default async function decorate(block) {
 
@@ -104,9 +104,7 @@ export default async function decorate(block) {
                     <div class="tags-wrapper">
                     </div>
                 </div>
-
                 ${artifactLinks}
-
                 <div class="links-wrapper inactive">
                     <span class="h3">Links to Important Artifacts</span>
                     <div class="links">
@@ -271,7 +269,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block) {
         if (scope == null || scope == undefined || scope == '') return;
         const tag = document.createElement('div');
         tag.classList.add('scope-tag');
-        tag.textContent = await lookupType(scope);
+        tag.textContent = await lookupType(scope, scopeTypeId);
         scopesParent.appendChild(tag);
     });
 }
@@ -460,10 +458,10 @@ function dateSort(parent) {
     })
 }
 
-async function lookupType(rawType) {
-    const mappings = await deliverableMappings;
-    const typeMatch = mappings.filter(item => item.value === rawType);
-    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawType;
+async function lookupType(rawText, mappingType) {
+    const mappings = (mappingType === 'deliverable-type') ? await deliverableMappings : await platformMappings;
+    const typeMatch = mappings.filter(item => item.value === rawText);
+    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawText;
     return typeText;
 }
 
@@ -475,7 +473,7 @@ async function lookupType(rawType) {
  */
 async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     //look up friendly name for deliverable type
-    const typeLabel = await lookupType(category);
+    const typeLabel = await lookupType(category, 'deliverable-type');
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
     let divopen;
@@ -497,21 +495,16 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
 
 async function buildTableRow(deliverableJson, kpi, createHidden) {
     //look up friendly name for deliverable type
-    const typeLabel = await lookupType(deliverableJson.deliverableType);
+    const typeLabel = await lookupType(deliverableJson.deliverableType, 'deliverable-type');
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
     const status = (deliverableJson.deliverableStatusUpdate == null) ? "Not Available" : deliverableJson.deliverableStatusUpdate + "%";
     const statusPct = (deliverableJson.deliverableStatusUpdate == null) ? "0%" : deliverableJson.deliverableStatusUpdate + "%";
-    let platformString = '';
-    deliverableJson.platforms?.forEach((platform) => {
-        platformString = platformString + platform + ', ';
-    })
-    platformString = platformString.slice(0, -2);
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
         <div class='property table-column column2 deliverable-type'>${typeLabel}</div>
-        <div class='property table-column column3 platforms'>${platformString}</div>
+        <div class='property table-column column3 platforms'></div>
         <div class='property table-column column4 review-link'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
         </div>
@@ -544,7 +537,22 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
         finalAssetLink.textContent = "Final Asset";
         dataRow.querySelector('.column5').appendChild(finalAssetLink);
     }
+    createPlatformString(deliverableJson.platforms, dataRow);
     return dataRow;
+}
+
+async function createPlatformString(platforms, htmlElem) {
+    let platformString = '';
+    if (platforms && platforms.length > 0) {
+        for (const rawPlatform of platforms) {
+            const platform = await lookupType(rawPlatform, 'platform');
+            platformString += platform + ', ';
+        }
+        platformString = platformString.slice(0, -2);
+    } else {
+        platformString = 'Not Available'
+    }
+    htmlElem.querySelector('.column3.platforms').textContent = platformString;
 }
 
 function sortRows(rows) {
