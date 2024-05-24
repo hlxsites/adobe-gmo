@@ -1,8 +1,8 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON, getMappingInfo } from '../../scripts/graphql.js';
-import { resolveMappings, filterArray } from '../../scripts/shared-campaigns.js'
-import { getBaseConfigPath, getProductIconMapping } from '../../scripts/site-config.js';
+import { getProductMapping } from '../../scripts/shared-mappings.js'
+import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 const headerConfig = [
@@ -207,7 +207,7 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
 
-        const campaignProducts = await buildProductsList(checkBlankString(campaign.node.productOffering));
+        const campaignProducts = await buildProduct(checkBlankString(campaign.node.productOffering));
         campaignProducts.classList.add('column-4', 'vertical-center');
 
         var campaignStatusWrapper = document.createElement('div');
@@ -238,32 +238,17 @@ function buildStatus(statusWrapper, campaign) {
     return statusWrapper;
 }
 
-async function buildProductsList(productList) {
-    const campaignProducts = document.createElement('div');
-    const productEl = await buildProduct(productList);
-    campaignProducts.appendChild(productEl);
-    return campaignProducts;
-}
-
 async function buildProduct(product) {
-    const configPath = getBaseConfigPath();
-    const defaultIcon = configPath + '/logo/products/default-app-icon.svg';
-    const iconMapping = await getProductIconMapping();
-    const iconMatch = filterArray(iconMapping, 'Product-offering', product);
-    const icon = iconMatch ? configPath + iconMatch[0]['Icon-path'] : defaultIcon;
-
-    const nameMapping = await resolveMappings("getProductList");
-    const nameMatch = filterArray(nameMapping, 'value', product);
-    const productName = nameMatch ? nameMatch[0].text : product;
-
+    const productParent = document.createElement('div');
+    const productMapping = await getProductMapping(product);
     const productEl = document.createElement('div');
     productEl.classList.add('product-entry');
     productEl.innerHTML = `
-        <img class='icon' src=${icon}></img>
-        <span class='product-label'>${productName}</span>
+        <img class='icon' src=${productMapping.icon}></img>
+        <span class='product-label'>${productMapping.label}</span>
     `;
-
-    return productEl;
+    productParent.appendChild(productEl);
+    return productParent;
 }
 
 function buildListHeaders(headerConfig) {

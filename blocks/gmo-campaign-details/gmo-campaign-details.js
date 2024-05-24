@@ -1,15 +1,15 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramInfo } from '../../scripts/graphql.js';
-import { resolveMappings, filterArray } from '../../scripts/shared-campaigns.js';
+import { resolveMappings, filterArray, getProductMapping } from '../../scripts/shared-mappings.js';
 import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
-import { getBaseConfigPath, getProductIconMapping } from '../../scripts/site-config.js';
+import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
 const programName = getQueryVariable('programName');
 const deliverableMappings = resolveMappings("getDeliverableTypeMapping");
-const productMappings = resolveMappings("getProductList");
+//const productMappings = resolveMappings("getProductList");
 
 export default async function decorate(block) {
 
@@ -29,7 +29,6 @@ export default async function decorate(block) {
 
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
 
-    const products = buildProductList(program).outerHTML;
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
     const artifactLinks = buildArtifactLinks(program).outerHTML;
@@ -189,7 +188,7 @@ export default async function decorate(block) {
         </div>
     </div>
     `;
-
+    buildProductCard(program);
     try {
         const imageObject = await searchAsset(program.programName, program.campaignName);
         insertImageIntoCampaignImg(block,imageObject);
@@ -321,22 +320,13 @@ function createLI(li) {
     return liItem;
 }
 
-async function buildProductList(program) {
-    const configPath = getBaseConfigPath();
-    let product = checkBlankString(program.productOffering);
-    const defaultIcon = configPath + '/logo/products/default-app-icon.svg';
-    const config = await getProductIconMapping();
-    const configMatch = filterArray(config, 'Product-offering', product);
-    const icon = configMatch ? configPath + configMatch[0]['Icon-path'] : defaultIcon;
-
-    const productsMatch = filterArray(await productMappings, 'value', product);
-    const productsText = productsMatch ? productsMatch[0].text : product;
-
+async function buildProductCard(program) {
+    const productMapping = await getProductMapping(program.productOffering);
     const productList = document.createElement('div');
     productList.classList.add('product', 'card-content');
     productList.innerHTML = `
-        <img class="icon" src=${icon}></img>
-        ${productsText}
+        <img class="icon" src=${productMapping.icon}></img>
+        ${productMapping.label}
     `
     document.querySelector('.card.products').appendChild(productList);
 }
