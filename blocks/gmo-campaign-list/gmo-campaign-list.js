@@ -273,13 +273,17 @@ function buildListHeaders(headerConfig) {
         if (column.sortable) {
             const columnSort = document.createElement('div');
             columnSort.classList.add('column-sort-wrapper');
-            const columnSortAsc = document.createElement('span');
-            columnSortAsc.classList.add('column-sort-asc', 'icon', 'icon-chevronUp');
+            const columnSortAsc = document.createElement('img');
+            columnSortAsc.classList.add('column-sort-asc', 'icon');
+            columnSortAsc.src = '/icons/chevronUp.svg';
+            columnSortAsc.title = 'Sort (Ascending)'
             columnSortAsc.addEventListener('click', () => {
                 sortColumn('asc', column.attribute);
             })
-            const columnSortDesc = document.createElement('span');
-            columnSortDesc.classList.add('column-sort-desc', 'icon', 'icon-chevronDown');
+            const columnSortDesc = document.createElement('img');
+            columnSortDesc.classList.add('column-sort-desc', 'icon');
+            columnSortDesc.src = '/icons/chevronDown.svg';
+            columnSortDesc.title = 'Sort (Descending)';
             columnSortDesc.addEventListener('click', () => {
                 sortColumn('desc', column.attribute);
             })
