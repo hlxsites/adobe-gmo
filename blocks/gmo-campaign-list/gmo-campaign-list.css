@@ -42,6 +42,7 @@ body {
 .column-sort-wrapper {
     display: flex;
     flex-direction: column;
+    justify-content: center;
 }
 .column-sort-wrapper .icon {
     height: 14px;
