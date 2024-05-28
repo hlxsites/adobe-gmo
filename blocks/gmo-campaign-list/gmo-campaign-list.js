@@ -276,12 +276,14 @@ function buildListHeaders(headerConfig) {
             const columnSortAsc = document.createElement('img');
             columnSortAsc.classList.add('column-sort-asc', 'icon');
             columnSortAsc.src = '/icons/chevronUp.svg';
+            columnSortAsc.title = 'Sort (Ascending)'
             columnSortAsc.addEventListener('click', () => {
                 sortColumn('asc', column.attribute);
             })
             const columnSortDesc = document.createElement('img');
             columnSortDesc.classList.add('column-sort-desc', 'icon');
             columnSortDesc.src = '/icons/chevronDown.svg';
+            columnSortDesc.title = 'Sort (Descending)';
             columnSortDesc.addEventListener('click', () => {
                 sortColumn('desc', column.attribute);
             })

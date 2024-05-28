@@ -48,13 +48,6 @@ body {
     height: 14px;
     width: 14px;
 }
-.column-sort-wrapper .icon-chevronUp {
-    margin-top: 2px;
-    margin-bottom: -4px;
-}
-.column-sort-wrapper .icon-chevronDown {
-    padding-bottom: 2px;
-}
 .list-items {
     display: flex;
     flex-direction: column;
