@@ -105,17 +105,6 @@ export default async function decorate(block) {
                     </div>
                 </div>
                 ${artifactLinks}
-                <div class="links-wrapper inactive">
-                    <span class="h3">Links to Important Artifacts</span>
-                    <div class="links">
-                        <a href="#" class="campaign-link">Creative Architecture</a>
-                        <a href="#" class="campaign-link">E2E Journeys</a>
-                        <a href="#" class="campaign-link">GTM-S</a>
-                        <a href="#" class="campaign-link">GTM-P</a>
-                        <a href="#" class="campaign-link">Marketing Brief</a>
-                        <a href="#" class="campaign-link">Messaging Doc</a>
-                    </div>
-                </div>
             </div>
             <div class="infocards-wrapper">
                 <div class="card milestones inactive">
@@ -153,14 +142,6 @@ export default async function decorate(block) {
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
                 ${artifactLinks}
-                <div class="artifacts-wrapper inactive">
-                    <span class="h3">Links to Important Artifacts</span>
-                    <div class="links">
-                        <a href="#" class="campaign-link">Creative Architecture</a>
-                        <a href="#" class="campaign-link">E2E Journeys</a>
-                        <a href="#" class="campaign-link">Marketing Brief</a>
-                    </div>
-                </div>
                 <div class="total-assets">
                     <div class="h3">Total Assets</div>
                     <span id="totalassets" class="description"></span>
@@ -173,7 +154,6 @@ export default async function decorate(block) {
                     <div class="header table-column column3">Platforms</div>
                     <div class="header table-column column4">Review Link</div>
                     <div class="header table-column column5">Final Asset</div>
-                    <div class="header table-column column6">KPI</div>
                     <div class="header table-column column7">Status Update</div>
                     <div class="header table-column column8">Completion Date</div>
                     <div class="header table-column column9">Project Owner</div>
@@ -409,7 +389,7 @@ function formatDate(dateString) {
 
 async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
-    const programKpi = jsonResponse.data.programList.items.primaryKpi;
+    const programKpi = jsonResponse.data.programList?.items.primaryKpi;
     const rows = document.createElement('div');
     const uniqueCategories = getUniqueItems(deliverableList, 'deliverableType');
     let emptyCategory = false;
@@ -510,7 +490,6 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
         </div>
         <div class='property table-column column5'>
         </div>
-        <div class='property table-column column6 kpi'>${checkBlankString(kpi)}</div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
                 <div class='status-heading'>
