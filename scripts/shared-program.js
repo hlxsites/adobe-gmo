@@ -30,3 +30,14 @@ export async function getProductMapping(product) {
         icon: icon
     }
 }
+
+/*
+*   Check for undefined/blank property and supply 'Not Available' if no data
+*/
+export function checkBlankString(string) {
+    if (string == undefined || string == '' ) {
+        return 'Not Available';
+    } else {
+        return string;
+    }
+}

@@ -1,7 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON, getMappingInfo } from '../../scripts/graphql.js';
-import { getProductMapping } from '../../scripts/shared-mappings.js'
+import { getProductMapping, checkBlankString } from '../../scripts/shared-program.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -473,6 +473,7 @@ function sortColumn(dir, property) {
 }
 
 // supply dummy data if none present
+/*
 export function checkBlankString(string) {
     if (string == undefined || string == '' ) {
         return 'Not Available';
@@ -480,3 +481,4 @@ export function checkBlankString(string) {
         return string;
     }
 }
+*/

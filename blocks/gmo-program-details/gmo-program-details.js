@@ -1,8 +1,7 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramInfo } from '../../scripts/graphql.js';
-import { resolveMappings, filterArray, getProductMapping } from '../../scripts/shared-mappings.js';
-import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
+import { resolveMappings, filterArray, getProductMapping, checkBlankString } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
