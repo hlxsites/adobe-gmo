@@ -45,7 +45,8 @@ export default async function decorate(block) {
                 <div class="header-row1">
                     <span class="h1">${program.programName}</span>
                 </div>
-                <div class="header-row2">
+                ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
+                <div class="header-row3">
                     <span class="icon icon-calendar"></span>
                     <span class="date-tooltip">Launch date</span>
                     <span class="campaign-date">${date}</span>
@@ -397,7 +398,6 @@ async function buildTable(jsonResponse) {
     });
     //sort the rows
     sortRows(rows);
-    //await decorateIcons(rows);
     return rows;
 }
 

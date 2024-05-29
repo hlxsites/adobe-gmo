@@ -1,6 +1,6 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON, graphqlQueryNameList } from '../../scripts/graphql.js';
+import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
 import { getProductMapping, checkBlankString, statusMapping } from '../../scripts/shared-program.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
@@ -42,8 +42,6 @@ let currentGraphqlFilter = {};
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
-//let statusMapping = await getMappingInfo("getStatusList");
-//let statusMapping = await graphqlQueryNameList('getStatusList');
 
 //Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-program-list to update
 document.addEventListener('gmoCampaignListBlock', async function() {

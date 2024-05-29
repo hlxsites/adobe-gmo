@@ -18,12 +18,11 @@ export default async function decorate(block) {
             <div class="label">Business Line</div>
             <div class="filter-dropdown" id="campaign-business-line">
                 <div class="dropdown-button">
-                    <div class="dropdown-label">All Business Line</div>
+                    <div class="dropdown-label">All Business Lines</div>
                     <span class="icon icon-chevronDown"></span>
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownBusinessOptions">
-                    <a href="#" id="option1" data-value="digital-media-dme" data-type="businessLine" class="dropoption">Digital Media (DMe)</a>
                 </div>
             </div>
         </div>
@@ -36,10 +35,6 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownStatusOptions">
-                    <!--
-                    <a href="#" id="option1" data-value="option1" data-type="status" class="dropoption">Option 1</a>
-                    <a href="#" id="option2" data-value="option2" data-type="status" class="dropoption">Option 2</a>
-                    -->
                 </div>
             </div>
         </div>
@@ -53,10 +48,6 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownProductOptions">
-                    <!--
-                    <a href="#" id="option1" data-value="option1" data-type="productOffering" class="dropoption">Option 1</a>
-                    <a href="#" id="option2" data-value="option2" data-type="productOffering" class="dropoption">Option 2</a>
-                    -->
                 </div>
             </div>
         </div>
@@ -70,10 +61,6 @@ export default async function decorate(block) {
                     <span class="icon icon-chevronUp inactive"></span>
                 </div>
                 <div class="dropdown-content" id="dropdownGeoOptions">
-                    <!--
-                    <a href="#" id="option1" data-value="apac" data-type="p0TargetGeo" class="dropoption">APAC</a>
-                    <a href="#" id="option2" data-value="emea" data-type="p0TargetGeo" class="dropoption">EMEA</a>
-                    -->
                 </div>
             </div>
         </div>
@@ -159,7 +146,6 @@ async function initializeDropdowns() {
     populateDropdown(statuses, 'dropdownStatusOptions', 'status');
 
     // Product List
-    //const productResponse = await graphqlQueryNameList('getProductList');
     const productResponse = await productList;
     allProducts = productResponse.data.jsonByPath.item.json.options;
     populateDropdown(allProducts, 'dropdownProductOptions', 'productOffering');
