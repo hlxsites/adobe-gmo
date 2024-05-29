@@ -326,6 +326,8 @@ function createLI(li) {
 
 async function buildProductCard(program) {
     const productMapping = await getProductMapping(program.productOffering);
+    if (!productMapping.label)
+      productMapping.label = 'Not Available'
     const productList = document.createElement('div');
     productList.classList.add('product', 'card-content');
     productList.innerHTML = `
