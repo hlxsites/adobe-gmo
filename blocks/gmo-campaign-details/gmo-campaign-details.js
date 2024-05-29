@@ -193,6 +193,10 @@ export default async function decorate(block) {
           insertImageIntoCampaignImg(block,imageObject);
           document.getElementById('totalassets').textContent = imageObject.assetCount;
         }
+        else
+        {
+          document.getElementById('totalassets').textContent = 0;
+        }
     } catch (error) {
         console.error("Failed to load campaign image:", error);
     }
