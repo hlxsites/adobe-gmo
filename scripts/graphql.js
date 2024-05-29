@@ -252,6 +252,7 @@ export async function getProgramInfo(programName, queryType) {
   });
 }
 
+/*
 export async function getMappingInfo(queryType) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
@@ -277,3 +278,4 @@ export async function getMappingInfo(queryType) {
       throw error; // Rethrow or handle error as appropriate
   });
 }
+*/

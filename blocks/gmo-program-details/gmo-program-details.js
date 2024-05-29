@@ -193,7 +193,7 @@ export default async function decorate(block) {
     buildFieldScopes('deliverable-type',uniqueDeliverableTypes, block);
     buildFieldScopes('platforms',uniquePlatforms, block);
     const table = await buildTable(await deliverables).then(async (rows) => {
-        await decorateIcons(rows);
+        //await decorateIcons(rows);
         return rows;
     })
     const tableRoot = block.querySelector('.table-content');
@@ -361,7 +361,7 @@ function createAudience(audience) {
     const audienceDiv = document.createElement('div');
     audienceDiv.classList.add('audience', 'card-content');
     audienceDiv.innerHTML = `
-        <span class="icon icon-gear"></span>
+        <img class="icon-gear" src="/icons/gear.svg"></img>
         ${text}
     `;
     return audienceDiv;
@@ -417,7 +417,7 @@ async function buildTable(jsonResponse) {
     });
     //sort the rows
     sortRows(rows);
-    await decorateIcons(rows);
+    //await decorateIcons(rows);
     return rows;
 }
 
@@ -465,8 +465,8 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     if (isInactive) headerRow.classList.add('inactive');
     headerRow.innerHTML = `
         ${divopen}
-            <span class="icon icon-next"></span>
-            <span class="icon icon-collapse inactive"></span>
+            <img class="icon-next" src="/icons/next.svg"></img>
+            <img class="icon-collapse inactive" src="/icons/collapse.svg"></img>
             <div class="headertext">${typeLabel} (${matchCount})</div>
         </div>`;
     return headerRow;
