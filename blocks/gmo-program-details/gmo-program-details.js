@@ -341,7 +341,7 @@ function createAudience(audience) {
     const audienceDiv = document.createElement('div');
     audienceDiv.classList.add('audience', 'card-content');
     audienceDiv.innerHTML = `
-        <img class="icon-gear" src="/icons/gear.svg"></img>
+        <img class="icon icon-gear" src="/icons/gear.svg"></img>
         ${text}
     `;
     return audienceDiv;
