@@ -106,31 +106,8 @@ export default async function decorate(block) {
                 ${artifactLinks}
             </div>
             <div class="infocards-wrapper">
-                <div class="card milestones inactive">
-                    <div class="card-heading h3">Milestones</div>
-                    <div class="milestone">
-                        <span class="icon icon-trophy"></span>
-                        Milestone 1
-                    </div>
-                    <div class="milestone">
-                        <span class="icon icon-trophy"></span>
-                        Milestone 2
-                    </div>
-                    <div class="milestone">
-                        <span class="icon icon-trophy"></span>
-                        Milestone 3
-                    </div>
-                </div>
                 <div class="card products">
                     <div class="card-heading h3">Products</div>
-                </div>
-                <div class="card scope inactive">
-                    <div class="card-heading h3">Feature Scope</div>
-                    <ul>
-                        <li>Text to image</li>
-                        <li>Generative fill</li>
-                        <li>Text effects</li>
-                    </ul>
                 </div>
                 <div class="card audiences">
                     <div class="card-heading h3">Audiences</div>
@@ -160,8 +137,6 @@ export default async function decorate(block) {
                 <div class="table-content">
                 </div>
             </div>
-        </div>
-        <div id="tab3" class="calendar tab inactive">
         </div>
     </div>
     `;
@@ -199,7 +174,6 @@ export default async function decorate(block) {
     buildFieldScopes('deliverable-type',uniqueDeliverableTypes, block);
     buildFieldScopes('platforms',uniquePlatforms, block);
     const table = await buildTable(await deliverables).then(async (rows) => {
-        //await decorateIcons(rows);
         return rows;
     })
     const tableRoot = block.querySelector('.table-content');
