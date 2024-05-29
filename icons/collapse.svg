@@ -1,19 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 27.9.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns:x="&ns_extend;" xmlns:i="&ns_ai;" xmlns:graph="&ns_graphs;"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 11 7"
-	 style="enable-background:new 0 0 11 7;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#444444;}
-</style>
-<metadata>
-	<sfw  xmlns="&ns_sfw;">
-		<slices></slices>
-		<sliceSourceBounds  bottomLeftOrigin="true" height="7" width="11" x="-2" y="2"></sliceSourceBounds>
-	</sfw>
-</metadata>
-<g id="_Next_icon_-_on_details_panel" transform="translate(-18 -15)">
-	<path id="a1111" class="st0" d="M28.6,15.5c0.6,0.6,0.6,1.5,0,2.1l-4,4c-0.6,0.6-1.5,0.6-2.1,0l-4-4c-0.6-0.6-0.6-1.5,0-2.1
-		c0.6-0.6,1.5-0.6,2.1,0c0,0,0,0,0,0l2.9,2.9l2.9-2.9C27,14.9,28,14.9,28.6,15.5L28.6,15.5z"/>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 7" width="7" height="11">
+	<g id="_Next_icon_-_on_details_panel" transform="translate(-18 -15)">
+		<path id="a1111" class="st0" d="M28.6,15.5c0.6,0.6,0.6,1.5,0,2.1l-4,4c-0.6,0.6-1.5,0.6-2.1,0l-4-4c-0.6-0.6-0.6-1.5,0-2.1
+			c0.6-0.6,1.5-0.6,2.1,0c0,0,0,0,0,0l2.9,2.9l2.9-2.9C27,14.9,28,14.9,28.6,15.5L28.6,15.5z"/>
+	</g>
 </svg>

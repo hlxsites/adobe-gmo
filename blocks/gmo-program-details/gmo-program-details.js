@@ -1,8 +1,7 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { getProgramInfo } from '../../scripts/graphql.js';
-import { resolveMappings, filterArray, getProductMapping } from '../../scripts/shared-mappings.js';
-import { checkBlankString } from '../gmo-campaign-list/gmo-campaign-list.js'
+import { resolveMappings, filterArray, getProductMapping, checkBlankString } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -105,44 +104,10 @@ export default async function decorate(block) {
                     </div>
                 </div>
                 ${artifactLinks}
-                <div class="links-wrapper inactive">
-                    <span class="h3">Links to Important Artifacts</span>
-                    <div class="links">
-                        <a href="#" class="campaign-link">Creative Architecture</a>
-                        <a href="#" class="campaign-link">E2E Journeys</a>
-                        <a href="#" class="campaign-link">GTM-S</a>
-                        <a href="#" class="campaign-link">GTM-P</a>
-                        <a href="#" class="campaign-link">Marketing Brief</a>
-                        <a href="#" class="campaign-link">Messaging Doc</a>
-                    </div>
-                </div>
             </div>
             <div class="infocards-wrapper">
-                <div class="card milestones inactive">
-                    <div class="card-heading h3">Milestones</div>
-                    <div class="milestone">
-                        <span class="icon icon-trophy"></span>
-                        Milestone 1
-                    </div>
-                    <div class="milestone">
-                        <span class="icon icon-trophy"></span>
-                        Milestone 2
-                    </div>
-                    <div class="milestone">
-                        <span class="icon icon-trophy"></span>
-                        Milestone 3
-                    </div>
-                </div>
                 <div class="card products">
                     <div class="card-heading h3">Products</div>
-                </div>
-                <div class="card scope inactive">
-                    <div class="card-heading h3">Feature Scope</div>
-                    <ul>
-                        <li>Text to image</li>
-                        <li>Generative fill</li>
-                        <li>Text effects</li>
-                    </ul>
                 </div>
                 <div class="card audiences">
                     <div class="card-heading h3">Audiences</div>
@@ -153,14 +118,6 @@ export default async function decorate(block) {
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
                 ${artifactLinks}
-                <div class="artifacts-wrapper inactive">
-                    <span class="h3">Links to Important Artifacts</span>
-                    <div class="links">
-                        <a href="#" class="campaign-link">Creative Architecture</a>
-                        <a href="#" class="campaign-link">E2E Journeys</a>
-                        <a href="#" class="campaign-link">Marketing Brief</a>
-                    </div>
-                </div>
                 <div class="total-assets">
                     <div class="h3">Total Assets</div>
                     <span id="totalassets" class="description"></span>
@@ -173,7 +130,6 @@ export default async function decorate(block) {
                     <div class="header table-column column3">Platforms</div>
                     <div class="header table-column column4">Review Link</div>
                     <div class="header table-column column5">Final Asset</div>
-                    <div class="header table-column column6">KPI</div>
                     <div class="header table-column column7">Status Update</div>
                     <div class="header table-column column8">Completion Date</div>
                     <div class="header table-column column9">Project Owner</div>
@@ -181,8 +137,6 @@ export default async function decorate(block) {
                 <div class="table-content">
                 </div>
             </div>
-        </div>
-        <div id="tab3" class="calendar tab inactive">
         </div>
     </div>
     `;
@@ -220,7 +174,6 @@ export default async function decorate(block) {
     buildFieldScopes('deliverable-type',uniqueDeliverableTypes, block);
     buildFieldScopes('platforms',uniquePlatforms, block);
     const table = await buildTable(await deliverables).then(async (rows) => {
-        await decorateIcons(rows);
         return rows;
     })
     const tableRoot = block.querySelector('.table-content');
@@ -390,7 +343,7 @@ function createAudience(audience) {
     const audienceDiv = document.createElement('div');
     audienceDiv.classList.add('audience', 'card-content');
     audienceDiv.innerHTML = `
-        <span class="icon icon-gear"></span>
+        <img class="icon icon-gear" src="/icons/gear.svg"></img>
         ${text}
     `;
     return audienceDiv;
@@ -417,7 +370,7 @@ function formatDate(dateString) {
 
 async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
-    const programKpi = jsonResponse.data.programList.items.primaryKpi;
+    const programKpi = jsonResponse.data.programList?.items.primaryKpi;
     const rows = document.createElement('div');
     const uniqueCategories = getUniqueItems(deliverableList, 'deliverableType');
     let emptyCategory = false;
@@ -446,7 +399,7 @@ async function buildTable(jsonResponse) {
     });
     //sort the rows
     sortRows(rows);
-    await decorateIcons(rows);
+    //await decorateIcons(rows);
     return rows;
 }
 
@@ -494,8 +447,8 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     if (isInactive) headerRow.classList.add('inactive');
     headerRow.innerHTML = `
         ${divopen}
-            <span class="icon icon-next"></span>
-            <span class="icon icon-collapse inactive"></span>
+            <img class="icon-next" src="/icons/next.svg"></img>
+            <img class="icon-collapse inactive" src="/icons/collapse.svg"></img>
             <div class="headertext">${typeLabel} (${matchCount})</div>
         </div>`;
     return headerRow;
@@ -518,7 +471,6 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
         </div>
         <div class='property table-column column5'>
         </div>
-        <div class='property table-column column6 kpi'>${checkBlankString(kpi)}</div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
                 <div class='status-heading'>
