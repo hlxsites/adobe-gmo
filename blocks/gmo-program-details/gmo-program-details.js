@@ -284,7 +284,7 @@ async function buildProductCard(program) {
     productList.classList.add('product', 'card-content');
     productList.innerHTML = `
         <img class="icon" src=${productMapping.icon}></img>
-        ${productMapping.label}
+        ${checkBlankString(productMapping.label)}
     `
     document.querySelector('.card.products').appendChild(productList);
 }
