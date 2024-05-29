@@ -1,5 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlQueryNameList, graphqlCampaignByName } from '../../scripts/graphql.js';
+import { statusMapping, productList } from '../../scripts/shared-program.js';
 
 // Declared at the top of the file, making it accessible to all functions within this file.
 let allProducts = [];
@@ -153,12 +154,13 @@ async function initializeDropdowns() {
     populateDropdown(businessLines, 'dropdownBusinessOptions', 'businessLine');
 
     // Status List
-    const statusResponse = await graphqlQueryNameList('getStatusList');
+    const statusResponse = await statusMapping;
     const statuses = statusResponse.data.jsonByPath.item.json.options;
     populateDropdown(statuses, 'dropdownStatusOptions', 'status');
 
     // Product List
-    const productResponse = await graphqlQueryNameList('getProductList');
+    //const productResponse = await graphqlQueryNameList('getProductList');
+    const productResponse = await productList;
     allProducts = productResponse.data.jsonByPath.item.json.options;
     populateDropdown(allProducts, 'dropdownProductOptions', 'productOffering');
 

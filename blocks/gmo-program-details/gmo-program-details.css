@@ -23,7 +23,7 @@ body {
         font-weight: bold;
     }
 }
-.gmo-campaign-details.block {
+.gmo-program-details.block {
     & .h1 {
         font: normal normal bold 18px/27px Adobe Clean;
     }
@@ -361,6 +361,7 @@ body {
         & > .heading-wrapper {
             display: flex;
             margin-left: 15px;
+            align-items: center;
             &.subheading {
                 margin-left: 25px;
             }

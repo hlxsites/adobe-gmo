@@ -373,5 +373,6 @@ export async function getLicenseAgreementText() {
 export async function getProductIconMapping() {
   const response = await getConfig('site-config.json');
   //return response;
+  // account for bad return here somehow
   return response['product-icons'].data;
 }
