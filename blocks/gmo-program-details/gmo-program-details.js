@@ -168,8 +168,14 @@ export default async function decorate(block) {
     buildProductCard(program);
     try {
         const imageObject = await searchAsset(program.programName, program.campaignName);
-        insertImageIntoCampaignImg(block,imageObject);
-        document.getElementById('totalassets').textContent = imageObject.assetCount;
+        if (imageObject){
+          insertImageIntoCampaignImg(block,imageObject);
+          document.getElementById('totalassets').textContent = imageObject.assetCount;
+        }
+        else
+        {
+          document.getElementById('totalassets').textContent = 0;
+        }
     } catch (error) {
         console.error("Failed to load campaign image:", error);
     }
