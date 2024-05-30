@@ -23,11 +23,13 @@ export function filterArray(array, key, value) {
 }
 
 export async function getProductMapping(product) {
+    let iconMatch;
     const configPath = getBaseConfigPath();
     const defaultIcon = configPath + '/logo/products/default-app-icon.svg';
     if (iconMapping == undefined) iconMapping = await getProductIconMapping();
-
-    const iconMatch = filterArray(iconMapping, 'Product-offering', product);
+    if (iconMapping) {
+        iconMatch = filterArray(iconMapping, 'Product-offering', product);
+    } 
     const icon = iconMatch ? configPath + iconMatch[0]['Icon-path'] : defaultIcon;
 
     if (productList == undefined) productList = await graphqlQueryNameList('getProductList');
