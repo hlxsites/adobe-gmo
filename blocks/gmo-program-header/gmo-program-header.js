@@ -173,6 +173,9 @@ function attachEventListeners() {
     if (resetFiltersBtn) {
         resetFiltersBtn.addEventListener('click', resetFiltersClickHandler);
     }
+
+    // Add event listener for clicks outside of dropdowns
+    document.addEventListener('click', handleClickOutside);
 }
 
 function populateDropdown(options, dropdownId, type) {
@@ -208,12 +211,31 @@ function removeSelectedProductOfferingFilters() {
     });
 }
 
+
+// Function to close all dropdowns
+function closeAllDropdowns() {
+    document.querySelectorAll('.filter-dropdown.active').forEach(dropdown => {
+        dropdown.classList.remove('active');
+        dropdown.querySelector('.icon-chevronDown').classList.remove('inactive');
+        dropdown.querySelector('.icon-chevronUp').classList.add('inactive');
+    });
+}
+
+// Function to handle clicks outside of dropdowns
+function handleClickOutside(event) {
+    const isClickInsideDropdown = event.target.closest('.filter-dropdown');
+    if (!isClickInsideDropdown) {
+        closeAllDropdowns();
+    }
+}
+
 function toggleDropdown(element) {
     const dropdown = element.closest('.filter-dropdown');
-    const icons = dropdown.querySelectorAll('.icon');
-    icons.forEach((icon) => {
-        icon.classList.toggle('inactive');
-    })
+    const iconChevronDown = dropdown.querySelector('.icon-chevronDown');
+    const iconChevronUp = dropdown.querySelector('.icon-chevronUp');
+
+    iconChevronDown.classList.toggle('inactive');
+    iconChevronUp.classList.toggle('inactive');
     dropdown.classList.toggle('active');
 }
 
@@ -231,18 +253,15 @@ function toggleOption(optionValue, optionType) {
         if (optionType === 'businessLine') {
             // Filter products based on the selected business line
             filterProductsByBusinessLine(optionValue);
-            //Reset product offering filters
+            // Reset product offering filters
             removeSelectedProductOfferingFilters();
             attachEventListeners();
         }
     } else {
         dropdownOption.classList.remove('selected');
         if (optionType === 'businessLine') {
-            //Populate all products into  Products dropdown if a Business Line option is deselected
-            populateDropdown(allProducts, 'dropdownProductOptions', 'productOffering');
-            //Reset product offering filters
-            removeSelectedProductOfferingFilters();
-            attachEventListeners();
+          //Reset Products Dropdown
+          resetProductsDropDown();
         }
     }
 
@@ -295,8 +314,20 @@ function resetAllFilters() {
     const filterTagRoot = document.querySelector('.selected-filters-list');
     filterTagRoot.replaceChildren();
     checkResetBtn();
+
+    //Reset Products Dropdown
+    resetProductsDropDown();
+
     //Trigger the gmo-campaign-list block from the gmo-campaign-header
     sendGmoCampaignListBlockEvent();
+}
+
+function resetProductsDropDown(){
+    // Populate all products into Products dropdown
+    populateDropdown(allProducts, 'dropdownProductOptions', 'productOffering');
+    // Reset product offering filters
+    removeSelectedProductOfferingFilters();
+    attachEventListeners();
 }
 
 function checkResetBtn() {
