@@ -371,8 +371,12 @@ export async function getLicenseAgreementText() {
  * @returns {Array<ProductIcons>}
  */
 export async function getProductIconMapping() {
-  const response = await getConfig('site-config.json');
-  //return response;
-  // account for bad return here somehow
-  return response['product-icons'].data;
+  let iconArray;
+  try {
+    const response = await getConfig('site-config.json');
+    iconArray = response['product-icons'].data;
+  } catch {
+    console.log("Unable to retrieve site-config.json");
+  }
+  return iconArray;
 }
