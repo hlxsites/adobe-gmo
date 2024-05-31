@@ -245,3 +245,33 @@ select {
     flex-direction: column;
     justify-content: center;
 }
+
+/* Tooltip styles */
+.campaign-name-label, .campaign-name {
+    position: relative;
+    display: inline-block;
+}
+
+.campaign-name-label:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.campaign-name:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip {
+    background-color: #D3D3D3;
+    border-radius: 2px;
+    visibility: hidden;
+    z-index: 1;
+    position: absolute;
+    text-align: center;
+    width: 100px;
+    padding: 2px 0;
+    font: normal normal normal 12px/17px Adobe Clean;
+    margin-left: 20px;
+}
+
