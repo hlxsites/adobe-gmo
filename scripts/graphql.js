@@ -222,23 +222,18 @@ export function generateFilterJSON(filterParams) {
   return result;
 }
 
-// add additional query types as needed
-export async function getProgramInfo(programName, queryType) {
+// general function for executing graphql queries
+export async function executeQuery(queryString) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
-  //const queryName = (queryType == "deliverables") ? "getProgramDeliverables" : "getProgramDetails";
-  const encodedProgramName = encodeURIComponent(programName);
-  const encodedSemiColon = encodeURIComponent(';');
-  //persisted query URLs have to be encoded together with the first semicolon
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryType}${encodedSemiColon}programName=${encodedProgramName}`;
+  const queryEndpoint = `${baseApiUrl}/${projectId}/${queryString}`;
   const jwtToken = await getBearerToken();
 
-  // Return the fetch promise chain so that it can be awaited outside
-  return fetch(graphqlEndpoint, {
-      method: 'GET',
-      headers: {
-          Authorization: jwtToken,
-      },
+  return fetch(queryEndpoint, {
+    method: 'GET',
+    headers: {
+        Authorization: jwtToken,
+    },
   }).then(response => {
       if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -250,4 +245,4 @@ export async function getProgramInfo(programName, queryType) {
       console.error('Error fetching data: ', error);
       throw error; // Rethrow or handle error as appropriate
   });
-}
+};

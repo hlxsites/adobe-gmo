@@ -313,6 +313,16 @@ body {
         color: #505050;
         display: flex;
         align-items: center;
+        position: sticky;
+        position: -webkit-sticky;
+        top: 0;
+    }
+}
+.table-content {
+    height: 45vh;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+        display: none;
     }
 }
 .inactive {
