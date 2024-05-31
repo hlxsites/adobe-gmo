@@ -1,19 +1,24 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
-import { getProgramInfo } from '../../scripts/graphql.js';
+import { executeQuery } from '../../scripts/graphql.js';
 import { resolveMappings, filterArray, getProductMapping, checkBlankString } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
 const programName = getQueryVariable('programName');
+const programRefNumber = getQueryVariable('programReferenceNumber');
 const deliverableMappings = resolveMappings("getDeliverableTypeMapping");
 const platformMappings = resolveMappings("getPlatformsMapping");
 
 export default async function decorate(block) {
 
-    const programData = await getProgramInfo(programName, "getProgramDetails");
-    const deliverables = getProgramInfo(programName, "getProgramDeliverables");
+    const encodedSemi = encodeURIComponent(';');
+    const encodedProgram = encodeURIComponent(programName);
+    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programReferenceNumber=${encodeURIComponent(programRefNumber)}`;
+    const programData = await executeQuery(programQueryString);
+    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}`;
+    const deliverables = await executeQuery(deliverableQueryString);
 
     const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
     const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;

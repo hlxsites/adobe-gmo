@@ -165,7 +165,9 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignInfoWrapper.classList.add('campaign-info-wrapper', 'column-1');
 
         const campaignIconLink = document.createElement('a');
-        campaignIconLink.href = host + `/${detailsPage}?programName=${campaign.node.programName}`;
+        let campaignDetailsLink = host + `/${detailsPage}?programName=${campaign.node.programName}&`;
+        campaignDetailsLink += `programReferenceNumber=${campaign.node.programReferenceNumber ? campaign.node.programReferenceNumber : ""}`
+        campaignIconLink.href = campaignDetailsLink;
 
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
