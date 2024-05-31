@@ -184,10 +184,18 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignIconLink.appendChild(campaignIcon);
         const campaignName = document.createElement('div');
         campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
+
         campaignName.innerHTML = `
-            <div class='campaign-name-label' data-property='campaign'>${checkBlankString(campaign.node.programName)}</div>
-            <div class='campaign-name'>${checkBlankString(campaign.node.campaignName)}</div>
-        `
+            <div class='campaign-name-label' data-property='campaign'>
+                ${checkBlankString(campaign.node.programName)}
+                <span class="tooltip">Program Name</span>
+            </div>
+            <div class='campaign-name'>
+                ${checkBlankString(campaign.node.campaignName)}
+                <span class="tooltip">Marketing Moment</span>
+            </div>
+        `;
+        
         campaignInfoWrapper.appendChild(campaignIconLink);
         campaignInfoWrapper.appendChild(campaignName);
 
