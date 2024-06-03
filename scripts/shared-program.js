@@ -46,9 +46,9 @@ export async function getProductMapping(product) {
 /*
 *   Check for undefined/blank property and supply 'Not Available' if no data
 */
-export function checkBlankString(string) {
-    if (string == undefined || string == '' ) {
-        return 'Not Available';
+export function checkBlankString(string, notAvailableText = 'Not Available') {
+    if (string == undefined || string == '') {
+        return notAvailableText;
     } else {
         return string;
     }
