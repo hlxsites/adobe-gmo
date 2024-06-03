@@ -62,7 +62,8 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentPageInfo = {};
     cursorArray = [];
     currentPage = 1;
-    currentNumberPerPage = 4;
+    //currentNumberPerPage = 4;
+    currentNumberPerPage = 80;
 
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
 
@@ -158,6 +159,9 @@ async function buildCampaignList(campaigns, numPerPage) {
     for (const campaign of campaigns) {
         const index = campaigns.indexOf(campaign);
         const campaignRow = document.createElement('div');
+        const programName = campaign.node.programName;
+        const campaignName = campaign.node.campaignName;
+        const programRef = campaign.node.programReferenceNumber;
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
 
@@ -171,35 +175,27 @@ async function buildCampaignList(campaigns, numPerPage) {
 
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
-        campaignIcon.dataset.programname = campaign.node.programName;
-        campaignIcon.dataset.campaignname = campaign.node.campaignName;
-        //Add Icon Image
-        const iconImage = document.createElement('img');
-        try {
-            const imageObject = await searchAsset(campaign.node.programName, campaign.node.campaignName);
-            iconImage.src = imageObject.imageUrl;
-            iconImage.alt = imageObject.imageAltText;
-        } catch (error) {
-        }
-        // Append the image to the campaignIcon div
-        campaignIcon.appendChild(iconImage);
+        campaignIcon.dataset.programname = programName;
+        campaignIcon.dataset.campaignname = campaignName;
+        campaignIcon.dataset.reference = programRef;;
+        addThumbnail(campaignIcon, programName, campaignName);
         campaignIconLink.appendChild(campaignIcon);
-        const campaignName = document.createElement('div');
-        campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
+        const campaignNameWrapper = document.createElement('div');
+        campaignNameWrapper.classList.add('campaign-name-wrapper', 'vertical-center');
 
-        campaignName.innerHTML = `
+        campaignNameWrapper.innerHTML = `
             <div class='campaign-name-label' data-property='campaign'>
-                ${checkBlankString(campaign.node.programName)}
+                ${checkBlankString(programName)}
                 <span class="tooltip">Program Name</span>
             </div>
             <div class='campaign-name'>
-                ${checkBlankString(campaign.node.campaignName)}
+                ${checkBlankString(campaignName)}
                 <span class="tooltip">Marketing Moment</span>
             </div>
         `;
         
         campaignInfoWrapper.appendChild(campaignIconLink);
-        campaignInfoWrapper.appendChild(campaignName);
+        campaignInfoWrapper.appendChild(campaignNameWrapper);
 
         const campaignOverviewWrapper = document.createElement('div');
         campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper', 'vertical-center');
@@ -244,6 +240,17 @@ function buildStatus(statusWrapper, campaign) {
     campaignStatus.dataset.property = 'status';
     statusWrapper.appendChild(campaignStatus);
     return statusWrapper;
+}
+
+async function addThumbnail(parentElement, programName, campaignName) {
+    searchAsset(programName, campaignName).then((response) => {
+        if (response && (Object.hasOwn(response, 'imageUrl') && Object.hasOwn(response, 'imageAltText'))) {
+            const iconImage = document.createElement('img');
+            iconImage.src = response?.imageUrl;
+            iconImage.alt = response?.imageAltText;
+            parentElement.appendChild(iconImage);
+        }
+    })
 }
 
 async function buildProduct(product) {
@@ -357,7 +364,7 @@ function buildListFooter(rows, rowsPerPage) {
         <option value="32">32</option>
         <option value="48">48</option>
         <option value="64">64</option>
-        <option value="80">80</option>
+        <option value="80" selected>80</option>
     `;
 
     // Selecting the item based on the value of currentNumberPerPage
