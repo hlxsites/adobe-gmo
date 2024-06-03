@@ -216,6 +216,7 @@ export function generateFilterJSON(filterParams) {
 
   // Convert the result object to JSON
   const jsonResult = JSON.stringify(result,null,4);
+
   return result;
 }
 

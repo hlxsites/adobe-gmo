@@ -39,6 +39,7 @@ let currentPageInfo = {};
 let cursorArray = [];
 let currentPage = 1;
 let currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
+
 let currentGraphqlFilter = {};
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();

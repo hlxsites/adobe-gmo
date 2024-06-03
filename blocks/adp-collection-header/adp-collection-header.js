@@ -2,6 +2,7 @@ import { getCollection, getCollectionIdFromURL, deleteCollection } from '../../s
 import createConfirmDialog from '../../scripts/confirm-dialog.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { createLinkHref, navigateTo } from '../../scripts/shared.js';
+import { getBaseConfigPath } from '../../scripts/site-config.js';
 
 import {
   selectAllAssets, deselectAllAssets,
@@ -13,7 +14,7 @@ function createCollectionInfoHeader(collectionInfoHeader, collection) {
   collectionInfoHeader.innerHTML = `
         <div class="adp-collection-header-left">
           <div class="back-button">
-              <a href="/collections"><span class="icon icon-back"></span></a>
+              <a href="${getBaseConfigPath()}/collections"><span class="icon icon-back"></span></a>
           </div>
           <div class="adp-collection-header-collection-info">
             <div class="adp-collection-title"></div>
