@@ -1,0 +1,199 @@
+.gmo-campaign-header.block {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+.inputs-wrapper {
+    display: flex;
+    height: 50px;
+}
+.search-wrapper {
+    background-color: #FFF;
+    margin-top: 18px;
+    margin-right: 10px;
+    border: 1px solid #D3d3d3;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    position: relative; /* Added to be the anchor for absolute positioning for autocomplete feature*/
+    & > .icon {
+        background-color: #FFF;
+        height: 14px;
+        border-radius: 4px;
+        & > svg {
+            padding-bottom: 10px;
+        }
+    }
+}
+.campaign-search {
+    width: 400px;
+    height: 26px;
+    border: none;
+    &:focus {
+        outline: none;
+    }
+}
+.filter-wrapper {
+    height: 100%;
+    width: 176px;
+    display: flex;
+    flex-direction: column;
+    & label {
+        font: normal normal normal 12px/15px Adobe Clean;
+        display: block;
+        height: 18px;
+        color: #747474;
+    }
+    & .label {
+        font: normal normal normal 12px/15px Adobe Clean;
+        display: block;
+        height: 18px;
+        color: #747474;
+    }
+    &:not(:last-child) {
+        margin-right: 10px;
+    }
+}
+.filters {
+    font: normal normal normal 14px/17px Adobe Clean;
+    color: #505050;
+    letter-spacing: 0px;
+    width: 176px;
+    height: 32px;
+    &.categories {
+        width: 200px;
+    }
+    &.status {
+        width: 200px;
+    }
+}
+
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
+    font: normal normal normal 14px/17px Adobe Clean;
+    letter-spacing: 0px;
+    height: 32px;
+    background-color: #FFF;
+    width: 100%;
+    border: 1px solid #D3D3D3;
+    border-radius: 4px;
+    & > .dropdown-button {
+        height: 32px;
+        line-height: 32px;
+        padding-left: 10px;
+        display: flex;
+        justify-content: space-between;
+        & > .dropdown-label {
+            overflow: hidden;
+        }
+        & > .icon {
+            padding-top: 4px;
+            height: 16px;
+        }
+    }
+    & > .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        z-index: 1;
+        width: 174px;
+    }
+    &.active .dropdown-content {
+        display: block;
+    }
+}
+
+.dropoption.selected {
+    background-color:#959595;
+}
+.icon.inactive {
+    display: none;
+    visibility: hidden;
+}
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    &:hover {
+        background-color: #ddd;
+    }
+}
+.selections-wrapper {
+    margin-top: 10px;
+    min-height: 22px;
+    display: flex;
+    justify-content: space-between;
+    & > .selected-filters-list {
+        display: flex;
+        max-width: 90%;
+        flex-wrap: wrap;
+        & > .selected-filter {
+            background: #FFFFFF;
+            border: 1px solid #959595;
+            border-radius: 4px;
+            text-align: left;
+            font: normal normal normal 12px/15px Adobe Clean;
+            letter-spacing: 0px;
+            color: #747474;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 7px 0 7px;
+            margin-right: 5px;
+            & > .label {
+                margin-right: 4px;
+            }
+            & > .icon-close {
+                height: 8px;
+                width: 6px;
+            }
+        }
+    }
+    & > .reset-filters {
+        font: normal normal normal 14px/17px Adobe Clean;
+        &.inactive {
+            display: none;
+            visibility: hidden;
+        }
+    }
+}
+
+/* Add the following for autocomplete styling */
+
+.autocomplete-items {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    border: 1px solid #cccccc;
+    border-top: none;
+    z-index: 10;
+    background: #ffffff;
+    overflow-y: auto;
+    max-height: 200px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.autocomplete-items div {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px; /* Adjust the font-size as needed */
+    color: #333; /* Adjust the text color as needed */
+    line-height: 1.4; /* Adjust line-height for better readability if necessary */
+}
+
+.autocomplete-items div:hover {
+    background-color: #e9e9e9;
+}
+
+.autocomplete-items div:last-child {
+    border-bottom: none;
+}

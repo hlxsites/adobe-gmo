@@ -325,22 +325,24 @@ async function initQuickLinks() {
   const quickLinks = document.querySelector('.adp-header .nav-bottom .quick-links');
   // decorate quick links
   quickLinksConfig.forEach((item) => {
-    const itemEl = document.createElement('div');
-    itemEl.className = 'item';
-    const itemLinkEl = document.createElement('a');
-    if (item.page.startsWith('/') && isUrlPathNonRoot()) {
-      itemLinkEl.href = createLinkHref(getBaseConfigPath() + item.page);
-    } else {
-      itemLinkEl.href = createLinkHref(item.page);
+    if (item.hide!=='true'){
+      const itemEl = document.createElement('div');
+      itemEl.className = 'item';
+      const itemLinkEl = document.createElement('a');
+      if (item.page.startsWith('/') && isUrlPathNonRoot()) {
+        itemLinkEl.href = createLinkHref(getBaseConfigPath() + item.page);
+      } else {
+        itemLinkEl.href = createLinkHref(item.page);
+      }
+      itemLinkEl.dataset.page = item.page;
+      if (item.page.startsWith('http')) {
+        itemLinkEl.target = '_blank';
+        itemLinkEl.rel = 'noopener';
+      }
+      itemLinkEl.textContent = item.title;
+      itemEl.append(itemLinkEl);
+      quickLinks.append(itemEl);
     }
-    itemLinkEl.dataset.page = item.page;
-    if (item.page.startsWith('http')) {
-      itemLinkEl.target = '_blank';
-      itemLinkEl.rel = 'noopener';
-    }
-    itemLinkEl.textContent = item.title;
-    itemEl.append(itemLinkEl);
-    quickLinks.append(itemEl);
   });
 
   if (await checkAddAssetsAccess()) {
