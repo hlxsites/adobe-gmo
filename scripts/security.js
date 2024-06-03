@@ -1,6 +1,6 @@
 import { fetchCached } from './fetch-util.js';
 import { isUnifiedShellRuntimeAvailable, shell, user } from '../contenthub/unified-shell.js';
-import { getAdminConfig } from './site-config.js';
+import { getAdminConfig, getBrandingConfig, isContentHub, getQuickLinkConfig, getBaseConfigPath } from './site-config.js';
 import { getSecurityGroupMemberships } from './security-imslib.js';
 
 /**
@@ -104,8 +104,22 @@ export async function checkUserAccess() {
     const imsLibSecurityModule = await import('./security-imslib.js');
     if (isPublicPage()) {
       return true;
-    } 
-    return await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
+    }
+      const isIMSUser = await imsLibSecurityModule.isUserInSecurityGroup(imsUserGroup, await getBearerToken());
+      if (isIMSUser) {
+        //Check if current page is present in the array of pages returned by function getQuickLinkConfig()
+        //Split the URL into parts
+        const currentUrlParts=window.location.pathname.replace(getBaseConfigPath((window.location.pathname)),'').split('/');
+        //Current url beginning with /
+        const currentURL = '/'+currentUrlParts[1];
+        const presentInQuickLinks = (await getQuickLinkConfig()).some((grp) => grp.page === (currentURL));
+
+        return presentInQuickLinks;
+      }
+      else
+      { //Not IMSUser
+        return isIMSUser;
+      }
   }
 }
 
@@ -113,4 +127,15 @@ export async function checkAddAssetsAccess() {
   const adminConfig = await getAdminConfig();
   const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
   return securityGroupMemberships.some((grp) => grp.groupName === adminConfig.imsAuthorGroup);
+}
+
+/**
+ * Checks Group Access for the group that is stored in the admin-config.xslx for
+ * for the property name in parameter adminConfigGroupPropertyName
+ * @returns {boolean} for access to the group
+ */
+export async function checkPageGroupAccess(adminConfigGroupPropertyName) {
+  const adminConfig = await getAdminConfig();
+  const securityGroupMemberships = await getSecurityGroupMemberships(await getBearerToken());
+  return securityGroupMemberships.some((grp) => grp.groupName === adminConfig[adminConfigGroupPropertyName]);
 }

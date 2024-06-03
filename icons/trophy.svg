@@ -1,0 +1,7 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.024 512.024" xml:space="preserve" width="800px" height="800px" fill="#CCCCCC" stroke="#CCCCCC">
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+<g id="SVGRepo_iconCarrier"> <rect x="152.332" y="448.16" style="fill:#CCCCCCCCCCC;" width="207.368" height="63.864"/> <rect x="216.012" y="339.896" style="fill:#CCCCCC;" width="80" height="108.232"/> <polygon points="216.012,394.016 256.012,415.496 296.012,397.496 296.012,356.496 216.012,356.496 "/> <g> <rect x="64.492" style="fill:#CCCCCC;" width="385.44" height="32"/> <path style="fill:#CCCCCC;" d="M132.524,292.496C-1.724,250.68,0.012,99.872,0.012,98.352l0.344-15.656H95.26v32H32.764 c3.28,35.328,20.504,119.592,109.264,147.2L132.524,292.496z"/> <path style="fill:#CCCCCC;" d="M379.5,292.496l-9.496-30.56c88.8-27.64,105.984-111.904,109.264-147.2h-62.504v-32h94.904 l0.344,15.616C512.012,99.872,513.748,250.68,379.5,292.496z"/> </g> <g> <path style="fill:#CCCCCCCCCCC;" d="M256.14,382.256V32H82.996v119.84C82.996,201.904,104.164,321.304,256.14,382.256z"/> <path style="fill:#CCCCCCCCCCC;" d="M256.14,382.256V32h173.152v119.84C429.292,201.904,408.124,321.304,256.14,382.256z"/> </g> </g>
+</svg>

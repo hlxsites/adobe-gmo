@@ -1,5 +1,6 @@
 import { fetchCached } from './fetch-util.js';
 import { toCamelCase } from './lib-franklin.js';
+import { checkPageGroupAccess } from './security.js';
 
 const QA_BASE_PATH = 'qa';
 const DRAFTS_BASE_PATH = 'drafts';
@@ -285,14 +286,18 @@ async function mapUserSettingsForId(configId, result) {
 export async function getQuickLinkConfig() {
   const result = [];
   const response = await getConfig('site-config.json');
-  response.quicklinks?.data.forEach((row) => {
+
+  for (const row of response.quicklinks?.data || []) {
     if (row.Title && row.Page) {
-      result.push({
-        title: row.Title,
-        page: row.Page,
-      });
+      if (!row.Group || (await checkPageGroupAccess(row.Group))) {
+        result.push({
+          title: row.Title,
+          page: row.Page,
+          hide: row.Hide,
+        });
+      }
     }
-  });
+  }
   return result;
 }
 
@@ -360,4 +365,18 @@ export async function getLicenseAgreementText() {
     }
   });
   return licenseAgreement;
+}
+
+/**
+ * @returns {Array<ProductIcons>}
+ */
+export async function getProductIconMapping() {
+  let iconArray;
+  try {
+    const response = await getConfig('site-config.json');
+    iconArray = response['product-icons'].data;
+  } catch {
+    console.log("Unable to retrieve site-config.json");
+  }
+  return iconArray;
 }
