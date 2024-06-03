@@ -1,10 +1,18 @@
-import { executeQuery } from "./graphql.js";
-import { getProductIconMapping, getBaseConfigPath, getQueryPaths } from './site-config.js';
+import { graphqlQueryNameList } from "./graphql.js";
+import { getProductIconMapping, getBaseConfigPath } from './site-config.js';
 
 let iconMapping;
-const cfMapping = getQueryPaths();
-export let statusMapping = await getMappingArray('status');
-export let productList = await getMappingArray('products');
+export let statusMapping = await graphqlQueryNameList('getStatusList');
+export let productList = await graphqlQueryNameList('getProductList');
+
+/*
+*   Executes graphql query for 'friendly' labels and returns array of the results
+*/
+export async function resolveMappings(mappingType) {
+    const response = await graphqlQueryNameList(mappingType);
+    const mappingArray = response.data.jsonByPath.item.json.options;
+    return mappingArray;
+}
 
 /**
  * Filter provided array based on provided key/value pair
@@ -24,8 +32,9 @@ export async function getProductMapping(product) {
     } 
     const icon = iconMatch ? configPath + iconMatch[0]['Icon-path'] : defaultIcon;
 
-    if (productList == undefined) productList = await getMappingArray('products');
-    const productsMatch = filterArray(productList, 'value', product);
+    if (productList == undefined) productList = await graphqlQueryNameList('getProductList');
+    const productsArray = productList.data.jsonByPath.item.json.options;
+    const productsMatch = filterArray(productsArray, 'value', product);
     const productsText = productsMatch ? productsMatch[0].text : product;
 
     return {
@@ -37,29 +46,10 @@ export async function getProductMapping(product) {
 /*
 *   Check for undefined/blank property and supply 'Not Available' if no data
 */
-export function checkBlankString(string, notAvailableText = 'Not Available') {
-    if (string == undefined || string == '') {
-        return notAvailableText;
+export function checkBlankString(string) {
+    if (string == undefined || string == '' ) {
+        return 'Not Available';
     } else {
         return string;
     }
-}
-
-export function dateFormat(dateString) {
-    const formattedDate = dateString ? dateString.split('T')[0] : 'Not Available';
-    return formattedDate;
-}
-
-function getCFPath(cfArray, type) {
-    const cfMatch = cfArray.filter(item => item['type'] === type);
-    const cfPath =  cfMatch.length > 0 ? cfMatch[0].path : null;
-    return cfPath;
-}
-
-export async function getMappingArray(type) {
-    const mappingCf = getCFPath(await cfMapping, type);
-    const mappings = executeQuery(`getMappings${encodeURIComponent(';')}path=${encodeURIComponent(mappingCf)}`).then((response) => {
-        return response.data.jsonByPath.item.json.options;
-    })
-    return mappings;
 }

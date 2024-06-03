@@ -9,7 +9,7 @@ import {
   getOptimizedDeliveryUrl
 } from './polaris.js';
 
-import { getAdminConfig, getBaseConfigPath, getBrandingConfig } from './site-config.js';
+import { getAdminConfig } from './site-config.js';
 
 import { createSearchEndpoint, logError } from './scripts.js';
 
@@ -33,35 +33,21 @@ const getFilters = () => {
   return `is_pur-expirationDate = 0 OR pur-expirationDate > ${currentEpoch}`;
 };
 
-async function getUnderdevelopmentIcon() {
-  const configPath = getBaseConfigPath();
-  const brandingConfig = await getBrandingConfig();
-  const underdevelopmentIconPath = `${configPath}/${brandingConfig.underdevelopmentIcon}`.replace(/\/\//g, '/');
-  return { imageUrl: underdevelopmentIconPath, imageAltText: 'Under Development', assetCount: 0 };
-}
 
 /**
- * Search Asset for  programName, campaignName, deliverableType parameters.
+ * Search Asset for  programName and campaignName parameters.
  *
  * @param {string} - Program Name.
  * @param {string} - Campaign Name.
- * @param {string} - Deliverable Type
- * @param {integer} - Image Width
  * @returns {Image <object>} Resolves with image object.
  * @throws {Error} If an HTTP error or network error occurs.
  */
 
-export async function searchAsset(programName, campaignName, deliverableType = '', imageWidth = 80) {
+export async function searchAsset(programName, campaignName, imageWidth = 80) {
   const adminConfig = await getAdminConfig();
   const deliveryURL = await initDeliveryEnvironment();
 
   const indexName =  await getSearchIndex();
-
-  if (!programName && !campaignName)
-  {
-    // Display Underdevelopment Icon
-    return await getUnderdevelopmentIcon();
-  }
 
   // Initialize the facetFilters array
   const facetFilters = [];
@@ -70,10 +56,6 @@ export async function searchAsset(programName, campaignName, deliverableType = '
   }
   if (campaignName) { // Check if campaignName is not null
     facetFilters.push('gmo-campaignName :'+ campaignName);
-  }
-
-  if (deliverableType) { // Check if deliverableType is not null
-    facetFilters.push('gmo-deliverableType :'+ deliverableType);
   }
   const data = {
     requests: [
@@ -114,8 +96,7 @@ export async function searchAsset(programName, campaignName, deliverableType = '
       }
       else
       {
-        // Display Underdevelopment Icon
-        return await getUnderdevelopmentIcon();
+        return null;
       }
     }
     // Handle other response codes
@@ -125,4 +106,3 @@ export async function searchAsset(programName, campaignName, deliverableType = '
     throw error;
   }
 }
-

@@ -5,8 +5,33 @@ import { logError } from './scripts.js';
 const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
 const projectId = 'gmo';
 
+export async function graphqlQueryNameList(queryNameList) {
+  const queryName = queryNameList;
+  //persisted query URLs have to be encoded together with the first semicolon
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}`;
+  const jwtToken = await getBearerToken();
+
+  // Return the fetch promise chain so that it can be awaited outside
+  return fetch(graphqlEndpoint, {
+      method: 'GET',
+      headers: {
+          Authorization: jwtToken,
+      },
+  }).then(response => {
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+  }).then(data => {
+      return data; // Make sure to return the data so that the promise resolves with it
+  }).catch(error => {
+      console.error('Error fetching data: ', error);
+      throw error; // Rethrow or handle error as appropriate
+  });
+}
+
 export async function graphqlCampaignCount(filter = {}) {
-  const queryName = 'getTotalPrograms';
+  const queryName = 'getCampaignNameFilter';
   const encodedSemiColon = encodeURIComponent(';');
   const encodedFilter = encodeURIComponent(JSON.stringify(filter));
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}filter=${encodedFilter}`;
@@ -47,8 +72,6 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
   const encodedCursor = encodeURIComponent(cursor);
   const encodedFilter = encodeURIComponent(JSON.stringify(filter));
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}first=${encodedFirst}${encodedSemiColon}cursor=${encodedCursor}${encodedSemiColon}filter=${encodedFilter}`;
-  //Performance logging
-  const startTime = performance.now();
   const jwtToken = await getBearerToken();
 
   try {
@@ -59,11 +82,6 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
       },
     };
     const response = await fetch(`${graphqlEndpoint}`, options);
-    //Performance logging
-    const endTime = performance.now();
-    const executionTime = endTime - startTime;
-    console.debug(`getAllCampaigns Execution Time: ${executionTime} ms`);
-
     // Handle response codes
     if (response.status === 200) {
       const responseBody = await response.json();
@@ -85,11 +103,41 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
 }
 
 export async function graphqlCampaignByName(campaignName) {
-  const queryName = 'getCampaignNameFilter';
+  const queryName = 'getCampaignNames';
   const encodedCampaignName = encodeURIComponent(campaignName);
   const encodedSemiColon = encodeURIComponent(';');
   //persisted query URLs have to be encoded together with the first semicolon
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}campaignName=${encodedCampaignName}`;
+  const jwtToken = await getBearerToken();
+
+  // Return the fetch promise chain so that it can be awaited outside
+  return fetch(graphqlEndpoint, {
+      method: 'GET',
+      headers: {
+          Authorization: jwtToken,
+      },
+  }).then(response => {
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+  }).then(data => {
+      return data; // Make sure to return the data so that the promise resolves with it
+  }).catch(error => {
+      console.error('Error fetching data: ', error);
+      throw error; // Rethrow or handle error as appropriate
+  });
+}
+
+export async function graphqlFilterOnMarketingInitiative(marketingInitiative) {
+
+  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
+  const projectId = 'gmo';
+  const queryName = 'filter-on-marketing-initiative';
+  const encodedMarketingInitiative = encodeURIComponent(marketingInitiative);
+  const encodedSemiColon = encodeURIComponent(';');
+  //persisted query URLs have to be encoded together with the first semicolon
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}marketingInitiative=${encodedMarketingInitiative}`;
   const jwtToken = await getBearerToken();
 
   // Return the fetch promise chain so that it can be awaited outside
@@ -168,7 +216,9 @@ export function generateFilterJSON(filterParams) {
 
   // Convert the result object to JSON
   const jsonResult = JSON.stringify(result,null,4);
-
+  // Logging the JSON to see the output
+  console.debug('Graphql filter',jsonResult);
+  console.debug('result', result);
   return result;
 }
 
@@ -177,8 +227,6 @@ export async function executeQuery(queryString) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
   const queryEndpoint = `${baseApiUrl}/${projectId}/${queryString}`;
-  //Performance logging
-  const startTime = performance.now();
   const jwtToken = await getBearerToken();
 
   return fetch(queryEndpoint, {
@@ -190,11 +238,6 @@ export async function executeQuery(queryString) {
       if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      //Performance logging
-      const endTime = performance.now();
-      const executionTime = endTime - startTime;
-      console.debug(`executeQuery for ${queryString} Execution Time: ${executionTime} ms`);
-
       return response.json();
   }).then(data => {
       return data; // Make sure to return the data so that the promise resolves with it

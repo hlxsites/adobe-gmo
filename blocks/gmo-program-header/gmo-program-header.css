@@ -1,7 +1,7 @@
-.gmo-program-header.block {
+.gmo-campaign-header.block {
     display: flex;
     flex-direction: column;
-    margin-top: 45px;
+    margin-top: 20px;
 }
 .inputs-wrapper {
     display: flex;
