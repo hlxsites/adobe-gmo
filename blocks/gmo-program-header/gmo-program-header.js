@@ -128,32 +128,31 @@ export default async function decorate(block) {
         sendGmoCampaignListBlockEvent();
     });
 
-    await initializeDropdowns();
-    attachEventListeners();
+    initializeDropdowns();
+    //attachEventListeners();
     decorateIcons(block);
 }
 
 async function initializeDropdowns() {
     // Business Line List
+    graphqlQueryNameList('getBusinessLine').then((response) => {
+        populateDropdown(response, 'dropdownBusinessOptions', 'businessLine');
+    });
 
-    const businessLineResponse = await graphqlQueryNameList('getBusinessLine');
-    const businessLines = businessLineResponse.data.jsonByPath.item.json.options;
-    populateDropdown(businessLines, 'dropdownBusinessOptions', 'businessLine');
+    // Geo List
+    graphqlQueryNameList('getGeoList').then((response) => {
+        populateDropdown(response, 'dropdownGeoOptions', 'p0TargetGeo');
+    })
 
     // Status List
     const statusResponse = await statusMapping;
-    const statuses = statusResponse.data.jsonByPath.item.json.options;
-    populateDropdown(statuses, 'dropdownStatusOptions', 'status');
+    populateDropdown(statusResponse, 'dropdownStatusOptions', 'status');
 
     // Product List
     const productResponse = await productList;
-    allProducts = productResponse.data.jsonByPath.item.json.options;
-    populateDropdown(allProducts, 'dropdownProductOptions', 'productOffering');
+    populateDropdown(productResponse, 'dropdownProductOptions', 'productOffering');
 
-    // Geo List
-    const geoResponse = await graphqlQueryNameList('getGeoList');
-    const geos = geoResponse.data.jsonByPath.item.json.options;
-    populateDropdown(geos, 'dropdownGeoOptions', 'p0TargetGeo');
+    attachEventListeners();
 }
 
 // Function to attach event listeners
@@ -178,7 +177,8 @@ function attachEventListeners() {
     document.addEventListener('click', handleClickOutside);
 }
 
-function populateDropdown(options, dropdownId, type) {
+function populateDropdown(response, dropdownId, type) {
+    const options = response.data?.jsonByPath ? response.data.jsonByPath.item.json.options : response;
     let dropdownContent = document.getElementById(dropdownId);
     dropdownContent.innerHTML = '';
     options.forEach((option, index) => {
