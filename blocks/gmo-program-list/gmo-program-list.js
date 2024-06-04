@@ -122,16 +122,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
       footerNext.classList.remove('active');
     }
     decorateIcons(block);
-    
-    //Debug Global Variables
-    //debug_console();
-}
 
-function debug_console(){
-    console.log('currentPageInfo',currentPageInfo);
-    console.log('cursorArray',cursorArray);
-    console.log('currentPage',currentPage);
-    console.log('campaignCount',campaignCount);
 }
 
 function getFilterValues(){
