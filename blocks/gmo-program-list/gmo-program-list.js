@@ -207,7 +207,8 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignOverviewWrapper.appendChild(campaignOverview);
 
         const campaignLaunch = document.createElement('div');
-        campaignLaunch.textContent = checkBlankString(campaign.node.launchDate);
+        //campaignLaunch.textContent = checkBlankString(campaign.node.launchDate.split('T')[0]);
+        campaignLaunch.textContent = dateFormat(campaign.node.launchDate);
         campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
 
@@ -485,4 +486,9 @@ function sortColumn(dir, property) {
     sortArray.forEach(({ row }, index) => {
         container.appendChild(row);
     });
+}
+
+function dateFormat(dateString) {
+    const formattedDate = dateString ? dateString.split('T')[0] : 'Not Available';
+    return formattedDate;
 }
