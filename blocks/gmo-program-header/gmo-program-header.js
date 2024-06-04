@@ -2,9 +2,6 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlQueryNameList, graphqlCampaignByName } from '../../scripts/graphql.js';
 import { statusMapping, productList } from '../../scripts/shared-program.js';
 
-// Declared at the top of the file, making it accessible to all functions within this file.
-let allProducts = [];
-
 export default async function decorate(block) {
     block.innerHTML = `
     <div class="inputs-wrapper">
@@ -129,8 +126,8 @@ export default async function decorate(block) {
     });
 
     initializeDropdowns();
-    //attachEventListeners();
     decorateIcons(block);
+    document.addEventListener('click', handleClickOutside);
 }
 
 async function initializeDropdowns() {
@@ -142,7 +139,7 @@ async function initializeDropdowns() {
     // Geo List
     graphqlQueryNameList('getGeoList').then((response) => {
         populateDropdown(response, 'dropdownGeoOptions', 'p0TargetGeo');
-    })
+    });
 
     // Status List
     const statusResponse = await statusMapping;
@@ -151,8 +148,6 @@ async function initializeDropdowns() {
     // Product List
     const productResponse = await productList;
     populateDropdown(productResponse, 'dropdownProductOptions', 'productOffering');
-
-    attachEventListeners();
 }
 
 // Function to attach event listeners
@@ -172,9 +167,6 @@ function attachEventListeners() {
     if (resetFiltersBtn) {
         resetFiltersBtn.addEventListener('click', resetFiltersClickHandler);
     }
-
-    // Add event listener for clicks outside of dropdowns
-    document.addEventListener('click', handleClickOutside);
 }
 
 function populateDropdown(response, dropdownId, type) {
@@ -189,13 +181,18 @@ function populateDropdown(response, dropdownId, type) {
         anchor.dataset.type = type;
         anchor.className = "dropoption";
         anchor.textContent = option.text;
+        anchor.addEventListener('click', dropOptionClickHandler);
         dropdownContent.appendChild(anchor);
     });
+    // add event listener to button
+    const button = dropdownContent.parentElement.querySelector(".dropdown-button");
+    button.addEventListener('click', dropdownButtonClickHandler);
 }
 
 // Function to filter products based on selected business line
 function filterProductsByBusinessLine(businessLine) {
-    const filteredProducts = allProducts.filter(product =>
+    const products = productList.data.jsonByPath.item.json.options;
+    const filteredProducts = products.filter(product =>
         product['business-line'].includes(businessLine)
     );
     populateDropdown(filteredProducts, 'dropdownProductOptions', 'productOffering');
@@ -324,7 +321,7 @@ function resetAllFilters() {
 
 function resetProductsDropDown(){
     // Populate all products into Products dropdown
-    populateDropdown(allProducts, 'dropdownProductOptions', 'productOffering');
+    populateDropdown(productList, 'dropdownProductOptions', 'productOffering');
     // Reset product offering filters
     removeSelectedProductOfferingFilters();
     attachEventListeners();
