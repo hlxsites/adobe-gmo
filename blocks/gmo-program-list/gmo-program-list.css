@@ -26,8 +26,19 @@ body {
     display: flex;
     font-weight: bold;
     margin-bottom: 20px;
-    
+    position: sticky;
     padding-top: 5px;
+}
+.list-items {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    height: 65vh;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 .column-header-wrapper {
     display: flex;
@@ -48,10 +59,7 @@ body {
     height: 14px;
     width: 14px;
 }
-.list-items {
-    display: flex;
-    flex-direction: column;
-}
+
 .campaign-row {
     display: flex;
     font-size: 14px;

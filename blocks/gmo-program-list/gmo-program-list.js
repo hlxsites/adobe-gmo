@@ -62,8 +62,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentPageInfo = {};
     cursorArray = [];
     currentPage = 1;
-    //currentNumberPerPage = 4;
-    currentNumberPerPage = 80;
+    currentNumberPerPage = 4;
 
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
 
@@ -162,6 +161,7 @@ async function buildCampaignList(campaigns, numPerPage) {
         const programName = campaign.node.programName;
         const campaignName = campaign.node.campaignName;
         const programRef = campaign.node.programReferenceNumber;
+        
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
 
