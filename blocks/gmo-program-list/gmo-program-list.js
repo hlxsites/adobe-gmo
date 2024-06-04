@@ -33,11 +33,13 @@ const headerConfig = [
     }
 ]
 
+const DEFAULT_ITEMS_PER_PAGE = 8;
 //Global variables used by helper functions
 let currentPageInfo = {};
 let cursorArray = [];
 let currentPage = 1;
-let currentNumberPerPage = 4;
+let currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
+
 let currentGraphqlFilter = {};
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
@@ -62,7 +64,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentPageInfo = {};
     cursorArray = [];
     currentPage = 1;
-    currentNumberPerPage = 4;
+    currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
 
@@ -120,16 +122,6 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
       footerNext.classList.remove('active');
     }
     decorateIcons(block);
-    
-    //Debug Global Variables
-    //debug_console();
-}
-
-function debug_console(){
-  console.log('currentPageInfo',currentPageInfo);
-  console.log('cursorArray',cursorArray);
-  console.log('currentPage',currentPage);
-  console.log('campaignCount',campaignCount);
 
 }
 
@@ -193,7 +185,7 @@ async function buildCampaignList(campaigns, numPerPage) {
                 <span class="tooltip">Program Name</span>
             </div>
             <div class='campaign-name'>
-                ${checkBlankString(campaign.node.campaignName)}
+                ${checkBlankString(campaign.node.campaignName,'Marketing Moment Not Available')}
                 <span class="tooltip">Marketing Moment</span>
             </div>
         `;
@@ -351,7 +343,6 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPerPageDropdown = document.createElement('select');
     footerPerPageDropdown.id = 'per-page';
     footerPerPageDropdown.innerHTML = `
-        <option value="4">4</option>
         <option value="8">8</option>
         <option value="16">16</option>
         <option value="32">32</option>

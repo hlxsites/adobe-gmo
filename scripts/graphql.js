@@ -216,9 +216,7 @@ export function generateFilterJSON(filterParams) {
 
   // Convert the result object to JSON
   const jsonResult = JSON.stringify(result,null,4);
-  // Logging the JSON to see the output
-  console.debug('Graphql filter',jsonResult);
-  console.debug('result', result);
+
   return result;
 }
 
