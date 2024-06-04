@@ -325,7 +325,7 @@ function buildListFooter(rows, rowsPerPage) {
     buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
 
     footerNext.addEventListener('click', debounce((event) => {
-        nextPage(event.target);
+        nextPage(event.target, pages);
     }, 200));
 
     footerNext.textContent = 'Next';
@@ -414,8 +414,8 @@ function debounce(func, wait) {
     };
 }
 
-function nextPage(nextBtn) {
-    if (currentPageInfo.hasNextPage) {
+function nextPage(nextBtn, lastPage) {
+    if (currentPageInfo.hasNextPage && currentPage<=lastPage) {
       //Calculate Next Page
       currentPage++;
       const block = document.querySelector('.gmo-program-list.block');
@@ -429,7 +429,7 @@ function nextPage(nextBtn) {
 }
 
 function prevPage(prevBtn) {
-    if (currentPageInfo.hasPreviousPage) {
+    if (currentPageInfo.hasPreviousPage && currentPage>1) {
       currentPage--;
       const block = document.querySelector('.gmo-program-list.block');
       const currentCursor = currentPageInfo.currentCursor;
