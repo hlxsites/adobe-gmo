@@ -33,7 +33,7 @@ const headerConfig = [
     }
 ]
 
-const DEFAULT_ITEMS_PER_PAGE = 8;
+const DEFAULT_ITEMS_PER_PAGE = 4;
 //Global variables used by helper functions
 let currentPageInfo = {};
 let cursorArray = [];
@@ -313,9 +313,9 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPrev = document.createElement('div');
     footerPrev.classList.add('footer-pagination-button', 'prev');
     footerPrev.textContent = 'Prev';
-    footerPrev.addEventListener('click', (event) => {
+    footerPrev.addEventListener('click', debounce((event) => {
         prevPage(event.target);
-    })
+    }, 500));
 
     const footerPageBtnsWrapper = document.createElement('div');
     footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
@@ -324,9 +324,10 @@ function buildListFooter(rows, rowsPerPage) {
     //Show current page
     buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
 
-    footerNext.addEventListener('click', (event) => { 
+    footerNext.addEventListener('click', debounce((event) => {
         nextPage(event.target);
-    })
+    }, 500));
+
     footerNext.textContent = 'Next';
     footerPagination.appendChild(footerPrev);
     footerPagination.appendChild(footerPageBtnsWrapper);
@@ -343,6 +344,7 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPerPageDropdown = document.createElement('select');
     footerPerPageDropdown.id = 'per-page';
     footerPerPageDropdown.innerHTML = `
+        <option value="4">4</option>
         <option value="8">8</option>
         <option value="16">16</option>
         <option value="32">32</option>
@@ -392,6 +394,24 @@ function repaginate(dropdown) {
     const block = document.querySelector('.gmo-program-list.block');
     //Reset cursor to ''
     decorate(block, currentNumberPerPage, '', false, false);
+}
+
+/**
+ * Limits the rate at which a function can be executed by ensuring it is only called after a specified delay since the last invocation.
+ * @param {Function} func - The function to debounce.
+ * @param {number} wait - The delay in milliseconds.
+ * @returns {Function} - The debounced function.
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 function nextPage(nextBtn) {
