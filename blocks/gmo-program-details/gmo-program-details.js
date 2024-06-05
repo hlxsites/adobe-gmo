@@ -380,7 +380,6 @@ async function buildTable(jsonResponse) {
     const uniqueCatSet = new Set();
     deliverableList.forEach(object => { uniqueCatSet.add(object['deliverableType']) })
     const uniqueCategories = Array.from(uniqueCatSet);
-    console.log(uniqueCategories);
     let emptyCategory = false;
     uniqueCategories.forEach(async (category) => {
         // build header row
@@ -388,7 +387,6 @@ async function buildTable(jsonResponse) {
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
         const matchCount = matchingCampaigns.length;
         if (category == null || category == undefined || category === '') {
-            console.log('null category');
             emptyCategory = true;
             headerRow = rows;
         } else {
