@@ -146,6 +146,10 @@ async function buildCampaignList(campaigns, numPerPage) {
     for (const campaign of campaigns) {
         const index = campaigns.indexOf(campaign);
         const campaignRow = document.createElement('div');
+        const programName = campaign.node.programName;
+        const campaignName = campaign.node.campaignName;
+        const programID = campaign.node.programID ? campaign.node.programID : "";
+
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
 
@@ -153,41 +157,33 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignInfoWrapper.classList.add('campaign-info-wrapper', 'column-1');
 
         const campaignIconLink = document.createElement('a');
-        let campaignDetailsLink = host + `/${detailsPage}?programName=${campaign.node.programName}&`;
-        campaignDetailsLink += `programReferenceNumber=${campaign.node.programReferenceNumber ? campaign.node.programReferenceNumber : ""}`
+        let campaignDetailsLink = host + `/${detailsPage}?programName=${programName}&`;
+        campaignDetailsLink += `programID=${programID}`
         campaignIconLink.href = campaignDetailsLink;
 
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
-        campaignIcon.dataset.programname = campaign.node.programName;
-        campaignIcon.dataset.campaignname = campaign.node.campaignName;
-        //Add Icon Image
-        const iconImage = document.createElement('img');
-        try {
-            const imageObject = await searchAsset(campaign.node.programName, campaign.node.campaignName);
-            iconImage.src = imageObject.imageUrl;
-            iconImage.alt = imageObject.imageAltText;
-        } catch (error) {
-        }
-        // Append the image to the campaignIcon div
-        campaignIcon.appendChild(iconImage);
+        campaignIcon.dataset.programname = programName;
+        campaignIcon.dataset.campaignname = campaignName;
+        campaignIcon.dataset.programid = programID;
+        addThumbnail(campaignIcon, programName, campaignName);
         campaignIconLink.appendChild(campaignIcon);
-        const campaignName = document.createElement('div');
-        campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
+        const campaignNameWrapper = document.createElement('div');
+        campaignNameWrapper.classList.add('campaign-name-wrapper', 'vertical-center');
 
-        campaignName.innerHTML = `
+        campaignNameWrapper.innerHTML = `
             <div class='campaign-name-label' data-property='campaign'>
-                ${checkBlankString(campaign.node.programName)}
+                ${checkBlankString(programName)}
                 <span class="tooltip">Program Name</span>
             </div>
             <div class='campaign-name'>
-                ${checkBlankString(campaign.node.campaignName,'Marketing Moment Not Available')}
+                ${checkBlankString(campaignName,'Marketing Moment Not Available')}
                 <span class="tooltip">Marketing Moment</span>
             </div>
         `;
         
         campaignInfoWrapper.appendChild(campaignIconLink);
-        campaignInfoWrapper.appendChild(campaignName);
+        campaignInfoWrapper.appendChild(campaignNameWrapper);
 
         const campaignOverviewWrapper = document.createElement('div');
         campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper', 'vertical-center');
@@ -199,7 +195,7 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignOverviewWrapper.appendChild(campaignOverview);
 
         const campaignLaunch = document.createElement('div');
-        campaignLaunch.textContent = checkBlankString(campaign.node.launchDate);
+        campaignLaunch.textContent = dateFormat(campaign.node.launchDate);
         campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
 
@@ -225,13 +221,33 @@ function buildStatus(statusWrapper, campaign) {
     const statusStr = checkBlankString(campaign.node.status);
     const statusArray = statusMapping.data.jsonByPath.item.json.options;
     const statusMatch = statusArray.filter(item => item.value === statusStr);
-    const statusText = statusMatch.length > 0 ? statusMatch[0].text : statusStr;
+
+    let statusText, statusColor;
+    if (statusMatch.length > 0) {
+        statusText = statusMatch[0].text;
+        statusColor = statusMatch[0]["color-code"];
+    } else {
+        statusText = statusStr;
+        statusColor = "BABABA";
+    }
+
     campaignStatus.textContent = statusText;
-    campaignStatus.style.backgroundColor = "#" + statusMatch[0]["color-code"];
+    campaignStatus.style.backgroundColor = "#" + statusColor;
     campaignStatus.classList.add('status');
     campaignStatus.dataset.property = 'status';
     statusWrapper.appendChild(campaignStatus);
     return statusWrapper;
+}
+
+async function addThumbnail(parentElement, programName, campaignName) {
+    searchAsset(programName, campaignName).then((response) => {
+        if (response && (Object.hasOwn(response, 'imageUrl') && Object.hasOwn(response, 'imageAltText'))) {
+            const iconImage = document.createElement('img');
+            iconImage.src = response?.imageUrl;
+            iconImage.alt = response?.imageAltText;
+            parentElement.appendChild(iconImage);
+        }
+    })
 }
 
 async function buildProduct(product) {
@@ -484,4 +500,9 @@ function sortColumn(dir, property) {
     sortArray.forEach(({ row }, index) => {
         container.appendChild(row);
     });
+}
+
+function dateFormat(dateString) {
+    const formattedDate = dateString ? dateString.split('T')[0] : 'Not Available';
+    return formattedDate;
 }
