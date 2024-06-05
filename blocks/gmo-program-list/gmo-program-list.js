@@ -33,10 +33,9 @@ const headerConfig = [
     }
 ]
 
-const DEFAULT_ITEMS_PER_PAGE = 4;
+const DEFAULT_ITEMS_PER_PAGE = 8;
 //Global variables used by helper functions
 let currentPageInfo = {};
-let cursorArray = [];
 let currentPage = 1;
 let currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 let currentGraphqlFilter = {};
@@ -62,7 +61,6 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     //Trigger loading the gmo-campaign-block
     //Reset page variables
     currentPageInfo = {};
-    cursorArray = [];
     currentPage = 1;
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 
@@ -75,24 +73,18 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
+
+    //Set previous cursor to currentCursor
+    currentPageInfo.previousCursor =  currentPageInfo.currentCursor;
+
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
     //Current cursor used in previous page logic
     currentPageInfo.currentCursor = cursor;
     //Next Page
     if (currentPageInfo.hasNextPage){
-      currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
+      currentPageInfo.nextCursor = currentPageInfo.endCursor === undefined ? campaigns[campaigns.length - 1].cursor : currentPageInfo.endCursor;
     }
 
-    if (!previousPage && !nextPage)
-    {
-      cursorArray = campaigns.map(item => item.cursor);
-    }
-    else if (nextPage){
-
-      campaigns.forEach(item => {
-          cursorArray.push(item.cursor);
-      });
-    }
     currentPageInfo.itemCount = campaigns.length;
 
     // Calculate total number of pages
@@ -349,7 +341,6 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPerPageDropdown = document.createElement('select');
     footerPerPageDropdown.id = 'per-page';
     footerPerPageDropdown.innerHTML = `
-        <option value="4">4</option>
         <option value="8">8</option>
         <option value="16">16</option>
         <option value="32">32</option>
@@ -436,18 +427,13 @@ function nextPage(nextBtn) {
     }
 }
 
-
 function prevPage(prevBtn) {
     if (currentPage > 1) {
         currentPage--;
         const block = document.querySelector('.gmo-program-list.block');
-        const indexCursor = cursorArray.indexOf(currentPageInfo.currentCursor) - currentNumberPerPage;
-        const newCursor = indexCursor >= 0 ? cursorArray[indexCursor] : '';
-        decorate(block, currentNumberPerPage, newCursor, true, false, currentGraphqlFilter);
-
+        decorate(block, currentNumberPerPage, currentPage.previousCursor, true, false, currentGraphqlFilter);
         const nextBtn = document.querySelector('.footer-pagination-button.next');
         nextBtn.classList.add('active');
-
         if (currentPage === 1) {
             prevBtn.classList.remove('active');
         } else {
