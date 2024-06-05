@@ -148,7 +148,6 @@ async function buildCampaignList(campaigns, numPerPage) {
     const detailsPage = blockConfig.detailspage;
 
     for (const campaign of campaigns) {
-        console.log(campaign);
         const index = campaigns.indexOf(campaign);
         const campaignRow = document.createElement('div');
         const programName = campaign.node.programName;
