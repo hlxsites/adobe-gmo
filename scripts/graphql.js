@@ -31,7 +31,7 @@ export async function graphqlQueryNameList(queryNameList) {
 }
 
 export async function graphqlCampaignCount(filter = {}) {
-  const queryName = 'getCampaignNameFilter';
+  const queryName = 'getTotalPrograms';
   const encodedSemiColon = encodeURIComponent(';');
   const encodedFilter = encodeURIComponent(JSON.stringify(filter));
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}filter=${encodedFilter}`;
@@ -103,7 +103,7 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
 }
 
 export async function graphqlCampaignByName(campaignName) {
-  const queryName = 'getCampaignNames';
+  const queryName = 'getCampaignNamesFilter';
   const encodedCampaignName = encodeURIComponent(campaignName);
   const encodedSemiColon = encodeURIComponent(';');
   //persisted query URLs have to be encoded together with the first semicolon

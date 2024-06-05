@@ -1,7 +1,7 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { resolveMappings, filterArray, getProductMapping, checkBlankString } from '../../scripts/shared-program.js';
+import { resolveMappings, filterArray, getProductMapping, checkBlankString, dateFormat } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -376,7 +376,10 @@ async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList?.items.primaryKpi;
     const rows = document.createElement('div');
-    const uniqueCategories = getUniqueItems(deliverableList, 'deliverableType');
+    // we want the 'null' deliverableType to be part of this set for filtering
+    const uniqueCatSet = new Set();
+    deliverableList.forEach(object => { uniqueCatSet.add(object['deliverableType']) })
+    const uniqueCategories = Array.from(uniqueCatSet);
     let emptyCategory = false;
     uniqueCategories.forEach(async (category) => {
         // build header row
@@ -466,8 +469,8 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
     const status = (deliverableJson.deliverableStatusUpdate == null) ? "Not Available" : deliverableJson.deliverableStatusUpdate + "%";
     const statusPct = (deliverableJson.deliverableStatusUpdate == null) ? "0%" : deliverableJson.deliverableStatusUpdate + "%";
     dataRow.innerHTML = `
-        <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
-        <div class='property table-column column2 deliverable-type'>${typeLabel}</div>
+        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverableJson.deliverableName)}</div>
+        <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
         <div class='property table-column column3 platforms'></div>
         <div class='property table-column column4 review-link'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
@@ -487,7 +490,7 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
             </div>
         </div>
         <div class='property table-column column8 date-wrapper'>
-            <div class='completion-date'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+            <div class='completion-date'>${dateFormat(deliverableJson.taskCompletionDate)}</div>
             ${deliverableJson.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverableJson.previousTaskCompletionDate + '</div> ': ""}
         </div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
