@@ -1,7 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
-import { getProductMapping, checkBlankString, statusMapping } from '../../scripts/shared-program.js'
+import { getProductMapping, checkBlankString, statusMapping, dateFormat } from '../../scripts/shared-program.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -326,12 +326,13 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPrev = document.createElement('div');
     footerPrev.classList.add('footer-pagination-button', 'prev');
     footerPrev.textContent = 'Prev';
-    footerPrev.addEventListener('click', debounce((event) => {
+
+    footerPrev.addEventListener('click', (event) => {
         // Disable the button
         footerPrev.classList.remove('active');
         footerPrev.classList.add('disabled');
         prevPage(event.target);
-    }, 500));
+    });
 
     const footerPageBtnsWrapper = document.createElement('div');
     footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
@@ -340,12 +341,12 @@ function buildListFooter(rows, rowsPerPage) {
     //Show current page
     buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
 
-    footerNext.addEventListener('click', debounce((event) => {
+    footerNext.addEventListener('click', (event) => {
         // Disable the button
         footerNext.classList.remove('active');
         footerNext.classList.add('disabled');
         nextPage(event.target);
-    }, 500));
+    });
 
     footerNext.textContent = 'Next';
     footerPagination.appendChild(footerPrev);
@@ -412,24 +413,6 @@ function repaginate(dropdown) {
     const block = document.querySelector('.gmo-program-list.block');
     //Reset cursor to ''
     decorate(block, currentNumberPerPage, '', false, false);
-}
-
-/**
- * Limits the rate at which a function can be executed by ensuring it is only called after a specified delay since the last invocation.
- * @param {Function} func - The function to debounce.
- * @param {number} wait - The delay in milliseconds.
- * @returns {Function} - The debounced function.
- */
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
 }
 
 function nextPage(nextBtn) {
@@ -508,7 +491,3 @@ function sortColumn(dir, property) {
     });
 }
 
-function dateFormat(dateString) {
-    const formattedDate = dateString ? dateString.split('T')[0] : 'Not Available';
-    return formattedDate;
-}
