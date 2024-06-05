@@ -1,7 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
-import { getProductMapping, checkBlankString, statusMapping } from '../../scripts/shared-program.js'
+import { getProductMapping, checkBlankString, statusMapping, dateFormat } from '../../scripts/shared-program.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -485,9 +485,4 @@ function sortColumn(dir, property) {
     sortArray.forEach(({ row }, index) => {
         container.appendChild(row);
     });
-}
-
-function dateFormat(dateString) {
-    const formattedDate = dateString ? dateString.split('T')[0] : 'Not Available';
-    return formattedDate;
 }
