@@ -148,6 +148,7 @@ async function buildCampaignList(campaigns, numPerPage) {
     const detailsPage = blockConfig.detailspage;
 
     for (const campaign of campaigns) {
+        console.log(campaign);
         const index = campaigns.indexOf(campaign);
         const campaignRow = document.createElement('div');
         const programName = campaign.node.programName;
@@ -225,9 +226,18 @@ function buildStatus(statusWrapper, campaign) {
     const statusStr = checkBlankString(campaign.node.status);
     const statusArray = statusMapping.data.jsonByPath.item.json.options;
     const statusMatch = statusArray.filter(item => item.value === statusStr);
-    const statusText = statusMatch.length > 0 ? statusMatch[0].text : statusStr;
+
+    let statusText, statusColor;
+    if (statusMatch.length > 0) {
+        statusText = statusMatch[0].text;
+        statusColor = statusMatch[0]["color-code"];
+    } else {
+        statusText = statusStr;
+        statusColor = "BABABA";
+    }
+
     campaignStatus.textContent = statusText;
-    campaignStatus.style.backgroundColor = "#" + statusMatch[0]["color-code"];
+    campaignStatus.style.backgroundColor = "#" + statusColor;
     campaignStatus.classList.add('status');
     campaignStatus.dataset.property = 'status';
     statusWrapper.appendChild(campaignStatus);
