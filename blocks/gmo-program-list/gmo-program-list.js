@@ -36,11 +36,10 @@ const headerConfig = [
 const DEFAULT_ITEMS_PER_PAGE = 8;
 //Global variables used by helper functions
 let currentPageInfo = {};
-let cursorArray = [];
 let currentPage = 1;
 let currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
-
 let currentGraphqlFilter = {};
+let totalPages = 0;
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
@@ -62,7 +61,6 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     //Trigger loading the gmo-campaign-block
     //Reset page variables
     currentPageInfo = {};
-    cursorArray = [];
     currentPage = 1;
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 
@@ -75,25 +73,22 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
+
+    //Set previous cursor to currentCursor
+    currentPageInfo.previousCursor =  currentPageInfo.currentCursor;
+
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
     //Current cursor used in previous page logic
     currentPageInfo.currentCursor = cursor;
     //Next Page
     if (currentPageInfo.hasNextPage){
-      currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
+      currentPageInfo.nextCursor = currentPageInfo.endCursor === undefined ? campaigns[campaigns.length - 1].cursor : currentPageInfo.endCursor;
     }
 
-    if (!previousPage && !nextPage)
-    {
-      cursorArray = campaigns.map(item => item.cursor);
-    }
-    else if (nextPage){
-
-      campaigns.forEach(item => {
-          cursorArray.push(item.cursor);
-      });
-    }
     currentPageInfo.itemCount = campaigns.length;
+
+    // Calculate total number of pages
+    totalPages = Math.ceil(campaignCount / currentNumberPerPage);
 
     const listHeaders = buildListHeaders(headerConfig);
     const listItems = await buildCampaignList(campaigns, numPerPage);
@@ -107,20 +102,21 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     listContainer.appendChild(listHeaders);
     listContainer.appendChild(listItems);
     listContainer.appendChild(listFooter);
-    //Show Hide Previous and Next Page buttons
+    // Show Hide Previous and Next Page buttons
     const footerNext = document.querySelector('.footer-pagination-button.next');
     const footerPrev = document.querySelector('.footer-pagination-button.prev');
-    if (currentPageInfo.hasPreviousPage){
-      footerPrev.classList.add('active');
+    if (currentPage > 1) {
+        footerPrev.classList.add('active');
     } else {
-      footerPrev.classList.remove('active');
+        footerPrev.classList.remove('active');
     }
 
-    if (currentPageInfo.hasNextPage){
-      footerNext.classList.add('active');
+    if (currentPage < totalPages) {
+        footerNext.classList.add('active');
     } else {
-      footerNext.classList.remove('active');
+        footerNext.classList.remove('active');
     }
+
     decorateIcons(block);
 
 }
@@ -315,6 +311,7 @@ function buildListHeaders(headerConfig) {
 
 function buildListFooter(rows, rowsPerPage) {
     const pages = Math.ceil(rows / rowsPerPage);
+    totalPages = pages;
     const footerWrapper = document.createElement('div');
     footerWrapper.classList.add('list-footer', 'footer-wrapper');
     footerWrapper.dataset.pages = pages;
@@ -329,9 +326,13 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPrev = document.createElement('div');
     footerPrev.classList.add('footer-pagination-button', 'prev');
     footerPrev.textContent = 'Prev';
+
     footerPrev.addEventListener('click', (event) => {
+        // Disable the button
+        footerPrev.classList.remove('active');
+        footerPrev.classList.add('disabled');
         prevPage(event.target);
-    })
+    });
 
     const footerPageBtnsWrapper = document.createElement('div');
     footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
@@ -340,9 +341,13 @@ function buildListFooter(rows, rowsPerPage) {
     //Show current page
     buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
 
-    footerNext.addEventListener('click', (event) => { 
+    footerNext.addEventListener('click', (event) => {
+        // Disable the button
+        footerNext.classList.remove('active');
+        footerNext.classList.add('disabled');
         nextPage(event.target);
-    })
+    });
+
     footerNext.textContent = 'Next';
     footerPagination.appendChild(footerPrev);
     footerPagination.appendChild(footerPageBtnsWrapper);
@@ -411,35 +416,34 @@ function repaginate(dropdown) {
 }
 
 function nextPage(nextBtn) {
-    if (currentPageInfo.hasNextPage) {
-      //Calculate Next Page
-      currentPage++;
-      const block = document.querySelector('.gmo-program-list.block');
-      decorate( block, currentNumberPerPage, currentPageInfo.nextCursor, false, true,currentGraphqlFilter);
-      if (!(nextBtn.classList.contains('active'))) {
-          return;
-      }
-      const prevBtn = document.querySelector('.footer-pagination-button.prev');
-      prevBtn.classList.add('active');
+    if (currentPage < totalPages) {
+        currentPage++;
+        const block = document.querySelector('.gmo-program-list.block');
+        decorate(block, currentNumberPerPage, currentPageInfo.nextCursor, false, true, currentGraphqlFilter);
+
+        const prevBtn = document.querySelector('.footer-pagination-button.prev');
+        prevBtn.classList.add('active');
+
+        if (currentPage === totalPages) {
+            nextBtn.classList.remove('active');
+        } else {
+            nextBtn.classList.add('active');
+        }
     }
 }
 
 function prevPage(prevBtn) {
-    if (currentPageInfo.hasPreviousPage) {
-      currentPage--;
-      const block = document.querySelector('.gmo-program-list.block');
-      const currentCursor = currentPageInfo.currentCursor;
-      //Calculate cursor for previous page
-      const indexCursor = cursorArray.indexOf(currentCursor) - currentNumberPerPage;
-      decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false,currentGraphqlFilter);
-      if (!(prevBtn.classList.contains('active'))) {
-          return;
-      }
-      const nextBtn = document.querySelector('.footer-pagination-button.next');
-      const currentPageBtn = document.querySelector('#current-page');
-      const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
-      const targetPage = (currentPageValue - 1);
-      nextBtn.classList.add('active');
+    if (currentPage > 1) {
+        currentPage--;
+        const block = document.querySelector('.gmo-program-list.block');
+        decorate(block, currentNumberPerPage, currentPage.previousCursor, true, false, currentGraphqlFilter);
+        const nextBtn = document.querySelector('.footer-pagination-button.next');
+        nextBtn.classList.add('active');
+        if (currentPage === 1) {
+            prevBtn.classList.remove('active');
+        } else {
+            prevBtn.classList.add('active');
+        }
     }
 }
 
@@ -486,3 +490,4 @@ function sortColumn(dir, property) {
         container.appendChild(row);
     });
 }
+
