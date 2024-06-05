@@ -312,7 +312,7 @@ function buildListFooter(rows, rowsPerPage) {
     footerPrev.textContent = 'Prev';
     footerPrev.addEventListener('click', debounce((event) => {
         prevPage(event.target);
-    }, 200));
+    }, 500));
 
     const footerPageBtnsWrapper = document.createElement('div');
     footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
@@ -323,7 +323,7 @@ function buildListFooter(rows, rowsPerPage) {
 
     footerNext.addEventListener('click', debounce((event) => {
         nextPage(event.target);
-    }, 200));
+    }, 500));
 
     footerNext.textContent = 'Next';
     footerPagination.appendChild(footerPrev);
