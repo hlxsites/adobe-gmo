@@ -372,17 +372,6 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
-/*
-
-*/
-function getUniqueCategories(array, filterValue) {
-    const uniqueValues = new Set();
-    array.forEach(obj => {
-        uniqueValues.add(obj[filterValue]);
-    })
-    return Array.from(uniqueValues);
-}
-
 async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList?.items.primaryKpi;
