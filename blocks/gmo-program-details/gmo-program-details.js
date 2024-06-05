@@ -372,11 +372,26 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
+/*
+
+*/
+function getUniqueCategories(array, filterValue) {
+    const uniqueValues = new Set();
+    array.forEach(obj => {
+        uniqueValues.add(obj[filterValue]);
+    })
+    return Array.from(uniqueValues);
+}
+
 async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList?.items.primaryKpi;
     const rows = document.createElement('div');
-    const uniqueCategories = getUniqueItems(deliverableList, 'deliverableType');
+    // we want the 'null' deliverableType to be part of this set for filtering
+    const uniqueCatSet = new Set();
+    deliverableList.forEach(object => { uniqueCatSet.add(object['deliverableType']) })
+    const uniqueCategories = Array.from(uniqueCatSet);
+    console.log(uniqueCategories);
     let emptyCategory = false;
     uniqueCategories.forEach(async (category) => {
         // build header row
@@ -384,6 +399,7 @@ async function buildTable(jsonResponse) {
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
         const matchCount = matchingCampaigns.length;
         if (category == null || category == undefined || category === '') {
+            console.log('null category');
             emptyCategory = true;
             headerRow = rows;
         } else {
@@ -466,8 +482,8 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
     const status = (deliverableJson.deliverableStatusUpdate == null) ? "Not Available" : deliverableJson.deliverableStatusUpdate + "%";
     const statusPct = (deliverableJson.deliverableStatusUpdate == null) ? "0%" : deliverableJson.deliverableStatusUpdate + "%";
     dataRow.innerHTML = `
-        <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
-        <div class='property table-column column2 deliverable-type'>${typeLabel}</div>
+        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverableJson.deliverableName)}</div>
+        <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
         <div class='property table-column column3 platforms'></div>
         <div class='property table-column column4 review-link'>
             <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
