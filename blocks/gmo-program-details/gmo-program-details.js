@@ -7,7 +7,7 @@ import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
 const programName = getQueryVariable('programName');
-const programRefNumber = getQueryVariable('programReferenceNumber');
+const programID = getQueryVariable('programID');
 const deliverableMappings = resolveMappings("getDeliverableTypeMapping");
 const platformMappings = resolveMappings("getPlatformsMapping");
 
@@ -15,9 +15,9 @@ export default async function decorate(block) {
 
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
-    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programReferenceNumber=${encodeURIComponent(programRefNumber)}`;
+    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const programData = await executeQuery(programQueryString);
-    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}`;
+    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const deliverables = await executeQuery(deliverableQueryString);
 
     const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
