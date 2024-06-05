@@ -1,7 +1,7 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { resolveMappings, filterArray, getProductMapping, checkBlankString } from '../../scripts/shared-program.js';
+import { resolveMappings, filterArray, getProductMapping, checkBlankString, dateFormat } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -503,7 +503,7 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
             </div>
         </div>
         <div class='property table-column column8 date-wrapper'>
-            <div class='completion-date'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+            <div class='completion-date'>${dateFormat(deliverableJson.taskCompletionDate)}</div>
             ${deliverableJson.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverableJson.previousTaskCompletionDate + '</div> ': ""}
         </div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>

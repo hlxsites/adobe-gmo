@@ -53,3 +53,8 @@ export function checkBlankString(string, notAvailableText = 'Not Available') {
         return string;
     }
 }
+
+export function dateFormat(dateString) {
+    const formattedDate = dateString ? dateString.split('T')[0] : 'Not Available';
+    return formattedDate;
+}
