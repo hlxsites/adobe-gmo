@@ -327,6 +327,9 @@ function buildListFooter(rows, rowsPerPage) {
     footerPrev.classList.add('footer-pagination-button', 'prev');
     footerPrev.textContent = 'Prev';
     footerPrev.addEventListener('click', debounce((event) => {
+        // Disable the button
+        footerPrev.classList.remove('active');
+        footerPrev.classList.add('disabled');
         prevPage(event.target);
     }, 500));
 
@@ -338,6 +341,9 @@ function buildListFooter(rows, rowsPerPage) {
     buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
 
     footerNext.addEventListener('click', debounce((event) => {
+        // Disable the button
+        footerNext.classList.remove('active');
+        footerNext.classList.add('disabled');
         nextPage(event.target);
     }, 500));
 
