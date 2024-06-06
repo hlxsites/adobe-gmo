@@ -323,6 +323,7 @@ body {
 }
 .table-content {
     max-height: 45vh;
+    min-height: 7vh;
     overflow-y: auto;
     &::-webkit-scrollbar {
         display: none;
