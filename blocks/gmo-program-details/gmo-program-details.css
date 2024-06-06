@@ -1,3 +1,6 @@
+:root {
+    border-bottom: none;
+}
 body {
     background-color: rgb(247, 246, 246);
 }
@@ -43,7 +46,7 @@ body {
         border-radius: 6px;
         box-shadow: 0px 3px 6px #0000000D;
         margin-top: 20px;
-        min-height: 800px;
+        /*min-height: 800px;*/
         padding: 20px;
     }
 }
