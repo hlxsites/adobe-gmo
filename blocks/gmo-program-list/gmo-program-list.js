@@ -1,7 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
-import { getProductMapping, checkBlankString, statusMapping } from '../../scripts/shared-program.js'
+import { getProductMapping, checkBlankString, statusMapping, dateFormat } from '../../scripts/shared-program.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -33,12 +33,14 @@ const headerConfig = [
     }
 ]
 
+const DEFAULT_ITEMS_PER_PAGE = 8;
 //Global variables used by helper functions
 let currentPageInfo = {};
 let cursorArray = [];
 let currentPage = 1;
-let currentNumberPerPage = 4;
+let currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 let currentGraphqlFilter = {};
+let totalPages = 0;
 //Get Campaign Count for pagination
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
@@ -62,7 +64,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentPageInfo = {};
     cursorArray = [];
     currentPage = 1;
-    currentNumberPerPage = 4;
+    currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
 
@@ -78,7 +80,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     currentPageInfo.currentCursor = cursor;
     //Next Page
     if (currentPageInfo.hasNextPage){
-      currentPageInfo.nextCursor = campaigns[campaigns.length - 1].cursor;
+      currentPageInfo.nextCursor = currentPageInfo.endCursor === undefined ? campaigns[campaigns.length - 1].cursor : currentPageInfo.endCursor;
     }
 
     if (!previousPage && !nextPage)
@@ -91,7 +93,11 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
           cursorArray.push(item.cursor);
       });
     }
+
     currentPageInfo.itemCount = campaigns.length;
+
+    // Calculate total number of pages
+    totalPages = Math.ceil(campaignCount / currentNumberPerPage);
 
     const listHeaders = buildListHeaders(headerConfig);
     const listItems = await buildCampaignList(campaigns, numPerPage);
@@ -105,31 +111,22 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     listContainer.appendChild(listHeaders);
     listContainer.appendChild(listItems);
     listContainer.appendChild(listFooter);
-    //Show Hide Previous and Next Page buttons
+    // Show Hide Previous and Next Page buttons
     const footerNext = document.querySelector('.footer-pagination-button.next');
     const footerPrev = document.querySelector('.footer-pagination-button.prev');
-    if (currentPageInfo.hasPreviousPage){
-      footerPrev.classList.add('active');
+    if (currentPage > 1) {
+        footerPrev.classList.add('active');
     } else {
-      footerPrev.classList.remove('active');
+        footerPrev.classList.remove('active');
     }
 
-    if (currentPageInfo.hasNextPage){
-      footerNext.classList.add('active');
+    if (currentPage < totalPages) {
+        footerNext.classList.add('active');
     } else {
-      footerNext.classList.remove('active');
+        footerNext.classList.remove('active');
     }
+
     decorateIcons(block);
-    
-    //Debug Global Variables
-    //debug_console();
-}
-
-function debug_console(){
-  console.log('currentPageInfo',currentPageInfo);
-  console.log('cursorArray',cursorArray);
-  console.log('currentPage',currentPage);
-  console.log('campaignCount',campaignCount);
 
 }
 
@@ -158,6 +155,10 @@ async function buildCampaignList(campaigns, numPerPage) {
     for (const campaign of campaigns) {
         const index = campaigns.indexOf(campaign);
         const campaignRow = document.createElement('div');
+        const programName = campaign.node.programName;
+        const campaignName = campaign.node.campaignName;
+        const programID = campaign.node.programID ? campaign.node.programID : "";
+
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
 
@@ -165,41 +166,33 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignInfoWrapper.classList.add('campaign-info-wrapper', 'column-1');
 
         const campaignIconLink = document.createElement('a');
-        let campaignDetailsLink = host + `/${detailsPage}?programName=${campaign.node.programName}&`;
-        campaignDetailsLink += `programReferenceNumber=${campaign.node.programReferenceNumber ? campaign.node.programReferenceNumber : ""}`
+        let campaignDetailsLink = host + `/${detailsPage}?programName=${programName}&`;
+        campaignDetailsLink += `programID=${programID}`
         campaignIconLink.href = campaignDetailsLink;
 
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
-        campaignIcon.dataset.programname = campaign.node.programName;
-        campaignIcon.dataset.campaignname = campaign.node.campaignName;
-        //Add Icon Image
-        const iconImage = document.createElement('img');
-        try {
-            const imageObject = await searchAsset(campaign.node.programName, campaign.node.campaignName);
-            iconImage.src = imageObject.imageUrl;
-            iconImage.alt = imageObject.imageAltText;
-        } catch (error) {
-        }
-        // Append the image to the campaignIcon div
-        campaignIcon.appendChild(iconImage);
+        campaignIcon.dataset.programname = programName;
+        campaignIcon.dataset.campaignname = campaignName;
+        campaignIcon.dataset.programid = programID;
+        addThumbnail(campaignIcon, programName, campaignName);
         campaignIconLink.appendChild(campaignIcon);
-        const campaignName = document.createElement('div');
-        campaignName.classList.add('campaign-name-wrapper', 'vertical-center');
+        const campaignNameWrapper = document.createElement('div');
+        campaignNameWrapper.classList.add('campaign-name-wrapper', 'vertical-center');
 
-        campaignName.innerHTML = `
+        campaignNameWrapper.innerHTML = `
             <div class='campaign-name-label' data-property='campaign'>
-                ${checkBlankString(campaign.node.programName)}
+                ${checkBlankString(programName)}
                 <span class="tooltip">Program Name</span>
             </div>
             <div class='campaign-name'>
-                ${checkBlankString(campaign.node.campaignName)}
+                ${checkBlankString(campaignName,'Marketing Moment Not Available')}
                 <span class="tooltip">Marketing Moment</span>
             </div>
         `;
         
         campaignInfoWrapper.appendChild(campaignIconLink);
-        campaignInfoWrapper.appendChild(campaignName);
+        campaignInfoWrapper.appendChild(campaignNameWrapper);
 
         const campaignOverviewWrapper = document.createElement('div');
         campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper', 'vertical-center');
@@ -211,7 +204,7 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignOverviewWrapper.appendChild(campaignOverview);
 
         const campaignLaunch = document.createElement('div');
-        campaignLaunch.textContent = checkBlankString(campaign.node.launchDate);
+        campaignLaunch.textContent = dateFormat(campaign.node.launchDate);
         campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
         campaignLaunch.dataset.property = 'launch';
 
@@ -237,13 +230,33 @@ function buildStatus(statusWrapper, campaign) {
     const statusStr = checkBlankString(campaign.node.status);
     const statusArray = statusMapping.data.jsonByPath.item.json.options;
     const statusMatch = statusArray.filter(item => item.value === statusStr);
-    const statusText = statusMatch.length > 0 ? statusMatch[0].text : statusStr;
+
+    let statusText, statusColor;
+    if (statusMatch.length > 0) {
+        statusText = statusMatch[0].text;
+        statusColor = statusMatch[0]["color-code"];
+    } else {
+        statusText = statusStr;
+        statusColor = "BABABA";
+    }
+
     campaignStatus.textContent = statusText;
-    campaignStatus.style.backgroundColor = "#" + statusMatch[0]["color-code"];
+    campaignStatus.style.backgroundColor = "#" + statusColor;
     campaignStatus.classList.add('status');
     campaignStatus.dataset.property = 'status';
     statusWrapper.appendChild(campaignStatus);
     return statusWrapper;
+}
+
+async function addThumbnail(parentElement, programName, campaignName) {
+    searchAsset(programName, campaignName).then((response) => {
+        if (response && (Object.hasOwn(response, 'imageUrl') && Object.hasOwn(response, 'imageAltText'))) {
+            const iconImage = document.createElement('img');
+            iconImage.src = response?.imageUrl;
+            iconImage.alt = response?.imageAltText;
+            parentElement.appendChild(iconImage);
+        }
+    })
 }
 
 async function buildProduct(product) {
@@ -307,6 +320,7 @@ function buildListHeaders(headerConfig) {
 
 function buildListFooter(rows, rowsPerPage) {
     const pages = Math.ceil(rows / rowsPerPage);
+    totalPages = pages;
     const footerWrapper = document.createElement('div');
     footerWrapper.classList.add('list-footer', 'footer-wrapper');
     footerWrapper.dataset.pages = pages;
@@ -321,9 +335,13 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPrev = document.createElement('div');
     footerPrev.classList.add('footer-pagination-button', 'prev');
     footerPrev.textContent = 'Prev';
+
     footerPrev.addEventListener('click', (event) => {
+        // Disable the button
+        footerPrev.classList.remove('active');
+        footerPrev.classList.add('disabled');
         prevPage(event.target);
-    })
+    });
 
     const footerPageBtnsWrapper = document.createElement('div');
     footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
@@ -332,9 +350,13 @@ function buildListFooter(rows, rowsPerPage) {
     //Show current page
     buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
 
-    footerNext.addEventListener('click', (event) => { 
+    footerNext.addEventListener('click', (event) => {
+        // Disable the button
+        footerNext.classList.remove('active');
+        footerNext.classList.add('disabled');
         nextPage(event.target);
-    })
+    });
+
     footerNext.textContent = 'Next';
     footerPagination.appendChild(footerPrev);
     footerPagination.appendChild(footerPageBtnsWrapper);
@@ -351,7 +373,6 @@ function buildListFooter(rows, rowsPerPage) {
     const footerPerPageDropdown = document.createElement('select');
     footerPerPageDropdown.id = 'per-page';
     footerPerPageDropdown.innerHTML = `
-        <option value="4">4</option>
         <option value="8">8</option>
         <option value="16">16</option>
         <option value="32">32</option>
@@ -404,35 +425,38 @@ function repaginate(dropdown) {
 }
 
 function nextPage(nextBtn) {
-    if (currentPageInfo.hasNextPage) {
-      //Calculate Next Page
-      currentPage++;
-      const block = document.querySelector('.gmo-program-list.block');
-      decorate( block, currentNumberPerPage, currentPageInfo.nextCursor, false, true,currentGraphqlFilter);
-      if (!(nextBtn.classList.contains('active'))) {
-          return;
-      }
-      const prevBtn = document.querySelector('.footer-pagination-button.prev');
-      prevBtn.classList.add('active');
+    if (currentPage < totalPages) {
+        currentPage++;
+        const block = document.querySelector('.gmo-program-list.block');
+        decorate(block, currentNumberPerPage, currentPageInfo.nextCursor, false, true, currentGraphqlFilter);
+
+        const prevBtn = document.querySelector('.footer-pagination-button.prev');
+        prevBtn.classList.add('active');
+
+        if (currentPage === totalPages) {
+            nextBtn.classList.remove('active');
+        } else {
+            nextBtn.classList.add('active');
+        }
     }
 }
 
 function prevPage(prevBtn) {
-    if (currentPageInfo.hasPreviousPage) {
-      currentPage--;
-      const block = document.querySelector('.gmo-program-list.block');
-      const currentCursor = currentPageInfo.currentCursor;
-      //Calculate cursor for previous page
-      const indexCursor = cursorArray.indexOf(currentCursor) - currentNumberPerPage;
-      decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false,currentGraphqlFilter);
-      if (!(prevBtn.classList.contains('active'))) {
-          return;
-      }
-      const nextBtn = document.querySelector('.footer-pagination-button.next');
-      const currentPageBtn = document.querySelector('#current-page');
-      const currentPageValue = parseInt(currentPageBtn.dataset.pagenumber);
-      const targetPage = (currentPageValue - 1);
-      nextBtn.classList.add('active');
+    if (currentPage > 1) {
+        currentPage--;
+        const block = document.querySelector('.gmo-program-list.block');
+
+        const currentCursor = currentPageInfo.currentCursor;
+        //Calculate cursor for previous page
+        const indexCursor = cursorArray.indexOf(currentCursor) - currentNumberPerPage;
+        decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false,currentGraphqlFilter);
+        const nextBtn = document.querySelector('.footer-pagination-button.next');
+        nextBtn.classList.add('active');
+        if (currentPage === 1) {
+            prevBtn.classList.remove('active');
+        } else {
+            prevBtn.classList.add('active');
+        }
     }
 }
 
@@ -479,3 +503,4 @@ function sortColumn(dir, property) {
         container.appendChild(row);
     });
 }
+
