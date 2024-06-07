@@ -375,13 +375,14 @@ function formatDate(dateString) {
 async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList?.items.primaryKpi;
-    const rows = document.createElement('div');
+    let rows = document.createElement('div');
     // we want the 'null' deliverableType to be part of this set for filtering
     const uniqueCatSet = new Set();
     deliverableList.forEach(object => { uniqueCatSet.add(object['deliverableType']) })
     const uniqueCategories = Array.from(uniqueCatSet);
+    const sortedCategories = sortDeliverableTypes(uniqueCategories);
     let emptyCategory = false;
-    uniqueCategories.forEach(async (category) => {
+    sortedCategories.forEach(async (category) => {
         // build header row
         let headerRow;
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
@@ -423,6 +424,19 @@ function dateSort(parent) {
     childNodes.forEach((node) => {
         parent.appendChild(node);
     })
+}
+
+function sortDeliverableTypes(arr) {
+    return arr.sort((a, b) => {
+        // If a is null and b is not null, a should come after b
+        if (a === null && b !== null) return 1;
+        // If b is null and a is not null, b should come after a
+        if (a !== null && b === null) return -1;
+        // If both a and b are null, they are equal in terms of sorting
+        if (a === null && b === null) return 0;
+        // If neither a nor b are null, sort them alphabetically
+        return a.localeCompare(b);
+    });
 }
 
 async function lookupType(rawText, mappingType) {
