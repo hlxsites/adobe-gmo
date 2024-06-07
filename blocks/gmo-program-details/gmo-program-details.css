@@ -1,7 +1,6 @@
 :root {
     border-bottom: none;
 }
-
 body {
     background-color: rgb(247, 246, 246);
 }
@@ -371,7 +370,8 @@ body {
     }
 }
 .table-content {
-    height: 45vh;
+    max-height: 45vh;
+    min-height: 7vh;
     overflow-y: auto;
     &::-webkit-scrollbar {
         display: none;
