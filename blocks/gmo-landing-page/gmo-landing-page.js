@@ -44,7 +44,7 @@ export default async function decorate(block) {
     const host = location.origin;
     const signInMsg = getSignInMsg(block);
     const config = readBlockConfig(block);
-    const redirect = host + config?.mainpage;
+    const redirect = config?.redirect ?? (host + config?.mainpage);
 
     block.innerHTML=`
     <div class="video-background">
