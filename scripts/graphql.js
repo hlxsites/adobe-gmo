@@ -5,6 +5,7 @@ import { logError } from './scripts.js';
 const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
 const projectId = 'gmo';
 
+/*
 export async function graphqlQueryNameList(queryNameList) {
   const queryName = queryNameList;
   //persisted query URLs have to be encoded together with the first semicolon
@@ -29,6 +30,7 @@ export async function graphqlQueryNameList(queryNameList) {
       throw error; // Rethrow or handle error as appropriate
   });
 }
+*/
 
 export async function graphqlCampaignCount(filter = {}) {
   const queryName = 'getTotalPrograms';
@@ -214,3 +216,9 @@ export async function executeQuery(queryString) {
       throw error; // Rethrow or handle error as appropriate
   });
 };
+
+export async function getMapping(mappingPath) {
+
+
+
+}

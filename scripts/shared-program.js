@@ -1,18 +1,24 @@
-import { graphqlQueryNameList } from "./graphql.js";
+//import { executeQuery, graphqlQueryNameList } from "./graphql.js";
+import { executeQuery } from "./graphql.js";
 import { getProductIconMapping, getBaseConfigPath } from './site-config.js';
 
 let iconMapping;
-export let statusMapping = await graphqlQueryNameList('getStatusList');
-export let productList = await graphqlQueryNameList('getProductList');
+//export let statusMapping = await graphqlQueryNameList('getStatusList');
+const statusCf = '/content/dam/gmo-cf/en/wf-picklist-data-source/status';
+const productCf = '/content/dam/gmo-cf/en/wf-picklist-data-source/product'
+export let statusMapping = await executeQuery(`getMappings${encodeURIComponent(';')}path=${encodeURIComponent(statusCf)}`)
+export let productList = await executeQuery(`getMappings${encodeURIComponent(';')}path=${encodeURIComponent(productCf)}`)
 
 /*
 *   Executes graphql query for 'friendly' labels and returns array of the results
 */
+/*
 export async function resolveMappings(mappingType) {
     const response = await graphqlQueryNameList(mappingType);
     const mappingArray = response.data.jsonByPath.item.json.options;
     return mappingArray;
 }
+*/
 
 /**
  * Filter provided array based on provided key/value pair
@@ -32,7 +38,8 @@ export async function getProductMapping(product) {
     } 
     const icon = iconMatch ? configPath + iconMatch[0]['Icon-path'] : defaultIcon;
 
-    if (productList == undefined) productList = await graphqlQueryNameList('getProductList');
+    //if (productList == undefined) productList = await graphqlQueryNameList('getProductList');
+    if (productList == undefined) productList = await executeQuery(`getMappings${encodeURIComponent(';')}path=${encodeURIComponent(productCf)}`)
     const productsArray = productList.data.jsonByPath.item.json.options;
     const productsMatch = filterArray(productsArray, 'value', product);
     const productsText = productsMatch ? productsMatch[0].text : product;
