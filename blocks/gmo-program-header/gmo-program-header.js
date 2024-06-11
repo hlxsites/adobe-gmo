@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlQueryNameList, graphqlCampaignByName, executeQuery } from '../../scripts/graphql.js';
-import { statusMapping, productList } from '../../scripts/shared-program.js';
+import { graphqlCampaignByName } from '../../scripts/graphql.js';
+import { statusMapping, productList, getMappingArray } from '../../scripts/shared-program.js';
 
 export default async function decorate(block) {
     block.innerHTML = `
@@ -132,30 +132,14 @@ export default async function decorate(block) {
 
 async function initializeDropdowns() {
     // Business Line List
-
-    //change mapping here
-    const businessCf = '/content/dam/gmo-cf/en/wf-picklist-data-source/lineofBusiness';
-    executeQuery(`getMappings${encodeURIComponent(';')}path=${encodeURIComponent(businessCf)}`).then((response) => {
+    getMappingArray('businessLine').then((response) => {
         populateDropdown(response, 'dropdownBusinessOptions', 'businessLine');
     })
-    /*
-    graphqlQueryNameList('getBusinessLine').then((response) => {
-        populateDropdown(response, 'dropdownBusinessOptions', 'businessLine');
-    });
-    */
 
     // Geo List
-
-    //change mapping here
-    const geoCf = '/content/dam/gmo-cf/en/wf-picklist-data-source/p1TargetMarketGeo';
-    executeQuery(`getMappings${encodeURIComponent(';')}path=${encodeURIComponent(geoCf)}`).then((response) => {
-        populateDropdown(response, 'dropdownBusinessOptions', 'businessLine');
-    })
-    /*
-    graphqlQueryNameList('getGeoList').then((response) => {
+    getMappingArray('geoList').then((response) => {
         populateDropdown(response, 'dropdownGeoOptions', 'p0TargetGeo');
-    });
-    */
+    })
 
     // Status List
     const statusResponse = await statusMapping;
