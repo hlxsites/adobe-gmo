@@ -134,12 +134,12 @@ async function initializeDropdowns() {
     // Business Line List
     getMappingArray('businessLine').then((response) => {
         populateDropdown(response, 'dropdownBusinessOptions', 'businessLine');
-    })
+    });
 
     // Geo List
     getMappingArray('geoList').then((response) => {
         populateDropdown(response, 'dropdownGeoOptions', 'p0TargetGeo');
-    })
+    });
 
     // Status List
     const statusResponse = await statusMapping;

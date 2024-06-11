@@ -1,7 +1,6 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { executeQuery } from '../../scripts/graphql.js';
-//import { resolveMappings, filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping } from '../../scripts/shared-program.js';
 import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
