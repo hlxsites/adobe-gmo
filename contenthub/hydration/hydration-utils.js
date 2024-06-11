@@ -115,7 +115,7 @@ export function getMetadataSchema(facetOptions){
           element: 'dropdown',
           multipleSelection: true,
           dropdownOptions: [
-            { name: 'N/A', id: 'na' },            
+            { name: 'N/A', id: 'N/A' },            
             { name: 'Acrobat', id:'Acrobat' },
             { name: 'Acrobat Export PDF', id:'Acrobat Export PDF' },
             { name: 'Acrobat PDF Pack', id:'Acrobat PDF Pack' },
