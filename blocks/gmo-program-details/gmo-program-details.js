@@ -17,18 +17,38 @@ export default async function decorate(block) {
     const encodedProgram = encodeURIComponent(programName);
     const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const programData = await executeQuery(programQueryString);
+    const program = programData.data.programList.items[0];
+    blockConfig = readBlockConfig(block);
+
+    if (!program) {
+        block.innerHTML = `
+        <div class="back-button">
+            <span class="icon icon-back"></span>
+            <span class="back-label">Back</span>
+        </div>
+        <div class="main-body-wrapper">
+        No data available.
+        </div>
+        `
+        decorateIcons(block);
+        enableBackBtn(block, blockConfig);
+        return;
+    }
+
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const deliverables = await executeQuery(deliverableQueryString);
 
-    const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
-    const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;
+    //const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
+    const p0TargetMarketArea = program.p0TargetMarketArea;
+    //const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;
+    const p1TargetMarketArea = program.p1TargetMarketArea;
 
     // Extract unique deliverable types
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     // Extract unique platforms (flattened from arrays within each item)
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
 
-    const program = programData.data.programList.items[0];
+    //const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
 
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
@@ -36,7 +56,7 @@ export default async function decorate(block) {
     const audiences = buildAudienceList(program).outerHTML;
     const date = formatDate(program.launchDate);
     const artifactLinks = buildArtifactLinks(program).outerHTML;
-    blockConfig = readBlockConfig(block);
+    
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
@@ -164,11 +184,13 @@ export default async function decorate(block) {
     block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
         switchTab(event.target);
     })
-    block.querySelector('.back-button').addEventListener('click', () => {
+    enableBackBtn(block, blockConfig);
+    /*block.querySelector('.back-button').addEventListener('click', () => {
         const host = location.origin + getBaseConfigPath();
         const listPage = blockConfig.listpage;
         document.location.href = host + `/${listPage}`;
     })
+    */
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
@@ -185,6 +207,14 @@ export default async function decorate(block) {
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(table);
     buildStatus(program.status);
+}
+
+function enableBackBtn(block, blockConfig) {
+    block.querySelector('.back-button').addEventListener('click', () => {
+        const host = location.origin + getBaseConfigPath();
+        const listPage = blockConfig.listpage;
+        document.location.href = host + `/${listPage}`;
+    })
 }
 
 /**
