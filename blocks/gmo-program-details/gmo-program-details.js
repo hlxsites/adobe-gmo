@@ -1,15 +1,15 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { getQueryVariable } from '../../scripts/shared.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { resolveMappings, filterArray, getProductMapping, checkBlankString, dateFormat } from '../../scripts/shared-program.js';
+import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
 const programName = getQueryVariable('programName');
 const programID = getQueryVariable('programID');
-const deliverableMappings = resolveMappings("getDeliverableTypeMapping");
-const platformMappings = resolveMappings("getPlatformsMapping");
+const deliverableMappings = getMappingArray('deliverableType');
+const platformMappings = getMappingArray('platforms');
 
 export default async function decorate(block) {
 
@@ -333,8 +333,7 @@ function buildArtifactLinks(program) {
 async function buildStatus(status) {
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('campaign-status');
-    const statusArray = await resolveMappings("getStatusList");
-    const statusMatch = filterArray(statusArray, 'value', status);
+    const statusMatch = filterArray(statusMapping, 'value', status);
     const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
     statusDiv.textContent = statusText;

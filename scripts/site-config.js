@@ -380,3 +380,18 @@ export async function getProductIconMapping() {
   }
   return iconArray;
 }
+
+/**
+ * @returns {Array} with mapping-type and the path to its content fragment.
+ */
+export async function getQueryPaths() {
+  let mapping = [];
+  const response = await getConfig('site-config.json');
+  for (const entry of response['query-fragments'].data || []) {
+    mapping.push({
+      type: entry['mapping-Type'],
+      path: entry['path']
+    });
+  }
+  return mapping;
+}

@@ -1,6 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlQueryNameList, graphqlCampaignByName } from '../../scripts/graphql.js';
-import { statusMapping, productList } from '../../scripts/shared-program.js';
+import { graphqlCampaignByName } from '../../scripts/graphql.js';
+import { statusMapping, productList, getMappingArray } from '../../scripts/shared-program.js';
 
 export default async function decorate(block) {
     block.innerHTML = `
@@ -132,12 +132,12 @@ export default async function decorate(block) {
 
 async function initializeDropdowns() {
     // Business Line List
-    graphqlQueryNameList('getBusinessLine').then((response) => {
+    getMappingArray('businessLine').then((response) => {
         populateDropdown(response, 'dropdownBusinessOptions', 'businessLine');
     });
 
     // Geo List
-    graphqlQueryNameList('getGeoList').then((response) => {
+    getMappingArray('geoList').then((response) => {
         populateDropdown(response, 'dropdownGeoOptions', 'p0TargetGeo');
     });
 
@@ -191,8 +191,7 @@ function populateDropdown(response, dropdownId, type) {
 
 // Function to filter products based on selected business line
 function filterProductsByBusinessLine(businessLine) {
-    const products = productList.data.jsonByPath.item.json.options;
-    const filteredProducts = products.filter(product =>
+    const filteredProducts = productList.filter(product =>
         product['business-line'].includes(businessLine)
     );
     populateDropdown(filteredProducts, 'dropdownProductOptions', 'productOffering');

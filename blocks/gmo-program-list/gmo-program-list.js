@@ -228,8 +228,7 @@ async function buildCampaignList(campaigns, numPerPage) {
 function buildStatus(statusWrapper, campaign) {
     const campaignStatus = document.createElement('div');
     const statusStr = checkBlankString(campaign.node.status);
-    const statusArray = statusMapping.data.jsonByPath.item.json.options;
-    const statusMatch = statusArray.filter(item => item.value === statusStr);
+    const statusMatch = statusMapping.filter(item => item.value === statusStr);
 
     let statusText, statusColor;
     if (statusMatch.length > 0) {
