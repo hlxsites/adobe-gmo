@@ -1,63 +1,64 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
-import { getQueryVariable } from '../../scripts/shared.js';
 import { executeQuery } from '../../scripts/graphql.js';
 import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
-const programName = getQueryVariable('programName');
-const programID = getQueryVariable('programID');
+const queryVars = extractQueryVars();
+const programName = queryVars.programName;
+const programID = queryVars.programID;
 const deliverableMappings = getMappingArray('deliverableType');
 const platformMappings = getMappingArray('platforms');
 
 export default async function decorate(block) {
-
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
     const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const programData = await executeQuery(programQueryString);
+    const program = programData.data.programList.items[0];
+    blockConfig = readBlockConfig(block);
+    const header = buildHeader(program, queryVars).outerHTML;
+    if (!program) {
+        block.innerHTML = `
+        <div class="back-button">
+            <span class="icon icon-back"></span>
+            <span class="back-label">Back</span>
+        </div>
+        <div class="main-body-wrapper">
+            ${header}
+            <div class="no-data-msg">No data available.</div>
+        </div>
+        `
+        decorateIcons(block);
+        enableBackBtn(block, blockConfig);
+        return;
+    }
+
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const deliverables = await executeQuery(deliverableQueryString);
 
-    const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
-    const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;
+    const p0TargetMarketArea = program.p0TargetMarketArea;
+    const p1TargetMarketArea = program.p1TargetMarketArea;
 
     // Extract unique deliverable types
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     // Extract unique platforms (flattened from arrays within each item)
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
-
-    const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
 
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
 
     const audiences = buildAudienceList(program).outerHTML;
-    const date = formatDate(program.launchDate);
     const artifactLinks = buildArtifactLinks(program).outerHTML;
-    blockConfig = readBlockConfig(block);
+    
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
         <span class="back-label">Back</span>
     </div>
     <div class="main-body-wrapper">
-        <div class="details-header-wrapper">
-            <div class="campaign-img">
-            </div>
-            <div class="header-title">
-                <div class="header-row1">
-                    <span class="h1">${program.programName}</span>
-                </div>
-                ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
-                <div class="header-row3">
-                    <span class="icon icon-calendar"></span>
-                    <span class="date-tooltip">Launch date</span>
-                    <span class="campaign-date">${date}</span>
-                </div>
-            </div>
-        </div>
+        ${header}
         <div class="tab-wrapper">
             <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
             <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
@@ -164,11 +165,7 @@ export default async function decorate(block) {
     block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
         switchTab(event.target);
     })
-    block.querySelector('.back-button').addEventListener('click', () => {
-        const host = location.origin + getBaseConfigPath();
-        const listPage = blockConfig.listpage;
-        document.location.href = host + `/${listPage}`;
-    })
+    enableBackBtn(block, blockConfig);
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
@@ -185,6 +182,35 @@ export default async function decorate(block) {
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(table);
     buildStatus(program.status);
+}
+
+function enableBackBtn(block, blockConfig) {
+    block.querySelector('.back-button').addEventListener('click', () => {
+        const host = location.origin + getBaseConfigPath();
+        const listPage = blockConfig.listpage;
+        document.location.href = host + `/${listPage}`;
+    })
+}
+
+function buildHeader(program, queryVars) {
+    const headerWrapper = document.createElement('div');
+    headerWrapper.classList.add('details-header-wrapper');
+    const date = program && program.launchDate ? `<div class="header-row3"><span class="icon icon-calendar">` +
+        `</span><span class="date-tooltip">Launch date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
+    const programName = program ? program.programName : queryVars.programName;
+    const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
+    headerWrapper.innerHTML = `
+        <div class="campaign-img">
+        </div>
+        <div class="header-title">
+            <div class="header-row1">
+                <span class="h1">${programName}</span>
+            </div>
+            ${campaignName}
+            ${date}
+        </div>
+    `
+    return headerWrapper;
 }
 
 /**
@@ -563,4 +589,26 @@ function attachListener(htmlElement) {
             if (child.classList.contains('row')) child.classList.toggle('inactive');
         })
     })
+}
+
+function extractQueryVars() {
+    const urlStr = window.location.href;
+    const pnRegex = /.*programName=(.*?)&programID=(.*)/;
+    const match = urlStr.match(pnRegex);
+    if (match && match[1] && match[2]) {
+        const pName = decodeURIComponent(match[1]);
+        let pID = decodeURIComponent(match[2])
+        if (pID.endsWith('#')) {
+            pID = pID.slice(0, -1);
+        }
+        return {
+            programName: pName,
+            programID: pID
+        }
+    } else {
+        return {
+            programName: 'Program Name Not Available',
+            programID: 'Program ID Not Available'
+        }
+    }
 }
