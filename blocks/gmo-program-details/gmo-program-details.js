@@ -28,7 +28,7 @@ export default async function decorate(block) {
         </div>
         <div class="main-body-wrapper">
             ${header}
-            No data available.
+            <div class="no-data-msg">No data available.</div>
         </div>
         `
         decorateIcons(block);
@@ -51,9 +51,7 @@ export default async function decorate(block) {
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
 
     const audiences = buildAudienceList(program).outerHTML;
-    //const date = formatDate(program.launchDate);
     const artifactLinks = buildArtifactLinks(program).outerHTML;
-    //const header = buildHeader(program).outerHTML;
     
     block.innerHTML = `
     <div class="back-button">
@@ -198,10 +196,8 @@ function enableBackBtn(block, blockConfig) {
 function buildHeader(program) {
     const headerWrapper = document.createElement('div');
     headerWrapper.classList.add('details-header-wrapper');
-    //const date = program ? formatDate(program.launchDate) : "Launch Date Not Available";
     const date = program && program.launchDate ? `<div class="header-row3"><span class="icon icon-calendar">` +
         `</span><span class="date-tooltip">Launch date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
-
     const programName = program ? program.programName : getQueryVariable('programName');
     const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
     headerWrapper.innerHTML = `
