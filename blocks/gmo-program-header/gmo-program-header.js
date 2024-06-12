@@ -191,8 +191,7 @@ function populateDropdown(response, dropdownId, type) {
 
 // Function to filter products based on selected business line
 function filterProductsByBusinessLine(businessLine) {
-    const products = productList.data.jsonByPath.item.json.options;
-    const filteredProducts = products.filter(product =>
+    const filteredProducts = productList.filter(product =>
         product['business-line'].includes(businessLine)
     );
     populateDropdown(filteredProducts, 'dropdownProductOptions', 'productOffering');
