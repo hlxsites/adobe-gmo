@@ -486,9 +486,10 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
         <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
         <div class='property table-column column3 platforms'></div>
         <div class='property table-column column4 review-link'>
-            <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
+            ${deliverableJson.reviewLink ? '<a href="' + deliverableJson.reviewLink + '"target="_blank" class="campaign-link">Review Link</a> ': "Not Available"}
         </div>
         <div class='property table-column column5'>
+            ${deliverableJson.linkedFolderLink ? '<a href="' + deliverableJson.linkedFolderLink + '"target="_blank" class="campaign-link">Final Asset</a> ': "Not Available"}
         </div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
@@ -508,14 +509,6 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
         </div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
     `;
-    if (!(deliverableJson.linkedFolderLink == null)) {
-        const finalAssetLink = document.createElement('a');
-        finalAssetLink.href = deliverableJson.linkedFolderLink;
-        finalAssetLink.classList.add('campaign-link');
-        finalAssetLink.target = '_blank';
-        finalAssetLink.textContent = "Final Asset";
-        dataRow.querySelector('.column5').appendChild(finalAssetLink);
-    }
     createPlatformString(deliverableJson.platforms, dataRow);
     return dataRow;
 }
