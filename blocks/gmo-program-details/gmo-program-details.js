@@ -19,7 +19,7 @@ export default async function decorate(block) {
     const programData = await executeQuery(programQueryString);
     const program = programData.data.programList.items[0];
     blockConfig = readBlockConfig(block);
-
+    const header = buildHeader(program).outerHTML;
     if (!program) {
         block.innerHTML = `
         <div class="back-button">
@@ -27,7 +27,8 @@ export default async function decorate(block) {
             <span class="back-label">Back</span>
         </div>
         <div class="main-body-wrapper">
-        No data available.
+            ${header}
+            No data available.
         </div>
         `
         decorateIcons(block);
@@ -38,24 +39,21 @@ export default async function decorate(block) {
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const deliverables = await executeQuery(deliverableQueryString);
 
-    //const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
     const p0TargetMarketArea = program.p0TargetMarketArea;
-    //const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;
     const p1TargetMarketArea = program.p1TargetMarketArea;
 
     // Extract unique deliverable types
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     // Extract unique platforms (flattened from arrays within each item)
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
-
-    //const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
 
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
 
     const audiences = buildAudienceList(program).outerHTML;
-    const date = formatDate(program.launchDate);
+    //const date = formatDate(program.launchDate);
     const artifactLinks = buildArtifactLinks(program).outerHTML;
+    //const header = buildHeader(program).outerHTML;
     
     block.innerHTML = `
     <div class="back-button">
@@ -63,21 +61,7 @@ export default async function decorate(block) {
         <span class="back-label">Back</span>
     </div>
     <div class="main-body-wrapper">
-        <div class="details-header-wrapper">
-            <div class="campaign-img">
-            </div>
-            <div class="header-title">
-                <div class="header-row1">
-                    <span class="h1">${program.programName}</span>
-                </div>
-                ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
-                <div class="header-row3">
-                    <span class="icon icon-calendar"></span>
-                    <span class="date-tooltip">Launch date</span>
-                    <span class="campaign-date">${date}</span>
-                </div>
-            </div>
-        </div>
+        ${header}
         <div class="tab-wrapper">
             <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
             <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
@@ -185,12 +169,6 @@ export default async function decorate(block) {
         switchTab(event.target);
     })
     enableBackBtn(block, blockConfig);
-    /*block.querySelector('.back-button').addEventListener('click', () => {
-        const host = location.origin + getBaseConfigPath();
-        const listPage = blockConfig.listpage;
-        document.location.href = host + `/${listPage}`;
-    })
-    */
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
@@ -215,6 +193,29 @@ function enableBackBtn(block, blockConfig) {
         const listPage = blockConfig.listpage;
         document.location.href = host + `/${listPage}`;
     })
+}
+
+function buildHeader(program) {
+    const headerWrapper = document.createElement('div');
+    headerWrapper.classList.add('details-header-wrapper');
+    //const date = program ? formatDate(program.launchDate) : "Launch Date Not Available";
+    const date = program && program.launchDate ? `<div class="header-row3"><span class="icon icon-calendar">` +
+        `</span><span class="date-tooltip">Launch date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
+
+    const programName = program ? program.programName : getQueryVariable('programName');
+    const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
+    headerWrapper.innerHTML = `
+        <div class="campaign-img">
+        </div>
+        <div class="header-title">
+            <div class="header-row1">
+                <span class="h1">${programName}</span>
+            </div>
+            ${campaignName}
+            ${date}
+        </div>
+    `
+    return headerWrapper;
 }
 
 /**
