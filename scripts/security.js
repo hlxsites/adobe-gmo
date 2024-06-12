@@ -71,15 +71,22 @@ export async function getUserProfile() {
 async function getCCCollabProfile() {
   const bearerToken = await getBearerToken();
   const url = await getCcCollabUrl();
-  return await fetchCached(
-    `https://${url}`,
-    {
-      method: 'GET',
-      headers: {
-        Authorization: bearerToken,
+
+  //If this fails, we want to return something. fetchCached will halt.
+  try{
+    return await fetchCached(
+      `https://${url}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: bearerToken,
+        },
       },
-    },
-  );
+    );
+  } catch (error) {
+    // fetchCached will log the error if it fails
+    return null;
+  }
 }
 
 export async function getAvatarUrl() {
