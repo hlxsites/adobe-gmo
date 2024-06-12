@@ -1,4 +1,3 @@
-//import { executeQuery, graphqlQueryNameList } from "./graphql.js";
 import { executeQuery } from "./graphql.js";
 import { getProductIconMapping, getBaseConfigPath, getQueryPaths } from './site-config.js';
 
