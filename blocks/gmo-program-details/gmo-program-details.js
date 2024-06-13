@@ -62,9 +62,9 @@ export default async function decorate(block) {
         <div class="tab-wrapper">
             <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
             <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
-            <div id="tab3toggle" data-target="tab3" class="tabBtn inactive">Calendar</div>
+            <div id="tab3toggle" data-target="tab3" class="tabBtn">Calendar</div>
         </div>
-        <div id="tab1" class="two-column overview tab">
+        <div id="tab1" class="two-column overview tab inactive">
             <div class="overview-wrapper">
                 <span class="h1 overview-heading">At a Glance</span>
                 <div class="product-overview-wrapper">
@@ -142,6 +142,61 @@ export default async function decorate(block) {
                     <div class="header table-column column9">Project Owner</div>
                 </div>
                 <div class="table-content">
+                </div>
+            </div>
+        </div>
+        <div id="tab3" class="calendar tab">
+            <div class="control-wrapper">
+                <div class="inc-dec-wrapper">
+                    <div class="year-switch">
+                        <div id="dec-year" class="year-toggle">
+                            <img class="left" src="/icons/chevron-right.svg"></img>
+                        </div>
+                        <div id="inc-year" class="year-toggle">
+                            <img class="right" src="/icons/chevron-right.svg"></img>
+                        </div>
+                    </div>
+                    <div class="current-year">2024</div>
+                </div>
+                <div class="right-controls">
+                    <div class="today-button">Today</div>
+                    <div class="year-dropdown-wrapper">
+                        <div class="year-dropdown-button">
+                            <div class="label">Year</div>
+                            <span class="icon icon-chevronDown"></span>
+                            <span class="icon icon-chevronUp inactive"></span>
+                        </div>
+                        <div class="year-dropdown-content">
+                            <div class="year-option">2024</div>
+                            <div class="year-option">2023</div>
+                            <div class="year-option">2022</div>
+                            <div class="year-option">2021</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="calendar-wrapper">
+                <div class="header-wrapper">
+                    <div class="quarter-header"> 
+                        <div class="quarter">Q1 2024</div>
+                        <div class="quarter">Q2 2024</div>
+                        <div class="quarter">Q3 2024</div>
+                        <div class="quarter">Q4 2024</div>
+                    </div>
+                </div>
+                <div class="month-wrapper">
+                    <div class="month">Jan</div>
+                    <div class="month">Feb</div>
+                    <div class="month">Mar</div>
+                    <div class="month">Apr</div>
+                    <div class="month">May</div>
+                    <div class="month">Jun</div>
+                    <div class="month">Jul</div>
+                    <div class="month">Aug</div>
+                    <div class="month">Sep</div>
+                    <div class="month">Oct</div>
+                    <div class="month">Nov</div>
+                    <div class="month">Dec</div>
                 </div>
             </div>
         </div>

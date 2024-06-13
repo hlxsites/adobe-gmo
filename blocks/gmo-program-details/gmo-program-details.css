@@ -119,7 +119,8 @@ body {
     justify-content: space-between;
     flex-wrap: wrap;
     align-content: center;
-    width: 160px;
+    /*width: 160px;*/
+    width: 240px;
     height: 50px;
     font: normal normal normal 14px/17px Adobe Clean;
     border-bottom: 2px solid #EAEAEA;
@@ -137,6 +138,145 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+.tab.calendar {
+    margin-top:10px;
+    & > .control-wrapper {
+        height: 32px;
+        padding-top: 1px;
+        padding-bottom: 1px;
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        & .inc-dec-wrapper {
+            font: normal normal normal 14px/17px Adobe Clean;
+            display: flex;
+            flex-direction: row;
+            width: 120px;
+            & .year-switch {
+                display: flex;
+                flex-direction: row;
+                width: 64px;
+                box-shadow: 0px 1px 4px #00000026;
+                border-radius: 4px;
+                & .year-toggle {
+                    display: flex;
+                    justify-content: center;
+                    align-content: center;
+                    height: 32px;
+                    width: 32px;
+                    flex-wrap: wrap;
+                }
+                & img {
+                    height: 15px;
+                    &.left {
+                        transform: rotate(180deg);
+                    }
+                }
+            }
+            & .current-year {
+                line-height: 32px;
+                margin-left: 20px;
+            }
+        }
+        & .right-controls {
+            width: 240px;
+            display: flex;
+            & .today-button {
+                width: 66px;
+                height: 32px;
+                font: normal normal normal 14px/17px Adobe Clean;
+                border-radius: 4px;
+                box-shadow: 0px 1px 4px #00000026;
+                display: flex;
+                justify-content: center;
+                margin-right: 5px;
+            }
+        }
+        & .year-dropdown-wrapper {
+            position: relative;
+            display: inline-block;
+            font: normal normal normal 14px/17px Adobe Clean;
+            letter-spacing: 0px;
+            height: 32px;
+            background-color: #FFF;
+            width: 176px;
+            border: 1px solid #D3D3D3;
+            border-radius: 4px;
+            & > .year-dropdown-button {
+                height: 32px;
+                line-height: 32px;
+                padding-left: 10px;
+                display: flex;
+                justify-content: space-between;
+                & > .label {
+                    overflow: hidden;
+                }
+                & > .icon {
+                    padding-top: 4px;
+                    height: 16px;
+                }
+            }
+            & > .year-dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: #f9f9f9;
+                
+                max-height: 200px;
+                overflow-y: auto;
+                border: 1px solid #ccc;
+                z-index: 1;
+                width: 174px;
+            }
+            &.active .year-dropdown-content {
+                display: block;
+            }
+        }
+    }
+    & > .calendar-wrapper {
+        height: 650px;
+        background-color: white;
+        font: normal normal bold 14px/21px Adobe Clean;
+        display: flex;
+        flex-direction: column;
+        border-bottom: 3px solid #F4F4F4;
+        & > .header-wrapper {
+            height: 24px;
+            & .quarter-header {
+                display: flex;
+                flex-direction: row;
+                height: 24px;
+            }
+            & .quarter {
+                width: 25%;
+                display: flex;
+                justify-content: center;
+                background-color: #F4F4F4;
+
+                &:not(:first-child) {
+                    border-left: 3px solid white;
+                }
+            }
+        }
+        
+        & .month-wrapper {
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            & .month {
+                width: 8.3%;
+                display: flex;
+                justify-content: center;
+                border-left: 3px solid #F4F4F4;
+                height:100%;
+                &:last-child {
+                    border-right: 3px solid #F4F4F4;
+                }
+            }
+        }
+
+    }
 }
 .overview-wrapper {
     display: flex;
