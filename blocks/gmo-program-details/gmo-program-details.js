@@ -146,6 +146,9 @@ export default async function decorate(block) {
             </div>
         </div>
         <div id="tab3" class="calendar tab">
+            <!-- TODO: It's fine to put this data that relies on nothing in the initial block load, but
+            everything else should be populated after any api calls resolve -->
+
             <div class="control-wrapper">
                 <div class="inc-dec-wrapper">
                     <div class="year-switch">
@@ -197,6 +200,22 @@ export default async function decorate(block) {
                     <div class="month">Oct</div>
                     <div class="month">Nov</div>
                     <div class="month">Dec</div>
+                </div>
+                <div class="calendar-group" id="group1">
+                    <div class="group-header">
+                        <img src=""></img>
+                        <img src=""></img>
+                        <div class="group-heading">Awareness</div>
+                        <div class="group-count">4</div>
+                    </div>
+                </div>
+                <div class="calendar-group" id="group2">
+                    <div class="group-header">
+                        <img src=""></img>
+                        <img src=""></img>
+                        <div class="group-heading">Education</div>
+                        <div class="group-count">3</div>
+                    </div>
                 </div>
             </div>
         </div>

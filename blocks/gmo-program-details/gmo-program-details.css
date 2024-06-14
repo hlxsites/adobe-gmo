@@ -186,7 +186,7 @@ body {
             & .today-button {
                 width: 66px;
                 height: 32px;
-                font: normal normal normal 14px/17px Adobe Clean;
+                font: normal normal normal 14px/32px Adobe Clean;
                 border-radius: 4px;
                 box-shadow: 0px 1px 4px #00000026;
                 display: flex;
@@ -241,6 +241,7 @@ body {
         display: flex;
         flex-direction: column;
         border-bottom: 3px solid #F4F4F4;
+        position: relative;
         & > .header-wrapper {
             height: 24px;
             & .quarter-header {
@@ -275,7 +276,48 @@ body {
                 }
             }
         }
-
+        & .calendar-group {
+            position: absolute;
+            width: 550px;
+            min-height: 100px;
+            background-color: lightcyan;
+            & .group-header {
+                height: 40px;
+                color: white;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-content: center;
+            }
+            & .group-heading {
+                line-height: 24px;
+                height: 24px;
+                margin-left: 10px;
+            }
+            & .group-count {
+                margin-left: 5px;
+                height: 24px;
+                width: 32px;
+                border-radius: 10px;
+                line-height: 24px;
+            }
+            &#group1 {
+                top: 100px;
+                left: 100px;
+                background-color: lightcyan;
+                & .group-header {
+                    background-color: cyan;
+                }
+            }
+            &#group2 {
+                top: 300px;
+                left: 500px;
+                background-color: lightpink;
+                & .group-header {
+                    background-color: salmon;
+                }
+            }
+        }
     }
 }
 .overview-wrapper {
