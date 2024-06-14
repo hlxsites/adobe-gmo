@@ -1,6 +1,7 @@
 :root {
     border-bottom: none;
 }
+
 body {
     background-color: rgb(247, 246, 246);
 }
@@ -27,6 +28,7 @@ body {
         font-weight: bold;
     }
 }
+
 .gmo-program-details.block {
     & .h1 {
         font: normal normal bold 18px/27px Adobe Clean;
@@ -179,11 +181,13 @@ body {
         }
     }
 }
+
 .tab.two-column {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
+
 .overview-wrapper {
     display: flex;
     flex-direction: column;
@@ -214,6 +218,7 @@ body {
         cursor: pointer;
     }
 }
+
 .kpis-wrapper {
     margin-top: 30px;
     & ul {
@@ -227,6 +232,7 @@ body {
         margin-top: 15px;
     }
 }
+
 .use-cases-wrapper {
     margin-bottom: 30px;
 }
@@ -264,6 +270,7 @@ body {
     flex-direction: column;
     margin-top: 20px;
 }
+
 .links-wrapper {
     margin-top: 30px;
     & .links {
@@ -277,6 +284,7 @@ body {
         color: #0D66D0;
     }
 }
+
 .infocards-wrapper {
     margin-right: 40px;
     & .card {
@@ -290,6 +298,7 @@ body {
         }
     }
 }
+
 .card {
     & .card-heading {
         margin-top: 10px;
@@ -305,6 +314,7 @@ body {
         font-size: 14px;
     }
 }
+
 .milestone, .card-content {
     font: normal normal normal 14px/21px Adobe Clean;
     & .icon {
@@ -317,6 +327,7 @@ body {
         margin-bottom: 5px;
     }
 }
+
 .deliverables {
     & > .page-heading {
         display: flex;
@@ -352,6 +363,7 @@ body {
         }
     }
 }
+
 .table-wrapper {
     font: normal normal bold 14px/21px Adobe Clean;
     & > .table-header {
@@ -369,6 +381,7 @@ body {
         top: 0;
     }
 }
+
 .table-content {
     max-height: 45vh;
     min-height: 7vh;
@@ -377,10 +390,12 @@ body {
         display: none;
     }
 }
+
 .inactive {
     display: none !important;
     visibility: hidden;
 }
+
 .row {
     height: 56px;
     &:not(:last-child) {
@@ -389,10 +404,11 @@ body {
     &.datarow {
         display: flex;
         align-items: center;
-        height: 88px;
+        height: auto; /* Set to auto to accommodate varying heights */
         font-weight: 200;
         & .property {
-            line-height: 88px;
+            line-height: normal; /* Adjust line-height to normal */
+            padding: 10px 0; /* Add padding for better spacing */
         }
         &:first-child, &:nth-child(2) {
             border-top: 2px solid #F4F4F4;
@@ -405,7 +421,7 @@ body {
         & .date-wrapper {
             display: flex;
             flex-direction: column;
-            justify-content:center;
+            justify-content: center;
             & > .completion-date, .revised-date {
                 line-height: 21px;
             }
@@ -446,6 +462,7 @@ body {
         justify-content: center;
     }
 }
+
 .subheader {
     &:nth-child(2) {
         border-top: 2px solid #F4F4F4;
@@ -490,12 +507,13 @@ body {
             border-radius: 3px;
         }
     }
-
 }
+
 .header-row3:hover .date-tooltip {
     visibility: visible;
     opacity: 1;
 }
+
 .date-tooltip {
     background-color: #D3D3D3;
     border-radius: 2px;
@@ -508,32 +526,50 @@ body {
     font: normal normal normal 12px/17px Adobe Clean;
     margin-left: 100px;
 }
+
 .column1 {
     margin-left: 45px;
 }
+
 .column1 {
     width: 200px;
 }
+
 .column3 {
     width: 140px;
 }
-.column4, & .column5, & .column6 {
+
+.column4, .column5, .column6 {
     width: 110px;
 }
+
 .column2 {
     width: 130px;
 }
+
 .column7 {
     width: 170px;
 }
+
 .column8 {
     width: 120px;
 }
+
 .column9 {
     width: 150px;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 1.2;
 }
+
 .table-column {
     &:not(:last-child) {
         margin-right: 85px;
+    }
+}
+
+@media (max-width: 1255px) {
+    .column9 {
+        width: 100px;
     }
 }
