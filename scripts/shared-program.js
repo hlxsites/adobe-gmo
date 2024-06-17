@@ -63,3 +63,78 @@ export async function getMappingArray(type) {
     })
     return mappings;
 }
+
+export const testCalendar = [
+    {
+        'name': 'Content A',
+        'status': 'Complete',
+        'link': 'https://www.google.com',
+        'type': 'Awareness',
+        'startDate': '2024-02-01',
+        'endDate': '2024-04-30'
+    },
+    {
+        'name': 'Content B',
+        'status': 'Complete',
+        'link': 'https://www.google.com',
+        'type': 'Awareness',
+        'startDate': '2024-02-01',
+        'endDate': '2024-04-30'
+    },
+    {
+        'name': 'Bryan',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Awareness',
+        'startDate': '2024-03-15',
+        'endDate': '2024-04-30'
+    },
+    {
+        'name': 'Meagan',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Awareness',
+        'startDate': '2024-03-15',
+        'endDate': '2024-04-30'
+    },
+    {
+        'name': 'Content C',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Education',
+        'startDate': '2024-03-10',
+        'endDate': '2024-08-10'
+    },
+    {
+        'name': 'Content D',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Education',
+        'startDate': '2024-03-10',
+        'endDate': '2024-08-10'
+    },
+    {
+        'name': 'Content E',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Education',
+        'startDate': '2024-03-10',
+        'endDate': '2024-08-10'
+    },
+    {
+        'name': 'Richard',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Conversion',
+        'startDate': '2024-06-01',
+        'endDate': '2024-10-31'
+    },
+    {
+        'name': 'Kristine',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Other',
+        'startDate': '2024-08-01',
+        'endDate': '2024-12-31'
+    }
+]

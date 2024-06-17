@@ -1,6 +1,6 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
+import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray, testCalendar } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -201,21 +201,51 @@ export default async function decorate(block) {
                     <div class="month">Nov</div>
                     <div class="month">Dec</div>
                 </div>
-                <div class="calendar-group" id="group1">
-                    <div class="group-header">
-                        <img src=""></img>
-                        <img src=""></img>
-                        <div class="group-heading">Awareness</div>
-                        <div class="group-count">4</div>
+                <div class="calendar-content-wrapper">
+                    <div class="calendar-group" id="group1">
+                        <div class="group-header">
+                            <img src="/icons/chevron-right.svg" class="group-expand group-controls"></img>
+                            <img src="/icons/chevron-right.svg" class="group-collapse group-controls inactive"></img>
+                            <div class="group-heading">Awareness</div>
+                            <div class="group-count">4</div>
+                        </div>
+                        <div class="group-content">
+                            <div class="item">
+                                <div class="color-tab"></div>
+                                <div class="item-content"> 
+                                    <div class="info">
+                                        <div class="thumbnail"></div>
+                                        <div class="name">Content A</div>
+                                        <div class="item-status"></div>
+                                    </div>
+                                    <div class="link">
+                                        <a href="#">Final Asset</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item">
+                            <div class="color-tab"></div>
+                            <div class="item-content"> 
+                                <div class="info">
+                                    <div class="thumbnail"></div>
+                                    <div class="name">Content B</div>
+                                    <div class="item-status"></div>
+                                </div>
+                                <div class="link">
+                                    <a href="#">Final Asset</a>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
                     </div>
-                </div>
-                <div class="calendar-group" id="group2">
-                    <div class="group-header">
-                        <img src=""></img>
-                        <img src=""></img>
-                        <div class="group-heading">Education</div>
-                        <div class="group-count">3</div>
-                    </div>
+                    <div class="calendar-group" id="group2">
+                        <div class="group-header">
+                            <img src="/icons/chevron-right.svg" class="group-expand group-controls"></img>
+                            <img src="/icons/chevron-right.svg" class="group-collapse group-controls inactive"></img>
+                            <div class="group-heading">Education</div>
+                            <div class="group-count">3</div>
+                        </div>
+                    </div>                
                 </div>
             </div>
         </div>
