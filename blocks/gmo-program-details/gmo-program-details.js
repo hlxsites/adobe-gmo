@@ -125,14 +125,15 @@ export default async function decorate(block) {
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
                 ${artifactLinks}
-                <div class="total-assets">
-                    <div class="h3">Total Assets</div>
+                <div class="total-assets total-assets-tooltip">
+                    <div class="h3">Total Approved Assets</div>
                     <span id="totalassets" class="description"></span>
+                    <span class="tooltiptext">To view the assets, go to the "All Asset" search page and use Program and Campaign name facet to filter the assets</span>
                 </div>
             </div>
             <div class="table-wrapper">
                 <div class="table-header">
-                    <div class="header table-column column1">Deliverable Name</div>
+                    <div class="header table-column column1">Deliverable Task Name</div>
                     <div class="header table-column column2">Deliverable Type</div>
                     <div class="header table-column column3">Platforms</div>
                     <div class="header table-column column4">Review Link</div>
