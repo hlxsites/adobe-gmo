@@ -102,6 +102,20 @@ body {
     }
 }
 
+.details-header-wrapper .header-row3 {
+    display: flex;
+    align-items: center;
+}
+
+.details-header-wrapper .header-row3 .icon-calendar {
+    margin-right: 10px;
+}
+
+.details-header-wrapper .header-row3 .driver-text {
+    font: normal normal normal 14px/21px Adobe Clean;
+    margin-left: 55px;
+}
+
 .campaign-img {
     width: 80px;
     height: 80px;
