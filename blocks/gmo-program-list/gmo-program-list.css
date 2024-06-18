@@ -204,28 +204,33 @@ select {
     border-radius: 4px;
 }
 .column-1 {
-    width: 28%;
+    width: 18%;
     margin-right: 1%;
 }
 .column-2 {
-    width: 40%;
+    width: 25%;
     margin-right: 1%;
 }
 .column-3 {
-    width: 12%;
+    width: 15%;
     margin-right: 1%;
 }
 .column-4 {
-    width: 16%;
+    width: 14%;
     margin-right: 1%;
 }
 .column-5 {
-    width: 13%;
+    width: 10%;
     margin-right: 1%;
 }
 .column-6 {
-    width: 14%;
+    width: 10%;
+    margin-right: 1%;
 }
+.column-7 {
+    width: 5%;
+}
+
 .status {
     width: 80px;
     text-align: center;

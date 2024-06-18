@@ -30,6 +30,11 @@ const headerConfig = [
         'name': 'Status',
         'attribute': 'status',
         'sortable': false
+    },
+    {
+        'name': 'Geo',
+        'attribute': 'geo',
+        'sortable': false
     }
 ]
 
@@ -214,15 +219,26 @@ async function buildCampaignList(campaigns, numPerPage) {
         var campaignStatusWrapper = document.createElement('div');
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6', 'vertical-center');
         campaignStatusWrapper = buildStatus(campaignStatusWrapper, campaign);
+
+        const campaignGeo = document.createElement('div');
+        campaignGeo.textContent = formatGeos(campaign.node.p0TargetGeo);
+        campaignGeo.classList.add('column-7', 'vertical-center');
+        campaignGeo.dataset.property = 'geo';
+
         campaignRow.appendChild(campaignInfoWrapper);
         campaignRow.appendChild(campaignOverviewWrapper);
         campaignRow.appendChild(campaignLaunch);
         campaignRow.appendChild(campaignProducts);
         campaignRow.appendChild(campaignStatusWrapper);
+        campaignRow.appendChild(campaignGeo);
 
         listWrapper.appendChild(campaignRow);
     }
     return listWrapper;
+}
+
+function formatGeos(geoArray) {
+    return geoArray.map(geo => geo.toUpperCase()).join(', ');
 }
 
 function buildStatus(statusWrapper, campaign) {
