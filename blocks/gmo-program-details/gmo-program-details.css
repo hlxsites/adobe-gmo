@@ -246,7 +246,7 @@ body {
         border-bottom: 3px solid #F4F4F4;
         position: relative;
         /*justify-content: space-between;*/
-        & > .header-wrapper {
+        & .header-wrapper {
             height: 24px;
             & .quarter-header {
                 display: flex;
@@ -264,16 +264,26 @@ body {
                 }
             }
         }
-        
+        & .calendar-background {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+        }
         & .month-wrapper {
             height: 100%;
             width: 100%;
             display: flex;
             flex-direction: row;
             /*position: relative;*/
+            /*
             position: absolute;
             top: 0;
             bottom: 0;
+            */
             /*z-index: -1;*/
             & .month {
                 width: 8.3%;
@@ -295,6 +305,7 @@ body {
             top: 0;
             left: 0;
             right: 0;
+            padding-bottom: 20px;
         }
         & .calendar-group {
             /*position: absolute;*/
@@ -395,9 +406,6 @@ body {
                 }
             }
             &#group1 {
-                top: 100px;
-                left: 100px;
-                margin-left: 8.3%;
                 background-color: #33AB840D;
                 border: 1px solid #12805C;
                 & .group-header {
@@ -405,8 +413,6 @@ body {
                 }
             }
             &#group2 {
-                top: 300px;
-                left: 500px;
                 background-color: #37c8f029;
                 border: 1px solid #2680EB;
                 & .group-header {

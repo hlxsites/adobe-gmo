@@ -3,7 +3,7 @@ import { executeQuery } from '../../scripts/graphql.js';
 import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray, testCalendar } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
-import { buildCalendar, setCalendarHeight } from '../../scripts/program-calendar.js';
+import { buildCalendar } from '../../scripts/program-calendar.js';
 
 let blockConfig;
 const queryVars = extractQueryVars();
@@ -180,27 +180,29 @@ export default async function decorate(block) {
                 </div>
             </div>
             <div class="calendar-wrapper">
-                <div class="header-wrapper">
-                    <div class="quarter-header"> 
-                        <div class="quarter">Q1 2024</div>
-                        <div class="quarter">Q2 2024</div>
-                        <div class="quarter">Q3 2024</div>
-                        <div class="quarter">Q4 2024</div>
+                <div class="calendar-background">
+                    <div class="header-wrapper">
+                        <div class="quarter-header"> 
+                            <div class="quarter">Q1 2024</div>
+                            <div class="quarter">Q2 2024</div>
+                            <div class="quarter">Q3 2024</div>
+                            <div class="quarter">Q4 2024</div>
+                        </div>
                     </div>
-                </div>
-                <div class="month-wrapper">
-                    <div class="month">Jan</div>
-                    <div class="month">Feb</div>
-                    <div class="month">Mar</div>
-                    <div class="month">Apr</div>
-                    <div class="month">May</div>
-                    <div class="month">Jun</div>
-                    <div class="month">Jul</div>
-                    <div class="month">Aug</div>
-                    <div class="month">Sep</div>
-                    <div class="month">Oct</div>
-                    <div class="month">Nov</div>
-                    <div class="month">Dec</div>
+                    <div class="month-wrapper">
+                        <div class="month">Jan</div>
+                        <div class="month">Feb</div>
+                        <div class="month">Mar</div>
+                        <div class="month">Apr</div>
+                        <div class="month">May</div>
+                        <div class="month">Jun</div>
+                        <div class="month">Jul</div>
+                        <div class="month">Aug</div>
+                        <div class="month">Sep</div>
+                        <div class="month">Oct</div>
+                        <div class="month">Nov</div>
+                        <div class="month">Dec</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -242,7 +244,6 @@ export default async function decorate(block) {
     tableRoot.appendChild(table);
     buildStatus(program.status);
     buildCalendar(testCalendar, block);
-    //setCalendarHeight();
 }
 
 function enableBackBtn(block, blockConfig) {
