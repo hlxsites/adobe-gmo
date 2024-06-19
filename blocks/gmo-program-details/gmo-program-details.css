@@ -235,13 +235,17 @@ body {
         }
     }
     & > .calendar-wrapper {
-        height: 650px;
+        /*height: 650px;*/
+        /*min-height: 650px;*/
+        overflow-y: auto;
+        overflow-x: hidden;
         background-color: white;
         font: normal normal bold 14px/21px Adobe Clean;
         display: flex;
         flex-direction: column;
         border-bottom: 3px solid #F4F4F4;
         position: relative;
+        /*justify-content: space-between;*/
         & > .header-wrapper {
             height: 24px;
             & .quarter-header {
@@ -263,8 +267,14 @@ body {
         
         & .month-wrapper {
             height: 100%;
+            width: 100%;
             display: flex;
             flex-direction: row;
+            /*position: relative;*/
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            /*z-index: -1;*/
             & .month {
                 width: 8.3%;
                 display: flex;
@@ -277,9 +287,14 @@ body {
             }
         }
         & .calendar-content-wrapper {
-            position: absolute;
+            /*position: absolute;*/
+            position: relative;
             padding-top: 60px;
             padding-left: 5px;
+            width: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
         }
         & .calendar-group {
             /*position: absolute;*/
@@ -382,17 +397,20 @@ body {
             &#group1 {
                 top: 100px;
                 left: 100px;
-                background-color: lightcyan;
+                margin-left: 8.3%;
+                background-color: #33AB840D;
+                border: 1px solid #12805C;
                 & .group-header {
-                    background-color: cyan;
+                    background-color: #33AB84;
                 }
             }
             &#group2 {
                 top: 300px;
                 left: 500px;
-                background-color: lightpink;
+                background-color: #37c8f029;
+                border: 1px solid #2680EB;
                 & .group-header {
-                    background-color: salmon;
+                    background-color: #378EF0;
                 }
             }
         }
