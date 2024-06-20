@@ -126,6 +126,8 @@ export default async function decorate(block) {
     });
 
     initializeDropdowns();
+    // Attach event listeners for the dropdowns and reset filters
+    attachEventListeners();
     decorateIcons(block);
     document.addEventListener('click', handleClickOutside);
 }

@@ -125,21 +125,22 @@ export default async function decorate(block) {
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
                 ${artifactLinks}
-                <div class="total-assets">
-                    <div class="h3">Total Assets</div>
+                <div class="total-assets total-assets-tooltip">
+                    <div class="h3">Total Approved Assets</div>
                     <span id="totalassets" class="description"></span>
+                    <span class="tooltiptext">To view the assets, go to the "All Asset" search page and use Program and Campaign name facet to filter the assets</span>
                 </div>
             </div>
             <div class="table-wrapper">
                 <div class="table-header">
-                    <div class="header table-column column1">Deliverable Name</div>
+                    <div class="header table-column column1">Deliverable Task Name</div>
                     <div class="header table-column column2">Deliverable Type</div>
                     <div class="header table-column column3">Platforms</div>
                     <div class="header table-column column4">Review Link</div>
                     <div class="header table-column column5">Final Asset</div>
                     <div class="header table-column column7">Status Update</div>
                     <div class="header table-column column8">Completion Date</div>
-                    <div class="header table-column column9">Project Owner</div>
+                    <div class="header table-column column9">Task Owner</div>
                 </div>
                 <div class="table-content">
                 </div>
@@ -192,6 +193,13 @@ function enableBackBtn(block, blockConfig) {
     })
 }
 
+function buildDriverField(driverName) {
+    const driverSpan = document.createElement('span');
+    driverSpan.classList.add('driver-text');
+    driverSpan.innerHTML = `Project Owner: ${driverName}`;
+    return driverSpan;
+}
+
 function buildHeader(program, queryVars) {
     const headerWrapper = document.createElement('div');
     headerWrapper.classList.add('details-header-wrapper');
@@ -199,6 +207,14 @@ function buildHeader(program, queryVars) {
         `</span><span class="date-tooltip">Launch date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
     const programName = program ? program.programName : queryVars.programName;
     const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
+
+    const driver = program && program.driver ? program.driver : "Not Available";
+    let driverField = '';
+
+    if (program){
+      driverField=buildDriverField(driver).outerHTML;
+    }
+
     headerWrapper.innerHTML = `
         <div class="campaign-img">
         </div>
@@ -207,7 +223,10 @@ function buildHeader(program, queryVars) {
                 <span class="h1">${programName}</span>
             </div>
             ${campaignName}
-            ${date}
+            <div class="header-row3">
+              ${date}
+              ${driverField}
+            </div>
         </div>
     `
     return headerWrapper;
