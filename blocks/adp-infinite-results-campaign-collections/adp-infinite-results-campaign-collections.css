@@ -1,0 +1,9 @@
+.adp-infinite-results-collections .metadata-fields .metadata-row {
+  grid-column: span 2;
+}
+
+.adp-infinite-results-collections .metadata-fields .label {
+    color: var(--metadata-label-color);
+    font: var(--metadata-label-font);
+    margin-bottom: 4px;
+}
