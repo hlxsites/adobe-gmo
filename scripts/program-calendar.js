@@ -14,27 +14,55 @@ export async function buildCalendar(items, block) {
         //console.log(matchedItems);
 
         //find the earliest date- this is how we set the position against the calendar
-        const earliestDate = matchedItems.reduce((earliest, current) => {
+        const earliestStartDate = matchedItems.reduce((earliest, current) => {
             const currentDate = new Date(current.startDate + 'T00:00:00Z');
             return currentDate < earliest ? currentDate : earliest;
-          }, new Date(matchedItems[0].startDate + 'T00:00:00Z'));
-        const month = (earliestDate.getUTCMonth() + 1); // getMonth returns 0-11, so add 1
-        const day = (earliestDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
-        
-        const year = earliestDate.getUTCFullYear();
-        const totalDaysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+        },  new Date(matchedItems[0].startDate + 'T00:00:00Z'));
 
-        const percentOfMonth = (day / totalDaysInMonth);
-        const dayMargin = (percentOfMonth * monthWidth);
-        //console.log(`The earliest startDate is: ${earliestDate.toISOString().split('T')[0]}`);
-        //console.log(`The two-digit month of the earliest startDate is: ${month}`);
-        //console.log(`The day of the earliest startDate is: ${day}`);
+        const latestEndDate = matchedItems.reduce((latest, current) => {
+            const currentDate = new Date(current.endDate + 'T00:00:00Z'); // Ensure UTC
+            return currentDate > latest ? currentDate : latest;
+        },  new Date(matchedItems[0].endDate + 'T00:00:00Z'));
+
+
+        const startMonth = (earliestStartDate.getUTCMonth() + 1); // getMonth returns 0-11, so add 1
+        const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
+        const endMonth = (latestEndDate.getUTCMonth() + 1);
+        const endDay = (latestEndDate.getUTCDate() - 1);
+        
+
+
+        const startYear = earliestStartDate.getUTCFullYear();
+        const totalDaysInMonth = new Date(Date.UTC(startYear, startMonth, 0)).getUTCDate();
+
+        const endYear = latestEndDate.getUTCFullYear();
+        const totalDaysInEndMonth = new Date(Date.UTC(endYear, endMonth, 0)).getUTCDate();
+
+        const percentOfStartMonth = (startDay / totalDaysInMonth);
+        const percentOfEndMonth = (endDay / totalDaysInEndMonth);
+        console.log(`Percent of end month that has passed: ${percentOfEndMonth}`);
+
+        const dayMargin = (percentOfStartMonth * monthWidth);
+        const endDayMargin = (percentOfEndMonth * monthWidth);
+
+        console.log(`The earliest startDate is: ${earliestStartDate.toISOString().split('T')[0]}`);
+        console.log(`The latest endDate is: ${latestEndDate.toISOString().split('T')[0]}`);
+        console.log(`The two-digit month of the earliest startDate is: ${startMonth}`);
+        console.log(`The day of the earliest startDate is: ${startDay}`);
+        console.log(`The two-digit month of the latest endDate is: ${endMonth}`);
+        console.log(`The day of the earliest endDate is: ${endDay}`);
 
         //console.log(`Percentage of the month that has passed: ${percentOfMonth.toFixed(2)}%`);
         //console.log(`Percentage of the month that has passed: ${percentOfMonth}%`);
         //console.log(`Additional margin needed: ${dayMargin}`);
 
-        const position = ((month * monthWidth) + dayMargin) + '%';
+        const startPosition = (((startMonth - 1) * monthWidth) + dayMargin).toFixed(2);
+        //const startPosition = ((startMonth * monthWidth) + dayMargin) + '%';
+        console.log(`Start position: ${startPosition}`);
+        const endPosition = (((endMonth - 1) * monthWidth) + endDayMargin).toFixed(2);
+        console.log(`End position: ${endPosition}`);
+        const widthOfGroup = (endPosition - startPosition);
+        console.log(`Width of this group is ${widthOfGroup}%`);
         //console.log(`Position of this group would be: ${position}`);
         // end margin calculation code
 
@@ -43,7 +71,9 @@ export async function buildCalendar(items, block) {
         // we'll give the group a total days length and use that difference to calculate where in the group
         // each item should start
 
-
+        const groupDuration = Math.floor((latestEndDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
+        console.log(`Day duration of all items in this group: ${groupDuration}`);
+        console.log('----------------');
 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
@@ -52,12 +82,13 @@ export async function buildCalendar(items, block) {
             const itemDate = new Date(item.startDate + 'T00:00:00Z');
             // begin date difference per item calculation
             // Calculate the difference in months and days between earliestDate and anotherDate
-            let monthsDifference = (itemDate.getUTCFullYear() - earliestDate.getUTCFullYear()) * 12 + (itemDate.getUTCMonth() - earliestDate.getUTCMonth());
+            let monthsDifference = (itemDate.getUTCFullYear() - earliestStartDate.getUTCFullYear()) * 12 + (itemDate.getUTCMonth() - earliestStartDate.getUTCMonth());
 
-            let daysDifference = itemDate.getUTCDate() - earliestDate.getUTCDate();
+            let daysDifference = itemDate.getUTCDate() - earliestStartDate.getUTCDate();
+            let onlyDaysDifference = Math.floor((itemDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
 
-            console.log(`Months difference between this and earliestDate: ${monthsDifference}`)
-            console.log(`Days difference between this and earliestDate: ${daysDifference}`)
+            //console.log(`Months and days difference between this and earliestDate: ${monthsDifference} months, ${daysDifference} days`)
+            //console.log(`Days difference between this and earliestDate: ${onlyDaysDifference}`)
             if (daysDifference < 0) {
                 monthsDifference -= 1;
                 const previousMonth = new Date(Date.UTC(anotherDate.getUTCFullYear(), anotherDate.getUTCMonth(), 0));
@@ -88,7 +119,8 @@ export async function buildCalendar(items, block) {
         const groupEl = document.createElement('div');
         groupEl.classList.add('calendar-group');
         groupEl.id = 'group1';
-        groupEl.style.marginLeft = position;
+        groupEl.style.marginLeft = startPosition + '%';
+        groupEl.style.width = widthOfGroup + '%';
         groupEl.innerHTML = `
             <div class="group-header">
                 <img src="/icons/chevron-right.svg" class="group-expand group-controls"></img>

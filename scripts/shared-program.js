@@ -87,7 +87,7 @@ export const testCalendar = [
         'link': 'https://www.google.com',
         'type': 'Awareness',
         'startDate': '2024-03-15',
-        'endDate': '2024-04-30'
+        'endDate': '2024-06-30'
     },
     {
         'name': 'Meagan',
@@ -95,7 +95,7 @@ export const testCalendar = [
         'link': 'https://www.google.com',
         'type': 'Awareness',
         'startDate': '2024-03-15',
-        'endDate': '2024-04-30'
+        'endDate': '2024-06-30'
     },
     {
         'name': 'Content C',
