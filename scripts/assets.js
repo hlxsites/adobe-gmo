@@ -9,7 +9,7 @@ import {
   getOptimizedDeliveryUrl
 } from './polaris.js';
 
-import { getAdminConfig } from './site-config.js';
+import { getAdminConfig, getBaseConfigPath, getBrandingConfig } from './site-config.js';
 
 import { createSearchEndpoint, logError } from './scripts.js';
 
@@ -96,7 +96,11 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
       }
       else
       {
-        return null;
+          //Display Underdevelopment Icon
+          const configPath = getBaseConfigPath();
+          const brandingConfig = await getBrandingConfig();
+          const underdevelopmentIconPath = `${configPath}/${brandingConfig.underdevelopmentIcon}`.replace(/\/\//g, '/');
+          return {imageUrl : underdevelopmentIconPath, imageAltText: 'Under Development', assetCount: 0};
       }
     }
     // Handle other response codes
