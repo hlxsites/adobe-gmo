@@ -82,6 +82,14 @@ export const testCalendar = [
         'endDate': '2024-04-30'
     },
     {
+        'name': 'Test End Before Group',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Awareness',
+        'startDate': '2024-03-05',
+        'endDate': '2024-06-10'
+    },
+    {
         'name': 'Bryan',
         'status': 'On Track',
         'link': 'https://www.google.com',
@@ -136,5 +144,13 @@ export const testCalendar = [
         'type': 'Other',
         'startDate': '2024-08-01',
         'endDate': '2024-12-31'
+    },
+    {
+        'name': 'Elwood',
+        'status': 'On Track',
+        'link': 'https://www.google.com',
+        'type': 'Other',
+        'startDate': '2024-10-01',
+        'endDate': '2024-12-21'
     }
 ]

@@ -1,5 +1,5 @@
 export async function buildCalendar(items, block) {
-    const monthWidth = 8.32;
+    const monthWidth = 8.315;
     const displayYear = 2024;
     //todo: determine the year based on dropdown selection
 
@@ -9,6 +9,7 @@ export async function buildCalendar(items, block) {
     //console.log(uniqueGroups);
     const contentWrapper = document.createElement('div');
     contentWrapper.classList.add('calendar-content-wrapper');
+    var groupIndex = 1;
     uniqueGroups.forEach((group) => {
         const matchedItems = items.filter(item => item.type === group);
         //console.log(matchedItems);
@@ -25,9 +26,9 @@ export async function buildCalendar(items, block) {
         },  new Date(matchedItems[0].endDate + 'T00:00:00Z'));
 
 
-        const startMonth = (earliestStartDate.getUTCMonth() + 1); // getMonth returns 0-11, so add 1
+        const startMonth = (earliestStartDate.getUTCMonth() ); // getMonth returns 0-11 but this is desirable
         const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
-        const endMonth = (latestEndDate.getUTCMonth() + 1);
+        const endMonth = (latestEndDate.getUTCMonth());
         const endDay = (latestEndDate.getUTCDate() - 1);
         
 
@@ -56,10 +57,15 @@ export async function buildCalendar(items, block) {
         //console.log(`Percentage of the month that has passed: ${percentOfMonth}%`);
         //console.log(`Additional margin needed: ${dayMargin}`);
 
-        const startPosition = (((startMonth - 1) * monthWidth) + dayMargin).toFixed(2);
+        const startPosition = ((startMonth * monthWidth) + dayMargin).toFixed(2);
         //const startPosition = ((startMonth * monthWidth) + dayMargin) + '%';
         console.log(`Start position: ${startPosition}`);
-        const endPosition = (((endMonth - 1) * monthWidth) + endDayMargin).toFixed(2);
+        let endPosition = ((endMonth * monthWidth) + endDayMargin).toFixed(2);
+        
+        // do a little offset.
+        // todo: make the adjustment in day margin
+
+        if (endMonth > 9) endPosition = endPosition - 0.35;
         console.log(`End position: ${endPosition}`);
         const widthOfGroup = (endPosition - startPosition);
         console.log(`Width of this group is ${widthOfGroup}%`);
@@ -78,22 +84,30 @@ export async function buildCalendar(items, block) {
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
         matchedItems.forEach((item) => {
+            console.log('----- ITEM LOG -----');
             console.log(item.startDate);
-            const itemDate = new Date(item.startDate + 'T00:00:00Z');
+            const itemStartDate = new Date(item.startDate + 'T00:00:00Z');
+            const itemEndDate = new Date(item.endDate + 'T00:00:00Z');
+            const itemDuration = Math.floor((itemEndDate.getTime() - itemStartDate.getTime()) / (1000 * 60 * 60 * 24));
+            const itemDurationPct = ((itemDuration / groupDuration) * 100).toFixed(2);
+            console.log(`Duration of item as a percent of the group duration: ${itemDurationPct}`);
+
             // begin date difference per item calculation
             // Calculate the difference in months and days between earliestDate and anotherDate
-            let monthsDifference = (itemDate.getUTCFullYear() - earliestStartDate.getUTCFullYear()) * 12 + (itemDate.getUTCMonth() - earliestStartDate.getUTCMonth());
+            let monthsDifference = (itemStartDate.getUTCFullYear() - earliestStartDate.getUTCFullYear()) * 12 + (itemStartDate.getUTCMonth() - earliestStartDate.getUTCMonth());
 
-            let daysDifference = itemDate.getUTCDate() - earliestStartDate.getUTCDate();
-            let onlyDaysDifference = Math.floor((itemDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
+            let startDaysDifference = itemStartDate.getUTCDate() - earliestStartDate.getUTCDate();
+            let onlyDaysDifference = Math.floor((itemStartDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
+            const startPctDiff = ((onlyDaysDifference / groupDuration) * 100).toFixed(2);
 
             //console.log(`Months and days difference between this and earliestDate: ${monthsDifference} months, ${daysDifference} days`)
-            //console.log(`Days difference between this and earliestDate: ${onlyDaysDifference}`)
-            if (daysDifference < 0) {
+            console.log(`Days difference between this and earliestDate: ${onlyDaysDifference}`)
+            console.log(`Percent of total duration of group passed by this item's start: ${startPctDiff}`)
+            if (startDaysDifference < 0) {
                 monthsDifference -= 1;
                 const previousMonth = new Date(Date.UTC(anotherDate.getUTCFullYear(), anotherDate.getUTCMonth(), 0));
-                daysDifference += previousMonth.getUTCDate();
-                console.log(`Days diff less than 0, new days diff: ${daysDifference}`)
+                startDaysDifference += previousMonth.getUTCDate();
+                console.log(`Start days diff less than 0, new days diff: ${startDaysDifference}`)
             }
 
 
@@ -101,6 +115,8 @@ export async function buildCalendar(items, block) {
 
             const itemEl = document.createElement('div');
             itemEl.classList.add('item');
+            itemEl.style.marginLeft = startPctDiff + '%';
+            itemEl.style.width = itemDurationPct + '%';
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
                 <div class="item-content"> 
@@ -115,10 +131,11 @@ export async function buildCalendar(items, block) {
                 </div>
             `;
             itemWrapper.appendChild(itemEl);
+            console.log('----- END ITEM LOG -----');
         })
         const groupEl = document.createElement('div');
-        groupEl.classList.add('calendar-group');
-        groupEl.id = 'group1';
+        groupEl.classList.add('calendar-group', `color${groupIndex}`);
+        //groupEl.id = `group${groupIndex}`;
         groupEl.style.marginLeft = startPosition + '%';
         groupEl.style.width = widthOfGroup + '%';
         groupEl.innerHTML = `
@@ -131,6 +148,7 @@ export async function buildCalendar(items, block) {
             ${itemWrapper.outerHTML}
         `;
         contentWrapper.appendChild(groupEl);
+        groupIndex +=1;
     });
     const calendarWrapper = block.querySelector('.calendar-wrapper');
     calendarWrapper.appendChild(contentWrapper);
