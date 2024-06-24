@@ -14,10 +14,23 @@ const platformMappings = getMappingArray('platforms');
 export default async function decorate(block) {
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
-    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
-    const programData = await executeQuery(programQueryString);
-    const program = programData.data.programList.items[0];
+
     blockConfig = readBlockConfig(block);
+
+    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+
+    // Replace the sequential calls with parallel calls
+    console.log('Executing queries');
+    const [programData, deliverables] = await Promise.all([
+        executeQuery(programQueryString),
+        executeQuery(deliverableQueryString)
+    ]);
+    console.log('Program Data:', programData);
+    console.log('Deliverables Data:', deliverables);
+
+    const program = programData.data.programList.items[0];
+
     const header = buildHeader(program, queryVars).outerHTML;
     if (!program) {
         block.innerHTML = `
@@ -34,9 +47,6 @@ export default async function decorate(block) {
         enableBackBtn(block, blockConfig);
         return;
     }
-
-    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
-    const deliverables = await executeQuery(deliverableQueryString);
 
     const p0TargetMarketArea = program.p0TargetMarketArea;
     const p1TargetMarketArea = program.p1TargetMarketArea;
