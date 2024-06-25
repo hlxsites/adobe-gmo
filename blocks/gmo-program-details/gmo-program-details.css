@@ -310,7 +310,7 @@ body {
         & .calendar-group {
             /*position: absolute;*/
             width: 550px;
-            min-height: 100px;
+            /*min-height: 100px;*/
             background-color: lightcyan;
             border-radius: 7px;
             &:not(:last-child) {
@@ -324,6 +324,9 @@ body {
                 flex-wrap: wrap;
                 align-content: center;
                 border-radius: 7px 7px 0px 0px;
+                &.content-hidden {
+                    border-radius: 7px;
+                }
             }
             & .group-heading {
                 line-height: 24px;
@@ -344,6 +347,9 @@ body {
             }
             & .group-controls {
                 margin-left: 15px;
+            }
+            & .group-collapse {
+                transform: rotate(90deg);
             }
             & .group-content {
                 display: flex;

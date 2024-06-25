@@ -154,10 +154,10 @@ export default async function decorate(block) {
                 <div class="inc-dec-wrapper">
                     <div class="year-switch">
                         <div id="dec-year" class="year-toggle">
-                            <img class="left" src="/icons/chevron-right.svg"></img>
+                            <img class="left" data-direction="left" src="/icons/chevron-right.svg"></img>
                         </div>
                         <div id="inc-year" class="year-toggle">
-                            <img class="right" src="/icons/chevron-right.svg"></img>
+                            <img class="right" data-direction="right" src="/icons/chevron-right.svg"></img>
                         </div>
                     </div>
                     <div class="current-year">2024</div>
@@ -176,32 +176,6 @@ export default async function decorate(block) {
                             <div class="year-option">2022</div>
                             <div class="year-option">2021</div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="calendar-wrapper">
-                <div class="calendar-background">
-                    <div class="header-wrapper">
-                        <div class="quarter-header"> 
-                            <div class="quarter">Q1 2024</div>
-                            <div class="quarter">Q2 2024</div>
-                            <div class="quarter">Q3 2024</div>
-                            <div class="quarter">Q4 2024</div>
-                        </div>
-                    </div>
-                    <div class="month-wrapper">
-                        <div class="month">Jan</div>
-                        <div class="month">Feb</div>
-                        <div class="month">Mar</div>
-                        <div class="month">Apr</div>
-                        <div class="month">May</div>
-                        <div class="month">Jun</div>
-                        <div class="month">Jul</div>
-                        <div class="month">Aug</div>
-                        <div class="month">Sep</div>
-                        <div class="month">Oct</div>
-                        <div class="month">Nov</div>
-                        <div class="month">Dec</div>
                     </div>
                 </div>
             </div>
@@ -243,7 +217,7 @@ export default async function decorate(block) {
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(table);
     buildStatus(program.status);
-    buildCalendar(testCalendar, block);
+    buildCalendar(testCalendar, block, new Date().getFullYear());
 }
 
 function enableBackBtn(block, blockConfig) {
