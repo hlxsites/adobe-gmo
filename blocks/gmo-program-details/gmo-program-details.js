@@ -170,9 +170,19 @@ export default async function decorate(block) {
         console.error("Failed to load campaign image:", error);
     }
 
-    block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
+    //Optimize Event Listeners: Added debouncing to event listeners to prevent performance issues.
+    const debounce = (func, delay) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), delay);
+        };
+    };
+
+    block.querySelector('.tab-wrapper').addEventListener('click', debounce((event) => {
         switchTab(event.target);
-    })
+    }, 300));
+
     enableBackBtn(block, blockConfig);
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
@@ -187,8 +197,13 @@ export default async function decorate(block) {
     const table = await buildTable(await deliverables).then(async (rows) => {
         return rows;
     })
+
+    //Batch Dom Updates
     const tableRoot = block.querySelector('.table-content');
-    tableRoot.appendChild(table);
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(table);
+    tableRoot.appendChild(fragment);
+
     buildStatus(program.status);
 }
 
@@ -255,9 +270,11 @@ function getUniqueItems(items, property) {
     )];
 }
 
-function insertImageIntoCampaignImg(block,imageObject) {
+function insertImageIntoCampaignImg(block, imageObject) {
     const campaignImgDiv = block.querySelector('.campaign-img');
     const imgElement = document.createElement('img');
+    //Lazy load images
+    imgElement.loading = 'lazy';
     imgElement.src = imageObject.imageUrl;
     imgElement.alt = imageObject.imageAltText;
     campaignImgDiv.appendChild(imgElement);
