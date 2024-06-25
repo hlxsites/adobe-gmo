@@ -21,13 +21,10 @@ export default async function decorate(block) {
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
 
     // Replace the sequential calls with parallel calls
-    console.log('Executing queries');
     const [programData, deliverables] = await Promise.all([
         executeQuery(programQueryString),
         executeQuery(deliverableQueryString)
     ]);
-    console.log('Program Data:', programData);
-    console.log('Deliverables Data:', deliverables);
 
     const program = programData.data.programList.items[0];
 
