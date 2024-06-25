@@ -185,6 +185,7 @@ async function buildCampaignList(campaigns, numPerPage) {
         const campaignNameWrapper = document.createElement('div');
         campaignNameWrapper.classList.add('campaign-name-wrapper', 'vertical-center');
 
+
         campaignNameWrapper.innerHTML = `
             <div class='campaign-name-label' data-property='campaign'>
                 ${checkBlankString(programName)}
@@ -195,7 +196,17 @@ async function buildCampaignList(campaigns, numPerPage) {
                 <span class="tooltip">Marketing Moment</span>
             </div>
         `;
-        
+
+        // Add click event to the campaign name label and text
+        const campaignNameLabel = campaignNameWrapper.querySelector('.campaign-name-label');
+        const campaignNameText = campaignNameWrapper.querySelector('.campaign-name');
+        campaignNameLabel.addEventListener('click', () => {
+            window.location.href = campaignDetailsLink;
+        });
+        campaignNameText.addEventListener('click', () => {
+            window.location.href = campaignDetailsLink;
+        });
+
         campaignInfoWrapper.appendChild(campaignIconLink);
         campaignInfoWrapper.appendChild(campaignNameWrapper);
 
