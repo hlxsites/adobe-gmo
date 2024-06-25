@@ -146,7 +146,7 @@ export default async function decorate(block) {
                     <div class="header table-column column1">Deliverable Task Name</div>
                     <div class="header table-column column2">Deliverable Type</div>
                     <div class="header table-column column3">Platforms</div>
-                    <div class="header table-column column4">Review Link</div>
+                    <div class="header table-column column4">QA Files</div>
                     <div class="header table-column column5">Final Asset</div>
                     <div class="header table-column column7">Status Update</div>
                     <div class="header table-column column8">Completion Date</div>
@@ -540,8 +540,8 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
         <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverableJson.deliverableName)}</div>
         <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
         <div class='property table-column column3 platforms'></div>
-        <div class='property table-column column4 review-link'>
-            ${deliverableJson.reviewLink ? '<a href="' + deliverableJson.reviewLink + '"target="_blank" class="campaign-link">Review Link</a> ': "Not Available"}
+        <div class='property table-column column4 qa-files'>
+            ${deliverableJson.reviewLink ? '<a href="' + deliverableJson.reviewLink + '"target="_blank" class="campaign-link">QA Files</a> ': "Not Available"}
         </div>
         <div class='property table-column column5'>
             ${deliverableJson.linkedFolderLink ? '<a href="' + deliverableJson.linkedFolderLink + '"target="_blank" class="campaign-link">Final Asset</a> ': "Not Available"}
