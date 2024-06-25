@@ -12,10 +12,17 @@ const deliverableMappings = getMappingArray('deliverableType');
 const platformMappings = getMappingArray('platforms');
 
 export default async function decorate(block) {
+    performance.mark('decorate-start'); // Start measuring decorate function
+
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
     const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+
+    performance.mark('executeQuery-start'); // Mark the start of the query execution
     const programData = await executeQuery(programQueryString);
+    performance.mark('executeQuery-end'); // Mark the end of the query execution
+    performance.measure('executeQuery', 'executeQuery-start', 'executeQuery-end'); // Measure the query execution time
+
     const program = programData.data.programList.items[0];
     blockConfig = readBlockConfig(block);
     const header = buildHeader(program, queryVars).outerHTML;
@@ -32,6 +39,9 @@ export default async function decorate(block) {
         `
         decorateIcons(block);
         enableBackBtn(block, blockConfig);
+        performance.mark('decorate-end'); // Mark the end of the decorate function
+        performance.measure('decorate', 'decorate-start', 'decorate-end'); // Measure the entire decorate function time
+        logPerformanceMetrics(); // Log performance metrics
         return;
     }
 
@@ -41,17 +51,15 @@ export default async function decorate(block) {
     const p0TargetMarketArea = program.p0TargetMarketArea;
     const p1TargetMarketArea = program.p1TargetMarketArea;
 
-    // Extract unique deliverable types
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
-    // Extract unique platforms (flattened from arrays within each item)
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
     const kpis = buildKPIList(program).outerHTML;
 
-    const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
+    const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea, p1TargetMarketArea).outerHTML;
 
     const audiences = buildAudienceList(program).outerHTML;
     const artifactLinks = buildArtifactLinks(program).outerHTML;
-    
+
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
@@ -150,7 +158,11 @@ export default async function decorate(block) {
     `;
     buildProductCard(program);
     try {
+        performance.mark('searchAsset-start'); // Mark the start of the search asset
         const imageObject = await searchAsset(program.programName, program.campaignName);
+        performance.mark('searchAsset-end'); // Mark the end of the search asset
+        performance.measure('searchAsset', 'searchAsset-start', 'searchAsset-end'); // Measure the search asset time
+
         if (imageObject){
           insertImageIntoCampaignImg(block,imageObject);
           document.getElementById('totalassets').textContent = imageObject.assetCount;
@@ -183,6 +195,10 @@ export default async function decorate(block) {
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(table);
     buildStatus(program.status);
+
+    performance.mark('decorate-end'); // Mark the end of the decorate function
+    performance.measure('decorate', 'decorate-start', 'decorate-end'); // Measure the entire decorate function time
+    logPerformanceMetrics(); // Log performance metrics
 }
 
 function enableBackBtn(block, blockConfig) {
@@ -259,7 +275,7 @@ function insertImageIntoCampaignImg(block,imageObject) {
 function switchTab(tab) {
     if (tab.classList.contains('active') || tab.classList.contains('tab-wrapper')) {
         return;
-    } 
+    }
     document.querySelector('.tabBtn.active').classList.toggle('active');
     document.querySelector(`.tab:not(.inactive)`).classList.toggle('inactive');
     const targetTab = tab.dataset.target;
@@ -369,7 +385,6 @@ function buildArtifactLinks(program) {
        ${program.adr ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">ADR</a> ': ""}
    </div>
    `;
-   // see how many 'links' were made. if none, hide the section
    const numLinks = artifactLinks.querySelectorAll('.campaign-link')?.length;
    if (numLinks == 0) artifactLinks.classList.add('inactive');
    return artifactLinks;
@@ -409,10 +424,7 @@ function formatDate(dateString) {
     const yyyy = parts[0];
     const mm = parts[1];
     const dd = parts[2];
-
-    // Formatting the date into mm/dd/yyyy format
     const formattedDate = mm + '/' + dd + '/' + yyyy;
-    
     return formattedDate;
 }
 
@@ -420,14 +432,12 @@ async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList?.items.primaryKpi;
     let rows = document.createElement('div');
-    // we want the 'null' deliverableType to be part of this set for filtering
     const uniqueCatSet = new Set();
     deliverableList.forEach(object => { uniqueCatSet.add(object['deliverableType']) })
     const uniqueCategories = Array.from(uniqueCatSet);
     const sortedCategories = sortDeliverableTypes(uniqueCategories);
     let emptyCategory = false;
     sortedCategories.forEach(async (category) => {
-        // build header row
         let headerRow;
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
         const matchCount = matchingCampaigns.length;
@@ -443,13 +453,11 @@ async function buildTable(jsonResponse) {
             const tableRow = await buildTableRow(campaign, programKpi, !emptyCategory);
             headerRow.appendChild(tableRow);
         })
-        // sort grouped rows by date
         if (!emptyCategory) {
             dateSort(headerRow);
         }
         emptyCategory = false;
     });
-    //sort the rows
     sortRows(rows);
     return rows;
 }
@@ -459,9 +467,8 @@ function dateSort(parent) {
     childNodes.sort((a, b) => {
         const dateA = new Date(a.querySelector('.completion-date').innerHTML);
         const dateB = new Date(b.querySelector('.completion-date').innerHTML);
-        // Check if dates are valid
         if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-            return 0; // Move on if date is invalid
+            return 0;
         }
         return dateA - dateB;
     })
@@ -472,13 +479,9 @@ function dateSort(parent) {
 
 function sortDeliverableTypes(arr) {
     return arr.sort((a, b) => {
-        // If a is null and b is not null, a should come after b
         if (a === null && b !== null) return 1;
-        // If b is null and a is not null, b should come after a
         if (a !== null && b === null) return -1;
-        // If both a and b are null, they are equal in terms of sorting
         if (a === null && b === null) return 0;
-        // If neither a nor b are null, sort them alphabetically
         return a.localeCompare(b);
     });
 }
@@ -486,7 +489,7 @@ function sortDeliverableTypes(arr) {
 async function lookupType(rawText, mappingType) {
     const mappings = (mappingType === 'deliverable-type') ? await deliverableMappings : await platformMappings;
     const typeMatch = mappings.filter(item => item.value === rawText);
-    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawText;
+    const typeText = typeMatch.length > 0 ? typeMatch[0].text : rawText;
     return typeText;
 }
 
@@ -497,12 +500,11 @@ async function lookupType(rawText, mappingType) {
  * @param {number} matchCount - Number of matching items, will display beside the label
  */
 async function buildHeaderRow(category, headerType, isInactive, matchCount) {
-    //look up friendly name for deliverable type
     const typeLabel = await lookupType(category, 'deliverable-type');
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
     let divopen;
-    if (headerType === 'subcategory') { 
+    if (headerType === 'subcategory') {
         headerRow.classList.add('subheader');
         divopen = '<div class="heading-wrapper subheading">';
     } else {
@@ -519,7 +521,6 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
 }
 
 async function buildTableRow(deliverableJson, kpi, createHidden) {
-    //look up friendly name for deliverable type
     const typeLabel = await lookupType(deliverableJson.deliverableType, 'deliverable-type');
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
@@ -575,11 +576,10 @@ async function createPlatformString(platforms, htmlElem) {
 function sortRows(rows) {
     const rowParent = rows;
     const nodes = Array.from(rowParent.childNodes);
-    // Sort child nodes by class name
     nodes.sort((a, b) => {
         var classA = a.classList ? a.classList.contains('datarow') : false;
         var classB = b.classList ? b.classList.contains('datarow') : false;
-        
+
         if (classA && !classB) {
             return 1;
         } else if (!classA && classB) {
@@ -589,7 +589,6 @@ function sortRows(rows) {
         }
     });
 
-    // Rearrange child nodes
     nodes.forEach((node) => {
         rowParent.appendChild(node);
     });
@@ -604,7 +603,6 @@ function attachListener(htmlElement) {
         headerRow.querySelector('.icon-next').classList.toggle('inactive');
         headerRow.querySelector('.icon-collapse').classList.toggle('inactive');
         Array.from(rowChildren).forEach((child) => {
-            //if child has 'row' class, then toggle 'visible' class
             if (child.classList.contains('row')) child.classList.toggle('inactive');
         })
     })
@@ -630,4 +628,11 @@ function extractQueryVars() {
             programID: 'Program ID Not Available'
         }
     }
+}
+
+function logPerformanceMetrics() {
+    const measures = performance.getEntriesByType('measure');
+    measures.forEach(measure => {
+        console.log(`${measure.name}: ${measure.duration}ms`);
+    });
 }
