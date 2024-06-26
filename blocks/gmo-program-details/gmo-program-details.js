@@ -59,30 +59,8 @@ export default async function decorate(block) {
         decorateIcons(block);
     }
 
-    // Wait for deliverables data
-    const deliverables = await deliverablesPromise;
-
-    const p0TargetMarketArea = program.p0TargetMarketArea;
-    const p1TargetMarketArea = program.p1TargetMarketArea;
-
-    // Extract unique deliverable types
-    const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
-    // Extract unique platforms (flattened from arrays within each item)
-    const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
-    const kpis = buildKPIList(program).outerHTML;
-
-    const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
-
-    const audiences = buildAudienceList(program).outerHTML;
-    const artifactLinks = buildArtifactLinks(program).outerHTML;
-
-    block.innerHTML = `
-    <div class="back-button">
-        <span class="icon icon-back"></span>
-        <span class="back-label">Back</span>
-    </div>
-    <div class="main-body-wrapper">
-        ${header}
+    // Inject the additional HTML content
+    block.querySelector('.main-body-wrapper').innerHTML += `
         <div class="tab-wrapper">
             <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
             <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
@@ -103,11 +81,11 @@ export default async function decorate(block) {
                 </div>
                 <div class="kpis-wrapper">
                     <span class="h3">KPIs to Measure Success</span>
-                    ${kpis}
+                    ${buildKPIList(program).outerHTML}
                 </div>
                 <div class="kpis-wrapper">
                     <span class="h3">Target Market Area</span>
-                    ${targetMarketAreas}
+                    ${buildTargetMarketAreaList(program.p0TargetMarketArea, program.p1TargetMarketArea).outerHTML}
                 </div>
                 <div class="use-cases-wrapper inactive">
                     <span class="h3">Hero Use Cases</span>
@@ -134,7 +112,7 @@ export default async function decorate(block) {
                     <div class="tags-wrapper">
                     </div>
                 </div>
-                ${artifactLinks}
+                ${buildArtifactLinks(program).outerHTML}
             </div>
             <div class="infocards-wrapper">
                 <div class="card products">
@@ -142,13 +120,13 @@ export default async function decorate(block) {
                 </div>
                 <div class="card audiences">
                     <div class="card-heading h3">Audiences</div>
-                    ${audiences}
+                    ${buildAudienceList(program).outerHTML}
                 </div>
             </div>
         </div>
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
-                ${artifactLinks}
+                ${buildArtifactLinks(program).outerHTML}
                 <div class="total-assets total-assets-tooltip">
                     <div class="h3">Total Approved Assets</div>
                     <span id="totalassets" class="description"></span>
@@ -170,20 +148,31 @@ export default async function decorate(block) {
                 </div>
             </div>
         </div>
-    </div>
     `;
+    
+    // Wait for deliverables data
+    const deliverables = await deliverablesPromise;
+
+    const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
+    const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
+
     buildProductCard(program);
+    buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
+    buildFieldScopes('platforms', uniquePlatforms, block);
 
-    if (imageObject){
-      insertImageIntoCampaignImg(block,imageObject);
-      document.getElementById('totalassets').textContent = imageObject.assetCount;
-    }
-    else
-    {
-      document.getElementById('totalassets').textContent = 0;
-    }
+    const table = await buildTable(await deliverables).then(async (rows) => {
+        return rows;
+    });
 
-    //Optimize Event Listeners: Added debouncing to event listeners to prevent performance issues.
+    // Batch Dom Updates
+    const tableRoot = block.querySelector('.table-content');
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(table);
+    tableRoot.appendChild(fragment);
+
+    buildStatus(program.status);
+
+    // Optimize Event Listeners: Added debouncing to event listeners to prevent performance issues.
     const debounce = (func, delay) => {
         let timeout;
         return (...args) => {
@@ -205,19 +194,6 @@ export default async function decorate(block) {
         });
     });
     decorateIcons(block);
-    buildFieldScopes('deliverable-type',uniqueDeliverableTypes, block);
-    buildFieldScopes('platforms',uniquePlatforms, block);
-    const table = await buildTable(await deliverables).then(async (rows) => {
-        return rows;
-    })
-
-    //Batch Dom Updates
-    const tableRoot = block.querySelector('.table-content');
-    const fragment = document.createDocumentFragment();
-    fragment.appendChild(table);
-    tableRoot.appendChild(fragment);
-
-    buildStatus(program.status);
 
 }
 
