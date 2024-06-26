@@ -65,7 +65,7 @@ export default async function decorate(block) {
             <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
             <div id="tab3toggle" data-target="tab3" class="tabBtn">Calendar</div>
         </div>
-        <div id="tab1" class="two-column overview tab inactive">
+        <div id="tab1" class="two-column overview tab">
             <div class="overview-wrapper">
                 <span class="h1 overview-heading">At a Glance</span>
                 <div class="product-overview-wrapper">
@@ -146,10 +146,7 @@ export default async function decorate(block) {
                 </div>
             </div>
         </div>
-        <div id="tab3" class="calendar tab">
-            <!-- TODO: It's fine to put this data that relies on nothing in the initial block load, but
-            everything else should be populated after any api calls resolve -->
-
+        <div id="tab3" class="calendar tab inactive">
             <div class="control-wrapper">
                 <div class="inc-dec-wrapper">
                     <div class="year-switch">
