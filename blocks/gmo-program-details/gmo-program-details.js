@@ -39,7 +39,7 @@ export default async function decorate(block) {
     const programData = await programDataPromise;
     const program = programData.data.programList.items[0];
     const header = buildHeader(program, queryVars).outerHTML;
-
+    
     // Update the header with the actual data
     block.querySelector('.placeholder-header').outerHTML = header;
 
@@ -57,6 +57,22 @@ export default async function decorate(block) {
             console.error("Failed to load campaign image:", error);
         }
         decorateIcons(block);
+    }
+    else
+    {
+        block.innerHTML = `
+        <div class="back-button">
+            <span class="icon icon-back"></span>
+            <span class="back-label">Back</span>
+        </div>
+        <div class="main-body-wrapper">
+            ${header}
+            <div class="no-data-msg">No data available.</div>
+        </div>
+        `
+        decorateIcons(block);
+        enableBackBtn(block, blockConfig);
+        return;
     }
 
     // Inject the additional HTML content
@@ -149,7 +165,7 @@ export default async function decorate(block) {
             </div>
         </div>
     `;
-    
+
     // Wait for deliverables data
     const deliverables = await deliverablesPromise;
 
