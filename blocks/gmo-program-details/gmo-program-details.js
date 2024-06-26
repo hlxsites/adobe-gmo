@@ -20,30 +20,47 @@ export default async function decorate(block) {
     const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
 
-    // Replace the sequential calls with parallel calls
-    const [programData, deliverables] = await Promise.all([
-        executeQuery(programQueryString),
-        executeQuery(deliverableQueryString)
-    ]);
+    // Start fetching both data sets in parallel
+    const programDataPromise = executeQuery(programQueryString);
+    const deliverablesPromise = executeQuery(deliverableQueryString);
 
+    // Immediately render a placeholder header
+    block.innerHTML = `
+    <div class="back-button">
+        <span class="icon icon-back"></span>
+        <span class="back-label">Back</span>
+    </div>
+    <div class="main-body-wrapper">
+        <div class="placeholder-header">Loading program details...</div>
+    </div>
+    `;
+
+    // Wait for program data to render the actual header
+    const programData = await programDataPromise;
     const program = programData.data.programList.items[0];
-
     const header = buildHeader(program, queryVars).outerHTML;
-    if (!program) {
-        block.innerHTML = `
-        <div class="back-button">
-            <span class="icon icon-back"></span>
-            <span class="back-label">Back</span>
-        </div>
-        <div class="main-body-wrapper">
-            ${header}
-            <div class="no-data-msg">No data available.</div>
-        </div>
-        `
+
+    // Update the header with the actual data
+    block.querySelector('.placeholder-header').outerHTML = header;
+
+    let imageObject = null;
+    if (program) {
+        try {
+            imageObject = await searchAsset(program.programName, program.campaignName);
+            if (imageObject) {
+                insertImageIntoCampaignImg(block, imageObject);
+                document.getElementById('totalassets').textContent = imageObject.assetCount;
+            } else {
+                document.getElementById('totalassets').textContent = 0;
+            }
+        } catch (error) {
+            console.error("Failed to load campaign image:", error);
+        }
         decorateIcons(block);
-        enableBackBtn(block, blockConfig);
-        return;
     }
+
+    // Wait for deliverables data
+    const deliverables = await deliverablesPromise;
 
     const p0TargetMarketArea = program.p0TargetMarketArea;
     const p1TargetMarketArea = program.p1TargetMarketArea;
@@ -58,7 +75,7 @@ export default async function decorate(block) {
 
     const audiences = buildAudienceList(program).outerHTML;
     const artifactLinks = buildArtifactLinks(program).outerHTML;
-    
+
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
@@ -156,18 +173,14 @@ export default async function decorate(block) {
     </div>
     `;
     buildProductCard(program);
-    try {
-        const imageObject = await searchAsset(program.programName, program.campaignName);
-        if (imageObject){
-          insertImageIntoCampaignImg(block,imageObject);
-          document.getElementById('totalassets').textContent = imageObject.assetCount;
-        }
-        else
-        {
-          document.getElementById('totalassets').textContent = 0;
-        }
-    } catch (error) {
-        console.error("Failed to load campaign image:", error);
+
+    if (imageObject){
+      insertImageIntoCampaignImg(block,imageObject);
+      document.getElementById('totalassets').textContent = imageObject.assetCount;
+    }
+    else
+    {
+      document.getElementById('totalassets').textContent = 0;
     }
 
     //Optimize Event Listeners: Added debouncing to event listeners to prevent performance issues.
@@ -205,6 +218,7 @@ export default async function decorate(block) {
     tableRoot.appendChild(fragment);
 
     buildStatus(program.status);
+
 }
 
 function enableBackBtn(block, blockConfig) {
@@ -283,7 +297,7 @@ function insertImageIntoCampaignImg(block, imageObject) {
 function switchTab(tab) {
     if (tab.classList.contains('active') || tab.classList.contains('tab-wrapper')) {
         return;
-    } 
+    }
     document.querySelector('.tabBtn.active').classList.toggle('active');
     document.querySelector(`.tab:not(.inactive)`).classList.toggle('inactive');
     const targetTab = tab.dataset.target;
@@ -436,7 +450,7 @@ function formatDate(dateString) {
 
     // Formatting the date into mm/dd/yyyy format
     const formattedDate = mm + '/' + dd + '/' + yyyy;
-    
+
     return formattedDate;
 }
 
@@ -526,7 +540,7 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
     let divopen;
-    if (headerType === 'subcategory') { 
+    if (headerType === 'subcategory') {
         headerRow.classList.add('subheader');
         divopen = '<div class="heading-wrapper subheading">';
     } else {
@@ -603,7 +617,7 @@ function sortRows(rows) {
     nodes.sort((a, b) => {
         var classA = a.classList ? a.classList.contains('datarow') : false;
         var classB = b.classList ? b.classList.contains('datarow') : false;
-        
+
         if (classA && !classB) {
             return 1;
         } else if (!classA && classB) {
