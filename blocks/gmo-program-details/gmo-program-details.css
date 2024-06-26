@@ -119,7 +119,6 @@ body {
     justify-content: space-between;
     flex-wrap: wrap;
     align-content: center;
-    /*width: 160px;*/
     width: 240px;
     height: 50px;
     font: normal normal normal 14px/17px Adobe Clean;
@@ -303,18 +302,39 @@ body {
             & .month {
                 width: 8.3%;
                 display: flex;
-                justify-content: center;
+                justify-content: flex-start;
+                flex-direction: column;
+                align-items: center;
                 border-left: 3px solid #F4F4F4;
                 height:100%;
                 &:last-child {
                     border-right: 3px solid #F4F4F4;
                 }
+                & .label {
+                    padding: 3px;
+                    margin-top: 1px;
+                }
+                &.current .label {
+                    background-color: #96d7ff;
+                    color: #2680EB;
+                    border-radius: 15px;
+                    padding-right: 15px;
+                    padding-left: 15px;
+                    
+                }
+                & .calendar-indicator {
+                    width: 1px;
+                    height: 100%;
+                    background: linear-gradient(
+                        to bottom, #2680EB 50%, transparent 50%
+                    );
+                    background-size: 1px 5px;
+                }
             }
         }
         & .calendar-content-wrapper {
-            /*position: absolute;*/
             position: relative;
-            padding-top: 60px;
+            padding-top: 65px;
             padding-left: 5px;
             width: 100%;
             top: 0;
@@ -323,9 +343,7 @@ body {
             padding-bottom: 20px;
         }
         & .calendar-group {
-            /*position: absolute;*/
             width: 550px;
-            /*min-height: 100px;*/
             background-color: lightcyan;
             border-radius: 7px;
             &:not(:last-child) {
@@ -355,7 +373,6 @@ body {
                 border-radius: 10px;
                 line-height: 24px;
                 background-color: black;
-                /*opacity: 0.2;*/
                 background: rgba(0,0,0,0.2);
                 display: flex;
                 justify-content: center;
@@ -376,13 +393,9 @@ body {
                     display: flex;
                     flex-direction: row;
                     justify-content: flex-start;
-                    /*margin-top: 10px;*/
                     background-color: white;
-                    /*margin-left: 5px;
-                    margin-right: 5px;*/
                     margin-bottom: 10px;
                     border-radius: 4px;
-                    /*padding: 3px;*/
                     height: 39px;
                     &:first-child {
                         margin-top: 10px;

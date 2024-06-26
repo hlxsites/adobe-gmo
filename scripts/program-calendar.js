@@ -14,18 +14,18 @@ export async function buildCalendar(items, block, displayYear) {
                 </div>
             </div>
             <div class="month-wrapper">
-                <div class="month">Jan</div>
-                <div class="month">Feb</div>
-                <div class="month">Mar</div>
-                <div class="month">Apr</div>
-                <div class="month">May</div>
-                <div class="month">Jun</div>
-                <div class="month">Jul</div>
-                <div class="month">Aug</div>
-                <div class="month">Sep</div>
-                <div class="month">Oct</div>
-                <div class="month">Nov</div>
-                <div class="month">Dec</div>
+                <div class="month" data-num="1"><div class="label">Jan</div></div>
+                <div class="month" data-num="2"><div class="label">Feb</div></div>
+                <div class="month" data-num="3"><div class="label">Mar</div></div>
+                <div class="month" data-num="4"><div class="label">Apr</div></div>
+                <div class="month" data-num="5"><div class="label">May</div></div>
+                <div class="month" data-num="6"><div class="label">Jun</div></div>
+                <div class="month" data-num="7"><div class="label">Jul</div></div>
+                <div class="month" data-num="8"><div class="label">Aug</div></div>
+                <div class="month" data-num="9"><div class="label">Sep</div></div>
+                <div class="month" data-num="10"><div class="label">Oct</div></div>
+                <div class="month" data-num="11"><div class="label">Nov</div></div>
+                <div class="month" data-num="12"><div class="label">Dec</div></div>
             </div>
         </div>
     `
@@ -166,6 +166,19 @@ export async function buildCalendar(items, block, displayYear) {
     const yearDropdownWrapper = block.querySelector('.year-dropdown-wrapper');
     yearDropdownWrapper.appendChild(yearDropdown);
     yearDropdownWrapper.querySelector('.year-dropdown-button').addEventListener('click', (event) => toggleDropdown(event.target));
+    
+    // show the current month if current year chosen
+    const currentDate = new Date();
+    if (displayYear == currentDate.getFullYear()) {
+        console.log('display year is current year');
+        const currentMonth = currentDate.getMonth() + 1;
+        const monthEl = block.querySelector(`.month[data-num='${currentMonth}']`);
+        monthEl.classList.add('current');
+        const lineEl = document.createElement('div');
+        lineEl.classList.add('calendar-indicator');
+        monthEl.appendChild(lineEl);
+    }
+    
     // close dropdown listener for clicks outside open dropdown
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
 }
