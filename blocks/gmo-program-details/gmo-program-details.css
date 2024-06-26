@@ -154,7 +154,9 @@ body {
             display: flex;
             flex-direction: row;
             width: 120px;
+
             & .year-switch {
+                cursor: pointer;
                 display: flex;
                 flex-direction: row;
                 width: 64px;
@@ -192,6 +194,7 @@ body {
                 display: flex;
                 justify-content: center;
                 margin-right: 5px;
+                cursor: pointer;
             }
         }
         & .year-dropdown-wrapper {
@@ -201,9 +204,10 @@ body {
             letter-spacing: 0px;
             height: 32px;
             background-color: #FFF;
-            width: 176px;
+            width: 70%;
             border: 1px solid #D3D3D3;
             border-radius: 4px;
+            cursor: pointer;
             & > .year-dropdown-button {
                 height: 32px;
                 line-height: 32px;
@@ -227,10 +231,21 @@ body {
                 overflow-y: auto;
                 border: 1px solid #ccc;
                 z-index: 1;
-                width: 174px;
+                width: 100%;
             }
             &.active .year-dropdown-content {
                 display: block;
+            }
+            & .year-option {
+                display: block;
+                /*width: 80%;*/
+                overflow-x: hidden;
+                padding: 10px 0px 10px 10px;
+                text-decoration: none;
+                color: #333;
+                &:hover {
+                    background-color: #ddd;
+                }
             }
         }
     }

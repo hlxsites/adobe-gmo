@@ -170,12 +170,6 @@ export default async function decorate(block) {
                             <span class="icon icon-chevronDown"></span>
                             <span class="icon icon-chevronUp inactive"></span>
                         </div>
-                        <div class="year-dropdown-content">
-                            <div class="year-option">2024</div>
-                            <div class="year-option">2023</div>
-                            <div class="year-option">2022</div>
-                            <div class="year-option">2021</div>
-                        </div>
                     </div>
                 </div>
             </div>

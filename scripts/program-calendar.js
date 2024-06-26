@@ -30,14 +30,9 @@ export async function buildCalendar(items, block, displayYear) {
         </div>
     `
     const monthWidth = 8.315;
-    //todo: determine the year based on dropdown selection
 
     // filter by chosen displayYear
-    // todo populate dropdown with options based on unique years
     const yearFilteredItems = items.filter(item => item.startDate.includes(displayYear));
-    yearFilteredItems.forEach((item) => {
-        //console.log('Matched item. Start date: ' + item.startDate);
-    })
 
     // get unique groupings
     const uniqueGroups = getUniqueItems(yearFilteredItems, "type");
@@ -107,9 +102,6 @@ export async function buildCalendar(items, block, displayYear) {
                 console.log(`Start days diff less than 0, new days diff: ${startDaysDifference}`)
             }
 
-
-
-
             const itemEl = document.createElement('div');
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
@@ -154,7 +146,28 @@ export async function buildCalendar(items, block, displayYear) {
         control.removeEventListener('click', changeYear);
         control.addEventListener('click', changeYear);
     });
+    block.querySelector('.right-controls .today-button').addEventListener('click', () => {
+        refreshCalendar(new Date().getFullYear());
+    })
     block.querySelector('.calendar.tab').appendChild(calendarEl);
+
+    // populate "year" dropdown
+    const yearDropdown = document.createElement('div');
+    yearDropdown.classList.add('year-dropdown-content');
+    const uniqueYears = getUniqueYears(items);
+    uniqueYears.forEach((year) => {
+        const yearOption = document.createElement('div');
+        yearOption.classList.add('year-option');
+        yearOption.dataset.year = year;
+        yearOption.textContent = year;
+        yearOption.addEventListener('click', yearDropdownSelection);
+        yearDropdown.appendChild(yearOption);
+    });
+    const yearDropdownWrapper = block.querySelector('.year-dropdown-wrapper');
+    yearDropdownWrapper.appendChild(yearDropdown);
+    yearDropdownWrapper.querySelector('.year-dropdown-button').addEventListener('click', (event) => toggleDropdown(event.target));
+    // close dropdown listener for clicks outside open dropdown
+    document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
 }
 
 function getUniqueItems(items, property) {
@@ -179,10 +192,63 @@ function changeYear(event) {
     const yearEl = wrapper.querySelector('.current-year');
     const currentYear = parseInt(yearEl.textContent);
     const newYear = (direction == 'right') ? (currentYear + 1) : (currentYear - 1);
-    yearEl.textContent = newYear;
+    
+    refreshCalendar(newYear);
+}
 
-    // get the block so we can re-call the build function
+function getUniqueYears(items) {
+    const yearsSet = new Set();
+  
+    items.forEach(item => {
+      const year = item.startDate.split('-')[0];
+      yearsSet.add(year); 
+    });
+  
+    const years = Array.from(yearsSet); 
+    years.sort((a, b) => parseInt(a) - parseInt(b));
+    return years;
+}
+
+// handle clicking on the year button
+function toggleDropdown(element) {
+    console.log('clicked year button');
+    const dropdown = element.closest('.year-dropdown-wrapper');
+    const iconChevronDown = dropdown.querySelector('.icon-chevronDown');
+    const iconChevronUp = dropdown.querySelector('.icon-chevronUp');
+
+    iconChevronDown.classList.toggle('inactive');
+    iconChevronUp.classList.toggle('inactive');
+    dropdown.classList.toggle('active');
+}
+
+// handle clicks outside the dropdown
+function dismissDropdown(event) {
+    const isInsideDropdown = event ? event.target.closest('.year-dropdown-wrapper') : false;
+    if (!isInsideDropdown) {
+        const dropdown = document.querySelector('.year-dropdown-wrapper');
+        dropdown.querySelector('.icon-chevronDown').classList.remove('inactive');
+        dropdown.querySelector('.icon-chevronUp').classList.add('inactive');
+        dropdown.classList.remove('active');
+    }
+}
+
+function yearDropdownSelection(event) {
+    const optionEl = event.target;
+    const newYear = optionEl.dataset.year;
+    refreshCalendar(newYear);
+    dismissDropdown();
+}
+
+function refreshCalendar(year) {
     const block = document.querySelector('.gmo-program-details.block');
+    const yearEl = block.querySelector('.inc-dec-wrapper .current-year');
+    yearEl.textContent = year;
+
+    // trick to remove event listeners
+    block.querySelector('.year-dropdown-wrapper').outerHTML += '';
+    block.querySelector('.right-controls .today-button').outerHTML += '';
+
     block.querySelector('.calendar-wrapper').remove();
-    buildCalendar(testCalendar, block, newYear);
+    block.querySelector('.year-dropdown-content').remove();
+    buildCalendar(testCalendar, block, year);
 }
