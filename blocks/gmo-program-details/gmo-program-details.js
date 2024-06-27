@@ -39,19 +39,18 @@ export default async function decorate(block) {
     const programData = await programDataPromise;
     const program = programData.data.programList.items[0];
     const header = buildHeader(program, queryVars).outerHTML;
-    
+
     // Update the header with the actual data
     block.querySelector('.placeholder-header').outerHTML = header;
 
     let imageObject = null;
+    let totalassets = 0;
     if (program) {
         try {
             imageObject = await searchAsset(program.programName, program.campaignName);
             if (imageObject) {
                 insertImageIntoCampaignImg(block, imageObject);
-                document.getElementById('totalassets').textContent = imageObject.assetCount;
-            } else {
-                document.getElementById('totalassets').textContent = 0;
+                totalassets = imageObject.assetCount;
             }
         } catch (error) {
             console.error("Failed to load campaign image:", error);
@@ -145,7 +144,7 @@ export default async function decorate(block) {
                 ${buildArtifactLinks(program).outerHTML}
                 <div class="total-assets total-assets-tooltip">
                     <div class="h3">Total Approved Assets</div>
-                    <span id="totalassets" class="description"></span>
+                    <span id="totalassets" class="description">${totalassets}</span>
                     <span class="tooltiptext">To view the assets, go to the "All Asset" search page and use Program and Campaign name facet to filter the assets</span>
                 </div>
             </div>
