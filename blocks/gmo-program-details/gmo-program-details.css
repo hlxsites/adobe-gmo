@@ -423,7 +423,7 @@ body {
         &:first-child, &:nth-child(2) {
             border-top: 2px solid #F4F4F4;
         }
-        & .deliverable-name, .platforms, .deliverable-type, .review-link, .kpi {
+        & .deliverable-name, .platforms, .deliverable-type, .qa-files, .kpi {
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 16px;
