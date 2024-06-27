@@ -70,6 +70,13 @@ export default async function decorate(block) {
         return;
     }
 
+    const p0TargetMarketArea = program.p0TargetMarketArea;
+    const p1TargetMarketArea = program.p1TargetMarketArea;
+    const kpis = buildKPIList(program).outerHTML;
+    const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
+    const audiences = buildAudienceList(program).outerHTML;
+    const artifactLinks = buildArtifactLinks(program).outerHTML;
+
     // Inject the additional HTML content
     block.querySelector('.main-body-wrapper').innerHTML += `
         <div class="tab-wrapper">
@@ -92,11 +99,11 @@ export default async function decorate(block) {
                 </div>
                 <div class="kpis-wrapper">
                     <span class="h3">KPIs to Measure Success</span>
-                    ${buildKPIList(program).outerHTML}
+                    ${kpis}
                 </div>
                 <div class="kpis-wrapper">
                     <span class="h3">Target Market Area</span>
-                    ${buildTargetMarketAreaList(program.p0TargetMarketArea, program.p1TargetMarketArea).outerHTML}
+                    ${targetMarketAreas}
                 </div>
                 <div class="use-cases-wrapper inactive">
                     <span class="h3">Hero Use Cases</span>
@@ -123,7 +130,7 @@ export default async function decorate(block) {
                     <div class="tags-wrapper">
                     </div>
                 </div>
-                ${buildArtifactLinks(program).outerHTML}
+                ${artifactLinks}
             </div>
             <div class="infocards-wrapper">
                 <div class="card products">
@@ -131,13 +138,13 @@ export default async function decorate(block) {
                 </div>
                 <div class="card audiences">
                     <div class="card-heading h3">Audiences</div>
-                    ${buildAudienceList(program).outerHTML}
+                    ${audiences}
                 </div>
             </div>
         </div>
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
-                ${buildArtifactLinks(program).outerHTML}
+                ${artifactLinks}
                 <div class="total-assets total-assets-tooltip">
                     <div class="h3">Total Approved Assets</div>
                     <span id="totalassets" class="description">${totalassets}</span>
