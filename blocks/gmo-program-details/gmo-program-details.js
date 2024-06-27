@@ -20,10 +20,6 @@ export default async function decorate(block) {
     const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
 
-    // Start fetching both data sets in parallel
-    const programDataPromise = executeQuery(programQueryString);
-    const deliverablesPromise = executeQuery(deliverableQueryString);
-
     // Immediately render a placeholder header
     block.innerHTML = `
     <div class="back-button">
@@ -36,7 +32,7 @@ export default async function decorate(block) {
     `;
 
     // Wait for program data to render the actual header
-    const programData = await programDataPromise;
+    const programData = await executeQuery(programQueryString);
     const program = programData.data.programList.items[0];
     const header = buildHeader(program, queryVars).outerHTML;
 
@@ -166,7 +162,7 @@ export default async function decorate(block) {
     `;
 
     // Wait for deliverables data
-    const deliverables = await deliverablesPromise;
+    const deliverables = await executeQuery(deliverableQueryString);
 
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
