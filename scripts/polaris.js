@@ -101,13 +101,10 @@ export async function authorizeURL(url) {
 
   const response = await fetch(url, options);
 
+
   if (!response.ok) {
-    // Handle specific HTTP errors
-    if (response.status === 404) {
-      throw new Error('Not Found (404)');
-    } else {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
+    // Return the full URL to the asset icon if the response is not OK, as the asset was not found
+    return new URL('/icons/asset.svg', window.location.origin).href;
   }
 
   const imageBlob = await response.blob();

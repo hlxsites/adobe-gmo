@@ -1,63 +1,64 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
-import { getQueryVariable } from '../../scripts/shared.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { resolveMappings, filterArray, getProductMapping, checkBlankString } from '../../scripts/shared-program.js';
+import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let blockConfig;
-const programName = getQueryVariable('programName');
-const programRefNumber = getQueryVariable('programReferenceNumber');
-const deliverableMappings = resolveMappings("getDeliverableTypeMapping");
-const platformMappings = resolveMappings("getPlatformsMapping");
+const queryVars = extractQueryVars();
+const programName = queryVars.programName;
+const programID = queryVars.programID;
+const deliverableMappings = getMappingArray('deliverableType');
+const platformMappings = getMappingArray('platforms');
 
 export default async function decorate(block) {
-
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
-    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programReferenceNumber=${encodeURIComponent(programRefNumber)}`;
+    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const programData = await executeQuery(programQueryString);
-    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}`;
+    const program = programData.data.programList.items[0];
+    blockConfig = readBlockConfig(block);
+    const header = buildHeader(program, queryVars).outerHTML;
+    if (!program) {
+        block.innerHTML = `
+        <div class="back-button">
+            <span class="icon icon-back"></span>
+            <span class="back-label">Back</span>
+        </div>
+        <div class="main-body-wrapper">
+            ${header}
+            <div class="no-data-msg">No data available.</div>
+        </div>
+        `
+        decorateIcons(block);
+        enableBackBtn(block, blockConfig);
+        return;
+    }
+
+    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const deliverables = await executeQuery(deliverableQueryString);
 
-    const p0TargetMarketArea = programData.data.programList.items[0].p0TargetMarketArea;
-    const p1TargetMarketArea = programData.data.programList.items[0].p1TargetMarketArea;
+    const p0TargetMarketArea = program.p0TargetMarketArea;
+    const p1TargetMarketArea = program.p1TargetMarketArea;
 
     // Extract unique deliverable types
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     // Extract unique platforms (flattened from arrays within each item)
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
-
-    const program = programData.data.programList.items[0];
     const kpis = buildKPIList(program).outerHTML;
 
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
 
     const audiences = buildAudienceList(program).outerHTML;
-    const date = formatDate(program.launchDate);
     const artifactLinks = buildArtifactLinks(program).outerHTML;
-    blockConfig = readBlockConfig(block);
+    
     block.innerHTML = `
     <div class="back-button">
         <span class="icon icon-back"></span>
         <span class="back-label">Back</span>
     </div>
     <div class="main-body-wrapper">
-        <div class="details-header-wrapper">
-            <div class="campaign-img">
-            </div>
-            <div class="header-title">
-                <div class="header-row1">
-                    <span class="h1">${program.programName}</span>
-                </div>
-                ${program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': ""}
-                <div class="header-row3">
-                    <span class="icon icon-calendar"></span>
-                    <span class="date-tooltip">Launch date</span>
-                    <span class="campaign-date">${date}</span>
-                </div>
-            </div>
-        </div>
+        ${header}
         <div class="tab-wrapper">
             <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
             <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
@@ -124,21 +125,22 @@ export default async function decorate(block) {
         <div id="tab2" class="deliverables tab inactive">
             <div class="page-heading">
                 ${artifactLinks}
-                <div class="total-assets">
-                    <div class="h3">Total Assets</div>
+                <div class="total-assets total-assets-tooltip">
+                    <div class="h3">Total Approved Assets</div>
                     <span id="totalassets" class="description"></span>
+                    <span class="tooltiptext">To view the assets, go to the "All Asset" search page and use Program and Campaign name facet to filter the assets</span>
                 </div>
             </div>
             <div class="table-wrapper">
                 <div class="table-header">
-                    <div class="header table-column column1">Deliverable Name</div>
+                    <div class="header table-column column1">Deliverable Task Name</div>
                     <div class="header table-column column2">Deliverable Type</div>
                     <div class="header table-column column3">Platforms</div>
-                    <div class="header table-column column4">Review Link</div>
+                    <div class="header table-column column4">QA Files</div>
                     <div class="header table-column column5">Final Asset</div>
                     <div class="header table-column column7">Status Update</div>
                     <div class="header table-column column8">Completion Date</div>
-                    <div class="header table-column column9">Project Owner</div>
+                    <div class="header table-column column9">Task Owner</div>
                 </div>
                 <div class="table-content">
                 </div>
@@ -164,11 +166,7 @@ export default async function decorate(block) {
     block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
         switchTab(event.target);
     })
-    block.querySelector('.back-button').addEventListener('click', () => {
-        const host = location.origin + getBaseConfigPath();
-        const listPage = blockConfig.listpage;
-        document.location.href = host + `/${listPage}`;
-    })
+    enableBackBtn(block, blockConfig);
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
@@ -185,6 +183,53 @@ export default async function decorate(block) {
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(table);
     buildStatus(program.status);
+}
+
+function enableBackBtn(block, blockConfig) {
+    block.querySelector('.back-button').addEventListener('click', () => {
+        const host = location.origin + getBaseConfigPath();
+        const listPage = blockConfig.listpage;
+        document.location.href = host + `/${listPage}`;
+    })
+}
+
+function buildDriverField(driverName) {
+    const driverSpan = document.createElement('span');
+    driverSpan.classList.add('driver-text');
+    driverSpan.innerHTML = `Project Owner: ${driverName}`;
+    return driverSpan;
+}
+
+function buildHeader(program, queryVars) {
+    const headerWrapper = document.createElement('div');
+    headerWrapper.classList.add('details-header-wrapper');
+    const date = program && program.launchDate ? `<div class="header-row3"><span class="icon icon-calendar">` +
+        `</span><span class="date-tooltip">Launch date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
+    const programName = program ? program.programName : queryVars.programName;
+    const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
+
+    const driver = program && program.driver ? program.driver : "Not Available";
+    let driverField = '';
+
+    if (program){
+      driverField=buildDriverField(driver).outerHTML;
+    }
+
+    headerWrapper.innerHTML = `
+        <div class="campaign-img">
+        </div>
+        <div class="header-title">
+            <div class="header-row1">
+                <span class="h1">${programName}</span>
+            </div>
+            ${campaignName}
+            <div class="header-row3">
+              ${date}
+              ${driverField}
+            </div>
+        </div>
+    `
+    return headerWrapper;
 }
 
 /**
@@ -333,8 +378,7 @@ function buildArtifactLinks(program) {
 async function buildStatus(status) {
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('campaign-status');
-    const statusArray = await resolveMappings("getStatusList");
-    const statusMatch = filterArray(statusArray, 'value', status);
+    const statusMatch = filterArray(statusMapping, 'value', status);
     const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
     statusDiv.textContent = statusText;
@@ -375,10 +419,14 @@ function formatDate(dateString) {
 async function buildTable(jsonResponse) {
     const deliverableList = jsonResponse.data.deliverableList.items;
     const programKpi = jsonResponse.data.programList?.items.primaryKpi;
-    const rows = document.createElement('div');
-    const uniqueCategories = getUniqueItems(deliverableList, 'deliverableType');
+    let rows = document.createElement('div');
+    // we want the 'null' deliverableType to be part of this set for filtering
+    const uniqueCatSet = new Set();
+    deliverableList.forEach(object => { uniqueCatSet.add(object['deliverableType']) })
+    const uniqueCategories = Array.from(uniqueCatSet);
+    const sortedCategories = sortDeliverableTypes(uniqueCategories);
     let emptyCategory = false;
-    uniqueCategories.forEach(async (category) => {
+    sortedCategories.forEach(async (category) => {
         // build header row
         let headerRow;
         const matchingCampaigns = deliverableList.filter(deliverable => deliverable.deliverableType === category);
@@ -420,6 +468,19 @@ function dateSort(parent) {
     childNodes.forEach((node) => {
         parent.appendChild(node);
     })
+}
+
+function sortDeliverableTypes(arr) {
+    return arr.sort((a, b) => {
+        // If a is null and b is not null, a should come after b
+        if (a === null && b !== null) return 1;
+        // If b is null and a is not null, b should come after a
+        if (a !== null && b === null) return -1;
+        // If both a and b are null, they are equal in terms of sorting
+        if (a === null && b === null) return 0;
+        // If neither a nor b are null, sort them alphabetically
+        return a.localeCompare(b);
+    });
 }
 
 async function lookupType(rawText, mappingType) {
@@ -466,13 +527,14 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
     const status = (deliverableJson.deliverableStatusUpdate == null) ? "Not Available" : deliverableJson.deliverableStatusUpdate + "%";
     const statusPct = (deliverableJson.deliverableStatusUpdate == null) ? "0%" : deliverableJson.deliverableStatusUpdate + "%";
     dataRow.innerHTML = `
-        <div class='property table-column column1 deliverable-name'>${deliverableJson.deliverableName}</div>
-        <div class='property table-column column2 deliverable-type'>${typeLabel}</div>
+        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverableJson.deliverableName)}</div>
+        <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
         <div class='property table-column column3 platforms'></div>
-        <div class='property table-column column4 review-link'>
-            <a href="${deliverableJson.reviewLink}" class="campaign-link" target="_blank">Review Link</a>
+        <div class='property table-column column4 qa-files'>
+            ${deliverableJson.reviewLink ? '<a href="' + deliverableJson.reviewLink + '"target="_blank" class="campaign-link">QA Files</a> ': "Not Available"}
         </div>
         <div class='property table-column column5'>
+            ${deliverableJson.linkedFolderLink ? '<a href="' + deliverableJson.linkedFolderLink + '"target="_blank" class="campaign-link">Final Asset</a> ': "Not Available"}
         </div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
@@ -487,19 +549,11 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
             </div>
         </div>
         <div class='property table-column column8 date-wrapper'>
-            <div class='completion-date'>${checkBlankString(deliverableJson.taskCompletionDate)}</div>
+            <div class='completion-date'>${dateFormat(deliverableJson.taskCompletionDate)}</div>
             ${deliverableJson.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverableJson.previousTaskCompletionDate + '</div> ': ""}
         </div>
         <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
     `;
-    if (!(deliverableJson.linkedFolderLink == null)) {
-        const finalAssetLink = document.createElement('a');
-        finalAssetLink.href = deliverableJson.linkedFolderLink;
-        finalAssetLink.classList.add('campaign-link');
-        finalAssetLink.target = '_blank';
-        finalAssetLink.textContent = "Final Asset";
-        dataRow.querySelector('.column5').appendChild(finalAssetLink);
-    }
     createPlatformString(deliverableJson.platforms, dataRow);
     return dataRow;
 }
@@ -554,4 +608,26 @@ function attachListener(htmlElement) {
             if (child.classList.contains('row')) child.classList.toggle('inactive');
         })
     })
+}
+
+function extractQueryVars() {
+    const urlStr = window.location.href;
+    const pnRegex = /.*programName=(.*?)&programID=(.*)/;
+    const match = urlStr.match(pnRegex);
+    if (match && match[1] && match[2]) {
+        const pName = decodeURIComponent(match[1]);
+        let pID = decodeURIComponent(match[2])
+        if (pID.endsWith('#')) {
+            pID = pID.slice(0, -1);
+        }
+        return {
+            programName: pName,
+            programID: pID
+        }
+    } else {
+        return {
+            programName: 'Program Name Not Available',
+            programID: 'Program ID Not Available'
+        }
+    }
 }

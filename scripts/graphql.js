@@ -5,33 +5,8 @@ import { logError } from './scripts.js';
 const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
 const projectId = 'gmo';
 
-export async function graphqlQueryNameList(queryNameList) {
-  const queryName = queryNameList;
-  //persisted query URLs have to be encoded together with the first semicolon
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}`;
-  const jwtToken = await getBearerToken();
-
-  // Return the fetch promise chain so that it can be awaited outside
-  return fetch(graphqlEndpoint, {
-      method: 'GET',
-      headers: {
-          Authorization: jwtToken,
-      },
-  }).then(response => {
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-  }).then(data => {
-      return data; // Make sure to return the data so that the promise resolves with it
-  }).catch(error => {
-      console.error('Error fetching data: ', error);
-      throw error; // Rethrow or handle error as appropriate
-  });
-}
-
 export async function graphqlCampaignCount(filter = {}) {
-  const queryName = 'getCampaignNameFilter';
+  const queryName = 'getTotalPrograms';
   const encodedSemiColon = encodeURIComponent(';');
   const encodedFilter = encodeURIComponent(JSON.stringify(filter));
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}filter=${encodedFilter}`;
@@ -103,41 +78,11 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
 }
 
 export async function graphqlCampaignByName(campaignName) {
-  const queryName = 'getCampaignNames';
+  const queryName = 'getCampaignNameFilter';
   const encodedCampaignName = encodeURIComponent(campaignName);
   const encodedSemiColon = encodeURIComponent(';');
   //persisted query URLs have to be encoded together with the first semicolon
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}campaignName=${encodedCampaignName}`;
-  const jwtToken = await getBearerToken();
-
-  // Return the fetch promise chain so that it can be awaited outside
-  return fetch(graphqlEndpoint, {
-      method: 'GET',
-      headers: {
-          Authorization: jwtToken,
-      },
-  }).then(response => {
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-  }).then(data => {
-      return data; // Make sure to return the data so that the promise resolves with it
-  }).catch(error => {
-      console.error('Error fetching data: ', error);
-      throw error; // Rethrow or handle error as appropriate
-  });
-}
-
-export async function graphqlFilterOnMarketingInitiative(marketingInitiative) {
-
-  const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
-  const projectId = 'gmo';
-  const queryName = 'filter-on-marketing-initiative';
-  const encodedMarketingInitiative = encodeURIComponent(marketingInitiative);
-  const encodedSemiColon = encodeURIComponent(';');
-  //persisted query URLs have to be encoded together with the first semicolon
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}marketingInitiative=${encodedMarketingInitiative}`;
   const jwtToken = await getBearerToken();
 
   // Return the fetch promise chain so that it can be awaited outside
@@ -216,9 +161,7 @@ export function generateFilterJSON(filterParams) {
 
   // Convert the result object to JSON
   const jsonResult = JSON.stringify(result,null,4);
-  // Logging the JSON to see the output
-  console.debug('Graphql filter',jsonResult);
-  console.debug('result', result);
+
   return result;
 }
 
