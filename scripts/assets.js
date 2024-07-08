@@ -33,6 +33,12 @@ const getFilters = () => {
   return `is_pur-expirationDate = 0 OR pur-expirationDate > ${currentEpoch}`;
 };
 
+async function getUnderdevelopmentIcon() {
+  const configPath = getBaseConfigPath();
+  const brandingConfig = await getBrandingConfig();
+  const underdevelopmentIconPath = `${configPath}/${brandingConfig.underdevelopmentIcon}`.replace(/\/\//g, '/');
+  return { imageUrl: underdevelopmentIconPath, imageAltText: 'Under Development', assetCount: 0 };
+}
 
 /**
  * Search Asset for  programName and campaignName parameters.
@@ -48,6 +54,13 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
   const deliveryURL = await initDeliveryEnvironment();
 
   const indexName =  await getSearchIndex();
+
+
+  if (programName==null && campaignName==null)
+  {
+    // Display Underdevelopment Icon
+    return await getUnderdevelopmentIcon();
+  }
 
   // Initialize the facetFilters array
   const facetFilters = [];
@@ -96,11 +109,8 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
       }
       else
       {
-          //Display Underdevelopment Icon
-          const configPath = getBaseConfigPath();
-          const brandingConfig = await getBrandingConfig();
-          const underdevelopmentIconPath = `${configPath}/${brandingConfig.underdevelopmentIcon}`.replace(/\/\//g, '/');
-          return {imageUrl : underdevelopmentIconPath, imageAltText: 'Under Development', assetCount: 0};
+        // Display Underdevelopment Icon
+        return await getUnderdevelopmentIcon();
       }
     }
     // Handle other response codes
@@ -110,3 +120,4 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
     throw error;
   }
 }
+
