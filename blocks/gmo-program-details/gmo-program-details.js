@@ -54,7 +54,7 @@ export default async function decorate(block) {
         decorateIcons(block);
     }
     else
-    {
+    {   //programName and campaignName is null
         block.innerHTML = `
         <div class="back-button">
             <span class="icon icon-back"></span>
@@ -64,7 +64,18 @@ export default async function decorate(block) {
             ${header}
             <div class="no-data-msg">No data available.</div>
         </div>
-        `
+        `;
+        try {
+            //programName and campaignName is null display under development icon
+            imageObject = await searchAsset(null, null);
+            if (imageObject) {
+                insertImageIntoCampaignImg(block, imageObject);
+                totalassets = imageObject.assetCount;
+            }
+        } catch (error) {
+            console.error("Failed to load campaign image:", error);
+        }
+
         decorateIcons(block);
         enableBackBtn(block, blockConfig);
         return;
