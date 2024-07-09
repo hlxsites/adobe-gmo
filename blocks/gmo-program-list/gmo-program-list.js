@@ -85,50 +85,41 @@ document.addEventListener('gmoCampaignListBlock', debounce(async function() {
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
 }, 300));
 
-
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
-    if (blockConfig == undefined) blockConfig = readBlockConfig(block);
-    const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
+    if (blockConfig === undefined) blockConfig = readBlockConfig(block);
+    const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor, graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
-    //Current cursor used in previous page logic
     currentPageInfo.currentCursor = cursor;
-    //Next Page
-    if (currentPageInfo.hasNextPage){
-      currentPageInfo.nextCursor = currentPageInfo.endCursor === undefined ? campaigns[campaigns.length - 1].cursor : currentPageInfo.endCursor;
+
+    if (currentPageInfo.hasNextPage) {
+        currentPageInfo.nextCursor = currentPageInfo.endCursor || campaigns[campaigns.length - 1].cursor;
     }
 
-    if (!previousPage && !nextPage)
-    {
-      cursorArray = campaigns.map(item => item.cursor);
-    }
-    else if (nextPage){
-
-      campaigns.forEach(item => {
-          cursorArray.push(item.cursor);
-      });
+    if (!previousPage && !nextPage) {
+        cursorArray = campaigns.map(item => item.cursor);
+    } else if (nextPage) {
+        campaigns.forEach(item => cursorArray.push(item.cursor));
     }
 
     currentPageInfo.itemCount = campaigns.length;
-
-    // Calculate total number of pages
     totalPages = Math.ceil(campaignCount / currentNumberPerPage);
 
     const listHeaders = buildListHeaders(headerConfig);
-    const listItems = await buildCampaignList(campaigns, numPerPage);
     const listFooter = buildListFooter(campaignCount, numPerPage);
 
     block.innerHTML = `
         <div class="refresh-notification"></div>
-        <div class="list-container">
-        </div>`;
+        <div class="list-container main-content"></div>
+    `;
     const listContainer = block.querySelector('.list-container');
     listContainer.appendChild(listHeaders);
-    listContainer.appendChild(listItems);
-    listContainer.appendChild(listFooter);
-    // Show Hide Previous and Next Page buttons
-    togglePaginationButtons();
 
+    block.appendChild(listFooter);
+
+    await buildCampaignList(campaigns, numPerPage, listContainer);
+
+    togglePaginationButtons();
     decorateIcons(block);
 
     // Lazy loading for images
@@ -181,10 +172,7 @@ function getFilterValues(){
   return filterAttributes;
 }
 
-async function buildCampaignList(campaigns, numPerPage) {
-    const listWrapper = document.createElement('div');
-    listWrapper.classList.add('list-items');
-    listWrapper.dataset.totalresults = campaigns.length;
+async function buildCampaignList(campaigns, numPerPage, listContainer) {
     const host = location.origin + getBaseConfigPath();
     const detailsPage = blockConfig.detailspage;
 
@@ -203,7 +191,7 @@ async function buildCampaignList(campaigns, numPerPage) {
 
         const campaignIconLink = document.createElement('a');
         let campaignDetailsLink = host + `/${detailsPage}?programName=${programName}&`;
-        campaignDetailsLink += `programID=${programID}`
+        campaignDetailsLink += `programID=${programID}`;
         campaignIconLink.href = campaignDetailsLink;
 
         const campaignIcon = document.createElement('div');
@@ -211,11 +199,11 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignIcon.dataset.programname = programName;
         campaignIcon.dataset.campaignname = campaignName;
         campaignIcon.dataset.programid = programID;
-        addThumbnail(campaignIcon, programName, campaignName);
+        await addThumbnail(campaignIcon, programName, campaignName);
         campaignIconLink.appendChild(campaignIcon);
+
         const campaignNameWrapper = document.createElement('div');
         campaignNameWrapper.classList.add('campaign-name-wrapper', 'vertical-center');
-
 
         campaignNameWrapper.innerHTML = `
             <div class='campaign-name-label' data-property='campaign'>
@@ -223,7 +211,7 @@ async function buildCampaignList(campaigns, numPerPage) {
                 <span class="tooltip">Program Name</span>
             </div>
             <div class='campaign-name'>
-                ${checkBlankString(campaignName,'Marketing Moment Not Available')}
+                ${checkBlankString(campaignName, 'Marketing Moment Not Available')}
                 <span class="tooltip">Marketing Moment</span>
             </div>
         `;
@@ -258,9 +246,9 @@ async function buildCampaignList(campaigns, numPerPage) {
         const campaignProducts = await buildProduct(checkBlankString(campaign.node.productOffering));
         campaignProducts.classList.add('column-4', 'vertical-center');
 
-        var campaignStatusWrapper = document.createElement('div');
+        const campaignStatusWrapper = document.createElement('div');
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6', 'vertical-center');
-        campaignStatusWrapper = buildStatus(campaignStatusWrapper, campaign);
+        buildStatus(campaignStatusWrapper, campaign);
 
         const campaignGeo = document.createElement('div');
         campaignGeo.textContent = formatGeos(campaign.node.p0TargetGeo);
@@ -274,9 +262,8 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignRow.appendChild(campaignStatusWrapper);
         campaignRow.appendChild(campaignGeo);
 
-        listWrapper.appendChild(campaignRow);
+        listContainer.appendChild(campaignRow);
     }
-    return listWrapper;
 }
 
 function formatGeos(geoArray) {
@@ -333,7 +320,7 @@ function buildListHeaders(headerConfig) {
     const listHeaders = document.createElement('div');
     listHeaders.classList.add('list-header');
     let columnCounter = 1;
-    config.forEach((column)  => {
+    config.forEach((column) => {
         const columnWrapper = document.createElement('div');
         columnWrapper.classList.add('column-header-wrapper');
         columnWrapper.classList.add(`column-${columnCounter}`);
@@ -346,33 +333,36 @@ function buildListHeaders(headerConfig) {
 
         columnCounter++;
         columnWrapper.appendChild(columnEl);
-        //sorting
+
+        // Sorting
         if (column.sortable) {
             const columnSort = document.createElement('div');
             columnSort.classList.add('column-sort-wrapper');
             const columnSortAsc = document.createElement('img');
             columnSortAsc.classList.add('column-sort-asc', 'icon');
             columnSortAsc.src = '/icons/chevronUp.svg';
-            columnSortAsc.title = 'Sort (Ascending)'
+            columnSortAsc.title = 'Sort (Ascending)';
             columnSortAsc.addEventListener('click', () => {
                 sortColumn('asc', column.attribute);
-            })
+            });
             const columnSortDesc = document.createElement('img');
             columnSortDesc.classList.add('column-sort-desc', 'icon');
             columnSortDesc.src = '/icons/chevronDown.svg';
             columnSortDesc.title = 'Sort (Descending)';
             columnSortDesc.addEventListener('click', () => {
                 sortColumn('desc', column.attribute);
-            })
+            });
             columnSort.appendChild(columnSortAsc);
             columnSort.appendChild(columnSortDesc);
             columnWrapper.appendChild(columnSort);
         }
-        //end sorting
+        // End sorting
+
         listHeaders.appendChild(columnWrapper);
-    })
+    });
     return listHeaders;
 }
+
 
 function buildListFooter(rows, rowsPerPage) {
     const pages = Math.ceil(rows / rowsPerPage);
@@ -517,7 +507,7 @@ function prevPage(prevBtn) {
 }
 
 function sortColumn(dir, property) {
-    const container = document.querySelector('.list-items');
+    const container = document.querySelector('.list-container');
     if (!container) {
         console.error("Could not locate list container.");
         return;
@@ -533,30 +523,31 @@ function sortColumn(dir, property) {
         sortArray.push({ textContent, row });
     });
 
-    if (property == 'launch') {
-        if (dir == 'asc') {
-            sortArray.sort((a,b) => {
-                a = a.textContent.split('/').reverse().join('');
-                b = b.textContent.split('/').reverse().join('');
-                return a.localeCompare(b);            
+    if (property === 'launch') {
+        if (dir === 'asc') {
+            sortArray.sort((a, b) => {
+                const dateA = a.textContent.split('-').reverse().join('');
+                const dateB = b.textContent.split('-').reverse().join('');
+                return dateA.localeCompare(dateB);
             });
         } else {
-            sortArray.sort((a,b) => {
-                a = a.textContent.split('/').reverse().join('');
-                b = b.textContent.split('/').reverse().join('');
-                return b.localeCompare(a);            
+            sortArray.sort((a, b) => {
+                const dateA = a.textContent.split('-').reverse().join('');
+                const dateB = b.textContent.split('-').reverse().join('');
+                return dateB.localeCompare(dateA);
             });
         }
     } else {
-        if (dir == 'asc') {
+        if (dir === 'asc') {
             sortArray.sort((a, b) => a.textContent.localeCompare(b.textContent));
         } else {
             sortArray.sort((a, b) => b.textContent.localeCompare(a.textContent));
         }
     }
 
-    sortArray.forEach(({ row }, index) => {
+    sortArray.forEach(({ row }) => {
         container.appendChild(row);
     });
 }
+
 
