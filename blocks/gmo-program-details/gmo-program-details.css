@@ -320,11 +320,13 @@ body {
                     border-radius: 15px;
                     padding-right: 15px;
                     padding-left: 15px;
+                    z-index: 1;
                     
                 }
                 & .calendar-indicator {
                     width: 1px;
                     height: 100%;
+                    margin-top: -13%;
                     background: linear-gradient(
                         to bottom, #2680EB 50%, transparent 50%
                     );

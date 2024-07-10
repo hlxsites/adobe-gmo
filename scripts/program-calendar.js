@@ -45,14 +45,14 @@ export async function buildCalendar(items, block, displayYear) {
         const matchedItems = yearFilteredItems.filter(item => item.type === group);
 
         // find the earliest date- this is how we set the position against the calendar
-        const earliestStartDate = matchedItems.reduce((earliest, current) => {
-            const currentDate = new Date(current.startDate + 'T00:00:00Z');
-            return currentDate < earliest ? currentDate : earliest;
+        const earliestStartDate = matchedItems.reduce((earliest, currentItem) => {
+            const currentItemDate = new Date(currentItem.startDate + 'T00:00:00Z');
+            return currentItemDate < earliest ? currentItemDate : earliest;
         },  new Date(matchedItems[0].startDate + 'T00:00:00Z'));
 
-        const latestEndDate = matchedItems.reduce((latest, current) => {
-            const currentDate = new Date(current.endDate + 'T00:00:00Z'); // Ensure UTC
-            return currentDate > latest ? currentDate : latest;
+        const latestEndDate = matchedItems.reduce((latest, currentItem) => {
+            const currentItemDate = new Date(currentItem.endDate + 'T00:00:00Z'); // Ensure UTC
+            return currentItemDate > latest ? currentItemDate : latest;
         },  new Date(matchedItems[0].endDate + 'T00:00:00Z'));
 
 
@@ -115,7 +115,7 @@ export async function buildCalendar(items, block, displayYear) {
                         <div class="item-status" data-status="${item.status}"></div>
                     </div>
                     <div class="link">
-                        <a href="${item.link}">Final Asset</a>
+                        <a href="${item.link}">QA Files</a>
                     </div>
                 </div>
             `;
@@ -168,14 +168,29 @@ export async function buildCalendar(items, block, displayYear) {
     yearDropdownWrapper.querySelector('.year-dropdown-button').addEventListener('click', (event) => toggleDropdown(event.target));
     
     // show the current month if current year chosen
-    const currentDate = new Date();
-    if (displayYear == currentDate.getFullYear()) {
+    // todo: if we change the background, need to refactor this
+    //const currentDate = new Date();
+    const currentDate = new Date(2024, 6, 30);
+
+    const currentYear = currentDate.getFullYear();
+    if (displayYear == currentYear) {
         console.log('display year is current year');
         const currentMonth = currentDate.getMonth() + 1;
+        
+        /* 
+        *  calculate the percentage completion of the current month
+        *  for the indicator offset
+        */
+        const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
+        const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
+
         const monthEl = block.querySelector(`.month[data-num='${currentMonth}']`);
         monthEl.classList.add('current');
         const lineEl = document.createElement('div');
         lineEl.classList.add('calendar-indicator');
+
+        // use direct style for offset
+        lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
         monthEl.appendChild(lineEl);
     }
     
