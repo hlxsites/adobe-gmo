@@ -14,12 +14,47 @@ const platformMappings = getMappingArray('platforms');
 export default async function decorate(block) {
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
+
+    blockConfig = readBlockConfig(block);
+
     const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+
+    // Immediately render a placeholder header
+    block.innerHTML = `
+    <div class="back-button">
+        <span class="icon icon-back"></span>
+        <span class="back-label">Back</span>
+    </div>
+    <div class="main-body-wrapper">
+        <div class="placeholder-header">Loading program details...</div>
+    </div>
+    `;
+
+    // Wait for program data to render the actual header
     const programData = await executeQuery(programQueryString);
     const program = programData.data.programList.items[0];
-    blockConfig = readBlockConfig(block);
     const header = buildHeader(program, queryVars).outerHTML;
-    if (!program) {
+
+    // Update the header with the actual data
+    block.querySelector('.placeholder-header').outerHTML = header;
+
+    let imageObject = {imageUrl : '', imageAltText: '', assetCount: 0};
+    let totalassets = 0;
+    if (program) {
+        try {
+            imageObject = await searchAsset(program.programName, program.campaignName);
+            if (imageObject) {
+                insertImageIntoCampaignImg(block, imageObject);
+                totalassets = imageObject.assetCount;
+            }
+        } catch (error) {
+            console.error("Failed to load campaign image:", error);
+        }
+        decorateIcons(block);
+    }
+    else
+    {   //programName and campaignName is null
         block.innerHTML = `
         <div class="back-button">
             <span class="icon icon-back"></span>
@@ -29,36 +64,32 @@ export default async function decorate(block) {
             ${header}
             <div class="no-data-msg">No data available.</div>
         </div>
-        `
+        `;
+        try {
+            //programName and campaignName is null display under development icon
+            imageObject = await searchAsset(null, null);
+            if (imageObject) {
+                insertImageIntoCampaignImg(block, imageObject);
+                totalassets = imageObject.assetCount;
+            }
+        } catch (error) {
+            console.error("Failed to load campaign image:", error);
+        }
+
         decorateIcons(block);
         enableBackBtn(block, blockConfig);
         return;
     }
 
-    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
-    const deliverables = await executeQuery(deliverableQueryString);
-
     const p0TargetMarketArea = program.p0TargetMarketArea;
     const p1TargetMarketArea = program.p1TargetMarketArea;
-
-    // Extract unique deliverable types
-    const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
-    // Extract unique platforms (flattened from arrays within each item)
-    const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
     const kpis = buildKPIList(program).outerHTML;
-
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
-
     const audiences = buildAudienceList(program).outerHTML;
     const artifactLinks = buildArtifactLinks(program).outerHTML;
-    
-    block.innerHTML = `
-    <div class="back-button">
-        <span class="icon icon-back"></span>
-        <span class="back-label">Back</span>
-    </div>
-    <div class="main-body-wrapper">
-        ${header}
+
+    // Inject the additional HTML content
+    block.querySelector('.main-body-wrapper').innerHTML += `
         <div class="tab-wrapper">
             <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
             <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
@@ -127,7 +158,7 @@ export default async function decorate(block) {
                 ${artifactLinks}
                 <div class="total-assets total-assets-tooltip">
                     <div class="h3">Total Approved Assets</div>
-                    <span id="totalassets" class="description"></span>
+                    <span id="totalassets" class="description">${totalassets}</span>
                     <span class="tooltiptext">To view the assets, go to the "All Asset" search page and use Program and Campaign name facet to filter the assets</span>
                 </div>
             </div>
@@ -146,26 +177,43 @@ export default async function decorate(block) {
                 </div>
             </div>
         </div>
-    </div>
     `;
-    buildProductCard(program);
-    try {
-        const imageObject = await searchAsset(program.programName, program.campaignName);
-        if (imageObject){
-          insertImageIntoCampaignImg(block,imageObject);
-          document.getElementById('totalassets').textContent = imageObject.assetCount;
-        }
-        else
-        {
-          document.getElementById('totalassets').textContent = 0;
-        }
-    } catch (error) {
-        console.error("Failed to load campaign image:", error);
-    }
 
-    block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
+    // Wait for deliverables data
+    const deliverables = await executeQuery(deliverableQueryString);
+
+    const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
+    const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
+
+    buildProductCard(program);
+    buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
+    buildFieldScopes('platforms', uniquePlatforms, block);
+
+    const table = await buildTable(await deliverables).then(async (rows) => {
+        return rows;
+    });
+
+    // Batch Dom Updates
+    const tableRoot = block.querySelector('.table-content');
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(table);
+    tableRoot.appendChild(fragment);
+
+    buildStatus(program.status);
+
+    // Optimize Event Listeners: Added debouncing to event listeners to prevent performance issues.
+    const debounce = (func, delay) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), delay);
+        };
+    };
+
+    block.querySelector('.tab-wrapper').addEventListener('click', debounce((event) => {
         switchTab(event.target);
-    })
+    }, 300));
+
     enableBackBtn(block, blockConfig);
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
@@ -175,14 +223,7 @@ export default async function decorate(block) {
         });
     });
     decorateIcons(block);
-    buildFieldScopes('deliverable-type',uniqueDeliverableTypes, block);
-    buildFieldScopes('platforms',uniquePlatforms, block);
-    const table = await buildTable(await deliverables).then(async (rows) => {
-        return rows;
-    })
-    const tableRoot = block.querySelector('.table-content');
-    tableRoot.appendChild(table);
-    buildStatus(program.status);
+
 }
 
 function enableBackBtn(block, blockConfig) {
@@ -248,9 +289,11 @@ function getUniqueItems(items, property) {
     )];
 }
 
-function insertImageIntoCampaignImg(block,imageObject) {
+function insertImageIntoCampaignImg(block, imageObject) {
     const campaignImgDiv = block.querySelector('.campaign-img');
     const imgElement = document.createElement('img');
+    //Lazy load images
+    imgElement.loading = 'lazy';
     imgElement.src = imageObject.imageUrl;
     imgElement.alt = imageObject.imageAltText;
     campaignImgDiv.appendChild(imgElement);
@@ -259,7 +302,7 @@ function insertImageIntoCampaignImg(block,imageObject) {
 function switchTab(tab) {
     if (tab.classList.contains('active') || tab.classList.contains('tab-wrapper')) {
         return;
-    } 
+    }
     document.querySelector('.tabBtn.active').classList.toggle('active');
     document.querySelector(`.tab:not(.inactive)`).classList.toggle('inactive');
     const targetTab = tab.dataset.target;
@@ -412,7 +455,7 @@ function formatDate(dateString) {
 
     // Formatting the date into mm/dd/yyyy format
     const formattedDate = mm + '/' + dd + '/' + yyyy;
-    
+
     return formattedDate;
 }
 
@@ -502,7 +545,7 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
     let divopen;
-    if (headerType === 'subcategory') { 
+    if (headerType === 'subcategory') {
         headerRow.classList.add('subheader');
         divopen = '<div class="heading-wrapper subheading">';
     } else {
@@ -579,7 +622,7 @@ function sortRows(rows) {
     nodes.sort((a, b) => {
         var classA = a.classList ? a.classList.contains('datarow') : false;
         var classB = b.classList ? b.classList.contains('datarow') : false;
-        
+
         if (classA && !classB) {
             return 1;
         } else if (!classA && classB) {
