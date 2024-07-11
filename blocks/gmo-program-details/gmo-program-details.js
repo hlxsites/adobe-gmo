@@ -39,7 +39,7 @@ export default async function decorate(block) {
     // Update the header with the actual data
     block.querySelector('.placeholder-header').outerHTML = header;
 
-    let imageObject = {imageUrl : '', imageAltText: '', assetCount: 0};
+    let imageObject = null;
     let totalassets = 0;
     if (program) {
         try {
