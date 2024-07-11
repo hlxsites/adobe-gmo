@@ -56,7 +56,7 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
   const indexName =  await getSearchIndex();
 
 
-  if (!progamName && !campaginName)
+  if (!programName && !campaignName)
   {
     // Display Underdevelopment Icon
     return await getUnderdevelopmentIcon();
