@@ -1,6 +1,9 @@
 import { testCalendar } from '../../scripts/shared-program.js';
 
+let deliverables;
+
 export async function buildCalendar(items, block, displayYear) {
+    if (!deliverables) deliverables = items;
     const calendarEl = document.createElement('div');
     calendarEl.classList.add('calendar-wrapper');
     calendarEl.innerHTML = `
@@ -151,26 +154,25 @@ export async function buildCalendar(items, block, displayYear) {
     })
     block.querySelector('.calendar.tab').appendChild(calendarEl);
 
-    // populate "year" dropdown
-    const yearDropdown = document.createElement('div');
-    yearDropdown.classList.add('year-dropdown-content');
+    // populate "filter" dropdown
+    const filterDropdown = document.createElement('div');
+    filterDropdown.classList.add('filter-dropdown-content');
     const uniqueYears = getUniqueYears(items);
     uniqueYears.forEach((year) => {
         const yearOption = document.createElement('div');
-        yearOption.classList.add('year-option');
+        yearOption.classList.add('filter-option');
         yearOption.dataset.year = year;
         yearOption.textContent = year;
-        yearOption.addEventListener('click', yearDropdownSelection);
-        yearDropdown.appendChild(yearOption);
+        yearOption.addEventListener('click', filterDropdownSelection);
+        filterDropdown.appendChild(yearOption);
     });
-    const yearDropdownWrapper = block.querySelector('.year-dropdown-wrapper');
-    yearDropdownWrapper.appendChild(yearDropdown);
-    yearDropdownWrapper.querySelector('.year-dropdown-button').addEventListener('click', (event) => toggleDropdown(event.target));
+    const filterDropdownWrapper = block.querySelector('.filter-dropdown-wrapper');
+    filterDropdownWrapper.appendChild(filterDropdown);
+    filterDropdownWrapper.querySelector('.filter-dropdown-button').addEventListener('click', (event) => toggleDropdown(event.target));
     
     // show the current month if current year chosen
     // todo: if we change the background, need to refactor this
-    //const currentDate = new Date();
-    const currentDate = new Date(2024, 6, 30);
+    const currentDate = new Date();
 
     const currentYear = currentDate.getFullYear();
     if (displayYear == currentYear) {
@@ -239,8 +241,7 @@ function getUniqueYears(items) {
 
 // handle clicking on the year button
 function toggleDropdown(element) {
-    console.log('clicked year button');
-    const dropdown = element.closest('.year-dropdown-wrapper');
+    const dropdown = element.closest('.filter-dropdown-wrapper');
     const iconChevronDown = dropdown.querySelector('.icon-chevronDown');
     const iconChevronUp = dropdown.querySelector('.icon-chevronUp');
 
@@ -251,16 +252,16 @@ function toggleDropdown(element) {
 
 // handle clicks outside the dropdown
 function dismissDropdown(event) {
-    const isInsideDropdown = event ? event.target.closest('.year-dropdown-wrapper') : false;
+    const isInsideDropdown = event ? event.target.closest('.filter-dropdown-wrapper') : false;
     if (!isInsideDropdown) {
-        const dropdown = document.querySelector('.year-dropdown-wrapper');
+        const dropdown = document.querySelector('.filter-dropdown-wrapper');
         dropdown.querySelector('.icon-chevronDown').classList.remove('inactive');
         dropdown.querySelector('.icon-chevronUp').classList.add('inactive');
         dropdown.classList.remove('active');
     }
 }
 
-function yearDropdownSelection(event) {
+function filterDropdownSelection(event) {
     const optionEl = event.target;
     const newYear = optionEl.dataset.year;
     refreshCalendar(newYear);
@@ -273,10 +274,12 @@ function refreshCalendar(year) {
     yearEl.textContent = year;
 
     // trick to remove event listeners
-    block.querySelector('.year-dropdown-wrapper').outerHTML += '';
+    block.querySelector('.filter-dropdown-wrapper').outerHTML += '';
     block.querySelector('.right-controls .today-button').outerHTML += '';
 
     block.querySelector('.calendar-wrapper').remove();
-    block.querySelector('.year-dropdown-content').remove();
-    buildCalendar(testCalendar, block, year);
+    block.querySelector('.filter-dropdown-content').remove();
+
+    buildCalendar(deliverables, block, year);
+    //buildCalendar(testCalendar, block, year);
 }

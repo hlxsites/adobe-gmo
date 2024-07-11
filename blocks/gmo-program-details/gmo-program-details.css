@@ -196,7 +196,7 @@ body {
                 cursor: pointer;
             }
         }
-        & .year-dropdown-wrapper {
+        & .filter-dropdown-wrapper {
             position: relative;
             display: inline-block;
             font: normal normal normal 14px/17px Adobe Clean;
@@ -207,7 +207,7 @@ body {
             border: 1px solid #D3D3D3;
             border-radius: 4px;
             cursor: pointer;
-            & > .year-dropdown-button {
+            & > .filter-dropdown-button {
                 height: 32px;
                 line-height: 32px;
                 padding-left: 10px;
@@ -221,7 +221,7 @@ body {
                     height: 16px;
                 }
             }
-            & > .year-dropdown-content {
+            & > .filter-dropdown-content {
                 display: none;
                 position: absolute;
                 background-color: #f9f9f9;
@@ -232,10 +232,10 @@ body {
                 z-index: 1;
                 width: 100%;
             }
-            &.active .year-dropdown-content {
+            &.active .filter-dropdown-content {
                 display: block;
             }
-            & .year-option {
+            & .filter-option {
                 display: block;
                 /*width: 80%;*/
                 overflow-x: hidden;

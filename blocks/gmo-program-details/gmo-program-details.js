@@ -161,9 +161,9 @@ export default async function decorate(block) {
                 </div>
                 <div class="right-controls">
                     <div class="today-button">Today</div>
-                    <div class="year-dropdown-wrapper">
-                        <div class="year-dropdown-button">
-                            <div class="label">Year</div>
+                    <div class="filter-dropdown-wrapper">
+                        <div class="filter-dropdown-button">
+                            <div class="label">Month</div>
                             <span class="icon icon-chevronDown"></span>
                             <span class="icon icon-chevronUp inactive"></span>
                         </div>
