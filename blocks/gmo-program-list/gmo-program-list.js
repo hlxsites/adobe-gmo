@@ -73,7 +73,6 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
 });
 
-
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
