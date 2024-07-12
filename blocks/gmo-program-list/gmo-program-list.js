@@ -50,19 +50,7 @@ let totalPages = 0;
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
 
-// Debounce function to reduce the number of calls
-function debounce(func, delay) {
-    let debounceTimer;
-    return function() {
-        const context = this;
-        const args = arguments;
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => func.apply(context, args), delay);
-    };
-}
-
-//Custom event gmoCampaignListBlock with debounce to allow the gmo-campaign-header to trigger the gmo-program-list to update
-document.addEventListener('gmoCampaignListBlock', debounce(async function() {
+document.addEventListener('gmoCampaignListBlock', async function() {
     //Build graphq filter that is passed to the graphql persisted queries
     const graphQLFilterArray = getFilterValues();
     const searchInputValue = document.getElementById('campaign-search').value;
@@ -83,8 +71,7 @@ document.addEventListener('gmoCampaignListBlock', debounce(async function() {
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
     //Trigger loading the gmo-campaign-block
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
-}, 300));
-
+});
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
