@@ -215,13 +215,17 @@ export default async function decorate(block) {
     }, 300));
 
     enableBackBtn(block, blockConfig);
+    
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
             const parent = readMore.parentElement;
-            parent.querySelector('.paragraph').classList.toggle('hide-overflow');
+            const paragraph = parent.querySelector('.paragraph');
+            paragraph.classList.toggle('hide-overflow');
+            readMore.textContent = paragraph.classList.contains('hide-overflow') ? 'Read more' : 'Read less';
         });
     });
+
     decorateIcons(block);
 
 }
