@@ -102,6 +102,37 @@ body {
     }
 }
 
+.header-row3 .icon-release-tier {
+    width: 16px;
+    height: 16px;
+    background-image: url('/icons/launch.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 8px;
+    margin-left: 16px;
+}
+
+.header-row3 .icon-categories {
+    width: 16px;
+    height: 16px;
+    background-image: url('/icons/folderOpenOutline.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 8px;
+    margin-left: 16px;
+}
+
+.header-row3 .release-tier {
+    font: normal normal normal 14px/21px Adobe Clean;
+    margin-left: 8px;
+}
+
+.header-row3 .categories {
+    font: normal normal normal 14px/21px Adobe Clean;
+    margin-left: 8px;
+}
+
+
 .details-header-wrapper .header-row3 {
     display: flex;
     align-items: center;
