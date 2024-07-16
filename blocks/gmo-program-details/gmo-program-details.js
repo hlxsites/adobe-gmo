@@ -157,13 +157,13 @@ export default async function decorate(block) {
                             <img class="right" data-direction="right" src="/icons/chevron-right.svg"></img>
                         </div>
                     </div>
-                    <div class="current-year">2024</div>
+                    <div class="current-year" data-quarter="1" data-year="2024">2024</div>
                 </div>
                 <div class="right-controls">
                     <div class="today-button">Today</div>
                     <div class="filter-dropdown-wrapper">
                         <div class="filter-dropdown-button">
-                            <div class="label">Month</div>
+                            <div class="label">Filter</div>
                             <span class="icon icon-chevronDown"></span>
                             <span class="icon icon-chevronUp inactive"></span>
                         </div>
@@ -208,7 +208,8 @@ export default async function decorate(block) {
     const tableRoot = block.querySelector('.table-content');
     tableRoot.appendChild(table);
     buildStatus(program.status);
-    buildCalendar(testCalendar, block, new Date().getFullYear());
+    const calendarPeriod = { 'year': new Date().getFullYear(), 'quarter': 1 }
+    buildCalendar(testCalendar, block, calendarPeriod, "quarter");
 }
 
 function enableBackBtn(block, blockConfig) {

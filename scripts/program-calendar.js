@@ -2,37 +2,15 @@ import { testCalendar } from '../../scripts/shared-program.js';
 
 let deliverables;
 
-export async function buildCalendar(items, block, displayYear) {
+export async function buildCalendar(items, block, period, type) {
     if (!deliverables) deliverables = items;
-    const calendarEl = document.createElement('div');
-    calendarEl.classList.add('calendar-wrapper');
-    calendarEl.innerHTML = `
-        <div class="calendar-background">
-            <div class="header-wrapper">
-                <div class="quarter-header"> 
-                    <div class="quarter">Q1 ${displayYear}</div>
-                    <div class="quarter">Q2 ${displayYear}</div>
-                    <div class="quarter">Q3 ${displayYear}</div>
-                    <div class="quarter">Q4 ${displayYear}</div>
-                </div>
-            </div>
-            <div class="month-wrapper">
-                <div class="month" data-num="1"><div class="label">Jan</div></div>
-                <div class="month" data-num="2"><div class="label">Feb</div></div>
-                <div class="month" data-num="3"><div class="label">Mar</div></div>
-                <div class="month" data-num="4"><div class="label">Apr</div></div>
-                <div class="month" data-num="5"><div class="label">May</div></div>
-                <div class="month" data-num="6"><div class="label">Jun</div></div>
-                <div class="month" data-num="7"><div class="label">Jul</div></div>
-                <div class="month" data-num="8"><div class="label">Aug</div></div>
-                <div class="month" data-num="9"><div class="label">Sep</div></div>
-                <div class="month" data-num="10"><div class="label">Oct</div></div>
-                <div class="month" data-num="11"><div class="label">Nov</div></div>
-                <div class="month" data-num="12"><div class="label">Dec</div></div>
-            </div>
-        </div>
-    `
-    const monthWidth = 8.315;
+    const displayYear = period.year;
+    const displayQuarter = period.quarter;
+    const columnWidth = 8.315;
+    const calendarEl = (type === "year") ? buildYearCal(displayYear) : buildQCal(displayYear);
+
+    // set an 'end' to the calendar view
+    let lastMonthInView, lastDateInView;
 
     // filter by chosen displayYear
     const yearFilteredItems = items.filter(item => item.startDate.includes(displayYear));
@@ -42,8 +20,23 @@ export async function buildCalendar(items, block, displayYear) {
 
     const contentWrapper = document.createElement('div');
     contentWrapper.classList.add('calendar-content-wrapper');
+
+    if (type === "quarter") { 
+        contentWrapper.classList.add('quarter-view');
+        contentWrapper.dataset.view = "quarter";
+        lastMonthInView = 10;
+    } else {
+        contentWrapper.dataset.view = "year";
+        lastMonthInView = 11;
+    }
+    lastDateInView = new Date(displayYear, lastMonthInView + 1, 0);
+
     var groupIndex = 1;
+    let groupExceedsView;
     uniqueGroups.forEach((group) => {
+        // assume group fits on calendar
+        groupExceedsView = false;
+
         // find all members of this group
         const matchedItems = yearFilteredItems.filter(item => item.type === group);
 
@@ -58,11 +51,22 @@ export async function buildCalendar(items, block, displayYear) {
             return currentItemDate > latest ? currentItemDate : latest;
         },  new Date(matchedItems[0].endDate + 'T00:00:00Z'));
 
-
         const startMonth = (earliestStartDate.getUTCMonth() ); // getMonth returns 0-11 but this is desirable
         const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
-        const endMonth = (latestEndDate.getUTCMonth());
-        const endDay = (latestEndDate.getUTCDate() - 1);
+
+        // check when the group ends
+        let endMonth, endDay;
+        if (latestEndDate.getUTCMonth() > lastMonthInView) {
+            endMonth = lastMonthInView;
+            endDay = new Date(displayYear, lastMonthInView + 1, 0).getUTCDate() + 1;
+            groupExceedsView = true;
+        } else {
+            endMonth = (latestEndDate.getUTCMonth());
+            endDay = (latestEndDate.getUTCDate() - 1);
+        }
+
+        //const endMonth = (latestEndDate.getUTCMonth());
+        //const endDay = (latestEndDate.getUTCDate() - 1);
         
         const startYear = earliestStartDate.getUTCFullYear();
         const totalDaysInMonth = new Date(Date.UTC(startYear, startMonth, 0)).getUTCDate();
@@ -72,11 +76,18 @@ export async function buildCalendar(items, block, displayYear) {
 
         const percentOfStartMonth = (startDay / totalDaysInMonth);
         const percentOfEndMonth = (endDay / totalDaysInEndMonth);
-        const dayMargin = (percentOfStartMonth * monthWidth);
-        const endDayMargin = (percentOfEndMonth * monthWidth);
-        const startPosition = ((startMonth * monthWidth) + dayMargin).toFixed(2);
-        let endPosition = ((endMonth * monthWidth) + endDayMargin).toFixed(2);
+        const dayMargin = (percentOfStartMonth * columnWidth);
+        const endDayMargin = (percentOfEndMonth * columnWidth);
+        let startPosition = ((startMonth * columnWidth) + dayMargin).toFixed(2);
+        let endPosition = ((endMonth * columnWidth) + endDayMargin).toFixed(2);
         
+
+        if (type === "quarter") {
+            // offset by a month in quarter view
+            startPosition = parseFloat(startPosition) + parseFloat(columnWidth);
+            endPosition = parseFloat(endPosition) + parseFloat(columnWidth);
+        }
+            
         // do a little offset.
         if (endMonth > 9) endPosition = endPosition - 0.35;
         const widthOfGroup = (endPosition - startPosition);
@@ -86,9 +97,21 @@ export async function buildCalendar(items, block, displayYear) {
 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
+
+        let itemExceedsView;
         matchedItems.forEach((item) => {
+            itemExceedsView = false;
+
             const itemStartDate = new Date(item.startDate + 'T00:00:00Z');
-            const itemEndDate = new Date(item.endDate + 'T00:00:00Z');
+            // check the "real" end date and if it's beyond the current calendar view, flag it
+            // somehow to show that it goes into the next increment
+            // in year view, overflow is fine but in quarter view we need the scroll
+            console.log(`Item end date: ${item.endDate}`);
+            let itemEndDate = new Date(item.endDate + 'T00:00:00Z');
+            console.log(`UTC end date: ${itemEndDate}`);
+            if (itemEndDate > lastDateInView) {
+                itemExceedsView = true;
+            }
             const itemDuration = Math.floor((itemEndDate.getTime() - itemStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const itemDurationPct = ((itemDuration / groupDuration) * 100).toFixed(2);
 
@@ -108,7 +131,11 @@ export async function buildCalendar(items, block, displayYear) {
             const itemEl = document.createElement('div');
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
-            itemEl.style.width = itemDurationPct + '%';
+            if (itemExceedsView) {
+                // mark the item as exceeding the calendar view
+            } else {
+                itemEl.style.width = itemDurationPct + '%';
+            }
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
                 <div class="item-content"> 
@@ -146,8 +173,8 @@ export async function buildCalendar(items, block, displayYear) {
     });
     calendarEl.appendChild(contentWrapper);
     block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
-        control.removeEventListener('click', changeYear);
-        control.addEventListener('click', changeYear);
+        control.removeEventListener('click', changePeriod);
+        control.addEventListener('click', changePeriod);
     });
     block.querySelector('.right-controls .today-button').addEventListener('click', () => {
         refreshCalendar(new Date().getFullYear());
@@ -158,6 +185,16 @@ export async function buildCalendar(items, block, displayYear) {
     const filterDropdown = document.createElement('div');
     filterDropdown.classList.add('filter-dropdown-content');
     const uniqueYears = getUniqueYears(items);
+    const yearOptionLabel = document.createElement('div');
+    yearOptionLabel.classList.add('filter-label');
+    yearOptionLabel.textContent = 'Year';
+    const quarterOptionLabel = document.createElement('div');
+    quarterOptionLabel.classList.add('filter-label');
+    quarterOptionLabel.textContent = 'Quarter';
+    filterDropdown.appendChild(yearOptionLabel);
+
+    // when choosing 'Quarter' the top left controls change to control the quarter in focus
+    // its kind of a zoomed in view.
     uniqueYears.forEach((year) => {
         const yearOption = document.createElement('div');
         yearOption.classList.add('filter-option');
@@ -166,17 +203,39 @@ export async function buildCalendar(items, block, displayYear) {
         yearOption.addEventListener('click', filterDropdownSelection);
         filterDropdown.appendChild(yearOption);
     });
+    filterDropdown.appendChild(quarterOptionLabel);
+    const quarters = [ 1, 2, 3, 4 ];
+    quarters.forEach((quarter) => {
+        const quarterOption = document.createElement('div');
+        quarterOption.classList.add('filter-option');
+        quarterOption.dataset.period = quarter;
+        quarterOption.textContent = quarter;
+        quarterOption.addEventListener('click', filterDropdownSelection);
+        filterDropdown.appendChild(quarterOption);
+    })
+    
     const filterDropdownWrapper = block.querySelector('.filter-dropdown-wrapper');
     filterDropdownWrapper.appendChild(filterDropdown);
     filterDropdownWrapper.querySelector('.filter-dropdown-button').addEventListener('click', (event) => toggleDropdown(event.target));
     
-    // show the current month if current year chosen
-    // todo: if we change the background, need to refactor this
-    const currentDate = new Date();
+    // scroll to the right in quarter view
+    // this will work once we stop the overflow
+    if (type === "quarter") {
+        const calendarWrapper = document.querySelector('.calendar-wrapper.quarter-view')
+        const scrollPct = ((displayQuarter - 1) * (3 * columnWidth)).toFixed(2);
+        const maxScrollLeft = calendarWrapper.scrollWidth;
+        //console.log(`Max scroll left: ${maxScrollLeft}`);
+        //console.log(`Scroll percent: ${scrollPct}`);
+        const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
+        //console.log(`Scroll amt: ${scrollAmt}`);
+        calendarWrapper.scrollLeft = scrollAmt;
+    }
 
+    // show the current month if current year chosen
+    const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
+
     if (displayYear == currentYear) {
-        console.log('display year is current year');
         const currentMonth = currentDate.getMonth() + 1;
         
         /* 
@@ -200,6 +259,70 @@ export async function buildCalendar(items, block, displayYear) {
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
 }
 
+function buildYearCal(displayYear) {
+    const calendarEl = document.createElement('div');
+    calendarEl.classList.add('calendar-wrapper');
+    calendarEl.innerHTML = `
+        <div class="calendar-background">
+            <div class="header-wrapper">
+                <div class="quarter-header"> 
+                    <div class="quarter">Q1 ${displayYear}</div>
+                    <div class="quarter">Q2 ${displayYear}</div>
+                    <div class="quarter">Q3 ${displayYear}</div>
+                    <div class="quarter">Q4 ${displayYear}</div>
+                </div>
+            </div>
+            <div class="month-wrapper">
+                <div class="month" data-num="1"><div class="label">Jan</div></div>
+                <div class="month" data-num="2"><div class="label">Feb</div></div>
+                <div class="month" data-num="3"><div class="label">Mar</div></div>
+                <div class="month" data-num="4"><div class="label">Apr</div></div>
+                <div class="month" data-num="5"><div class="label">May</div></div>
+                <div class="month" data-num="6"><div class="label">Jun</div></div>
+                <div class="month" data-num="7"><div class="label">Jul</div></div>
+                <div class="month" data-num="8"><div class="label">Aug</div></div>
+                <div class="month" data-num="9"><div class="label">Sep</div></div>
+                <div class="month" data-num="10"><div class="label">Oct</div></div>
+                <div class="month" data-num="11"><div class="label">Nov</div></div>
+                <div class="month" data-num="12"><div class="label">Dec</div></div>
+            </div>
+        </div>
+    `;
+    return calendarEl;
+}
+
+function buildQCal(displayYear) {
+    const calendarEl = document.createElement('div');
+    calendarEl.classList.add('calendar-wrapper', 'quarter-view');
+    calendarEl.innerHTML = `
+        <div class="calendar-background quarter-view">
+            <div class="header-wrapper">
+                <div class="quarter-header"> 
+                    <div class="quarter">Q1 ${displayYear}</div>
+                    <div class="quarter">Q2 ${displayYear}</div>
+                    <div class="quarter">Q3 ${displayYear}</div>
+                    <div class="quarter">Q4 ${displayYear}</div>
+                </div>
+            </div>
+            <div class="quarterview-wrapper">
+                <div class="month" data-num="12"><div class="label">December Q1</div></div>
+                <div class="month" data-num="1"><div class="label">January Q1</div></div>
+                <div class="month" data-num="2"><div class="label">February Q1</div></div>
+                <div class="month" data-num="3"><div class="label">March Q2</div></div>
+                <div class="month" data-num="4"><div class="label">April Q2</div></div>
+                <div class="month" data-num="5"><div class="label">May Q2</div></div>
+                <div class="month" data-num="6"><div class="label">June Q3</div></div>
+                <div class="month" data-num="7"><div class="label">July Q3</div></div>
+                <div class="month" data-num="8"><div class="label">August Q3</div></div>
+                <div class="month" data-num="9"><div class="label">September Q4</div></div>
+                <div class="month" data-num="10"><div class="label">October Q4</div></div>
+                <div class="month" data-num="11"><div class="label">November Q4</div></div>
+            </div>
+        </div>
+    `;
+    return calendarEl;
+}
+
 function getUniqueItems(items, property) {
     return [...new Set(items.flatMap(item => item[property])
         .filter(value => value !== null && value !== undefined)
@@ -215,15 +338,34 @@ function showHideGroup(event) {
     group.querySelector('.group-header').classList.toggle('content-hidden')
 }
 
-function changeYear(event) {
+function changePeriod(event) {
     const arrow = event.target;
     const direction = arrow.dataset.direction;
     const wrapper = arrow.closest('.inc-dec-wrapper');
     const yearEl = wrapper.querySelector('.current-year');
-    const currentYear = parseInt(yearEl.textContent);
-    const newYear = (direction == 'right') ? (currentYear + 1) : (currentYear - 1);
+    const contentWrapper = document.querySelector('.calendar-content-wrapper');
+    const view = contentWrapper.dataset.view;
+    const currentYear = parseInt(yearEl.dataset.year);
     
-    refreshCalendar(newYear);
+    let newPeriod, newYear, newQuarter;
+
+    if (view === "quarter") {
+        const currentQuarter = parseInt(yearEl.dataset.quarter);
+        newQuarter = (direction == 'right') ? (currentQuarter + 1) : (currentQuarter - 1);
+        if (newQuarter > 4) {
+            newQuarter = 1;
+            newYear = parseInt(currentYear + 1);
+        }
+        if (newQuarter < 1) {
+            newQuarter = 4;
+            newYear = parseInt(currentYear - 1);
+        }
+    } else {
+        newYear = (direction == 'right') ? (currentYear + 1) : (currentYear - 1);
+        newQuarter = 1;
+    }
+    newPeriod = { 'year': newYear, 'quarter': newQuarter };
+    refreshCalendar(newPeriod, view);
 }
 
 function getUniqueYears(items) {
@@ -263,15 +405,36 @@ function dismissDropdown(event) {
 
 function filterDropdownSelection(event) {
     const optionEl = event.target;
-    const newYear = optionEl.dataset.year;
-    refreshCalendar(newYear);
+    let year, quarter, view;
+    if (("period") in optionEl.dataset) {
+        // quarter view
+        quarter = optionEl.dataset.period;
+        year = document.querySelector('.inc-dec-wrapper .current-year').dataset.year;
+        view = "quarter";
+    } else {
+        // year view
+        view = "year";
+        year = optionEl.dataset.year;
+    }
+
+    const period = { 'year': year, 'quarter': quarter }
+    refreshCalendar(period, view);
     dismissDropdown();
 }
 
-function refreshCalendar(year) {
+// retrieve the year via js when refreshing in quarter view
+function refreshCalendar(period, view) {
     const block = document.querySelector('.gmo-program-details.block');
     const yearEl = block.querySelector('.inc-dec-wrapper .current-year');
-    yearEl.textContent = year;
+    yearEl.dataset.year = period.year;
+    yearEl.dataset.quarter = period.quarter;
+
+    if (view === "year") {
+        yearEl.textContent = period.year;
+    } else {
+        yearEl.textContent = `Q${period.quarter} ${period.year}`;
+    }
+
 
     // trick to remove event listeners
     block.querySelector('.filter-dropdown-wrapper').outerHTML += '';
@@ -280,6 +443,6 @@ function refreshCalendar(year) {
     block.querySelector('.calendar-wrapper').remove();
     block.querySelector('.filter-dropdown-content').remove();
 
-    buildCalendar(deliverables, block, year);
+    buildCalendar(deliverables, block, period, view);
     //buildCalendar(testCalendar, block, year);
 }

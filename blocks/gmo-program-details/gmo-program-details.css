@@ -152,7 +152,7 @@ body {
             font: normal normal normal 14px/17px Adobe Clean;
             display: flex;
             flex-direction: row;
-            width: 120px;
+            width: 140px;
 
             & .year-switch {
                 cursor: pointer;
@@ -229,28 +229,33 @@ body {
                 max-height: 200px;
                 overflow-y: auto;
                 border: 1px solid #ccc;
-                z-index: 1;
+                z-index: 2;
                 width: 100%;
             }
             &.active .filter-dropdown-content {
                 display: block;
             }
-            & .filter-option {
+            & .filter-option, & .filter-label {
                 display: block;
                 /*width: 80%;*/
                 overflow-x: hidden;
-                padding: 10px 0px 10px 10px;
+
                 text-decoration: none;
                 color: #333;
+            }
+            & .filter-option {
+                padding: 10px 0px 10px 30px;
                 &:hover {
                     background-color: #ddd;
                 }
             }
+            & .filter-label {
+                padding: 10px 0px 10px 10px;
+                font-weight: bold;
+            }
         }
     }
     & > .calendar-wrapper {
-        /*height: 650px;*/
-        /*min-height: 650px;*/
         overflow-y: auto;
         overflow-x: hidden;
         background-color: white;
@@ -259,7 +264,6 @@ body {
         flex-direction: column;
         border-bottom: 3px solid #F4F4F4;
         position: relative;
-        /*justify-content: space-between;*/
         & .header-wrapper {
             height: 24px;
             & .quarter-header {
@@ -278,6 +282,9 @@ body {
                 }
             }
         }
+        &.quarter-view {
+            overflow-x: unset;
+        }
         & .calendar-background {
             height: 100%;
             width: 100%;
@@ -286,8 +293,11 @@ body {
             position: absolute;
             top: 0;
             bottom: 0;
+            &.quarter-view {
+                width: 200%;
+            }
         }
-        & .month-wrapper {
+        & .month-wrapper, & .quarterview-wrapper {
             height: 100%;
             width: 100%;
             display: flex;
@@ -343,6 +353,9 @@ body {
             left: 0;
             right: 0;
             padding-bottom: 20px;
+            &.quarter-view {
+                width: 200%;
+            }
         }
         & .calendar-group {
             width: 550px;
