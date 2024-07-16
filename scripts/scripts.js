@@ -268,6 +268,9 @@ async function loadLazy(doc) {
   }
   if (!(document.querySelector('head meta[name="hide-header"]')?.getAttribute('content') === 'true')) {
     loadHeader(doc.querySelector('header'), 'adp-header');
+    if(document.querySelector('head meta[name="hide-navigation-tabs"]')?.getAttribute('content') === 'true'){
+      doc.querySelector('header').classList.add('hide-navigation-tabs');
+    }
   } else {
     document.querySelector('header').classList.add('hidden');
   }
