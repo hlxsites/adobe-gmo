@@ -106,9 +106,7 @@ export async function buildCalendar(items, block, period, type) {
             // check the "real" end date and if it's beyond the current calendar view, flag it
             // somehow to show that it goes into the next increment
             // in year view, overflow is fine but in quarter view we need the scroll
-            console.log(`Item end date: ${item.endDate}`);
             let itemEndDate = new Date(item.endDate + 'T00:00:00Z');
-            console.log(`UTC end date: ${itemEndDate}`);
             if (itemEndDate > lastDateInView) {
                 itemExceedsView = true;
             }
@@ -131,11 +129,7 @@ export async function buildCalendar(items, block, period, type) {
             const itemEl = document.createElement('div');
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
-            if (itemExceedsView) {
-                // mark the item as exceeding the calendar view
-            } else {
-                itemEl.style.width = itemDurationPct + '%';
-            }
+
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
                 <div class="item-content"> 
@@ -149,6 +143,15 @@ export async function buildCalendar(items, block, period, type) {
                     </div>
                 </div>
             `;
+
+            if (itemExceedsView) {
+                // mark the item as exceeding the calendar view
+                const arrow = document.createElement('img');
+                arrow.src = '/icons/arrowleft.svg';
+                itemEl.querySelector('.link').appendChild(arrow);
+            } else {
+                itemEl.style.width = itemDurationPct + '%';
+            }
             itemWrapper.appendChild(itemEl);
         })
         const groupEl = document.createElement('div');
@@ -157,10 +160,14 @@ export async function buildCalendar(items, block, period, type) {
         groupEl.style.width = widthOfGroup + '%';
         groupEl.innerHTML = `
             <div class="group-header">
-                <img src="/icons/chevron-right.svg" class="group-expand group-controls inactive"></img>
-                <img src="/icons/chevron-right.svg" class="group-collapse group-controls"></img>
-                <div class="group-heading">${group}</div>
-                <div class="group-count">${matchedItems.length}</div>
+                <div class="left-block">
+                    <img src="/icons/chevron-right.svg" class="group-expand group-controls inactive"></img>
+                    <img src="/icons/chevron-right.svg" class="group-collapse group-controls"></img>
+                    <div class="group-heading">${group}</div>
+                    <div class="group-count">${matchedItems.length}</div>
+                </div>
+                <div class="right-block">
+                </div>
             </div>
             ${itemWrapper.outerHTML}
         `;
@@ -168,6 +175,14 @@ export async function buildCalendar(items, block, period, type) {
         groupEl.querySelectorAll('.group-controls').forEach((arrow) => {
             arrow.addEventListener('click', showHideGroup);
         });
+
+        if (groupExceedsView) {
+            const arrow = document.createElement('img');
+            arrow.src = '/icons/arrowleft.svg';
+            arrow.classList.add('group-arrow');
+            groupEl.querySelector('.group-header > .right-block').appendChild(arrow);
+        }
+
         contentWrapper.appendChild(groupEl);
         groupIndex +=1;
     });
@@ -177,7 +192,7 @@ export async function buildCalendar(items, block, period, type) {
         control.addEventListener('click', changePeriod);
     });
     block.querySelector('.right-controls .today-button').addEventListener('click', () => {
-        refreshCalendar(new Date().getFullYear());
+        refreshCalendar({ 'year': new Date().getFullYear(), 'quarter': 1 }, "year");
     })
     block.querySelector('.calendar.tab').appendChild(calendarEl);
 
@@ -224,10 +239,7 @@ export async function buildCalendar(items, block, period, type) {
         const calendarWrapper = document.querySelector('.calendar-wrapper.quarter-view')
         const scrollPct = ((displayQuarter - 1) * (3 * columnWidth)).toFixed(2);
         const maxScrollLeft = calendarWrapper.scrollWidth;
-        //console.log(`Max scroll left: ${maxScrollLeft}`);
-        //console.log(`Scroll percent: ${scrollPct}`);
         const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
-        //console.log(`Scroll amt: ${scrollAmt}`);
         calendarWrapper.scrollLeft = scrollAmt;
     }
 
@@ -352,13 +364,14 @@ function changePeriod(event) {
     if (view === "quarter") {
         const currentQuarter = parseInt(yearEl.dataset.quarter);
         newQuarter = (direction == 'right') ? (currentQuarter + 1) : (currentQuarter - 1);
+        newYear = currentYear;
         if (newQuarter > 4) {
             newQuarter = 1;
-            newYear = parseInt(currentYear + 1);
+            newYear = currentYear + 1;
         }
         if (newQuarter < 1) {
             newQuarter = 4;
-            newYear = parseInt(currentYear - 1);
+            newYear = currentYear - 1;
         }
     } else {
         newYear = (direction == 'right') ? (currentYear + 1) : (currentYear - 1);
@@ -415,6 +428,7 @@ function filterDropdownSelection(event) {
         // year view
         view = "year";
         year = optionEl.dataset.year;
+        quarter = 1;
     }
 
     const period = { 'year': year, 'quarter': quarter }

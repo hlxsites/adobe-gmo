@@ -371,9 +371,23 @@ body {
                 flex-direction: row;
                 flex-wrap: wrap;
                 align-content: center;
+                justify-content: space-between;
                 border-radius: 7px 7px 0px 0px;
                 &.content-hidden {
                     border-radius: 7px;
+                }
+                & .left-block {
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    align-content: center;
+                    border-radius: 7px 7px 0px 0px;
+                }
+                & .group-arrow {
+                    transform: rotate(180deg);
+                    filter: invert(99%) sepia(0%) saturate(0%) hue-rotate(227deg) brightness(113%) contrast(100%);
+                    margin-right: 15px;
+                    margin-top: 5px;
                 }
             }
             & .group-heading {
@@ -446,6 +460,12 @@ body {
                 }
                 & .link {
                     margin-right: 10px;
+                    display: flex;
+                    & > img {
+                        margin-top: 1px;
+                        margin-left: 5px;
+                        transform: rotate(180deg);
+                    }
                 }
                 & .item-status {
                     height: 5px;
