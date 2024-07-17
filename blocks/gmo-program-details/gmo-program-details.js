@@ -263,13 +263,13 @@ function buildHeader(program, queryVars) {
     const releaseTier = `
         <div class="header-row3">
             <span class="icon-release-tier"></span>
-            <span class="release-tier">Release Tier: ${program.releaseTier || "Unavailable"}</span>
+            <span class="release-tier">Release Tier: ${program.releaseTier || "Not Available"}</span>
         </div>`;
 
     const categories = `
         <div class="header-row3">
             <span class="icon-categories"></span>
-            <span class="categories">${program.categories && program.categories.length > 0 ? program.categories.join(', ') : "Unavailable"}</span>
+            <span class="categories">${program.categories && program.categories.length > 0 ? program.categories.join(', ') : "Not Available"}</span>
         </div>`;
 
     headerWrapper.innerHTML = `
