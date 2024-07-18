@@ -41,15 +41,17 @@ async function getUnderdevelopmentIcon() {
 }
 
 /**
- * Search Asset for  programName and campaignName parameters.
+ * Search Asset for  programName, campaignName, deliverableType parameters.
  *
  * @param {string} - Program Name.
  * @param {string} - Campaign Name.
+ * @param {string} - Deliverable Type
+ * @param {integer} - Image Width
  * @returns {Image <object>} Resolves with image object.
  * @throws {Error} If an HTTP error or network error occurs.
  */
 
-export async function searchAsset(programName, campaignName, imageWidth = 80) {
+export async function searchAsset(programName, campaignName, deliverableType = '', imageWidth = 80) {
   const adminConfig = await getAdminConfig();
   const deliveryURL = await initDeliveryEnvironment();
 
@@ -69,6 +71,10 @@ export async function searchAsset(programName, campaignName, imageWidth = 80) {
   }
   if (campaignName) { // Check if campaignName is not null
     facetFilters.push('gmo-campaignName :'+ campaignName);
+  }
+
+  if (deliverableType) { // Check if deliverableType is not null
+    facetFilters.push('gmo-deliverableType :'+ deliverableType);
   }
   const data = {
     requests: [
