@@ -215,7 +215,7 @@ export default async function decorate(block) {
     }, 300));
 
     enableBackBtn(block, blockConfig);
-    
+
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
@@ -260,6 +260,18 @@ function buildHeader(program, queryVars) {
       driverField=buildDriverField(driver).outerHTML;
     }
 
+    const releaseTier = `
+        <div class="header-row3">
+            <span class="icon-release-tier"></span>
+            <span class="release-tier">Release Tier: ${program.releaseTier || "Not Available"}</span>
+        </div>`;
+
+    const categories = `
+        <div class="header-row3">
+            <span class="icon-categories"></span>
+            <span class="categories">${program.categories && program.categories.length > 0 ? program.categories.join(', ') : "Not Available"}</span>
+        </div>`;
+
     headerWrapper.innerHTML = `
         <div class="campaign-img">
         </div>
@@ -271,6 +283,8 @@ function buildHeader(program, queryVars) {
             <div class="header-row3">
               ${date}
               ${driverField}
+              ${releaseTier}
+              ${categories}
             </div>
         </div>
     `
