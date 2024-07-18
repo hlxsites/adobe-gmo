@@ -50,7 +50,6 @@ let totalPages = 0;
 let campaignCount = await graphqlCampaignCount();
 let blockConfig;
 
-//Custom event gmoCampaignListBlock to allow the gmo-campaign-header to trigger the gmo-program-list to update
 document.addEventListener('gmoCampaignListBlock', async function() {
     //Build graphq filter that is passed to the graphql persisted queries
     const graphQLFilterArray = getFilterValues();
@@ -64,17 +63,15 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     const block = document.querySelector('.gmo-program-list.block');
     //Get Campaign Count for pagination
     campaignCount = await graphqlCampaignCount(currentGraphqlFilter);
-    //Trigger loading the gmo-campaign-block
+
     //Reset page variables
     currentPageInfo = {};
     cursorArray = [];
     currentPage = 1;
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
-
+    //Trigger loading the gmo-campaign-block
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
-
 });
-
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
@@ -117,8 +114,32 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     listContainer.appendChild(listItems);
     listContainer.appendChild(listFooter);
     // Show Hide Previous and Next Page buttons
-    const footerNext = document.querySelector('.footer-pagination-button.next');
+    togglePaginationButtons();
+
+    decorateIcons(block);
+
+    // Lazy loading for images
+    document.addEventListener('DOMContentLoaded', function() {
+        if ('IntersectionObserver' in window) {
+            const lazyImages = document.querySelectorAll('.lazy');
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            lazyImages.forEach(img => observer.observe(img));
+        }
+    });
+}
+
+function togglePaginationButtons() {
     const footerPrev = document.querySelector('.footer-pagination-button.prev');
+    const footerNext = document.querySelector('.footer-pagination-button.next');
     if (currentPage > 1) {
         footerPrev.classList.add('active');
     } else {
@@ -130,9 +151,6 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     } else {
         footerNext.classList.remove('active');
     }
-
-    decorateIcons(block);
-
 }
 
 function getFilterValues(){
@@ -275,14 +293,13 @@ function buildStatus(statusWrapper, campaign) {
 }
 
 async function addThumbnail(parentElement, programName, campaignName) {
-    searchAsset(programName, campaignName).then((response) => {
-        if (response && (Object.hasOwn(response, 'imageUrl') && Object.hasOwn(response, 'imageAltText'))) {
-            const iconImage = document.createElement('img');
-            iconImage.src = response?.imageUrl;
-            iconImage.alt = response?.imageAltText;
-            parentElement.appendChild(iconImage);
-        }
-    })
+    const response = await searchAsset(programName, campaignName);
+    if (response?.imageUrl && response?.imageAltText) {
+        const iconImage = document.createElement('img');
+        iconImage.src = response.imageUrl;
+        iconImage.alt = response.imageAltText;
+        parentElement.appendChild(iconImage);
+    }
 }
 
 async function buildProduct(product) {
@@ -529,4 +546,3 @@ function sortColumn(dir, property) {
         container.appendChild(row);
     });
 }
-
