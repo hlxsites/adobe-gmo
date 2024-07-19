@@ -425,9 +425,30 @@ body {
                     background-color: white;
                     margin-bottom: 10px;
                     border-radius: 4px;
-                    height: 39px;
+                    height: 64px;
+                    min-width: 160px;
+                    font-size: 12px;
                     &:first-child {
                         margin-top: 10px;
+                    }
+                    & .content-row {
+                        height: 32px;
+                        line-height: 32px;
+                        &.bottom {
+                            display: flex;
+                            line-height: unset;
+                            align-items: center;
+                            & div:not(last-child) {
+                                margin-right: 4px;
+                            }
+                        }
+                    }
+                    & .start-date, & .link {
+                        border-radius: 5px;
+                        border: 1px solid #a9a9a9;
+                        height: 12px;
+                        padding: 4px;
+
                     }
                     & .color-tab {
                         border-radius: 4px 0px 0px 4px;
@@ -437,19 +458,22 @@ body {
                     }
                     & > .item-content {
                         display: flex;
-                        flex-direction: row;
-                        justify-content: space-between;
-                        width: 100%;
-                        align-content: center;
-                        flex-wrap: wrap;
-                        line-height: 32px;
+                        flex-direction: column;
+                        width: 96%;
+                        line-height: 12px;
+                        margin-left: 2px;
+                    }
+                    & .name {
+                        max-width: 62%;
+                        overflow-x: hidden;
+                        text-overflow: ellipsis;
+                        text-wrap: nowrap;
                     }
                 }
                 & .info {
                     display: flex;
                     flex-direction: row;
-                    justify-content: space-evenly;
-                    margin-left: 3px;
+                    justify-content: flex-start;
                 }
                 & .thumbnail {
                     height: 32px;
@@ -473,7 +497,7 @@ body {
                     background-color: green;
                     border-radius: 50%;
                     position: relative;
-                    top: 45%;
+                    margin-top: 13px;
                     margin-left: 10px;
                 }
             }

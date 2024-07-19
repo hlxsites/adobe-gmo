@@ -66,107 +66,107 @@ export async function getMappingArray(type) {
 
 export const testCalendar = [
     {
-        'name': 'Content A',
-        'status': 'Complete',
-        'link': 'https://www.google.com',
-        'type': 'Awareness',
-        'startDate': '2024-02-01',
-        'endDate': '2024-04-30'
+        'deliverableName': 'Content A',
+        'taskStatus': 'Complete',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Awareness',
+        'deliverableProjectStartDate': '2024-02-01',
+        'deliverableProjectEndDate': '2024-04-30'
     },
     {
-        'name': 'Content B',
-        'status': 'Complete',
-        'link': 'https://www.google.com',
-        'type': 'Awareness',
-        'startDate': '2024-02-01',
-        'endDate': '2024-04-30'
+        'deliverableName': 'Content B',
+        'taskStatus': 'Complete',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Awareness',
+        'deliverableProjectStartDate': '2024-02-01',
+        'deliverableProjectEndDate': '2024-04-30'
     },
     {
-        'name': 'Test End Before Group',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Awareness',
-        'startDate': '2024-03-05',
-        'endDate': '2024-06-10'
+        'deliverableName': 'Test End Before Group',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Awareness',
+        'deliverableProjectStartDate': '2024-03-05',
+        'deliverableProjectEndDate': '2024-06-10'
     },
     {
-        'name': 'Bryan',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Awareness',
-        'startDate': '2024-03-15',
-        'endDate': '2024-06-30'
+        'deliverableName': 'Bryan',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Awareness',
+        'deliverableProjectStartDate': '2024-03-15',
+        'deliverableProjectEndDate': '2024-06-30'
     },
     {
-        'name': 'Meagan',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Awareness',
-        'startDate': '2024-03-15',
-        'endDate': '2024-06-30'
+        'deliverableName': 'Meagan',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Awareness',
+        'deliverableProjectStartDate': '2024-03-15',
+        'deliverableProjectEndDate': '2024-06-30'
     },
     {
-        'name': 'Content C',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Education',
-        'startDate': '2024-03-10',
-        'endDate': '2024-08-10'
+        'deliverableName': 'Content C',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Education',
+        'deliverableProjectStartDate': '2024-03-10',
+        'deliverableProjectEndDate': '2024-08-10'
     },
     {
-        'name': 'Content D',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Education',
-        'startDate': '2024-03-10',
-        'endDate': '2024-08-10'
+        'deliverableName': 'Content D',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Education',
+        'deliverableProjectStartDate': '2024-03-10',
+        'deliverableProjectEndDate': '2024-08-10'
     },
     {
-        'name': 'Content E',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Education',
-        'startDate': '2024-03-10',
-        'endDate': '2024-08-10'
+        'deliverableName': 'Content E',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Education',
+        'deliverableProjectStartDate': '2024-03-10',
+        'deliverableProjectEndDate': '2024-08-10'
     },
     {
-        'name': 'Richard',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Conversion',
-        'startDate': '2024-06-01',
-        'endDate': '2024-10-31'
+        'deliverableName': 'Richard',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Conversion',
+        'deliverableProjectStartDate': '2024-06-01',
+        'deliverableProjectEndDate': '2024-10-31'
     },
     {
-        'name': 'Kristine',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Other',
-        'startDate': '2024-08-01',
-        'endDate': '2024-12-31'
+        'deliverableName': 'Kristine',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Other',
+        'deliverableProjectStartDate': '2024-08-01',
+        'deliverableProjectEndDate': '2024-12-31'
     },
     {
-        'name': 'Elwood',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Other',
-        'startDate': '2024-10-01',
-        'endDate': '2024-12-21'
+        'deliverableName': 'Elwood',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Other',
+        'deliverableProjectStartDate': '2024-10-01',
+        'deliverableProjectEndDate': '2024-12-21'
     },
     {
-        'name': '2023 Item',
-        'status': 'On Track',
-        'link': 'https://www.google.com',
-        'type': 'Awareness',
-        'startDate': '2023-04-27',
-        'endDate': '2023-11-11'
+        'deliverableName': '2023 Item',
+        'taskStatus': 'On Track',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Awareness',
+        'deliverableProjectStartDate': '2023-04-27',
+        'deliverableProjectEndDate': '2023-11-11'
     },
     {
-        'name': '2022 Item',
-        'status': 'Complete',
-        'link': 'https://www.google.com',
-        'type': 'Education',
-        'startDate': '2022-05-05',
-        'endDate': '2022-09-02'
+        'deliverableName': '2022 Item',
+        'taskStatus': 'Complete',
+        'reviewLink': 'https://www.google.com',
+        'deliverableType': 'Education',
+        'deliverableProjectStartDate': '2022-05-05',
+        'deliverableProjectEndDate': '2022-09-02'
     }
 ]

@@ -209,7 +209,8 @@ export default async function decorate(block) {
     tableRoot.appendChild(table);
     buildStatus(program.status);
     const calendarPeriod = { 'year': new Date().getFullYear(), 'quarter': 1 }
-    buildCalendar(testCalendar, block, calendarPeriod, "quarter");
+    buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
+    //buildCalendar(testCalendar, block, calendarPeriod, "year");
 }
 
 function enableBackBtn(block, blockConfig) {

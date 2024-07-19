@@ -1,22 +1,31 @@
 import { testCalendar } from '../../scripts/shared-program.js';
+import { checkBlankString } from './shared-program.js';
 
-let deliverables;
+let deliverables, deliverableMapping;
+const startDateProp = 'deliverableProjectStartDate';
+const endDateProp = 'deliverableProjectEndDate';
+const quarterRef = [ '12', '3', '6', '9' ];
 
-export async function buildCalendar(items, block, period, type) {
-    if (!deliverables) deliverables = items;
+
+export async function buildCalendar(dataObj, block, period, type, mappingArray) {
+    //if (!deliverables) deliverables = dataObj;
+    if (!deliverables) deliverables = dataObj.data.deliverableList.items;
+    if (!deliverableMapping) deliverableMapping = await mappingArray;
     const displayYear = period.year;
     const displayQuarter = period.quarter;
     const columnWidth = 8.315;
     const calendarEl = (type === "year") ? buildYearCal(displayYear) : buildQCal(displayYear);
 
     // set an 'end' to the calendar view
-    let lastMonthInView, lastDateInView;
+    let lastMonthInView, lastDateInView, earliestMonthInView, earliestDateInView, earliestYearInView;
 
     // filter by chosen displayYear
-    const yearFilteredItems = items.filter(item => item.startDate.includes(displayYear));
+    const yearFilteredItems = deliverables.filter(item => item[startDateProp].includes(displayYear) || item[endDateProp].includes(displayYear));
+    //const yearFilteredItems = deliverables.filter(item => item[startDateProp].includes(displayYear));
+    //console.log(yearFilteredItems);
 
     // get unique groupings
-    const uniqueGroups = getUniqueItems(yearFilteredItems, "type");
+    const uniqueGroups = getUniqueItems(yearFilteredItems, "deliverableType");
 
     const contentWrapper = document.createElement('div');
     contentWrapper.classList.add('calendar-content-wrapper');
@@ -25,11 +34,17 @@ export async function buildCalendar(items, block, period, type) {
         contentWrapper.classList.add('quarter-view');
         contentWrapper.dataset.view = "quarter";
         lastMonthInView = 10;
+        earliestMonthInView = 11;
+        earliestYearInView = (displayYear - 1);
     } else {
         contentWrapper.dataset.view = "year";
         lastMonthInView = 11;
+        earliestMonthInView = 0;
+        earliestYearInView = displayYear;
     }
     lastDateInView = new Date(displayYear, lastMonthInView + 1, 0);
+    earliestDateInView = new Date(earliestYearInView, earliestMonthInView, 1);
+    console.log(`Earliest date in view: ${earliestDateInView}`);
 
     var groupIndex = 1;
     let groupExceedsView;
@@ -38,21 +53,42 @@ export async function buildCalendar(items, block, period, type) {
         groupExceedsView = false;
 
         // find all members of this group
-        const matchedItems = yearFilteredItems.filter(item => item.type === group);
+        const matchedItems = yearFilteredItems.filter(item => item.deliverableType === group);
 
         // find the earliest date- this is how we set the position against the calendar
         const earliestStartDate = matchedItems.reduce((earliest, currentItem) => {
-            const currentItemDate = new Date(currentItem.startDate + 'T00:00:00Z');
+            const currentItemDate = new Date(currentItem[startDateProp]);
             return currentItemDate < earliest ? currentItemDate : earliest;
-        },  new Date(matchedItems[0].startDate + 'T00:00:00Z'));
+        },  new Date(matchedItems[0][startDateProp]));
+
+        console.log(`Earliest start date: ${earliestStartDate}`)
 
         const latestEndDate = matchedItems.reduce((latest, currentItem) => {
-            const currentItemDate = new Date(currentItem.endDate + 'T00:00:00Z'); // Ensure UTC
+            const currentItemDate = new Date(currentItem[endDateProp]); // Ensure UTC
             return currentItemDate > latest ? currentItemDate : latest;
-        },  new Date(matchedItems[0].endDate + 'T00:00:00Z'));
+        },  new Date(matchedItems[0][endDateProp]));
 
-        const startMonth = (earliestStartDate.getUTCMonth() ); // getMonth returns 0-11 but this is desirable
-        const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
+        console.log(`Latest end date: ${latestEndDate}`);
+
+        let startMonth, startMonthNumber, startDay, startDayNumber;
+        startMonth = (earliestStartDate.getUTCMonth()); // getMonth returns 0-11 but this is desirable
+        startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
+
+        if (earliestStartDate < earliestDateInView) {
+            console.log("this group starts before the earliest date in view, position should be 0");
+            startMonthNumber = 0;
+            startDayNumber = 0;
+        } else {
+            console.log("start date should be in view.");
+            
+            startMonthNumber = startMonth;
+            startDayNumber = startDay;
+            console.log(`Start month number: ${startMonthNumber} || start month (via earliestStartDate): ${startMonth}`)
+        }
+
+        // can I game this a bit on quarter view?
+
+        
 
         // check when the group ends
         let endMonth, endDay;
@@ -74,11 +110,11 @@ export async function buildCalendar(items, block, period, type) {
         const endYear = latestEndDate.getUTCFullYear();
         const totalDaysInEndMonth = new Date(Date.UTC(endYear, endMonth, 0)).getUTCDate();
 
-        const percentOfStartMonth = (startDay / totalDaysInMonth);
+        const percentOfStartMonth = (startDayNumber / totalDaysInMonth);
         const percentOfEndMonth = (endDay / totalDaysInEndMonth);
         const dayMargin = (percentOfStartMonth * columnWidth);
         const endDayMargin = (percentOfEndMonth * columnWidth);
-        let startPosition = ((startMonth * columnWidth) + dayMargin).toFixed(2);
+        let startPosition = ((startMonthNumber * columnWidth) + dayMargin).toFixed(2);
         let endPosition = ((endMonth * columnWidth) + endDayMargin).toFixed(2);
         
 
@@ -91,7 +127,7 @@ export async function buildCalendar(items, block, period, type) {
         // do a little offset.
         if (endMonth > 9) endPosition = endPosition - 0.35;
         const widthOfGroup = (endPosition - startPosition);
-
+        console.log(`Start position %: ${startPosition} || End position %: ${endPosition} `)
         // calculate the duration of the group as that helps set the width of its members
         const groupDuration = Math.floor((latestEndDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
 
@@ -102,16 +138,29 @@ export async function buildCalendar(items, block, period, type) {
         matchedItems.forEach((item) => {
             itemExceedsView = false;
 
-            const itemStartDate = new Date(item.startDate + 'T00:00:00Z');
+            // todo: handle nulls gracefully
+            const itemStartDate = new Date(item[startDateProp]);
+
+
+
             // check the "real" end date and if it's beyond the current calendar view, flag it
             // somehow to show that it goes into the next increment
             // in year view, overflow is fine but in quarter view we need the scroll
-            let itemEndDate = new Date(item.endDate + 'T00:00:00Z');
+            let itemEndDate = new Date(item[endDateProp]);
             if (itemEndDate > lastDateInView) {
                 itemExceedsView = true;
             }
             const itemDuration = Math.floor((itemEndDate.getTime() - itemStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const itemDurationPct = ((itemDuration / groupDuration) * 100).toFixed(2);
+
+
+            if (itemStartDate < earliestDateInView) {
+                console.log(`starts before earliest date in view! start date: ${itemStartDate}`);
+                console.log(`Group duration: ${groupDuration}`);
+                console.log(`Item duration: ${itemDuration}`);
+            }
+
+
 
             // Calculate the difference in months and days between earliestDate and anotherDate
             let monthsDifference = (itemStartDate.getUTCFullYear() - earliestStartDate.getUTCFullYear()) * 12 + (itemStartDate.getUTCMonth() - earliestStartDate.getUTCMonth());
@@ -132,15 +181,20 @@ export async function buildCalendar(items, block, period, type) {
 
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
-                <div class="item-content"> 
-                    <div class="info">
-                        <div class="thumbnail"></div>
-                        <div class="name">${item.name}</div>
-                        <div class="item-status" data-status="${item.status}"></div>
+                <div class="item-content">
+                    <div class="content-row">
+                        <div class="info">
+                            <div class="thumbnail"></div>
+                            <div class="name" title="${item.deliverableName}">${item.deliverableName}</div>
+                            <div class="item-status" data-status="${checkBlankString(item.taskStatus)}"></div>
+                        </div>
                     </div>
-                    <div class="link">
-                        <a href="${item.link}">QA Files</a>
-                    </div>
+                    <div class="content-row bottom">
+                        ${itemStartDate ? '<div class="start-date" title="Task Start Date">' + itemStartDate.toLocaleDateString().split(',')[0] + '</div>' : ''}
+                        <div class="link">
+                            <a href="${item.reviewLink}">QA Files</a>
+                        </div>
+                    </div> 
                 </div>
             `;
 
@@ -163,7 +217,7 @@ export async function buildCalendar(items, block, period, type) {
                 <div class="left-block">
                     <img src="/icons/chevron-right.svg" class="group-expand group-controls inactive"></img>
                     <img src="/icons/chevron-right.svg" class="group-collapse group-controls"></img>
-                    <div class="group-heading">${group}</div>
+                    <div class="group-heading">${lookupType(group)}</div>
                     <div class="group-count">${matchedItems.length}</div>
                 </div>
                 <div class="right-block">
@@ -199,7 +253,7 @@ export async function buildCalendar(items, block, period, type) {
     // populate "filter" dropdown
     const filterDropdown = document.createElement('div');
     filterDropdown.classList.add('filter-dropdown-content');
-    const uniqueYears = getUniqueYears(items);
+    const uniqueYears = getUniqueYears(deliverables);
     const yearOptionLabel = document.createElement('div');
     yearOptionLabel.classList.add('filter-label');
     yearOptionLabel.textContent = 'Year';
@@ -385,7 +439,7 @@ function getUniqueYears(items) {
     const yearsSet = new Set();
   
     items.forEach(item => {
-      const year = item.startDate.split('-')[0];
+      const year = item[startDateProp].split('-')[0];
       yearsSet.add(year); 
     });
   
@@ -459,4 +513,10 @@ function refreshCalendar(period, view) {
 
     buildCalendar(deliverables, block, period, view);
     //buildCalendar(testCalendar, block, year);
+}
+
+function lookupType(rawText) {
+    const typeMatch = deliverableMapping.filter(item => item.value === rawText);
+    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawText;
+    return typeText;
 }
