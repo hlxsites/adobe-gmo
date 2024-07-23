@@ -3,7 +3,7 @@ import { executeQuery } from '../../scripts/graphql.js';
 import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray, testCalendar } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
-import { buildCalendar, newBuildCalendar } from '../../scripts/program-calendar.js';
+import { newBuildCalendar } from '../../scripts/program-calendar.js';
 
 let blockConfig;
 const queryVars = extractQueryVars();
@@ -209,7 +209,8 @@ export default async function decorate(block) {
     tableRoot.appendChild(table);
     buildStatus(program.status);
     const calendarPeriod = { 'year': new Date().getFullYear(), 'quarter': 1 }
-    newBuildCalendar(testCalendar, block, calendarPeriod, "year", await deliverableMappings);
+    newBuildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
+    //newBuildCalendar(testCalendar, block, calendarPeriod, "quarter", await deliverableMappings);
     //buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
     //buildCalendar(testCalendar, block, calendarPeriod, "year");
 }

@@ -359,7 +359,7 @@ body {
             right: 0;
             padding-bottom: 20px;
             &.quarter-view {
-                width: 200%;
+
             }
         }
         & .calendar-group {
