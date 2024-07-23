@@ -264,6 +264,7 @@ body {
         flex-direction: column;
         border-bottom: 3px solid #F4F4F4;
         position: relative;
+        min-height: 500px;
         & .header-wrapper {
             height: 24px;
             & .quarter-header {
@@ -282,14 +283,15 @@ body {
                 }
             }
         }
-        &.quarter-view {
+        &.quarter-view, &.multiyear {
             overflow-x: unset;
         }
         & .calendar-background {
             height: 100%;
-            width: 100%;
+            /*width: 100%;*/
             display: flex;
-            flex-direction: column;
+            /*flex-direction: column;*/
+            flex-direction: row;
             position: absolute;
             top: 0;
             bottom: 0;
@@ -343,6 +345,9 @@ body {
                     background-size: 1px 5px;
                 }
             }
+        }
+        & .year-wrapper {
+            /*width: 50%;*/
         }
         & .calendar-content-wrapper {
             position: relative;
