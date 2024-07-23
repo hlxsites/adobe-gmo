@@ -3,6 +3,7 @@ import { graphqlCampaignByName } from '../../scripts/graphql.js';
 import { statusMapping, productList, getMappingArray } from '../../scripts/shared-program.js';
 
 export default async function decorate(block) {
+
     block.innerHTML = `
     <div class="inputs-wrapper">
         <div class="search-wrapper">
@@ -128,8 +129,31 @@ export default async function decorate(block) {
     initializeDropdowns();
     // Attach event listeners for the dropdowns and reset filters
     attachEventListeners();
+
+    //Show or Hide Dropdowns
+    showOrHideDropdowns();
+
     decorateIcons(block);
     document.addEventListener('click', handleClickOutside);
+}
+
+
+function showOrHideDropdowns()
+{
+    const metadata=JSON.parse(document.querySelector('head meta[name="filters"]')?.getAttribute('content'));
+    console.log('metadata',metadata);
+    metadata.forEach(item => {
+        const dropdownElement = document.getElementById(item.dropdownId);
+        if (dropdownElement) {
+            const filterWrapper = dropdownElement.closest('.filter-wrapper');
+            if (item.show) {
+                filterWrapper.style.display = '';
+            } else {
+                filterWrapper.style.display = 'none';
+            }
+        }
+    });
+
 }
 
 async function initializeDropdowns() {
