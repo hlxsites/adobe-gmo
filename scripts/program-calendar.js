@@ -5,139 +5,6 @@ let deliverables, deliverableMapping;
 const startDateProp = 'deliverableProjectStartDate';
 const endDateProp = 'deliverableProjectEndDate';
 
-function getUniqueItems(items, property) {
-    return [...new Set(items.flatMap(item => item[property])
-        .filter(value => value !== null && value !== undefined)
-    )];
-}
-
-function showHideGroup(event) {
-    const arrow = event.target;
-    const group = arrow.closest('.calendar-group');
-    group.querySelector('.group-content').classList.toggle('inactive');
-    group.querySelector('.group-expand').classList.toggle('inactive');
-    group.querySelector('.group-collapse').classList.toggle('inactive');
-    group.querySelector('.group-header').classList.toggle('content-hidden')
-}
-
-function changePeriod(event) {
-    const arrow = event.target;
-    const direction = arrow.dataset.direction;
-    const wrapper = arrow.closest('.inc-dec-wrapper');
-    const yearEl = wrapper.querySelector('.current-year');
-    const contentWrapper = document.querySelector('.calendar-content-wrapper');
-    const view = contentWrapper.dataset.view;
-    const currentYear = parseInt(yearEl.dataset.year);
-    
-    let newPeriod, newYear, newQuarter;
-
-    if (view === "quarter") {
-        const currentQuarter = parseInt(yearEl.dataset.quarter);
-        newQuarter = (direction == 'right') ? (currentQuarter + 1) : (currentQuarter - 1);
-        newYear = currentYear;
-        if (newQuarter > 4) {
-            newQuarter = 1;
-            newYear = currentYear + 1;
-        }
-        if (newQuarter < 1) {
-            newQuarter = 4;
-            newYear = currentYear - 1;
-        }
-    } else {
-        newYear = (direction == 'right') ? (currentYear + 1) : (currentYear - 1);
-        newQuarter = 1;
-    }
-    newPeriod = { 'year': newYear, 'quarter': newQuarter };
-    refreshCalendar(newPeriod, view);
-}
-
-function getUniqueYears(items) {
-    const yearsSet = new Set();
-  
-    items.forEach(item => {
-      const year = item[startDateProp].split('-')[0];
-      yearsSet.add(year); 
-    });
-  
-    const years = Array.from(yearsSet); 
-    years.sort((a, b) => parseInt(a) - parseInt(b));
-    return years;
-}
-
-// handle clicking on the year button
-function toggleDropdown(element) {
-    const dropdown = element.closest('.filter-dropdown-wrapper');
-    const iconChevronDown = dropdown.querySelector('.icon-chevronDown');
-    const iconChevronUp = dropdown.querySelector('.icon-chevronUp');
-
-    iconChevronDown.classList.toggle('inactive');
-    iconChevronUp.classList.toggle('inactive');
-    dropdown.classList.toggle('active');
-}
-
-// handle clicks outside the dropdown
-function dismissDropdown(event) {
-    const isInsideDropdown = event ? event.target.closest('.filter-dropdown-wrapper') : false;
-    if (!isInsideDropdown) {
-        const dropdown = document.querySelector('.filter-dropdown-wrapper');
-        dropdown.querySelector('.icon-chevronDown').classList.remove('inactive');
-        dropdown.querySelector('.icon-chevronUp').classList.add('inactive');
-        dropdown.classList.remove('active');
-    }
-}
-
-function filterDropdownSelection(event) {
-    const optionEl = event.target;
-    let year, quarter, view;
-    if (("period") in optionEl.dataset) {
-        // quarter view
-        quarter = optionEl.dataset.period;
-        year = document.querySelector('.inc-dec-wrapper .current-year').dataset.year;
-        view = "quarter";
-    } else {
-        // year view
-        view = "year";
-        year = optionEl.dataset.year;
-        quarter = 1;
-    }
-
-    const period = { 'year': year, 'quarter': quarter }
-    refreshCalendar(period, view);
-    dismissDropdown();
-}
-
-// retrieve the year via js when refreshing in quarter view
-function refreshCalendar(period, view) {
-    const block = document.querySelector('.gmo-program-details.block');
-    const yearEl = block.querySelector('.inc-dec-wrapper .current-year');
-    yearEl.dataset.year = period.year;
-    yearEl.dataset.quarter = period.quarter;
-
-    if (view === "year") {
-        yearEl.textContent = period.year;
-    } else {
-        yearEl.textContent = `Q${period.quarter} ${period.year}`;
-    }
-
-
-    // trick to remove event listeners
-    block.querySelector('.filter-dropdown-wrapper').outerHTML += '';
-    block.querySelector('.right-controls .today-button').outerHTML += '';
-
-    block.querySelector('.calendar-wrapper').remove();
-    block.querySelector('.filter-dropdown-content').remove();
-
-    //buildCalendar(deliverables, block, period, view);
-    //buildCalendar(testCalendar, block, year);
-    newBuildCalendar(deliverables, block, period, view);
-}
-
-function lookupType(rawText) {
-    const typeMatch = deliverableMapping.filter(item => item.value === rawText);
-    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawText;
-    return typeText;
-}
-
 export async function newBuildCalendar(dataObj, block, period, type, mappingArray) {
     //if (!deliverables) deliverables = dataObj;
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
@@ -373,6 +240,140 @@ export async function newBuildCalendar(dataObj, block, period, type, mappingArra
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
 }
 
+function getUniqueItems(items, property) {
+    return [...new Set(items.flatMap(item => item[property])
+        .filter(value => value !== null && value !== undefined)
+    )];
+}
+
+function showHideGroup(event) {
+    const arrow = event.target;
+    const group = arrow.closest('.calendar-group');
+    group.querySelector('.group-content').classList.toggle('inactive');
+    group.querySelector('.group-expand').classList.toggle('inactive');
+    group.querySelector('.group-collapse').classList.toggle('inactive');
+    group.querySelector('.group-header').classList.toggle('content-hidden')
+}
+
+function changePeriod(event) {
+    const arrow = event.target;
+    const direction = arrow.dataset.direction;
+    const wrapper = arrow.closest('.inc-dec-wrapper');
+    const yearEl = wrapper.querySelector('.current-year');
+    const contentWrapper = document.querySelector('.calendar-content-wrapper');
+    const view = contentWrapper.dataset.view;
+    const currentYear = parseInt(yearEl.dataset.year);
+    
+    let newPeriod, newYear, newQuarter;
+
+    if (view === "quarter") {
+        const currentQuarter = parseInt(yearEl.dataset.quarter);
+        newQuarter = (direction == 'right') ? (currentQuarter + 1) : (currentQuarter - 1);
+        newYear = currentYear;
+        if (newQuarter > 4) {
+            newQuarter = 1;
+            newYear = currentYear + 1;
+        }
+        if (newQuarter < 1) {
+            newQuarter = 4;
+            newYear = currentYear - 1;
+        }
+    } else {
+        newYear = (direction == 'right') ? (currentYear + 1) : (currentYear - 1);
+        newQuarter = 1;
+    }
+    newPeriod = { 'year': newYear, 'quarter': newQuarter };
+    refreshCalendar(newPeriod, view);
+}
+
+function getUniqueYears(items) {
+    const yearsSet = new Set();
+  
+    items.forEach(item => {
+      const year = item[startDateProp].split('-')[0];
+      yearsSet.add(year); 
+    });
+  
+    const years = Array.from(yearsSet); 
+    years.sort((a, b) => parseInt(a) - parseInt(b));
+    return years;
+}
+
+// handle clicking on the year button
+function toggleDropdown(element) {
+    const dropdown = element.closest('.filter-dropdown-wrapper');
+    const iconChevronDown = dropdown.querySelector('.icon-chevronDown');
+    const iconChevronUp = dropdown.querySelector('.icon-chevronUp');
+
+    iconChevronDown.classList.toggle('inactive');
+    iconChevronUp.classList.toggle('inactive');
+    dropdown.classList.toggle('active');
+}
+
+// handle clicks outside the dropdown
+function dismissDropdown(event) {
+    const isInsideDropdown = event ? event.target.closest('.filter-dropdown-wrapper') : false;
+    if (!isInsideDropdown) {
+        const dropdown = document.querySelector('.filter-dropdown-wrapper');
+        dropdown.querySelector('.icon-chevronDown').classList.remove('inactive');
+        dropdown.querySelector('.icon-chevronUp').classList.add('inactive');
+        dropdown.classList.remove('active');
+    }
+}
+
+function filterDropdownSelection(event) {
+    const optionEl = event.target;
+    let year, quarter, view;
+    if (("period") in optionEl.dataset) {
+        // quarter view
+        quarter = optionEl.dataset.period;
+        year = document.querySelector('.inc-dec-wrapper .current-year').dataset.year;
+        view = "quarter";
+    } else {
+        // year view
+        view = "year";
+        year = optionEl.dataset.year;
+        quarter = 1;
+    }
+
+    const period = { 'year': year, 'quarter': quarter }
+    refreshCalendar(period, view);
+    dismissDropdown();
+}
+
+// retrieve the year via js when refreshing in quarter view
+function refreshCalendar(period, view) {
+    const block = document.querySelector('.gmo-program-details.block');
+    const yearEl = block.querySelector('.inc-dec-wrapper .current-year');
+    yearEl.dataset.year = period.year;
+    yearEl.dataset.quarter = period.quarter;
+
+    if (view === "year") {
+        yearEl.textContent = period.year;
+    } else {
+        yearEl.textContent = `Q${period.quarter} ${period.year}`;
+    }
+
+
+    // trick to remove event listeners
+    block.querySelector('.filter-dropdown-wrapper').outerHTML += '';
+    block.querySelector('.right-controls .today-button').outerHTML += '';
+
+    block.querySelector('.calendar-wrapper').remove();
+    block.querySelector('.filter-dropdown-content').remove();
+
+    //buildCalendar(deliverables, block, period, view);
+    //buildCalendar(testCalendar, block, year);
+    newBuildCalendar(deliverables, block, period, view);
+}
+
+function lookupType(rawText) {
+    const typeMatch = deliverableMapping.filter(item => item.value === rawText);
+    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawText;
+    return typeText;
+}
+
+
 function getTimeBounds(items, whichEnd, property) {
     const desiredDate = items.reduce((dateCompare, currentItem) => {
         const currentItemDate = new Date(currentItem[property]); // Ensure UTC
@@ -509,6 +510,7 @@ function scrollOnInit(element, scrollPct) {
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
+                resizeGroups();
                 scrollToPosition();
                 observer.disconnect(); // Stop observing after scrolling
             }
@@ -517,4 +519,19 @@ function scrollOnInit(element, scrollPct) {
 
     // Start observing the element
     observer.observe(calendarWrapper);
+}
+
+function getHorizontalOverflow(element) {
+    return element.scrollWidth - element.clientWidth;
+}
+
+function resizeGroups() {
+    const groups = document.querySelectorAll('.calendar-group');
+    groups.forEach((group) => {
+        const overflow = getHorizontalOverflow(group);
+        if (overflow) {
+            group.querySelector('.group-header').style.paddingRight = overflow + 'px';
+            group.style.paddingRight = overflow + 'px';
+        }
+    })
 }
