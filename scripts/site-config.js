@@ -302,6 +302,31 @@ export async function getQuickLinkConfig() {
 }
 
 /**
+ *
+ * @returns {Array<ProgramListFieldsConfig>}
+ */
+export async function getProgramListFieldsConfig() {
+  const result = [];
+  const response = await getConfig('site-config.json');
+
+  console.log('test',response);
+
+  for (const row of response['program-list']?.data || []) {
+
+  console.log("xxx");
+      result.push({
+        property: row.property,
+        label: row.label,
+        valueLookup: row.valueLookup,
+        endPointField: row.endPointField,
+        sortable : row.sortable,
+        fieldType : row.fieldType
+      });
+  }
+  return result;
+}
+
+/**
  * Gets base path for config files
  * If it is a /drafts/{branch} path, it will return /drafts/{branch}
  * Otherwise, it will return the code base path.
