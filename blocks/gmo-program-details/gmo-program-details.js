@@ -215,7 +215,7 @@ export default async function decorate(block) {
     }, 300));
 
     enableBackBtn(block, blockConfig);
-
+    
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
