@@ -278,7 +278,9 @@ select {
     flex-direction: column;
     justify-content: center;
 }
-
+.campaign-name-label {
+    font-weight: bold;
+}
 .campaign-name-label, .campaign-name {
     position: relative;
     display: inline-block;
