@@ -309,18 +309,18 @@ export async function getProgramListFieldsConfig() {
   const result = [];
   const response = await getConfig('site-config.json');
 
-  console.log('test',response);
-
   for (const row of response['program-list']?.data || []) {
-
-  console.log("xxx");
       result.push({
         property: row.property,
         label: row.label,
         valueLookup: row.valueLookup,
         endPointField: row.endPointField,
+        endPointField2: row.endPointField2,
         sortable : row.sortable,
-        fieldType : row.fieldType
+        fieldType : row.fieldType,
+        hasIcon : row.hasIcon,
+        iconEndPointField1 : row.iconEndPointField1,
+        iconEndPointField2 : row.iconEndPointField2
       });
   }
   return result;

@@ -63,34 +63,57 @@ body {
     display: flex;
     font-size: 14px;
     margin-bottom: 20px;
-    height: 80px;
+    align-items: center; /* Ensures vertical alignment */
 }
+
 .campaign-info-wrapper {
     display: flex;
-    font-size: 14px;
+    align-items: center; /* Ensures vertical alignment */
 }
+
 .campaign-icon {
-    width: 80px;
-    height: 80px;
-    margin-right: 14px;
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
     background: #e2e2e2;
-    border-radius: 18px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
+
 .campaign-icon img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 18px;
 }
+
 .campaign-name-wrapper {
-    width: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 10px; /* Adjust margin as needed */
 }
+
+.campaign-name-label, .campaign-name {
+    display: block;
+    margin-bottom: 4px; /* Adjust margin as needed */
+}
+/*
 .campaign-name-label {
     font-weight: bold;
 }
 .campaign-name {
     color: #959595;
 }
+*/
+
+.campaign-name-label:hover .tooltip, .campaign-name:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
 .campaign-description-wrapper {
     color: #505050;
 }

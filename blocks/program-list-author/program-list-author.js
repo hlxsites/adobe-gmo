@@ -85,6 +85,7 @@ function buildListHeaders(headerConfig) {
     const listHeaders = document.createElement('div');
     listHeaders.classList.add('list-header');
     headerConfig.forEach((column, index) => {
+
         const columnWrapper = document.createElement('div');
         columnWrapper.classList.add('column-header-wrapper', `column-${index + 1}`);
         const columnEl = document.createElement('div');
@@ -93,6 +94,8 @@ function buildListHeaders(headerConfig) {
         columnEl.dataset.attribute = column.property;
         columnEl.dataset.name = column.label;
         columnEl.textContent = column.label;
+
+        columnWrapper.appendChild(columnEl);
 
         if (column.sortable) {
             const columnSort = document.createElement('div');
@@ -120,6 +123,7 @@ function buildListHeaders(headerConfig) {
     return listHeaders;
 }
 
+
 async function buildCampaignList(campaigns, headerConfig, numPerPage) {
     const listWrapper = document.createElement('div');
     listWrapper.classList.add('list-items');
@@ -133,7 +137,9 @@ async function buildCampaignList(campaigns, headerConfig, numPerPage) {
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
 
-        headerConfig.forEach(async column => {
+        const columnsMap = new Map();
+
+        for (const column of headerConfig) {
             const campaignColumn = document.createElement('div');
             campaignColumn.classList.add(`column-${headerConfig.indexOf(column) + 1}`, 'vertical-center');
             campaignColumn.dataset.property = column.property;
@@ -163,17 +169,82 @@ async function buildCampaignList(campaigns, headerConfig, numPerPage) {
                 case 'geo':
                     campaignColumn.textContent = formatGeos(value);
                     break;
+                case 'campaign':
+                    const campaignInfoWrapper = document.createElement('div');
+                    campaignInfoWrapper.classList.add('campaign-info-wrapper');
+
+                    const campaignIconLink = document.createElement('a');
+                    let campaignDetailsLink = host + `/${detailsPage}?programName=${value}&`;
+                    let programID = await getValueFromEndpoint(campaign.node, column.endPointField2);
+                    let campaignName = await getValueFromEndpoint(campaign.node, column.iconEndPointField2);
+                    campaignDetailsLink += `programID=${programID}`;
+                    campaignIconLink.href = campaignDetailsLink;
+
+                    const campaignIcon = document.createElement('div');
+                    campaignIcon.classList.add('campaign-icon');
+                    campaignIcon.dataset.programname = getValueFromNode(campaign.node, column.iconEndPointField1);
+                    campaignIcon.dataset.campaignname = getValueFromNode(campaign.node, column.iconEndPointField2);
+                    campaignIcon.dataset.programid = getValueFromNode(campaign.node, column.endPointField2);
+
+                    await addThumbnail(campaignIcon, value, campaignName);
+                    campaignIconLink.appendChild(campaignIcon);
+
+                    const campaignNameWrapper = document.createElement('div');
+                    campaignNameWrapper.classList.add('campaign-name-wrapper');
+
+                    const campaignNameLabel = document.createElement('div');
+                    campaignNameLabel.classList.add('campaign-name-label');
+                    campaignNameLabel.dataset.property = 'campaign';
+                    campaignNameLabel.innerHTML = `${checkBlankString(value)}
+                        <span class="tooltip">Program Name</span>`;
+
+                    const campaignNameText = document.createElement('div');
+                    campaignNameText.classList.add('campaign-name');
+                    campaignNameText.innerHTML = `${checkBlankString(campaignName, 'Marketing Moment Not Available')}
+                        <span class="tooltip">Marketing Moment</span>`;
+
+                    campaignNameWrapper.appendChild(campaignNameLabel);
+                    campaignNameWrapper.appendChild(campaignNameText);
+
+                    // Add click event to the campaign name label and text
+                    campaignNameLabel.addEventListener('click', () => {
+                        window.location.href = campaignDetailsLink;
+                    });
+                    campaignNameText.addEventListener('click', () => {
+                        window.location.href = campaignDetailsLink;
+                    });
+
+                    campaignInfoWrapper.appendChild(campaignIconLink);
+                    campaignInfoWrapper.appendChild(campaignNameWrapper);
+                    campaignColumn.appendChild(campaignInfoWrapper);
+                    break;
                 default:
                     campaignColumn.textContent = checkBlankString(value);
             }
 
-            campaignRow.appendChild(campaignColumn);
+            columnsMap.set(column.property, campaignColumn);
+        }
+
+        // Append columns to the row in the order defined by the headerConfig
+        headerConfig.forEach(column => {
+            campaignRow.appendChild(columnsMap.get(column.property));
         });
 
         listWrapper.appendChild(campaignRow);
     }
     return listWrapper;
 }
+
+async function addThumbnail(parentElement, programName, campaignName) {
+    const response = await searchAsset(programName, campaignName);
+    if (response?.imageUrl && response?.imageAltText) {
+        const iconImage = document.createElement('img');
+        iconImage.src = response.imageUrl;
+        iconImage.alt = response.imageAltText;
+        parentElement.appendChild(iconImage);
+    }
+}
+
 
 async function buildProduct(product) {
     const productParent = document.createElement('div');
