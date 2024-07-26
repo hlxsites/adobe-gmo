@@ -93,6 +93,7 @@ export async function newBuildCalendar(dataObj, block, period, type, mappingArra
         matchedItems.forEach((item) => {
             const itemStartDate = new Date(item[startDateProp]);
             const itemEndDate = new Date(item[endDateProp]);
+            const itemEndDateStr = itemEndDate ? itemEndDate.toLocaleDateString().split(',')[0] : null;
             const itemDuration = Math.floor((itemEndDate.getTime() - itemStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const itemDurationPct = ((itemDuration / groupDuration) * 100).toFixed(2);
 
@@ -114,7 +115,7 @@ export async function newBuildCalendar(dataObj, block, period, type, mappingArra
                         </div>
                     </div>
                     <div class="content-row bottom">
-                        ${itemStartDate ? '<div class="start-date" title="Task Start Date">' + itemStartDate.toLocaleDateString().split(',')[0] + '</div>' : ''}
+                        ${itemEndDateStr ? '<div class="start-date" title="Task End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
                         <div class="link">
                             <a href="${item.reviewLink}">QA Files</a>
                         </div>
