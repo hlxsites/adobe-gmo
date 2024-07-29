@@ -254,12 +254,6 @@ export default async function decorate(block) {
     });
 
     decorateIcons(block);
-    const table = await buildTable(await deliverables).then(async (rows) => {
-        return rows;
-    })
-    const tableRoot = block.querySelector('.table-content');
-    tableRoot.appendChild(table);
-    buildStatus(program.status);
     const calendarPeriod = { 'year': new Date().getFullYear(), 'quarter': 1 }
     buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
     //newBuildCalendar(testCalendar, block, calendarPeriod, "quarter", await deliverableMappings);
