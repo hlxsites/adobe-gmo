@@ -1,5 +1,6 @@
 import { testCalendar } from '../../scripts/shared-program.js';
 import { checkBlankString } from './shared-program.js';
+import { searchAsset } from '../../scripts/assets.js';
 
 let deliverables, deliverableMapping;
 const startDateProp = 'deliverableProjectStartDate';
@@ -40,7 +41,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
     // set up the content wrapper
     const contentWrapper = document.createElement('div');
     contentWrapper.classList.add('calendar-content-wrapper');
-    if (type === "quarter") { 
+    if (type === "quarter") {
         contentWrapper.classList.add('quarter-view');
         contentWrapper.dataset.view = "quarter";
     } else {
@@ -81,7 +82,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
             startPosition = parseFloat(startPosition) + parseFloat(columnWidth);
             endPosition = parseFloat(endPosition) + parseFloat(columnWidth);
         }
-            
+
         if (endMonth > 9) endPosition = endPosition - 0.35;
         const widthOfGroup = (endPosition - startPosition); // width of group = start position + (day duration)
         // calculate the duration of the group as that helps set the width of its members
@@ -90,7 +91,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
 
-        matchedItems.forEach((item) => {
+        matchedItems.forEach(async (item) => {
             const itemStartDate = new Date(item[startDateProp]);
             const itemEndDate = new Date(item[endDateProp]);
             const itemEndDateStr = itemEndDate ? itemEndDate.toLocaleDateString().split(',')[0] : null;
@@ -104,12 +105,24 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
 
+            // Fetch the thumbnail using the searchAsset function
+            let imageObject = { imageUrl: '', imageAltText: '' };
+            try {
+                imageObject = await searchAsset(item.programName, item.campaignName);
+            } catch (error) {
+                console.error("Failed to load thumbnail image:", error);
+            }
+
+            const thumbnail = imageObject.imageUrl ? `<img src="${imageObject.imageUrl}" alt="${imageObject.imageAltText}" loading="lazy">` : '';
+            //Todo remove logging
+            console.log('thumbnail',thumbnail);
+
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
                 <div class="item-content">
                     <div class="content-row">
                         <div class="info">
-                            <div class="thumbnail"></div>
+                            <div class="thumbnail">${thumbnail}</div>
                             <div class="name" title="${item.deliverableName}">${item.deliverableName}</div>
                             <div class="item-status" data-status="${checkBlankString(item.taskStatus)}"></div>
                         </div>
@@ -119,15 +132,15 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
                         <div class="link">
                             <a href="${item.reviewLink}">QA Files</a>
                         </div>
-                    </div> 
+                    </div>
                 </div>
             `;
-            
+
             itemEl.style.width = itemDurationPct + '%';
             itemWrapper.appendChild(itemEl);
 
         });
-        
+
         const groupEl = document.createElement('div');
         groupEl.classList.add('calendar-group', `color${groupIndex}`);
         groupEl.style.marginLeft = startPosition + '%';
@@ -198,11 +211,11 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         quarterOption.addEventListener('click', filterDropdownSelection);
         filterDropdown.appendChild(quarterOption);
     })
-    
+
     const filterDropdownWrapper = block.querySelector('.filter-dropdown-wrapper');
     filterDropdownWrapper.appendChild(filterDropdown);
     filterDropdownWrapper.querySelector('.filter-dropdown-button').addEventListener('click', (event) => toggleDropdown(event.target));
-    
+
     // scroll to the right
     const calendarWrapper = document.querySelector('.calendar-wrapper')
     const yearDiff = displayYear - viewStartYear;
@@ -222,7 +235,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
 
     if (displayYear == currentYear) {
         const currentMonth = currentDate.getMonth() + 1;
-        
+
         // calculate the percentage completion of the current month for the indicator offset
         const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
         const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
@@ -236,7 +249,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
         monthEl.appendChild(lineEl);
     }
-    
+
     // close dropdown listener for clicks outside open dropdown
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
 }
@@ -264,7 +277,7 @@ function changePeriod(event) {
     const contentWrapper = document.querySelector('.calendar-content-wrapper');
     const view = contentWrapper.dataset.view;
     const currentYear = parseInt(yearEl.dataset.year);
-    
+
     let newPeriod, newYear, newQuarter;
 
     if (view === "quarter") {
@@ -287,18 +300,38 @@ function changePeriod(event) {
     refreshCalendar(newPeriod, view);
 }
 
+
 function getUniqueYears(items) {
     const yearsSet = new Set();
-  
+
     items.forEach(item => {
-      const year = item[startDateProp].split('-')[0];
-      yearsSet.add(year); 
+        const startDate = item[startDateProp];
+        if (startDate) {
+            const year = startDate.split('-')[0];
+            yearsSet.add(year);
+        }
     });
-  
-    const years = Array.from(yearsSet); 
+
+    const years = Array.from(yearsSet);
     years.sort((a, b) => parseInt(a) - parseInt(b));
     return years;
 }
+
+
+/* MD version with split error
+function getUniqueYears(items) {
+    const yearsSet = new Set();
+
+    items.forEach(item => {
+      const year = item[startDateProp].split('-')[0];
+      yearsSet.add(year);
+    });
+
+    const years = Array.from(yearsSet);
+    years.sort((a, b) => parseInt(a) - parseInt(b));
+    return years;
+}
+*/
 
 // handle clicking on the year button
 function toggleDropdown(element) {
