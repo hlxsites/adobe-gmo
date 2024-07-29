@@ -1,8 +1,9 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
+import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray, testCalendar } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
+import { buildCalendar } from '../../scripts/program-calendar.js';
 
 let blockConfig;
 const queryVars = extractQueryVars();
@@ -93,7 +94,7 @@ export default async function decorate(block) {
         <div class="tab-wrapper">
             <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
             <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
-            <div id="tab3toggle" data-target="tab3" class="tabBtn inactive">Calendar</div>
+            <div id="tab3toggle" data-target="tab3" class="tabBtn">Calendar</div>
         </div>
         <div id="tab1" class="two-column overview tab">
             <div class="overview-wrapper">
@@ -177,6 +178,32 @@ export default async function decorate(block) {
                 </div>
             </div>
         </div>
+        <div id="tab3" class="calendar tab inactive">
+            <div class="control-wrapper">
+                <div class="inc-dec-wrapper">
+                    <div class="year-switch">
+                        <div id="dec-year" class="year-toggle">
+                            <img class="left" data-direction="left" src="/icons/chevron-right.svg"></img>
+                        </div>
+                        <div id="inc-year" class="year-toggle">
+                            <img class="right" data-direction="right" src="/icons/chevron-right.svg"></img>
+                        </div>
+                    </div>
+                    <div class="current-year" data-quarter="1" data-year="2024">2024</div>
+                </div>
+                <div class="right-controls">
+                    <div class="today-button">Today</div>
+                    <div class="filter-dropdown-wrapper">
+                        <div class="filter-dropdown-button">
+                            <div class="label">Filter</div>
+                            <span class="icon icon-chevronDown"></span>
+                            <span class="icon icon-chevronUp inactive"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     `;
 
     // Wait for deliverables data
@@ -227,7 +254,11 @@ export default async function decorate(block) {
     });
 
     decorateIcons(block);
-
+    const calendarPeriod = { 'year': new Date().getFullYear(), 'quarter': 1 }
+    buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
+    //newBuildCalendar(testCalendar, block, calendarPeriod, "quarter", await deliverableMappings);
+    //buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
+    //buildCalendar(testCalendar, block, calendarPeriod, "year");
 }
 
 function enableBackBtn(block, blockConfig) {
