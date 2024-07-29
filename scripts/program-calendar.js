@@ -5,7 +5,7 @@ let deliverables, deliverableMapping;
 const startDateProp = 'deliverableProjectStartDate';
 const endDateProp = 'deliverableProjectEndDate';
 
-export async function newBuildCalendar(dataObj, block, period, type, mappingArray) {
+export async function buildCalendar(dataObj, block, period, type, mappingArray) {
     //if (!deliverables) deliverables = dataObj;
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
     if (!deliverableMapping) deliverableMapping = await mappingArray;
@@ -365,7 +365,7 @@ function refreshCalendar(period, view) {
 
     //buildCalendar(deliverables, block, period, view);
     //buildCalendar(testCalendar, block, year);
-    newBuildCalendar(deliverables, block, period, view);
+    buildCalendar(deliverables, block, period, view);
 }
 
 function lookupType(rawText) {

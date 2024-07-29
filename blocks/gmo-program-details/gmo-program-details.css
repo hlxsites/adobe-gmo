@@ -346,9 +346,6 @@ body {
                 }
             }
         }
-        & .year-wrapper {
-            /*width: 50%;*/
-        }
         & .calendar-content-wrapper {
             position: relative;
             padding-top: 65px;
@@ -358,9 +355,6 @@ body {
             left: 0;
             right: 0;
             padding-bottom: 20px;
-            &.quarter-view {
-
-            }
         }
         & .calendar-group {
             width: 550px;
