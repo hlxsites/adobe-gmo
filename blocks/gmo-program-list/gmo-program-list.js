@@ -17,7 +17,7 @@ const headerConfig = [
         'sortable': false
     },
     {
-        'name': 'Launch Date',
+        'name': 'Proposed Launch Date',
         'attribute': 'launch',
         'sortable': true,
         'type': 'date'
