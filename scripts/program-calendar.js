@@ -12,6 +12,8 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
     const displayYear = period.year;
     const displayQuarter = period.quarter;
     const columnWidth = 8.315;
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
 
     // get start of the view
     const viewStart = getTimeBounds(deliverables, "start", startDateProp);
@@ -155,15 +157,6 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
     });
 
     calendarEl.appendChild(contentWrapper);
-    block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
-        control.removeEventListener('click', changePeriod);
-        control.addEventListener('click', changePeriod);
-    });
-    block.querySelector('.right-controls .today-button').addEventListener('click', () => {
-        refreshCalendar({ 'year': new Date().getFullYear(), 'quarter': 1 }, "year");
-    })
-
-
     block.querySelector('.calendar.tab').appendChild(calendarEl);
 
     // populate "filter" dropdown
@@ -205,40 +198,42 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
     
     // scroll to the right
     const calendarWrapper = document.querySelector('.calendar-wrapper')
-    const yearDiff = displayYear - viewStartYear;
-
-    const yearWidthOffsetPct = (((yearDiff / years.length)) * 100);
-    let scrollPct;
-    if (type === "quarter") {
-        scrollPct = ((yearWidthOffsetPct) + ((displayQuarter - 1) * ((1 / years.length) / 4)) * 100).toFixed(2)
-    } else {
-        scrollPct = (yearWidthOffsetPct).toFixed(2);
-    }
+    const scrollPct = calculateScroll(type, viewStartYear, displayYear, displayQuarter, years.length);
     document.addEventListener('DOMContentLoaded', scrollOnInit(calendarWrapper, scrollPct));
 
-    // show the current month
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-
-    if (displayYear == currentYear) {
-        const currentMonth = currentDate.getMonth() + 1;
-        
-        // calculate the percentage completion of the current month for the indicator offset
-        const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
-        const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
-
-        const monthEl = block.querySelector(`.month[data-num='${currentMonth}']`);
-        monthEl.classList.add('current');
-        const lineEl = document.createElement('div');
-        lineEl.classList.add('calendar-indicator');
-
-        // use direct style for offset
-        lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
-        monthEl.appendChild(lineEl);
-    }
+    // indicator that shows current day/month
+    const currentMonth = currentDate.getMonth() + 1;
+    // calculate the percentage completion of the current month for the indicator offset
+    const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
+    const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
+    const monthEl = block.querySelector(`.month-wrapper[data-year='${currentYear}'] .month[data-num='${currentMonth}']`);
+    monthEl.classList.add('current');
+    const lineEl = document.createElement('div');
+    lineEl.classList.add('calendar-indicator');
+    // use direct style for offset
+    lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
+    monthEl.appendChild(lineEl);
     
     // close dropdown listener for clicks outside open dropdown
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
+    block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
+        control.removeEventListener('click', changePeriod);
+        control.addEventListener('click', changePeriod);
+    });
+    block.querySelector('.right-controls .today-button').addEventListener('click', () => {
+        const calendarWrapper = document.querySelector('.calendar-wrapper')
+        // determine scroll pct for years. always use type = year because "today" doesn't care about quarters.
+        const yearScrollPct = calculateScroll("year", viewStartYear, currentYear, displayQuarter, years.length);
+        // determine how far through the current year we are
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        const dateDiff = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+        const dayPct = (((dateDiff) * ((1 / years.length) / 365)) * 100);
+        // get total scroll percent by adding year + day scroll pct
+        const totalScroll = (parseFloat(yearScrollPct) + parseFloat(dayPct)).toFixed(2);
+        // scroll to position
+        scrollToPosition(calendarWrapper, totalScroll);
+    });
 }
 
 function getUniqueItems(items, property) {
@@ -496,8 +491,9 @@ function newBuildQuarterCal(years) {
 }
 
 function scrollOnInit(element, scrollPct) {
-    const calendarWrapper = element;
+    //const calendarWrapper = element;
     // Function to scroll to a specific position
+    /*
     const scrollToPosition = () => {
         const maxScrollLeft = calendarWrapper.scrollWidth;
         const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
@@ -506,20 +502,21 @@ function scrollOnInit(element, scrollPct) {
             behavior: 'smooth' // Optional: for smooth scrolling
         });
     };
+    */
 
     // Observer to detect when the element becomes visible
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 resizeGroups();
-                scrollToPosition();
+                scrollToPosition(element, scrollPct);
                 observer.disconnect(); // Stop observing after scrolling
             }
         });
     });
 
     // Start observing the element
-    observer.observe(calendarWrapper);
+    observer.observe(element);
 }
 
 function getHorizontalOverflow(element) {
@@ -535,4 +532,33 @@ function resizeGroups() {
             group.style.paddingRight = overflow + 'px';
         }
     })
+}
+
+function handleTodayBtn(type, viewStartYear, displayYear, displayQuarter, numYears) {
+
+    // determine scroll pct
+    const scrollPct = calculateScroll(type, viewStartYear, displayYear, displayQuarter, numYears);
+    // scroll to position
+    scrollToPosition(calendarWrapper, scrollPct);
+}
+
+function scrollToPosition(element, scrollPct) {
+    //const calendarWrapper = element;
+    const maxScrollLeft = element.scrollWidth;
+    const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
+    element.scrollTo({
+        left: scrollAmt, // Replace with desired position
+        behavior: 'smooth' // Optional: for smooth scrolling
+    });
+}
+
+function calculateScroll(type, viewStartYear, displayYear, displayQuarter, numYears) {
+    const yearDiff = displayYear - viewStartYear;
+    const yearWidthOffsetPct = (((yearDiff / numYears)) * 100);
+
+    if (type === "quarter") {
+        return ((yearWidthOffsetPct) + ((displayQuarter - 1) * ((1 / numYears) / 4)) * 100).toFixed(2);
+    } else {
+        return (yearWidthOffsetPct).toFixed(2);
+    }
 }
