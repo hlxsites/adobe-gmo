@@ -514,6 +514,10 @@ header nav .nav-bottom {
   width: 100%;
 }
 
+header.hide-navigation-tabs nav .nav-bottom {
+  display: none;
+}
+
 header nav { 
   display: grid;
   grid-template-areas: 
@@ -524,6 +528,12 @@ header nav {
   background-color: var(--header-background-color);
   border-bottom: 1px solid rgba(233 233 233 / 100%);
   box-shadow: 0 0 4px rgba(233 233 233 / 100%);
+}
+
+header.hide-navigation-tabs nav {
+  grid-template-areas: 
+    "nav-top";
+  grid-template-rows: calc(var(--nav-height) - var(--header-banner-height));
 }
 
 .contenthub header nav {

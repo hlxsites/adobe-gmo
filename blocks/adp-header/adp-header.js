@@ -106,14 +106,14 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
  */
 export default async function decorate(block) {
   block.textContent = '';
-  
+  const logoUrl = document.querySelector('head meta[name="logo-link"]')?.getAttribute('content');
   // decorate nav DOM
   const nav = document.createElement('nav');
   nav.id = 'nav';
   nav.innerHTML = `
   <div class="nav-top">
     <div class="nav-brand">
-      <a class="adp-logo" href="${getBaseConfigPath()}/"></a>
+      <a class="adp-logo" href="${logoUrl ?? getBaseConfigPath()}/"></a>
       <div></div>
     </div>
     <div class="nav-sections">
@@ -224,7 +224,7 @@ export default async function decorate(block) {
   }
 
   if (await getUserProfile() !== null) {
-    document.querySelector('.adp-logo').href = getBaseConfigPath() + '/assets';
+    document.querySelector('.adp-logo').href = logoUrl ?? (getBaseConfigPath() + '/assets');
     loadSearchField(nav);
     if (!window.unifiedShellRuntime) {
       await createUserInfo(nav);

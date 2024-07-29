@@ -126,6 +126,8 @@ export default async function decorate(block) {
     });
 
     initializeDropdowns();
+    // Attach event listeners for the dropdowns and reset filters
+    attachEventListeners();
     decorateIcons(block);
     document.addEventListener('click', handleClickOutside);
 }
@@ -171,6 +173,17 @@ function attachEventListeners() {
 
 function populateDropdown(response, dropdownId, type) {
     const options = response.data?.jsonByPath ? response.data.jsonByPath.item.json.options : response;
+    //Sort the options alphabetically
+    options.sort((a, b) => {
+        if (a.text < b.text) {
+            return -1;
+        }
+        if (a.text > b.text) {
+            return 1;
+        }
+        return 0;
+    });
+
     let dropdownContent = document.getElementById(dropdownId);
     dropdownContent.innerHTML = '';
     options.forEach((option, index) => {

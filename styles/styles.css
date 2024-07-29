@@ -171,6 +171,10 @@ header.hidden {
   display: none;
 }
 
+header.hide-navigation-tabs{
+  height: 30px;
+}
+
 h1,
 h2,
 h3,

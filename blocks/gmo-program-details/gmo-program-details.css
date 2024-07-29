@@ -1,9 +1,11 @@
 :root {
     border-bottom: none;
 }
+
 body {
     background-color: rgb(247, 246, 246);
 }
+
 .back-button {
     margin-top: 20px;
     background-color: #FFFFFF;
@@ -26,6 +28,7 @@ body {
         font-weight: bold;
     }
 }
+
 .gmo-program-details.block {
     & .h1 {
         font: normal normal bold 18px/27px Adobe Clean;
@@ -99,6 +102,51 @@ body {
     }
 }
 
+.header-row3 .icon-release-tier {
+    width: 16px;
+    height: 16px;
+    background-image: url('/icons/launch.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 8px;
+    margin-left: 16px;
+}
+
+.header-row3 .icon-categories {
+    width: 16px;
+    height: 16px;
+    background-image: url('/icons/folderOpenOutline.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 8px;
+    margin-left: 16px;
+}
+
+.header-row3 .release-tier {
+    font: normal normal normal 14px/21px Adobe Clean;
+    margin-left: 8px;
+}
+
+.header-row3 .categories {
+    font: normal normal normal 14px/21px Adobe Clean;
+    margin-left: 8px;
+}
+
+
+.details-header-wrapper .header-row3 {
+    display: flex;
+    align-items: center;
+}
+
+.details-header-wrapper .header-row3 .icon-calendar {
+    margin-right: 10px;
+}
+
+.details-header-wrapper .header-row3 .driver-text {
+    font: normal normal normal 14px/21px Adobe Clean;
+    margin-left: 55px;
+}
+
 .campaign-img {
     width: 80px;
     height: 80px;
@@ -133,6 +181,7 @@ body {
         }
     }
 }
+
 .tab.two-column {
     display: flex;
     flex-direction: row;
@@ -569,6 +618,7 @@ body {
         cursor: pointer;
     }
 }
+
 .kpis-wrapper {
     margin-top: 30px;
     & ul {
@@ -582,6 +632,7 @@ body {
         margin-top: 15px;
     }
 }
+
 .use-cases-wrapper {
     margin-bottom: 30px;
 }
@@ -619,6 +670,7 @@ body {
     flex-direction: column;
     margin-top: 20px;
 }
+
 .links-wrapper {
     margin-top: 30px;
     & .links {
@@ -632,6 +684,7 @@ body {
         color: #0D66D0;
     }
 }
+
 .infocards-wrapper {
     margin-right: 40px;
     & .card {
@@ -645,6 +698,7 @@ body {
         }
     }
 }
+
 .card {
     & .card-heading {
         margin-top: 10px;
@@ -660,6 +714,7 @@ body {
         font-size: 14px;
     }
 }
+
 .milestone, .card-content {
     font: normal normal normal 14px/21px Adobe Clean;
     & .icon {
@@ -672,6 +727,7 @@ body {
         margin-bottom: 5px;
     }
 }
+
 .deliverables {
     & > .page-heading {
         display: flex;
@@ -707,6 +763,48 @@ body {
         }
     }
 }
+
+.total-assets-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.total-assets-tooltip .tooltiptext {
+    visibility: hidden;
+    white-space: nowrap; /* Ensure text appears on one line */
+    background-color: #D3D3D3; /* Match the background color */
+    color: black; /* Match the text color */
+    text-align: left; /* Left-align the text */
+    border-radius: 4px;
+    padding: 5px 10px; /* Adjust padding as needed */
+    position: absolute;
+    z-index: 1;
+    top: 50%; /* Center vertically */
+    left: 100%; /* Position to the right of the element */
+    transform: translateY(-50%); /* Center vertically */
+    margin-left: 10px; /* Adjust margin to match the screenshot */
+    opacity: 0;
+    transition: opacity 0.3s;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+}
+
+.total-assets-tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 50%; /* Center the arrow vertically */
+    left: -5px; /* Adjust to position the arrow */
+    transform: translateY(-50%); /* Center vertically */
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #D3D3D3 transparent transparent; /* Arrow color matches tooltip background */
+}
+
+.total-assets-tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
 .table-wrapper {
     font: normal normal bold 14px/21px Adobe Clean;
     & > .table-header {
@@ -724,6 +822,7 @@ body {
         top: 0;
     }
 }
+
 .table-content {
     max-height: 45vh;
     min-height: 7vh;
@@ -732,10 +831,12 @@ body {
         display: none;
     }
 }
+
 .inactive {
     display: none !important;
     visibility: hidden;
 }
+
 .row {
     height: 56px;
     &:not(:last-child) {
@@ -744,15 +845,16 @@ body {
     &.datarow {
         display: flex;
         align-items: center;
-        height: 88px;
+        height: auto; /* Set to auto to accommodate varying heights */
         font-weight: 200;
         & .property {
-            line-height: 88px;
+            line-height: normal; /* Adjust line-height to normal */
+            padding: 10px 0; /* Add padding for better spacing */
         }
         &:first-child, &:nth-child(2) {
             border-top: 2px solid #F4F4F4;
         }
-        & .deliverable-name, .platforms, .deliverable-type, .review-link, .kpi {
+        & .deliverable-name, .platforms, .deliverable-type, .qa-files, .kpi {
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 16px;
@@ -760,7 +862,7 @@ body {
         & .date-wrapper {
             display: flex;
             flex-direction: column;
-            justify-content:center;
+            justify-content: center;
             & > .completion-date, .revised-date {
                 line-height: 21px;
             }
@@ -801,6 +903,7 @@ body {
         justify-content: center;
     }
 }
+
 .subheader {
     &:nth-child(2) {
         border-top: 2px solid #F4F4F4;
@@ -845,12 +948,13 @@ body {
             border-radius: 3px;
         }
     }
-
 }
+
 .header-row3:hover .date-tooltip {
     visibility: visible;
     opacity: 1;
 }
+
 .date-tooltip {
     background-color: #D3D3D3;
     border-radius: 2px;
@@ -863,32 +967,58 @@ body {
     font: normal normal normal 12px/17px Adobe Clean;
     margin-left: 100px;
 }
+
 .column1 {
     margin-left: 45px;
 }
+
 .column1 {
     width: 200px;
 }
+
 .column3 {
     width: 140px;
 }
-.column4, & .column5, & .column6 {
+
+.column4, .column5, .column6 {
     width: 110px;
 }
+
 .column2 {
     width: 130px;
 }
+
 .column7 {
     width: 170px;
 }
+
 .column8 {
     width: 120px;
 }
+
 .column9 {
     width: 150px;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 1.2;
 }
+
 .table-column {
     &:not(:last-child) {
         margin-right: 85px;
     }
+}
+
+@media (max-width: 1255px) {
+    .column9 {
+        width: 100px;
+    }
+}
+
+.hide-overflow {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
