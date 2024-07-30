@@ -91,7 +91,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
 
-        matchedItems.forEach(async (item) => {
+        matchedItems.forEach((item) => {
             const itemStartDate = new Date(item[startDateProp]);
             const itemEndDate = new Date(item[endDateProp]);
             const itemEndDateStr = itemEndDate ? itemEndDate.toLocaleDateString().split(',')[0] : null;
@@ -100,29 +100,17 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
 
             let daysDifference = Math.floor((itemStartDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const startPctDiff = ((daysDifference / groupDuration) * 100).toFixed(2);
-
             const itemEl = document.createElement('div');
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
 
-            // Fetch the thumbnail using the searchAsset function
-            let imageObject = { imageUrl: '', imageAltText: '' };
-            try {
-                imageObject = await searchAsset(item.programName, item.campaignName);
-            } catch (error) {
-                console.error("Failed to load thumbnail image:", error);
-            }
-
-            const thumbnail = imageObject.imageUrl ? `<img src="${imageObject.imageUrl}" alt="${imageObject.imageAltText}" loading="lazy">` : '';
-            //Todo remove logging
-            console.log('thumbnail',thumbnail);
-
+            // Create a placeholder for the thumbnail
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
                 <div class="item-content">
                     <div class="content-row">
                         <div class="info">
-                            <div class="thumbnail">${thumbnail}</div>
+                            <div class="thumbnail"></div>
                             <div class="name" title="${item.deliverableName}">${item.deliverableName}</div>
                             <div class="item-status" data-status="${checkBlankString(item.taskStatus)}"></div>
                         </div>
@@ -135,9 +123,30 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
                     </div>
                 </div>
             `;
-
             itemEl.style.width = itemDurationPct + '%';
             itemWrapper.appendChild(itemEl);
+
+            const thumbnailDiv = itemEl.querySelector('.thumbnail');
+            // Fetch the thumbnail using the searchAsset function and update the placeholder
+            console.log(`Fetching thumbnail for Program: ${item.programName}, Campaign: ${item.campaignName}`);
+            searchAsset(item.programName, item.campaignName).then(imageObject => {
+                if (imageObject && imageObject.imageUrl) {
+
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imageObject.imageUrl;
+                    imgElement.alt = imageObject.imageAltText;
+                    imgElement.loading = 'lazy';
+                    imgElement.style.display = 'block'; // Ensure the image is displayed as a block element
+                    thumbnailDiv.appendChild(imgElement);
+                    console.log(`Thumbnail added for Program: ${item.programName}, Campaign: ${item.campaignName}`);
+                    console.log(`Thumbnail div after appending image: `, thumbnailDiv);
+
+                } else {
+                    console.error("Image Object does not have a valid imageUrl");
+                }
+            }).catch(error => {
+                console.error("Failed to load thumbnail image:", error);
+            });
 
         });
 
@@ -165,6 +174,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
 
         contentWrapper.appendChild(groupEl);
         groupIndex +=1;
+
     });
 
     calendarEl.appendChild(contentWrapper);
@@ -316,22 +326,6 @@ function getUniqueYears(items) {
     years.sort((a, b) => parseInt(a) - parseInt(b));
     return years;
 }
-
-
-/* MD version with split error
-function getUniqueYears(items) {
-    const yearsSet = new Set();
-
-    items.forEach(item => {
-      const year = item[startDateProp].split('-')[0];
-      yearsSet.add(year);
-    });
-
-    const years = Array.from(yearsSet);
-    years.sort((a, b) => parseInt(a) - parseInt(b));
-    return years;
-}
-*/
 
 // handle clicking on the year button
 function toggleDropdown(element) {
