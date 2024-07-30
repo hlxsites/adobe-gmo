@@ -5,19 +5,30 @@ let deliverables, deliverableMapping;
 const startDateProp = 'deliverableProjectStartDate';
 const endDateProp = 'deliverableProjectEndDate';
 
-export async function buildCalendar(dataObj, block, period, type, mappingArray) {
+// todo: refactor so that the default date is the earliest deliverable start date
+//export async function buildCalendar(dataObj, block, period, type, mappingArray) {
+export async function buildCalendar(dataObj, block, type, mappingArray, period) {
     //if (!deliverables) deliverables = dataObj;
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
     if (!deliverableMapping) deliverableMapping = await mappingArray;
-    const displayYear = period.year;
-    const displayQuarter = period.quarter;
+    //const displayYear = period.year;
+    //const displayQuarter = period.quarter;
     const columnWidth = 8.315;
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
 
+
     // get start of the view
     const viewStart = getTimeBounds(deliverables, "start", startDateProp);
     const viewStartYear = viewStart.getUTCFullYear();
+
+    const displayYear = period ? period.year : viewStartYear;
+    const displayQuarter = period ? period.quarter : 1;
+
+    const yearIndicator = block.querySelector('.inc-dec-wrapper .current-year');
+    yearIndicator.dataset.year = displayYear;
+    yearIndicator.textContent = displayYear;
+
     // get end of the view
     const viewEnd = getTimeBounds(deliverables, "end", endDateProp);
     const viewEndYear = viewEnd.getUTCFullYear();
@@ -28,13 +39,13 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
     // build the calendar background here as we already know the period and style
     let calendarEl;
     if (type === "year") {
-        calendarEl = newBuildYearCal(years);
+        calendarEl = buildYearCal(years);
     } else {
         // if the last item ends in December we need another year to catch the Q1 n+1 finish
         if (viewEnd.getUTCMonth = 11) {
             years.push(viewEndYear + 1);
         }
-        calendarEl = newBuildQuarterCal(years);
+        calendarEl = buildQuarterCal(years);
     }
     // get unique deliverable types
     const uniqueGroups = getUniqueItems(deliverables, "deliverableType");
@@ -178,7 +189,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         yearOption.classList.add('filter-option');
         yearOption.dataset.year = year;
         yearOption.textContent = year;
-        yearOption.addEventListener('click', filterDropdownSelection);
+        yearOption.addEventListener('click', (event) => filterDropdownSelection(event, viewStartYear, years.length));
         filterDropdown.appendChild(yearOption);
     });
     filterDropdown.appendChild(quarterOptionLabel);
@@ -188,7 +199,8 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         quarterOption.classList.add('filter-option');
         quarterOption.dataset.period = quarter;
         quarterOption.textContent = quarter;
-        quarterOption.addEventListener('click', filterDropdownSelection);
+        //quarterOption.addEventListener('click', filterDropdownSelection);
+        quarterOption.addEventListener('click', (event) => filterDropdownSelection(event, viewStartYear, years.length));
         filterDropdown.appendChild(quarterOption);
     })
     
@@ -317,7 +329,13 @@ function dismissDropdown(event) {
     }
 }
 
-function filterDropdownSelection(event) {
+function filterDropdownSelection(event, viewStartYear, numYears) {
+    // if we're hopping views, redraw the calendar
+    // if not just scroll
+    console.log(`in filterdropdownselection`);
+    const calendarContentEl = document.querySelector('.calendar-content-wrapper');
+    const currentView = calendarContentEl.dataset.view;
+
     const optionEl = event.target;
     let year, quarter, view;
     if (("period") in optionEl.dataset) {
@@ -333,7 +351,19 @@ function filterDropdownSelection(event) {
     }
 
     const period = { 'year': year, 'quarter': quarter }
-    refreshCalendar(period, view);
+    console.log(`Chosen year: ${year} || Chosen quarter: ${quarter} || Chosen view: ${view}`);
+
+    if (currentView === view) {
+        // scroll over
+        const scrollPct = calculateScroll(view, viewStartYear, year, quarter, numYears);
+        console.log(`Scroll percent in dropdown selection: ${scrollPct}`);
+        const calendarWrapper = document.querySelector('.calendar-wrapper');
+        scrollToPosition(calendarWrapper, scrollPct);
+        console.log(`Not changing views`)
+    } else {
+        refreshCalendar(period, view);
+        console.log(`Changing views`);
+    }
     dismissDropdown();
 }
 
@@ -360,7 +390,7 @@ function refreshCalendar(period, view) {
 
     //buildCalendar(deliverables, block, period, view);
     //buildCalendar(testCalendar, block, year);
-    buildCalendar(deliverables, block, period, view);
+    buildCalendar(deliverables, block, view, deliverableMapping, period);
 }
 
 function lookupType(rawText) {
@@ -390,7 +420,7 @@ function calendarYears(startYear, endYear) {
     return years;
 }
 
-function newBuildYearCal(years) {
+function buildYearCal(years) {
     const calendarEl = document.createElement('div');
     calendarEl.classList.add('calendar-wrapper');
     if (years.length > 1) calendarEl.classList.add('multiyear');
@@ -440,12 +470,13 @@ function newBuildYearCal(years) {
     return calendarEl;
 }
 
-function newBuildQuarterCal(years) {
+function buildQuarterCal(years) {
     const calendarEl = document.createElement('div');
     calendarEl.classList.add('calendar-wrapper', 'quarter-view');
     if (years.length > 1) calendarEl.classList.add('multiyear');
     const backgroundEl = document.createElement('div');
     backgroundEl.classList.add('calendar-background');
+    // todo: wider for quarter
     backgroundEl.style.width = (years.length * 100) + '%';
 
     years.forEach((year) => {
@@ -491,19 +522,6 @@ function newBuildQuarterCal(years) {
 }
 
 function scrollOnInit(element, scrollPct) {
-    //const calendarWrapper = element;
-    // Function to scroll to a specific position
-    /*
-    const scrollToPosition = () => {
-        const maxScrollLeft = calendarWrapper.scrollWidth;
-        const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
-        calendarWrapper.scrollTo({
-            left: scrollAmt, // Replace with desired position
-            behavior: 'smooth' // Optional: for smooth scrolling
-        });
-    };
-    */
-
     // Observer to detect when the element becomes visible
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -534,16 +552,7 @@ function resizeGroups() {
     })
 }
 
-function handleTodayBtn(type, viewStartYear, displayYear, displayQuarter, numYears) {
-
-    // determine scroll pct
-    const scrollPct = calculateScroll(type, viewStartYear, displayYear, displayQuarter, numYears);
-    // scroll to position
-    scrollToPosition(calendarWrapper, scrollPct);
-}
-
 function scrollToPosition(element, scrollPct) {
-    //const calendarWrapper = element;
     const maxScrollLeft = element.scrollWidth;
     const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
     element.scrollTo({

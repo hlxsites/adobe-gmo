@@ -254,8 +254,9 @@ export default async function decorate(block) {
     });
 
     decorateIcons(block);
-    const calendarPeriod = { 'year': new Date().getFullYear(), 'quarter': 1 }
-    buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
+    //const calendarPeriod = { 'year': new Date().getFullYear(), 'quarter': 1 }
+    //buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
+    buildCalendar(await deliverables, block, "year", await deliverableMappings);
     //newBuildCalendar(testCalendar, block, calendarPeriod, "quarter", await deliverableMappings);
     //buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
     //buildCalendar(testCalendar, block, calendarPeriod, "year");
