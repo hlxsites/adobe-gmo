@@ -13,7 +13,13 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     if (!deliverableMapping) deliverableMapping = await mappingArray;
     //const displayYear = period.year;
     //const displayQuarter = period.quarter;
-    const columnWidth = 8.315;
+
+
+    // multiple of 3 for width of column when viewing in quarter mode. can change this
+    // by adjusting the multiple below, and also the % width of the calendar background
+    // when drawing a 'quarter' calendar.
+
+    const columnWidth = (type === "year") ? 8.315 : (8.315 * 3);
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
 
@@ -476,8 +482,8 @@ function buildQuarterCal(years) {
     if (years.length > 1) calendarEl.classList.add('multiyear');
     const backgroundEl = document.createElement('div');
     backgroundEl.classList.add('calendar-background');
-    // todo: wider for quarter
-    backgroundEl.style.width = (years.length * 100) + '%';
+    // this is wider for 'quarter' view- see equivalent in 'year' view.
+    backgroundEl.style.width = (years.length * 300) + '%';
 
     years.forEach((year) => {
         const yearWrapper = document.createElement('div');
