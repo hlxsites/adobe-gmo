@@ -160,7 +160,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
 
             let daysDifference = Math.floor((itemStartDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const startPctDiff = ((daysDifference / groupDuration) * 100).toFixed(2);
-            const itemEl = document.createElement('div');
+            let itemEl = document.createElement('div');
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
 
@@ -184,10 +184,15 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
                 </div>
             `;
             itemEl.style.width = itemDurationPct + '%';
-            itemWrapper.appendChild(itemEl);
 
             // Call the new function to fetch and add the thumbnail
+            // this is working but lets try to not have the function return the element
+            // --- > itemEl = addThumbnailToItem(itemEl, item.programName, item.campaignName).then((item) => { itemWrapper.appendChild(item) });
+
+            
+
             addThumbnailToItem(itemEl, item.programName, item.campaignName);
+            itemWrapper.appendChild(itemEl);
 
         });
 
@@ -206,9 +211,8 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
                 <div class="right-block">
                 </div>
             </div>
-            ${itemWrapper.outerHTML}
         `;
-
+        groupEl.appendChild(itemWrapper);
         groupEl.querySelectorAll('.group-controls').forEach((arrow) => {
             arrow.addEventListener('click', showHideGroup);
         });
@@ -328,8 +332,10 @@ async function addThumbnailToItem(itemEl, programName, campaignName) {
         } else {
             console.error("Image Object does not have a valid imageUrl");
         }
+        //return itemEl;
     } catch (error) {
         console.error("Failed to load thumbnail image:", error);
+        //return itemEl;
     }
 }
 
