@@ -90,67 +90,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
-/*
-        matchedItems.forEach((item) => {
-            const itemStartDate = new Date(item[startDateProp]);
-            const itemEndDate = new Date(item[endDateProp]);
-            const itemEndDateStr = itemEndDate ? itemEndDate.toLocaleDateString().split(',')[0] : null;
-            const itemDuration = Math.floor((itemEndDate.getTime() - itemStartDate.getTime()) / (1000 * 60 * 60 * 24));
-            const itemDurationPct = ((itemDuration / groupDuration) * 100).toFixed(2);
 
-            let daysDifference = Math.floor((itemStartDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
-            const startPctDiff = ((daysDifference / groupDuration) * 100).toFixed(2);
-            const itemEl = document.createElement('div');
-            itemEl.classList.add('item');
-            itemEl.style.marginLeft = startPctDiff + '%';
-
-            // Create a placeholder for the thumbnail
-            itemEl.innerHTML = `
-                <div class="color-tab"></div>
-                <div class="item-content">
-                    <div class="content-row">
-                        <div class="info">
-                            <div class="thumbnail"></div>
-                            <div class="name" title="${item.deliverableName}">${item.deliverableName}</div>
-                            <div class="item-status" data-status="${checkBlankString(item.taskStatus)}"></div>
-                        </div>
-                    </div>
-                    <div class="content-row bottom">
-                        ${itemEndDateStr ? '<div class="start-date" title="Task End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
-                        <div class="link">
-                            <a href="${item.reviewLink}">QA Files</a>
-                        </div>
-                    </div>
-                </div>
-            `;
-            itemEl.style.width = itemDurationPct + '%';
-            itemWrapper.appendChild(itemEl);
-
-            const thumbnailDiv = itemEl.querySelector('.thumbnail');
-            // Fetch the thumbnail using the searchAsset function and update the placeholder
-            console.log(`Fetching thumbnail for Program: ${item.programName}, Campaign: ${item.campaignName}`);
-            searchAsset(item.programName, item.campaignName).then(imageObject => {
-                if (imageObject && imageObject.imageUrl) {
-
-                    const imgElement = document.createElement('img');
-                    imgElement.src = imageObject.imageUrl;
-                    imgElement.alt = imageObject.imageAltText;
-                    imgElement.loading = 'lazy';
-                    imgElement.style.display = 'block'; // Ensure the image is displayed as a block element
-                    thumbnailDiv.appendChild(imgElement);
-                    console.log(`Thumbnail added for Program: ${item.programName}, Campaign: ${item.campaignName}`);
-                    console.log(`Thumbnail div after appending image: `, thumbnailDiv);
-
-                } else {
-                    console.error("Image Object does not have a valid imageUrl");
-                }
-            }).catch(error => {
-                console.error("Failed to load thumbnail image:", error);
-            });
-
-        });
-
-*/
         matchedItems.forEach((item) => {
             const itemStartDate = new Date(item[startDateProp]);
             const itemEndDate = new Date(item[endDateProp]);
@@ -184,9 +124,8 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
                 </div>
             `;
             itemEl.style.width = itemDurationPct + '%';
-
             // Call the new function to fetch and add the thumbnail
-            addThumbnailToItem(itemEl, item.programName, item.campaignName);
+            addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
             itemWrapper.appendChild(itemEl);
 
         });
@@ -304,26 +243,16 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
 }
 
-
-// Add the new async function
-async function addThumbnailToItem(itemEl, programName, campaignName) {
+async function addThumbnailToItem(itemEl, programName, campaignName, deliverableType) {
     try {
-        console.log(`Fetching thumbnail for Program: ${programName}, Campaign: ${campaignName}`);
-        const imageObject = await searchAsset(programName, campaignName);
-        console.log('Image Object:', imageObject);
+        const imageObject = await searchAsset(programName, campaignName,deliverableType);
         if (imageObject && imageObject.imageUrl) {
             const thumbnailDiv = itemEl.querySelector('.thumbnail');
-            thumbnailDiv.textContent = 'hello2';
-            console.log('Adding image to thumbnail div');
             const imgElement = document.createElement('img');
             imgElement.src = imageObject.imageUrl;
             imgElement.alt = imageObject.imageAltText;
             imgElement.loading = 'lazy';
-            imgElement.style.display = 'block'; // Ensure the image is displayed as a block element
-            thumbnailDiv.textContent = ''; // Clear "hello" text before adding the image
             thumbnailDiv.appendChild(imgElement);
-            console.log(`Thumbnail added for Program: ${programName}, Campaign: ${campaignName}`);
-            console.log(`Thumbnail div after appending image: `, thumbnailDiv);
         } else {
             console.error("Image Object does not have a valid imageUrl");
         }
