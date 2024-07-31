@@ -24,8 +24,7 @@ export default async function decorate(block) {
         for(let key in match.groups){
           redirect = redirect.replace(`{${key}}`, match.groups[key]);
         }
-        alert('You are being redirected to the latest version of the Marketing Hub. Please update your URL, if saved/bookmarked.')
-        console.info('redirecting to', redirect);
+        console.log('redirecting to', redirect);
         window.location.href = redirect;
         return;
       }
@@ -33,3 +32,5 @@ export default async function decorate(block) {
   }
   block.innerHTML = '';
 }
+
+
