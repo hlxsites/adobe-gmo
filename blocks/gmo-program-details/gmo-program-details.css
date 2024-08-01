@@ -286,7 +286,6 @@ body {
             }
             & .filter-option, & .filter-label {
                 display: block;
-                /*width: 80%;*/
                 overflow-x: hidden;
 
                 text-decoration: none;
@@ -337,9 +336,7 @@ body {
         }
         & .calendar-background {
             height: 100%;
-            /*width: 100%;*/
             display: flex;
-            /*flex-direction: column;*/
             flex-direction: row;
             position: absolute;
             top: 0;
@@ -353,13 +350,6 @@ body {
             width: 100%;
             display: flex;
             flex-direction: row;
-            /*position: relative;*/
-            /*
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            */
-            /*z-index: -1;*/
             & .month {
                 width: 8.3%;
                 display: flex;
@@ -579,10 +569,10 @@ body {
                 }
             }
             &#group5 {
-                background-color: #37c8f029;
-                border: 1px solid #2680EB;
+                background-color: #168a4a;
+                border: 1px solid #24a25d;
                 & .group-header {
-                    background-color: #378EF0;
+                    background-color: #137941;
                 }
             }
         }
@@ -608,6 +598,7 @@ body {
             display: -webkit-box;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 3;
+            line-clamp: 3;
             overflow: hidden;
         }
     }
@@ -644,7 +635,7 @@ body {
 
     & .tags-wrapper {
         display: flex;
-        flex-wrap: wrap; /* Ensure tags wrap properly */
+        flex-wrap: wrap; 
         margin-top: 10px;
     }
 
@@ -653,12 +644,12 @@ body {
         color: #505050;
         border: 1px solid #D3D3D3;
         border-radius: 4px;
-        padding: 0 10px; /* Ensure no padding at the bottom */
+        padding: 0 10px; 
         line-height: 32px;
-        height: 32px; /* Ensure consistent height */
+        height: 32px; 
         display: flex;
-        align-items: center; /* Vertically center the text */
-        margin-bottom: 5px; /* Add margin at the bottom */
+        align-items: center; 
+        margin-bottom: 5px; 
         &:not(:last-child) {
             margin-right: 5px;
         }
@@ -772,32 +763,32 @@ body {
 
 .total-assets-tooltip .tooltiptext {
     visibility: hidden;
-    white-space: nowrap; /* Ensure text appears on one line */
-    background-color: #D3D3D3; /* Match the background color */
-    color: black; /* Match the text color */
-    text-align: left; /* Left-align the text */
+    white-space: nowrap; 
+    background-color: #D3D3D3;
+    color: black; 
+    text-align: left; 
     border-radius: 4px;
-    padding: 5px 10px; /* Adjust padding as needed */
+    padding: 5px 10px; 
     position: absolute;
     z-index: 1;
-    top: 50%; /* Center vertically */
-    left: 100%; /* Position to the right of the element */
-    transform: translateY(-50%); /* Center vertically */
-    margin-left: 10px; /* Adjust margin to match the screenshot */
+    top: 50%; 
+    left: 100%; 
+    transform: translateY(-50%); 
+    margin-left: 10px; 
     opacity: 0;
     transition: opacity 0.3s;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .total-assets-tooltip .tooltiptext::after {
     content: "";
     position: absolute;
-    top: 50%; /* Center the arrow vertically */
-    left: -5px; /* Adjust to position the arrow */
-    transform: translateY(-50%); /* Center vertically */
+    top: 50%; 
+    left: -5px; 
+    transform: translateY(-50%); 
     border-width: 5px;
     border-style: solid;
-    border-color: transparent #D3D3D3 transparent transparent; /* Arrow color matches tooltip background */
+    border-color: transparent #D3D3D3 transparent transparent; 
 }
 
 .total-assets-tooltip:hover .tooltiptext {
@@ -845,11 +836,11 @@ body {
     &.datarow {
         display: flex;
         align-items: center;
-        height: auto; /* Set to auto to accommodate varying heights */
+        height: auto; 
         font-weight: 200;
         & .property {
-            line-height: normal; /* Adjust line-height to normal */
-            padding: 10px 0; /* Add padding for better spacing */
+            line-height: normal;
+            padding: 10px 0; 
         }
         &:first-child, &:nth-child(2) {
             border-top: 2px solid #F4F4F4;
@@ -1019,6 +1010,7 @@ body {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     overflow: hidden;
     text-overflow: ellipsis;
 }

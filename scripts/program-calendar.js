@@ -1,24 +1,45 @@
-import { testCalendar } from '../../scripts/shared-program.js';
 import { checkBlankString } from './shared-program.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let deliverables, deliverableMapping;
+let viewStart, viewEnd;
 const startDateProp = 'deliverableProjectStartDate';
 const endDateProp = 'deliverableProjectEndDate';
 
-export async function buildCalendar(dataObj, block, period, type, mappingArray) {
-    //if (!deliverables) deliverables = dataObj;
+export async function buildCalendar(dataObj, block, type, mappingArray, period) {
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
     if (!deliverableMapping) deliverableMapping = await mappingArray;
-    const displayYear = period.year;
-    const displayQuarter = period.quarter;
-    const columnWidth = 8.315;
+
+    const programLaunch = document.querySelector('span.campaign-date').textContent;
+    const programLaunchDate = new Date(programLaunch);
+
+    // multiple of 3 for width of column when viewing in quarter mode. can change this
+    // by adjusting the multiple below, and also the % width of the calendar background
+    // when drawing a 'quarter' calendar.
+
+    const columnWidth = (type === "year") ? 8.315 : (8.315 * 3);
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+
 
     // get start of the view
-    const viewStart = getTimeBounds(deliverables, "start", startDateProp);
+    viewStart = getTimeBounds(deliverables, "start", startDateProp);
+    viewStart = (viewStart.getFullYear() === 1969) ? programLaunchDate : viewStart;    
     const viewStartYear = viewStart.getUTCFullYear();
+
+    const displayYear = period ? period.year : viewStartYear;
+    const displayQuarter = period ? period.quarter : 1;
+
+    const yearIndicator = block.querySelector('.inc-dec-wrapper .current-year');
+    yearIndicator.dataset.year = displayYear;
+    yearIndicator.textContent = displayYear;
+
     // get end of the view
-    const viewEnd = getTimeBounds(deliverables, "end", endDateProp);
+    viewEnd = getTimeBounds(deliverables, "end", endDateProp);
+    if (viewEnd.getFullYear() === 1969) {
+        viewEnd = new Date(viewStart);
+        viewEnd.setMonth(viewStart.getMonth() + 1);
+    }
     const viewEndYear = viewEnd.getUTCFullYear();
 
     // get array of all years to be included
@@ -27,13 +48,13 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
     // build the calendar background here as we already know the period and style
     let calendarEl;
     if (type === "year") {
-        calendarEl = newBuildYearCal(years);
+        calendarEl = buildYearCal(years);
     } else {
         // if the last item ends in December we need another year to catch the Q1 n+1 finish
         if (viewEnd.getUTCMonth = 11) {
             years.push(viewEndYear + 1);
         }
-        calendarEl = newBuildQuarterCal(years);
+        calendarEl = buildQuarterCal(years);
     }
     // get unique deliverable types
     const uniqueGroups = getUniqueItems(deliverables, "deliverableType");
@@ -54,8 +75,10 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         const matchedItems = deliverables.filter(item => item.deliverableType === group);
 
         // find the earliest date- this is how we set the position for the group against the calendar
-        const earliestStartDate = getTimeBounds(matchedItems, "start", startDateProp);
-        const latestEndDate = getTimeBounds(matchedItems, "end", endDateProp);
+        let earliestStartDate = getTimeBounds(matchedItems, "start", startDateProp);
+        earliestStartDate = (earliestStartDate.getFullYear() === 1969) ? viewStart : earliestStartDate;
+        let latestEndDate = getTimeBounds(matchedItems, "end", endDateProp);
+        latestEndDate = (latestEndDate.getFullYear() === 1969) ? viewEnd : latestEndDate;
 
         const startMonth = (earliestStartDate.getUTCMonth()); // getMonth returns 0-11 but this is desirable
         const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
@@ -90,10 +113,10 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
-
         matchedItems.forEach((item) => {
-            const itemStartDate = new Date(item[startDateProp]);
-            const itemEndDate = new Date(item[endDateProp]);
+            const itemStartDate = (item[startDateProp]) ? new Date(item[startDateProp]) : viewStart;
+            const itemEndDate = (item[endDateProp]) ? new Date(item[endDateProp]) : viewEnd;
+
             const itemEndDateStr = itemEndDate ? itemEndDate.toLocaleDateString().split(',')[0] : null;
             const itemDuration = Math.floor((itemEndDate.getTime() - itemStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const itemDurationPct = ((itemDuration / groupDuration) * 100).toFixed(2);
@@ -157,15 +180,6 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
     });
 
     calendarEl.appendChild(contentWrapper);
-    block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
-        control.removeEventListener('click', changePeriod);
-        control.addEventListener('click', changePeriod);
-    });
-    block.querySelector('.right-controls .today-button').addEventListener('click', () => {
-        refreshCalendar({ 'year': new Date().getFullYear(), 'quarter': 1 }, "year");
-    })
-
-
     block.querySelector('.calendar.tab').appendChild(calendarEl);
 
     // populate "filter" dropdown
@@ -187,7 +201,7 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         yearOption.classList.add('filter-option');
         yearOption.dataset.year = year;
         yearOption.textContent = year;
-        yearOption.addEventListener('click', filterDropdownSelection);
+        yearOption.addEventListener('click', (event) => filterDropdownSelection(event, viewStartYear, years.length));
         filterDropdown.appendChild(yearOption);
     });
     filterDropdown.appendChild(quarterOptionLabel);
@@ -197,7 +211,8 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
         quarterOption.classList.add('filter-option');
         quarterOption.dataset.period = quarter;
         quarterOption.textContent = quarter;
-        quarterOption.addEventListener('click', filterDropdownSelection);
+        //quarterOption.addEventListener('click', filterDropdownSelection);
+        quarterOption.addEventListener('click', (event) => filterDropdownSelection(event, viewStartYear, years.length));
         filterDropdown.appendChild(quarterOption);
     })
 
@@ -207,40 +222,42 @@ export async function buildCalendar(dataObj, block, period, type, mappingArray) 
 
     // scroll to the right
     const calendarWrapper = document.querySelector('.calendar-wrapper')
-    const yearDiff = displayYear - viewStartYear;
-
-    const yearWidthOffsetPct = (((yearDiff / years.length)) * 100);
-    let scrollPct;
-    if (type === "quarter") {
-        scrollPct = ((yearWidthOffsetPct) + ((displayQuarter - 1) * ((1 / years.length) / 4)) * 100).toFixed(2)
-    } else {
-        scrollPct = (yearWidthOffsetPct).toFixed(2);
-    }
+    const scrollPct = calculateScroll(type, viewStartYear, displayYear, displayQuarter, years.length);
     document.addEventListener('DOMContentLoaded', scrollOnInit(calendarWrapper, scrollPct));
 
-    // show the current month
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-
-    if (displayYear == currentYear) {
-        const currentMonth = currentDate.getMonth() + 1;
-
-        // calculate the percentage completion of the current month for the indicator offset
-        const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
-        const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
-
-        const monthEl = block.querySelector(`.month[data-num='${currentMonth}']`);
-        monthEl.classList.add('current');
-        const lineEl = document.createElement('div');
-        lineEl.classList.add('calendar-indicator');
-
-        // use direct style for offset
-        lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
-        monthEl.appendChild(lineEl);
-    }
-
+    // indicator that shows current day/month
+    const currentMonth = currentDate.getMonth() + 1;
+    // calculate the percentage completion of the current month for the indicator offset
+    const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
+    const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
+    const monthEl = block.querySelector(`.month-wrapper[data-year='${currentYear}'] .month[data-num='${currentMonth}']`);
+    monthEl.classList.add('current');
+    const lineEl = document.createElement('div');
+    lineEl.classList.add('calendar-indicator');
+    // use direct style for offset
+    lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
+    monthEl.appendChild(lineEl);
+    
     // close dropdown listener for clicks outside open dropdown
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
+    block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
+        control.removeEventListener('click', changePeriod);
+        control.addEventListener('click', changePeriod);
+    });
+    block.querySelector('.right-controls .today-button').addEventListener('click', () => {
+        const calendarWrapper = document.querySelector('.calendar-wrapper')
+        // determine scroll pct for years. always use type = year because "today" doesn't care about quarters.
+        const yearScrollPct = calculateScroll("year", viewStartYear, currentYear, displayQuarter, years.length);
+        // determine how far through the current year we are
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        const dateDiff = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+        const dayPct = (((dateDiff) * ((1 / years.length) / 365)) * 100);
+        // get total scroll percent by adding year + day scroll pct
+        const totalScroll = (parseFloat(yearScrollPct) + parseFloat(dayPct)).toFixed(2);
+        // scroll to position
+        scrollToPosition(calendarWrapper, totalScroll);
+    });
 }
 
 async function addThumbnailToItem(itemEl, programName, campaignName, deliverableType) {
@@ -260,8 +277,6 @@ async function addThumbnailToItem(itemEl, programName, campaignName, deliverable
         console.error("Failed to load thumbnail image:", error);
     }
 }
-
-
 
 function getUniqueItems(items, property) {
     return [...new Set(items.flatMap(item => item[property])
@@ -312,7 +327,6 @@ function changePeriod(event) {
 
 function getUniqueYears(items) {
     const yearsSet = new Set();
-
     items.forEach(item => {
         const startDate = item[startDateProp];
         if (startDate) {
@@ -320,7 +334,13 @@ function getUniqueYears(items) {
             yearsSet.add(year);
         }
     });
-
+    if (yearsSet.size === 0) {
+        const startYear = viewStart.getFullYear();
+        const endYear = viewEnd.getFullYear();
+        for (let year = startYear; year <= endYear; year++) {
+            yearsSet.add(year);
+        }
+    }
     const years = Array.from(yearsSet);
     years.sort((a, b) => parseInt(a) - parseInt(b));
     return years;
@@ -348,7 +368,12 @@ function dismissDropdown(event) {
     }
 }
 
-function filterDropdownSelection(event) {
+function filterDropdownSelection(event, viewStartYear, numYears) {
+    // if we're hopping views, redraw the calendar
+    // if not just scroll
+    const calendarContentEl = document.querySelector('.calendar-content-wrapper');
+    const currentView = calendarContentEl.dataset.view;
+
     const optionEl = event.target;
     let year, quarter, view;
     if (("period") in optionEl.dataset) {
@@ -364,7 +389,15 @@ function filterDropdownSelection(event) {
     }
 
     const period = { 'year': year, 'quarter': quarter }
-    refreshCalendar(period, view);
+
+    if (currentView === view) {
+        // scroll over
+        const scrollPct = calculateScroll(view, viewStartYear, year, quarter, numYears);
+        const calendarWrapper = document.querySelector('.calendar-wrapper');
+        scrollToPosition(calendarWrapper, scrollPct);
+    } else {
+        refreshCalendar(period, view);
+    }
     dismissDropdown();
 }
 
@@ -389,9 +422,7 @@ function refreshCalendar(period, view) {
     block.querySelector('.calendar-wrapper').remove();
     block.querySelector('.filter-dropdown-content').remove();
 
-    //buildCalendar(deliverables, block, period, view);
-    //buildCalendar(testCalendar, block, year);
-    buildCalendar(deliverables, block, period, view);
+    buildCalendar(deliverables, block, view, deliverableMapping, period);
 }
 
 function lookupType(rawText) {
@@ -421,7 +452,7 @@ function calendarYears(startYear, endYear) {
     return years;
 }
 
-function newBuildYearCal(years) {
+function buildYearCal(years) {
     const calendarEl = document.createElement('div');
     calendarEl.classList.add('calendar-wrapper');
     if (years.length > 1) calendarEl.classList.add('multiyear');
@@ -471,13 +502,14 @@ function newBuildYearCal(years) {
     return calendarEl;
 }
 
-function newBuildQuarterCal(years) {
+function buildQuarterCal(years) {
     const calendarEl = document.createElement('div');
     calendarEl.classList.add('calendar-wrapper', 'quarter-view');
     if (years.length > 1) calendarEl.classList.add('multiyear');
     const backgroundEl = document.createElement('div');
     backgroundEl.classList.add('calendar-background');
-    backgroundEl.style.width = (years.length * 100) + '%';
+    // this is wider for 'quarter' view- see equivalent in 'year' view.
+    backgroundEl.style.width = (years.length * 300) + '%';
 
     years.forEach((year) => {
         const yearWrapper = document.createElement('div');
@@ -522,30 +554,19 @@ function newBuildQuarterCal(years) {
 }
 
 function scrollOnInit(element, scrollPct) {
-    const calendarWrapper = element;
-    // Function to scroll to a specific position
-    const scrollToPosition = () => {
-        const maxScrollLeft = calendarWrapper.scrollWidth;
-        const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
-        calendarWrapper.scrollTo({
-            left: scrollAmt, // Replace with desired position
-            behavior: 'smooth' // Optional: for smooth scrolling
-        });
-    };
-
     // Observer to detect when the element becomes visible
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 resizeGroups();
-                scrollToPosition();
+                scrollToPosition(element, scrollPct);
                 observer.disconnect(); // Stop observing after scrolling
             }
         });
     });
 
     // Start observing the element
-    observer.observe(calendarWrapper);
+    observer.observe(element);
 }
 
 function getHorizontalOverflow(element) {
@@ -561,4 +582,24 @@ function resizeGroups() {
             group.style.paddingRight = overflow + 'px';
         }
     })
+}
+
+function scrollToPosition(element, scrollPct) {
+    const maxScrollLeft = element.scrollWidth;
+    const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
+    element.scrollTo({
+        left: scrollAmt, // Replace with desired position
+        behavior: 'smooth' // Optional: for smooth scrolling
+    });
+}
+
+function calculateScroll(type, viewStartYear, displayYear, displayQuarter, numYears) {
+    const yearDiff = displayYear - viewStartYear;
+    const yearWidthOffsetPct = (((yearDiff / numYears)) * 100);
+
+    if (type === "quarter") {
+        return ((yearWidthOffsetPct) + ((displayQuarter - 1) * ((1 / numYears) / 4)) * 100).toFixed(2);
+    } else {
+        return (yearWidthOffsetPct).toFixed(2);
+    }
 }
