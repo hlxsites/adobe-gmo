@@ -6,5 +6,5 @@ folders:
   /share/: /share/default
   /qa/share/: /qa/share/default
   /collection/: /collection/default
-  /qa/collection/: /collection/default
+  /qa/collection/: /qa/collection/default
 

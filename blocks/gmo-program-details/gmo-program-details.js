@@ -280,7 +280,7 @@ function buildHeader(program, queryVars) {
     const headerWrapper = document.createElement('div');
     headerWrapper.classList.add('details-header-wrapper');
     const date = program && program.launchDate ? `<div class="header-row3"><span class="icon icon-calendar">` +
-        `</span><span class="date-tooltip">Launch date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
+        `</span><span class="date-tooltip">Proposed Launch Date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
     const programName = program ? program.programName : queryVars.programName;
     const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
 
