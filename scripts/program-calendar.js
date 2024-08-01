@@ -2,6 +2,7 @@ import { testCalendar } from '../../scripts/shared-program.js';
 import { checkBlankString } from './shared-program.js';
 
 let deliverables, deliverableMapping;
+let viewStart, viewEnd;
 const startDateProp = 'deliverableProjectStartDate';
 const endDateProp = 'deliverableProjectEndDate';
 
@@ -11,9 +12,9 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     //if (!deliverables) deliverables = dataObj;
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
     if (!deliverableMapping) deliverableMapping = await mappingArray;
-    //const displayYear = period.year;
-    //const displayQuarter = period.quarter;
 
+    const programLaunch = document.querySelector('span.campaign-date').textContent;
+    const programLaunchDate = new Date(programLaunch);
 
     // multiple of 3 for width of column when viewing in quarter mode. can change this
     // by adjusting the multiple below, and also the % width of the calendar background
@@ -25,7 +26,8 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
 
     // get start of the view
-    const viewStart = getTimeBounds(deliverables, "start", startDateProp);
+    viewStart = getTimeBounds(deliverables, "start", startDateProp);
+    viewStart = (viewStart.getFullYear() === 1969) ? programLaunchDate : viewStart;    
     const viewStartYear = viewStart.getUTCFullYear();
 
     const displayYear = period ? period.year : viewStartYear;
@@ -36,7 +38,11 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     yearIndicator.textContent = displayYear;
 
     // get end of the view
-    const viewEnd = getTimeBounds(deliverables, "end", endDateProp);
+    viewEnd = getTimeBounds(deliverables, "end", endDateProp);
+    if (viewEnd.getFullYear() === 1969) {
+        viewEnd = new Date(viewStart);
+        viewEnd.setMonth(viewStart.getMonth() + 1);
+    }
     const viewEndYear = viewEnd.getUTCFullYear();
 
     // get array of all years to be included
@@ -72,9 +78,13 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
         const matchedItems = deliverables.filter(item => item.deliverableType === group);
 
         // find the earliest date- this is how we set the position for the group against the calendar
-        const earliestStartDate = getTimeBounds(matchedItems, "start", startDateProp);
-        const latestEndDate = getTimeBounds(matchedItems, "end", endDateProp);
+        let earliestStartDate = getTimeBounds(matchedItems, "start", startDateProp);
+        console.log(`Start date full year: ${earliestStartDate.getFullYear()}`);
+        earliestStartDate = (earliestStartDate.getFullYear() === 1969) ? viewStart : earliestStartDate;
+        let latestEndDate = getTimeBounds(matchedItems, "end", endDateProp);
+        latestEndDate = (latestEndDate.getFullYear() === 1969) ? viewEnd : latestEndDate;
 
+        console.log(`Earliest start date: ${earliestStartDate} || End date: ${latestEndDate}`)
         const startMonth = (earliestStartDate.getUTCMonth()); // getMonth returns 0-11 but this is desirable
         const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
         const endMonth = (latestEndDate.getUTCMonth());
@@ -108,10 +118,23 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
-
+        console.log(matchedItems);
         matchedItems.forEach((item) => {
-            const itemStartDate = new Date(item[startDateProp]);
-            const itemEndDate = new Date(item[endDateProp]);
+            const itemStartDate = (item[startDateProp]) ? new Date(item[startDateProp]) : viewStart;
+            const itemEndDate = (item[endDateProp]) ? new Date(item[endDateProp]) : viewEnd;
+            console.log(`Item start date: ${itemStartDate} || End date: ${itemEndDate}`)
+            /*
+            let itemEndDate;
+            if (item[endDateProp]) {
+                itemEndDate = new Date(item[endDateProp]);
+                console.log(`Item had an end date`);
+            } else {
+                itemEndDate = new Date(itemStartDate);
+                itemEndDate.setMonth(itemStartDate.getMonth() + 1);
+                console.log(`Item did not have an end date. Start date: ${itemStartDate} || End date: ${itemEndDate}`);
+            }*/
+
+
             const itemEndDateStr = itemEndDate ? itemEndDate.toLocaleDateString().split(',')[0] : null;
             const itemDuration = Math.floor((itemEndDate.getTime() - itemStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const itemDurationPct = ((itemDuration / groupDuration) * 100).toFixed(2);
@@ -300,6 +323,7 @@ function changePeriod(event) {
     refreshCalendar(newPeriod, view);
 }
 
+/*
 function getUniqueYears(items) {
     const yearsSet = new Set();
   
@@ -309,6 +333,31 @@ function getUniqueYears(items) {
     });
   
     const years = Array.from(yearsSet); 
+    years.sort((a, b) => parseInt(a) - parseInt(b));
+    return years;
+}*/
+
+
+function getUniqueYears(items) {
+    const yearsSet = new Set();
+    items.forEach(item => {
+        const startDate = item[startDateProp];
+        if (startDate) {
+            const year = startDate.split('-')[0];
+            yearsSet.add(year);
+        }
+    });
+    console.log(`Yearsset in uniqueyears function: ${yearsSet.size}`);
+    if (yearsSet.size === 0) {
+        
+        const startYear = viewStart.getFullYear();
+        const endYear = viewEnd.getFullYear();
+        for (let year = startYear; year <= endYear; year++) {
+            yearsSet.add(year);
+        }
+        console.log(`STart year: ${startYear} || End year: ${endYear}`)
+    }
+    const years = Array.from(yearsSet);
     years.sort((a, b) => parseInt(a) - parseInt(b));
     return years;
 }
