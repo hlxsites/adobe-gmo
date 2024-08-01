@@ -24,7 +24,7 @@ export default async function decorate(block) {
         for(let key in match.groups){
           redirect = redirect.replace(`{${key}}`, match.groups[key]);
         }
-        console.log('redirecting to', redirect);
+        console.info('redirecting to', redirect);
         window.location.href = redirect;
         return;
       }
