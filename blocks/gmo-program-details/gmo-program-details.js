@@ -1,6 +1,6 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray, testCalendar } from '../../scripts/shared-program.js';
+import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 import { buildCalendar } from '../../scripts/program-calendar.js';
@@ -254,12 +254,7 @@ export default async function decorate(block) {
     });
 
     decorateIcons(block);
-    //const calendarPeriod = { 'year': new Date().getFullYear(), 'quarter': 1 }
-    //buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
     buildCalendar(await deliverables, block, "year", await deliverableMappings);
-    //newBuildCalendar(testCalendar, block, calendarPeriod, "quarter", await deliverableMappings);
-    //buildCalendar(await deliverables, block, calendarPeriod, "year", await deliverableMappings);
-    //buildCalendar(testCalendar, block, calendarPeriod, "year");
 }
 
 function enableBackBtn(block, blockConfig) {

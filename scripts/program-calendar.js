@@ -1,4 +1,3 @@
-import { testCalendar } from '../../scripts/shared-program.js';
 import { checkBlankString } from './shared-program.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -7,10 +6,7 @@ let viewStart, viewEnd;
 const startDateProp = 'deliverableProjectStartDate';
 const endDateProp = 'deliverableProjectEndDate';
 
-// todo: refactor so that the default date is the earliest deliverable start date
-//export async function buildCalendar(dataObj, block, period, type, mappingArray) {
 export async function buildCalendar(dataObj, block, type, mappingArray, period) {
-    //if (!deliverables) deliverables = dataObj;
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
     if (!deliverableMapping) deliverableMapping = await mappingArray;
 
@@ -282,8 +278,6 @@ async function addThumbnailToItem(itemEl, programName, campaignName, deliverable
     }
 }
 
-
-
 function getUniqueItems(items, property) {
     return [...new Set(items.flatMap(item => item[property])
         .filter(value => value !== null && value !== undefined)
@@ -428,8 +422,6 @@ function refreshCalendar(period, view) {
     block.querySelector('.calendar-wrapper').remove();
     block.querySelector('.filter-dropdown-content').remove();
 
-    //buildCalendar(deliverables, block, period, view);
-    //buildCalendar(testCalendar, block, year);
     buildCalendar(deliverables, block, view, deliverableMapping, period);
 }
 
