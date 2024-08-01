@@ -79,12 +79,10 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
         // find the earliest date- this is how we set the position for the group against the calendar
         let earliestStartDate = getTimeBounds(matchedItems, "start", startDateProp);
-        console.log(`Start date full year: ${earliestStartDate.getFullYear()}`);
         earliestStartDate = (earliestStartDate.getFullYear() === 1969) ? viewStart : earliestStartDate;
         let latestEndDate = getTimeBounds(matchedItems, "end", endDateProp);
         latestEndDate = (latestEndDate.getFullYear() === 1969) ? viewEnd : latestEndDate;
 
-        console.log(`Earliest start date: ${earliestStartDate} || End date: ${latestEndDate}`)
         const startMonth = (earliestStartDate.getUTCMonth()); // getMonth returns 0-11 but this is desirable
         const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
         const endMonth = (latestEndDate.getUTCMonth());
@@ -118,22 +116,9 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
-        console.log(matchedItems);
         matchedItems.forEach((item) => {
             const itemStartDate = (item[startDateProp]) ? new Date(item[startDateProp]) : viewStart;
             const itemEndDate = (item[endDateProp]) ? new Date(item[endDateProp]) : viewEnd;
-            console.log(`Item start date: ${itemStartDate} || End date: ${itemEndDate}`)
-            /*
-            let itemEndDate;
-            if (item[endDateProp]) {
-                itemEndDate = new Date(item[endDateProp]);
-                console.log(`Item had an end date`);
-            } else {
-                itemEndDate = new Date(itemStartDate);
-                itemEndDate.setMonth(itemStartDate.getMonth() + 1);
-                console.log(`Item did not have an end date. Start date: ${itemStartDate} || End date: ${itemEndDate}`);
-            }*/
-
 
             const itemEndDateStr = itemEndDate ? itemEndDate.toLocaleDateString().split(',')[0] : null;
             const itemDuration = Math.floor((itemEndDate.getTime() - itemStartDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -323,21 +308,6 @@ function changePeriod(event) {
     refreshCalendar(newPeriod, view);
 }
 
-/*
-function getUniqueYears(items) {
-    const yearsSet = new Set();
-  
-    items.forEach(item => {
-      const year = item[startDateProp].split('-')[0];
-      yearsSet.add(year); 
-    });
-  
-    const years = Array.from(yearsSet); 
-    years.sort((a, b) => parseInt(a) - parseInt(b));
-    return years;
-}*/
-
-
 function getUniqueYears(items) {
     const yearsSet = new Set();
     items.forEach(item => {
@@ -347,15 +317,12 @@ function getUniqueYears(items) {
             yearsSet.add(year);
         }
     });
-    console.log(`Yearsset in uniqueyears function: ${yearsSet.size}`);
     if (yearsSet.size === 0) {
-        
         const startYear = viewStart.getFullYear();
         const endYear = viewEnd.getFullYear();
         for (let year = startYear; year <= endYear; year++) {
             yearsSet.add(year);
         }
-        console.log(`STart year: ${startYear} || End year: ${endYear}`)
     }
     const years = Array.from(yearsSet);
     years.sort((a, b) => parseInt(a) - parseInt(b));
@@ -387,7 +354,6 @@ function dismissDropdown(event) {
 function filterDropdownSelection(event, viewStartYear, numYears) {
     // if we're hopping views, redraw the calendar
     // if not just scroll
-    console.log(`in filterdropdownselection`);
     const calendarContentEl = document.querySelector('.calendar-content-wrapper');
     const currentView = calendarContentEl.dataset.view;
 
@@ -406,18 +372,14 @@ function filterDropdownSelection(event, viewStartYear, numYears) {
     }
 
     const period = { 'year': year, 'quarter': quarter }
-    console.log(`Chosen year: ${year} || Chosen quarter: ${quarter} || Chosen view: ${view}`);
 
     if (currentView === view) {
         // scroll over
         const scrollPct = calculateScroll(view, viewStartYear, year, quarter, numYears);
-        console.log(`Scroll percent in dropdown selection: ${scrollPct}`);
         const calendarWrapper = document.querySelector('.calendar-wrapper');
         scrollToPosition(calendarWrapper, scrollPct);
-        console.log(`Not changing views`)
     } else {
         refreshCalendar(period, view);
-        console.log(`Changing views`);
     }
     dismissDropdown();
 }
