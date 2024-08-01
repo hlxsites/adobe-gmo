@@ -1,5 +1,6 @@
 import { testCalendar } from '../../scripts/shared-program.js';
 import { checkBlankString } from './shared-program.js';
+import { searchAsset } from '../../scripts/assets.js';
 
 let deliverables, deliverableMapping;
 let viewStart, viewEnd;
@@ -65,7 +66,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     // set up the content wrapper
     const contentWrapper = document.createElement('div');
     contentWrapper.classList.add('calendar-content-wrapper');
-    if (type === "quarter") { 
+    if (type === "quarter") {
         contentWrapper.classList.add('quarter-view');
         contentWrapper.dataset.view = "quarter";
     } else {
@@ -108,7 +109,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
             startPosition = parseFloat(startPosition) + parseFloat(columnWidth);
             endPosition = parseFloat(endPosition) + parseFloat(columnWidth);
         }
-            
+
         if (endMonth > 9) endPosition = endPosition - 0.35;
         const widthOfGroup = (endPosition - startPosition); // width of group = start position + (day duration)
         // calculate the duration of the group as that helps set the width of its members
@@ -126,11 +127,11 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
             let daysDifference = Math.floor((itemStartDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const startPctDiff = ((daysDifference / groupDuration) * 100).toFixed(2);
-
-            const itemEl = document.createElement('div');
+            let itemEl = document.createElement('div');
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
 
+            // Create a placeholder for the thumbnail
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
                 <div class="item-content">
@@ -146,15 +147,16 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
                         <div class="link">
                             <a href="${item.reviewLink}">QA Files</a>
                         </div>
-                    </div> 
+                    </div>
                 </div>
             `;
-            
             itemEl.style.width = itemDurationPct + '%';
+            // Call the new function to fetch and add the thumbnail
+            addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
             itemWrapper.appendChild(itemEl);
 
         });
-        
+
         const groupEl = document.createElement('div');
         groupEl.classList.add('calendar-group', `color${groupIndex}`);
         groupEl.style.marginLeft = startPosition + '%';
@@ -170,15 +172,15 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
                 <div class="right-block">
                 </div>
             </div>
-            ${itemWrapper.outerHTML}
         `;
-
+        groupEl.appendChild(itemWrapper);
         groupEl.querySelectorAll('.group-controls').forEach((arrow) => {
             arrow.addEventListener('click', showHideGroup);
         });
 
         contentWrapper.appendChild(groupEl);
         groupIndex +=1;
+
     });
 
     calendarEl.appendChild(contentWrapper);
@@ -217,11 +219,11 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
         quarterOption.addEventListener('click', (event) => filterDropdownSelection(event, viewStartYear, years.length));
         filterDropdown.appendChild(quarterOption);
     })
-    
+
     const filterDropdownWrapper = block.querySelector('.filter-dropdown-wrapper');
     filterDropdownWrapper.appendChild(filterDropdown);
     filterDropdownWrapper.querySelector('.filter-dropdown-button').addEventListener('click', (event) => toggleDropdown(event.target));
-    
+
     // scroll to the right
     const calendarWrapper = document.querySelector('.calendar-wrapper')
     const scrollPct = calculateScroll(type, viewStartYear, displayYear, displayQuarter, years.length);
@@ -262,6 +264,26 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     });
 }
 
+async function addThumbnailToItem(itemEl, programName, campaignName, deliverableType) {
+    try {
+        const imageObject = await searchAsset(programName, campaignName,deliverableType);
+        if (imageObject && imageObject.imageUrl) {
+            const thumbnailDiv = itemEl.querySelector('.thumbnail');
+            const imgElement = document.createElement('img');
+            imgElement.src = imageObject.imageUrl;
+            imgElement.alt = imageObject.imageAltText;
+            imgElement.loading = 'lazy';
+            thumbnailDiv.appendChild(imgElement);
+        } else {
+            console.error("Image Object does not have a valid imageUrl");
+        }
+    } catch (error) {
+        console.error("Failed to load thumbnail image:", error);
+    }
+}
+
+
+
 function getUniqueItems(items, property) {
     return [...new Set(items.flatMap(item => item[property])
         .filter(value => value !== null && value !== undefined)
@@ -285,7 +307,7 @@ function changePeriod(event) {
     const contentWrapper = document.querySelector('.calendar-content-wrapper');
     const view = contentWrapper.dataset.view;
     const currentYear = parseInt(yearEl.dataset.year);
-    
+
     let newPeriod, newYear, newQuarter;
 
     if (view === "quarter") {
@@ -307,6 +329,7 @@ function changePeriod(event) {
     newPeriod = { 'year': newYear, 'quarter': newQuarter };
     refreshCalendar(newPeriod, view);
 }
+
 
 function getUniqueYears(items) {
     const yearsSet = new Set();
