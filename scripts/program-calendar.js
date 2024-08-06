@@ -3,8 +3,8 @@ import { searchAsset } from '../../scripts/assets.js';
 
 let deliverables, deliverableMapping;
 let viewStart, viewEnd;
-const startDateProp = 'deliverableProjectStartDate';
-const endDateProp = 'deliverableProjectEndDate';
+const startDateProp = 'taskPlannedStartDate';
+const endDateProp = 'taskPlannedEndDate';
 
 export async function buildCalendar(dataObj, block, type, mappingArray, period) {
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
@@ -44,6 +44,11 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
     // get array of all years to be included
     let years = calendarYears(viewStartYear, viewEndYear);
+
+    if (years.length === 1) {
+        document.querySelector('.inc-dec-wrapper > .year-switch').classList.add('inactive');
+        document.querySelector('.inc-dec-wrapper > .current-year').classList.add('single');
+    }
 
     // build the calendar background here as we already know the period and style
     let calendarEl;
@@ -139,7 +144,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
                         </div>
                     </div>
                     <div class="content-row bottom">
-                        ${itemEndDateStr ? '<div class="start-date" title="Task End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
+                        ${itemEndDateStr ? '<div class="start-date" title="Task Planned End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
                         <div class="link">
                             <a href="${item.reviewLink}">QA Files</a>
                         </div>
@@ -396,6 +401,8 @@ function filterDropdownSelection(event, viewStartYear, numYears) {
         const calendarWrapper = document.querySelector('.calendar-wrapper');
         scrollToPosition(calendarWrapper, scrollPct);
     } else {
+        const viewStr = view.charAt(0).toUpperCase() + view.slice(1);
+        document.querySelector('.filter-dropdown-button > .label').textContent = `Selected View: ${viewStr}`;
         refreshCalendar(period, view);
     }
     dismissDropdown();

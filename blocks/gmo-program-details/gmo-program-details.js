@@ -195,7 +195,7 @@ export default async function decorate(block) {
                     <div class="today-button">Today</div>
                     <div class="filter-dropdown-wrapper">
                         <div class="filter-dropdown-button">
-                            <div class="label">Filter</div>
+                            <div class="label">Selected View: Year</div>
                             <span class="icon icon-chevronDown"></span>
                             <span class="icon icon-chevronUp inactive"></span>
                         </div>
