@@ -176,7 +176,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
                 <div class="left-block">
                     <img src="/icons/chevron-right.svg" class="group-expand group-controls inactive"></img>
                     <img src="/icons/chevron-right.svg" class="group-collapse group-controls"></img>
-                    <div class="group-heading">${lookupType(group)}</div>
+                    <div class="group-heading" title="${lookupType(group)}">${lookupType(group)}</div>
                     <div class="group-count">${matchedItems.length}</div>
                 </div>
                 <div class="right-block">

@@ -408,17 +408,19 @@ body {
                 color: white;
                 display: flex;
                 flex-direction: row;
-                flex-wrap: wrap;
+                flex-wrap: nowrap; /* Prevent wrapping */
                 align-content: center;
                 justify-content: space-between;
                 border-radius: 7px 7px 0px 0px;
+                padding-right: 0; /* Adjust padding if needed */
                 &.content-hidden {
                     border-radius: 7px;
                 }
                 & .left-block {
                     display: flex;
                     flex-direction: row;
-                    flex-wrap: wrap;
+                    align-items: center; /* Vertically center the items */
+                    flex-wrap: nowrap; /* Prevent wrapping within left-block */
                     align-content: center;
                     border-radius: 7px 7px 0px 0px;
                 }
@@ -433,17 +435,25 @@ body {
                 line-height: 24px;
                 height: 24px;
                 margin-left: 10px;
+                white-space: nowrap; /* Prevents the text from wrapping to a new line */
+                overflow: hidden; /* Hides the overflow text */
+                text-overflow: ellipsis; /* Adds an ellipsis (...) to indicate truncated text */
+                max-width: calc(100% - 50px); /* Adjusts the width to leave space for the group count */
+                display: inline-block; /* Ensures the element respects the max-width */
+                vertical-align: middle; /* Aligns it properly with other inline elements */
             }
             & .group-count {
+                display: inline-flex; /* Changed from flex to inline-flex */
+                align-items: center; /* Vertically center the content */
+                justify-content: center; /* Center the content horizontally */
+                min-width: 24px; /* Set minimum width instead of fixed width */
                 margin-left: 8px;
+                margin-right: 10px; /* Add margin if necessary to prevent overlapping */
                 height: 24px;
-                width: 32px;
                 border-radius: 10px;
                 line-height: 24px;
                 background-color: black;
                 background: rgba(0,0,0,0.2);
-                display: flex;
-                justify-content: center;
             }
             & .group-controls {
                 margin-left: 15px;
