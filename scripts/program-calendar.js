@@ -3,8 +3,8 @@ import { searchAsset } from '../../scripts/assets.js';
 
 let deliverables, deliverableMapping;
 let viewStart, viewEnd;
-const startDateProp = 'taskPlannedStartDatez';
-const endDateProp = 'taskPlannedEndDatez';
+const startDateProp = 'taskPlannedStartDate';
+const endDateProp = 'taskPlannedEndDate';
 
 export async function buildCalendar(dataObj, block, type, mappingArray, period) {
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
