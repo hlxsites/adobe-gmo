@@ -3,8 +3,8 @@ import { searchAsset } from '../../scripts/assets.js';
 
 let deliverables, deliverableMapping;
 let viewStart, viewEnd;
-const startDateProp = 'taskPlannedStartDate';
-const endDateProp = 'taskPlannedEndDate';
+const startDateProp = 'taskPlannedStartDatez';
+const endDateProp = 'taskPlannedEndDatez';
 
 export async function buildCalendar(dataObj, block, type, mappingArray, period) {
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
@@ -24,7 +24,9 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
     // get start of the view
     viewStart = getTimeBounds(deliverables, "start", startDateProp);
-    viewStart = (viewStart.getFullYear() === 1969) ? programLaunchDate : viewStart;    
+    if (!(isValidDate(viewStart)) || viewStart.getFullYear() === 1968) {
+        viewStart = programLaunchDate;
+    } 
     const viewStartYear = viewStart.getUTCFullYear();
 
     const displayYear = period ? period.year : viewStartYear;
@@ -36,7 +38,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
     // get end of the view
     viewEnd = getTimeBounds(deliverables, "end", endDateProp);
-    if (viewEnd.getFullYear() === 1969) {
+    if (!(isValidDate(viewEnd)) || viewEnd.getFullYear() === 1969) {
         viewEnd = new Date(viewStart);
         viewEnd.setMonth(viewStart.getMonth() + 1);
     }
@@ -609,4 +611,8 @@ function calculateScroll(type, viewStartYear, displayYear, displayQuarter, numYe
     } else {
         return (yearWidthOffsetPct).toFixed(2);
     }
+}
+
+function isValidDate(dateObj) {
+    return dateObj instanceof Date && !isNaN(dateObj);
 }
