@@ -24,9 +24,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
     // get start of the view
     viewStart = getTimeBounds(deliverables, "start", startDateProp);
-    if (!(isValidDate(viewStart)) || viewStart.getFullYear() === 1968) {
-        viewStart = programLaunchDate;
-    } 
+    viewStart = (!(isValidDate(viewStart)) || viewStart.getFullYear() === 1969) ? programLaunchDate : viewStart;   
     const viewStartYear = viewStart.getUTCFullYear();
 
     const displayYear = period ? period.year : viewStartYear;
@@ -83,9 +81,9 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
         // find the earliest date- this is how we set the position for the group against the calendar
         let earliestStartDate = getTimeBounds(matchedItems, "start", startDateProp);
-        earliestStartDate = (earliestStartDate.getFullYear() === 1969) ? viewStart : earliestStartDate;
+        earliestStartDate = (!(isValidDate(earliestStartDate)) || earliestStartDate.getFullYear() === 1969) ? viewStart : earliestStartDate;
         let latestEndDate = getTimeBounds(matchedItems, "end", endDateProp);
-        latestEndDate = (latestEndDate.getFullYear() === 1969) ? viewEnd : latestEndDate;
+        latestEndDate = (!(isValidDate(latestEndDate)) || latestEndDate.getFullYear() === 1969) ? viewEnd : latestEndDate;
 
         const startMonth = (earliestStartDate.getUTCMonth()); // getMonth returns 0-11 but this is desirable
         const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
