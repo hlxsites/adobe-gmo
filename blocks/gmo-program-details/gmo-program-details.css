@@ -403,12 +403,13 @@ body {
                 margin-bottom: 20px;
             }
             & .group-header {
+                position:relative;
                 height: 40px;
                 width: 100%;
                 color: white;
                 display: flex;
                 flex-direction: row;
-                flex-wrap: wrap;
+                flex-wrap: nowrap; /* Prevent wrapping */
                 align-content: center;
                 justify-content: space-between;
                 border-radius: 7px 7px 0px 0px;
@@ -418,7 +419,8 @@ body {
                 & .left-block {
                     display: flex;
                     flex-direction: row;
-                    flex-wrap: wrap;
+                    align-items: center; /* Vertically center the items */
+                    flex-wrap: nowrap; /* Prevent wrapping within left-block */
                     align-content: center;
                     border-radius: 7px 7px 0px 0px;
                 }
@@ -432,18 +434,30 @@ body {
             & .group-heading {
                 line-height: 24px;
                 height: 24px;
-                margin-left: 10px;
+                margin-left: 5px;
+                white-space: nowrap; /* Prevents the text from wrapping to a new line */
+                overflow: hidden; /* Hides the overflow text */
+                text-overflow: ellipsis; /* Adds an ellipsis (...) to indicate truncated text */
+                max-width: 100%; /* Adjusts the width to leave space for the group count */
+                display: inline-block; /* Ensures the element respects the max-width */
+                vertical-align: middle; /* Aligns it properly with other inline elements */
             }
             & .group-count {
+                position: absolute;
+                top: 50%; /* Align it vertically */
+                right: 10px; /* Align it horizontally to the right */
+                transform: translateY(-50%); /* Center the element vertically */
+                display: inline-flex;
+                align-items: center; /* Vertically center the content */
+                justify-content: center; /* Center the content horizontally */
+                min-width: 24px; /* Set minimum width instead of fixed width */
                 margin-left: 8px;
+                margin-right: 5px; /* Add margin if necessary to prevent overlapping */
                 height: 24px;
-                width: 32px;
                 border-radius: 10px;
                 line-height: 24px;
                 background-color: black;
                 background: rgba(0,0,0,0.2);
-                display: flex;
-                justify-content: center;
             }
             & .group-controls {
                 margin-left: 15px;
