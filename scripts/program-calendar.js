@@ -1,10 +1,17 @@
-import { checkBlankString } from './shared-program.js';
+import { checkBlankString, getMappingArray } from './shared-program.js';
 import { searchAsset } from '../../scripts/assets.js';
 
 let deliverables, deliverableMapping;
 let viewStart, viewEnd;
+
 const startDateProp = 'taskPlannedStartDate';
 const endDateProp = 'taskPlannedEndDate';
+const taskStatusMappings = await getMappingArray('taskStatus');
+
+// Helper function to get task status mapping
+function getTaskStatusMapping(taskStatus) {
+    return taskStatusMappings.find(mapping => mapping.value === taskStatus) || {};
+}
 
 export async function buildCalendar(dataObj, block, type, mappingArray, period) {
     if (!deliverables) deliverables = dataObj.data.deliverableList.items;
@@ -132,6 +139,10 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
 
+            // Find the corresponding color code from the taskStatusMappings array
+            const statusMapping = getTaskStatusMapping(item.taskStatus);
+            const { text: statusText = 'Unknown Status', 'color-code': colorCode = 'green' } = statusMapping;
+
             // Create a placeholder for the thumbnail
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
@@ -140,7 +151,11 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
                         <div class="info">
                             <div class="thumbnail"></div>
                             <div class="name" title="${item.deliverableName}">${item.deliverableName}</div>
-                            <div class="item-status" data-status="${checkBlankString(item.taskStatus)}"></div>
+                            <div class="item-status"
+                                 data-status="${checkBlankString(item.taskStatus)}"
+                                 style="background-color: #${colorCode};"
+                                 title="${statusText}">
+                            </div>
                         </div>
                     </div>
                     <div class="content-row bottom">
