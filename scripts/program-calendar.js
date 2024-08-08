@@ -52,9 +52,9 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     // get array of all years to be included
     let years = calendarYears(viewStartYear, viewEndYear);
 
+    // disable increment/decrement if only one year in view
     if (years.length === 1) {
-        document.querySelector('.inc-dec-wrapper > .year-switch').classList.add('inactive');
-        document.querySelector('.inc-dec-wrapper > .current-year').classList.add('single');
+        document.querySelector('.inc-dec-wrapper > .year-switch').classList.add('disabled');
     }
 
     // build the calendar background here as we already know the period and style
@@ -261,7 +261,9 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
     block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
         control.removeEventListener('click', changePeriod);
-        control.addEventListener('click', changePeriod);
+        if (years.length > 1) {
+            control.addEventListener('click', changePeriod);
+        }
     });
     block.querySelector('.right-controls .today-button').addEventListener('click', () => {
         const calendarWrapper = document.querySelector('.calendar-wrapper')
