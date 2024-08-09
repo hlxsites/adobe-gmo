@@ -3,8 +3,9 @@ import { searchAsset } from '../../scripts/assets.js';
 
 let deliverables, deliverableMapping;
 let viewStart, viewEnd;
-const startDateProp = 'deliverableProjectStartDate';
-const endDateProp = 'deliverableProjectEndDate';
+
+const startDateProp = 'taskPlannedStartDate';
+const endDateProp = 'taskPlannedEndDate';
 const taskStatusMappings = await getMappingArray('taskStatus');
 
 // Helper function to get task status mapping
@@ -30,7 +31,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
     // get start of the view
     viewStart = getTimeBounds(deliverables, "start", startDateProp);
-    viewStart = (viewStart.getFullYear() === 1969) ? programLaunchDate : viewStart;    
+    viewStart = (!(isValidDate(viewStart)) || viewStart.getFullYear() === 1969) ? programLaunchDate : viewStart;   
     const viewStartYear = viewStart.getUTCFullYear();
 
     const displayYear = period ? period.year : viewStartYear;
@@ -42,7 +43,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
     // get end of the view
     viewEnd = getTimeBounds(deliverables, "end", endDateProp);
-    if (viewEnd.getFullYear() === 1969) {
+    if (!(isValidDate(viewEnd)) || viewEnd.getFullYear() === 1969) {
         viewEnd = new Date(viewStart);
         viewEnd.setMonth(viewStart.getMonth() + 1);
     }
@@ -50,6 +51,11 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
     // get array of all years to be included
     let years = calendarYears(viewStartYear, viewEndYear);
+
+    // disable increment/decrement if only one year in view
+    if (years.length === 1) {
+        document.querySelector('.inc-dec-wrapper > .year-switch').classList.add('disabled');
+    }
 
     // build the calendar background here as we already know the period and style
     let calendarEl;
@@ -82,10 +88,9 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
         // find the earliest date- this is how we set the position for the group against the calendar
         let earliestStartDate = getTimeBounds(matchedItems, "start", startDateProp);
-        earliestStartDate = (earliestStartDate.getFullYear() === 1969) ? viewStart : earliestStartDate;
+        earliestStartDate = (!(isValidDate(earliestStartDate)) || earliestStartDate.getFullYear() === 1969) ? new Date(viewStart) : earliestStartDate;
         let latestEndDate = getTimeBounds(matchedItems, "end", endDateProp);
-        latestEndDate = (latestEndDate.getFullYear() === 1969) ? viewEnd : latestEndDate;
-
+        latestEndDate = (!(isValidDate(latestEndDate)) || latestEndDate.getFullYear() === 1969) ? new Date(viewEnd) : latestEndDate;
         const startMonth = (earliestStartDate.getUTCMonth()); // getMonth returns 0-11 but this is desirable
         const startDay = (earliestStartDate.getUTCDate() - 1); // if at start of month, we don't want to add any more margin
         const endMonth = (latestEndDate.getUTCMonth());
@@ -153,7 +158,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
                         </div>
                     </div>
                     <div class="content-row bottom">
-                        ${itemEndDateStr ? '<div class="start-date" title="Task End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
+                        ${itemEndDateStr ? '<div class="start-date" title="Task Planned End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
                         <div class="link">
                             <a href="${item.reviewLink}">QA Files</a>
                         </div>
@@ -256,7 +261,9 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
     block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
         control.removeEventListener('click', changePeriod);
-        control.addEventListener('click', changePeriod);
+        if (years.length > 1) {
+            control.addEventListener('click', changePeriod);
+        }
     });
     block.querySelector('.right-controls .today-button').addEventListener('click', () => {
         const calendarWrapper = document.querySelector('.calendar-wrapper')
@@ -410,6 +417,8 @@ function filterDropdownSelection(event, viewStartYear, numYears) {
         const calendarWrapper = document.querySelector('.calendar-wrapper');
         scrollToPosition(calendarWrapper, scrollPct);
     } else {
+        const viewStr = view.charAt(0).toUpperCase() + view.slice(1);
+        document.querySelector('.filter-dropdown-button > .label').textContent = `Selected View: ${viewStr}`;
         refreshCalendar(period, view);
     }
     dismissDropdown();
@@ -616,4 +625,8 @@ function calculateScroll(type, viewStartYear, displayYear, displayQuarter, numYe
     } else {
         return (yearWidthOffsetPct).toFixed(2);
     }
+}
+
+function isValidDate(dateObj) {
+    return dateObj instanceof Date && !isNaN(dateObj);
 }

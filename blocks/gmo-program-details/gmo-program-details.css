@@ -224,10 +224,17 @@ body {
                         transform: rotate(180deg);
                     }
                 }
+                &.disabled {
+                    background-color: #c6c6c6;
+                    cursor: default;
+                }
             }
             & .current-year {
                 line-height: 32px;
                 margin-left: 20px;
+                &.single {
+                    margin-left: unset;
+                }
             }
         }
         & .right-controls {
