@@ -112,7 +112,7 @@ body {
     margin-left: 16px;
 }
 
-.header-row3 .icon-categories {
+.header-row3 .icon-productGroup {
     width: 16px;
     height: 16px;
     background-image: url('/icons/folderOpenOutline.svg');
@@ -127,7 +127,7 @@ body {
     margin-left: 8px;
 }
 
-.header-row3 .categories {
+.header-row3 .productGroup {
     font: normal normal normal 14px/21px Adobe Clean;
     margin-left: 8px;
 }
