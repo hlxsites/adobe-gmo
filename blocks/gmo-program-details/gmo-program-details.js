@@ -293,10 +293,10 @@ function buildHeader(program, queryVars) {
             <span class="release-tier">Release Tier: ${program.releaseTier || "Not Available"}</span>
         </div>`;
 
-    const categories = `
+    const productGroup = `
         <div class="header-row3">
-            <span class="icon-categories"></span>
-            <span class="categories">${program.categories && program.categories.length > 0 ? program.categories.join(', ') : "Not Available"}</span>
+            <span class="icon-productGroup"></span>
+            <span class="productGroup">${program.productGroup && program.productGroup.length > 0 ? program.productGroup.join(', ') : "Not Available"}</span>
         </div>`;
 
     headerWrapper.innerHTML = `
@@ -311,7 +311,7 @@ function buildHeader(program, queryVars) {
               ${date}
               ${driverField}
               ${releaseTier}
-              ${categories}
+              ${productGroup}
             </div>
         </div>
     `
