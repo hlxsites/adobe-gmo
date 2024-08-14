@@ -28,6 +28,14 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
 
+    // if there are no deliverables, display msg to user and end construction.
+    if (deliverables.length === 0) {
+        const calendarTab = document.querySelector('.calendar.tab');
+        calendarTab.innerHTML = `
+            <div class="no-data-msg">Required Data is Unavailable.</div>
+        `;
+        return;
+    }
 
     // get start of the view
     viewStart = getTimeBounds(deliverables, "start", startDateProp);
