@@ -630,10 +630,11 @@ function scrollToPosition(element, scrollPct) {
     const maxScrollLeft = element.scrollWidth;
     const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
     element.scrollTo({
-        left: scrollAmt, // Replace with desired position
-        behavior: 'smooth' // Optional: for smooth scrolling
+        left: scrollAmt,
+        behavior: 'auto' 
     });
 }
+
 
 function calculateScroll(type, viewStartYear, displayYear, displayQuarter, numYears) {
     const yearDiff = displayYear - viewStartYear;
