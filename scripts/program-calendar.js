@@ -330,6 +330,8 @@ function changePeriod(event) {
     const contentWrapper = document.querySelector('.calendar-content-wrapper');
     const view = contentWrapper.dataset.view;
     const currentYear = parseInt(yearEl.dataset.year);
+    const maxYear = viewEnd.getUTCFullYear(); // Use the maximum year from the viewEnd variable
+    const minYear = viewStart.getUTCFullYear(); // Use the minimum year from the viewStart variable
 
     let newPeriod, newYear, newQuarter;
 
@@ -348,6 +350,15 @@ function changePeriod(event) {
     } else {
         newYear = (direction == 'right') ? (currentYear + 1) : (currentYear - 1);
         newQuarter = 1;
+    }
+
+    // Prevent the year from going beyond the maximum or minimum year
+    if (newYear > maxYear) {
+        newYear = maxYear;
+        newQuarter = 4; // If max year, set to the last quarter
+    } else if (newYear < minYear) {
+        newYear = minYear;
+        newQuarter = 1; // If min year, set to the first quarter
     }
     newPeriod = { 'year': newYear, 'quarter': newQuarter };
     refreshCalendar(newPeriod, view);
