@@ -353,13 +353,10 @@ function changePeriod(event) {
     }
 
     // Prevent the year from going beyond the maximum or minimum year
-    if (newYear > maxYear) {
-        newYear = maxYear;
-        newQuarter = 4; // If max year, set to the last quarter
-    } else if (newYear < minYear) {
-        newYear = minYear;
-        newQuarter = 1; // If min year, set to the first quarter
+    if (newYear > maxYear || newYear < minYear) {
+        return;
     }
+
     newPeriod = { 'year': newYear, 'quarter': newQuarter };
     refreshCalendar(newPeriod, view);
 }
@@ -630,11 +627,10 @@ function scrollToPosition(element, scrollPct) {
     const maxScrollLeft = element.scrollWidth;
     const scrollAmt = (maxScrollLeft) * (scrollPct / 100);
     element.scrollTo({
-        left: scrollAmt,
-        behavior: 'auto' 
+        left: scrollAmt, // Replace with desired position
+        behavior: 'smooth' // Optional: for smooth scrolling
     });
 }
-
 
 function calculateScroll(type, viewStartYear, displayYear, displayQuarter, numYears) {
     const yearDiff = displayYear - viewStartYear;
