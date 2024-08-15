@@ -189,6 +189,12 @@ body {
 }
 .tab.calendar {
     margin-top:10px;
+    & > .no-data-msg {
+        height: 100px;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+    }
     & > .control-wrapper {
         height: 32px;
         padding-top: 1px;
