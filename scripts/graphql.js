@@ -47,6 +47,8 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
   const encodedCursor = encodeURIComponent(cursor);
   const encodedFilter = encodeURIComponent(JSON.stringify(filter));
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}first=${encodedFirst}${encodedSemiColon}cursor=${encodedCursor}${encodedSemiColon}filter=${encodedFilter}`;
+  //Performance logging
+  const startTime = performance.now();
   const jwtToken = await getBearerToken();
 
   try {
@@ -57,6 +59,10 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
       },
     };
     const response = await fetch(`${graphqlEndpoint}`, options);
+    //Performance logging
+    const endTime = performance.now();
+    const executionTime = endTime - startTime;
+    console.log(`getAllCampaigns Execution Time: ${executionTime} ms`);
     // Handle response codes
     if (response.status === 200) {
       const responseBody = await response.json();
@@ -170,6 +176,8 @@ export async function executeQuery(queryString) {
   const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
   const projectId = 'gmo';
   const queryEndpoint = `${baseApiUrl}/${projectId}/${queryString}`;
+  //Performance logging
+  const startTime = performance.now();
   const jwtToken = await getBearerToken();
 
   return fetch(queryEndpoint, {
@@ -181,6 +189,11 @@ export async function executeQuery(queryString) {
       if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
       }
+      //Performance logging
+      const endTime = performance.now();
+      const executionTime = endTime - startTime;
+      console.log(`executeQuery for ${queryString} Execution Time: ${executionTime} ms`);
+
       return response.json();
   }).then(data => {
       return data; // Make sure to return the data so that the promise resolves with it
