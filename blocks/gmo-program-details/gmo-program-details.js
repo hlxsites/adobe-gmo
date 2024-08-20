@@ -89,6 +89,8 @@ export default async function decorate(block) {
     const audiences = buildAudienceList(program).outerHTML;
     const artifactLinks = buildArtifactLinks(program).outerHTML;
 
+    const currentYear = new Date().getFullYear();
+
     // Inject the additional HTML content
     block.querySelector('.main-body-wrapper').innerHTML += `
         <div class="tab-wrapper">
@@ -189,7 +191,7 @@ export default async function decorate(block) {
                             <img class="right" data-direction="right" src="/icons/chevron-right.svg"></img>
                         </div>
                     </div>
-                    <div class="current-year" data-quarter="1" data-year="2024">2024</div>
+                    <div class="current-year" data-quarter="1" data-year="${currentYear}">${currentYear}</div>
                 </div>
                 <div class="right-controls">
                     <div class="today-button">Today</div>
