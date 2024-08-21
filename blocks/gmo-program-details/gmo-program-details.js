@@ -17,8 +17,10 @@ export default async function decorate(block) {
     const encodedProgram = encodeURIComponent(programName);
 
     blockConfig = readBlockConfig(block);
-
+    // Including path in the query if present
+    const pathParam = queryVars.path ? `&path=${encodeURIComponent(queryVars.path)}` : '';
     const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
 
     // Immediately render a placeholder header
@@ -698,6 +700,7 @@ function attachListener(htmlElement) {
     })
 }
 
+/* old code
 function extractQueryVars() {
     const urlStr = window.location.href;
     const pnRegex = /.*programName=(.*?)&programID=(.*)/;
@@ -719,3 +722,31 @@ function extractQueryVars() {
         }
     }
 }
+*/
+
+
+function extractQueryVars() {
+    const urlStr = window.location.href;
+    const pnRegex = /[?&]programName=([^&]+)&programID=([^&]+)(&path=([^&]+))?/;
+    const match = urlStr.match(pnRegex);
+    if (match && match[1] && match[2]) {
+        const pName = decodeURIComponent(match[1].replace(/\+/g, ' '));
+        let pID = decodeURIComponent(match[2].replace(/\+/g, ' '));
+        let pPath = match[4] ? decodeURIComponent(match[4].replace(/\+/g, ' ')) : null;
+        if (pID.endsWith('#')) {
+            pID = pID.slice(0, -1);
+        }
+        return {
+            programName: pName,
+            programID: pID,
+            path: pPath
+        };
+    } else {
+        return {
+            programName: 'Program Name Not Available',
+            programID: 'Program ID Not Available',
+            path: null
+        };
+    }
+}
+
