@@ -32,7 +32,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     if (deliverables.length === 0) {
         const calendarTab = document.querySelector('.calendar.tab');
         calendarTab.innerHTML = `
-            <div class="no-data-msg">Required Data is Unavailable.</div>
+            <div class="no-data-msg">Required Data is Unavailable for this view.</div>
         `;
         return;
     }
