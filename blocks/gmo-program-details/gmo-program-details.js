@@ -15,11 +15,12 @@ const platformMappings = getMappingArray('platforms');
 export default async function decorate(block) {
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
+    const encodedPath = queryVars.path ? `${encodeURIComponent(queryVars.path)}` : '';
 
     blockConfig = readBlockConfig(block);
     // Including path in the query if present
-    const pathParam = queryVars.path ? `&path=${encodeURIComponent(queryVars.path)}` : '';
-    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}` +
+        (encodedPath ? `${encodedSemi}path=${encodedPath}` : '');
 
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
 
@@ -700,39 +701,14 @@ function attachListener(htmlElement) {
     })
 }
 
-/* old code
-function extractQueryVars() {
-    const urlStr = window.location.href;
-    const pnRegex = /.*programName=(.*?)&programID=(.*)/;
-    const match = urlStr.match(pnRegex);
-    if (match && match[1] && match[2]) {
-        const pName = decodeURIComponent(match[1]);
-        let pID = decodeURIComponent(match[2])
-        if (pID.endsWith('#')) {
-            pID = pID.slice(0, -1);
-        }
-        return {
-            programName: pName,
-            programID: pID
-        }
-    } else {
-        return {
-            programName: 'Program Name Not Available',
-            programID: 'Program ID Not Available'
-        }
-    }
-}
-*/
-
-
 function extractQueryVars() {
     const urlStr = window.location.href;
     const pnRegex = /[?&]programName=([^&]+)&programID=([^&]+)(&path=([^&]+))?/;
     const match = urlStr.match(pnRegex);
     if (match && match[1] && match[2]) {
-        const pName = decodeURIComponent(match[1].replace(/\+/g, ' '));
-        let pID = decodeURIComponent(match[2].replace(/\+/g, ' '));
-        let pPath = match[4] ? decodeURIComponent(match[4].replace(/\+/g, ' ')) : null;
+        const pName = decodeURIComponent(match[1]); // Removed the replace method
+        let pID = decodeURIComponent(match[2]);
+        let pPath = match[4] ? decodeURIComponent(match[4]) : null;
         if (pID.endsWith('#')) {
             pID = pID.slice(0, -1);
         }
