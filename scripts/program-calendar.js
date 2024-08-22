@@ -168,7 +168,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
                     <div class="content-row bottom">
                         ${itemEndDateStr ? '<div class="start-date" title="Task Planned End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
                         <div class="link">
-                            <a href="${item.reviewLink}">QA Files</a>
+                            <a href="${item.reviewLink}" target="_blank">QA Files</a>
                         </div>
                     </div>
                 </div>
