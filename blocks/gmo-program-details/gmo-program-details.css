@@ -547,6 +547,7 @@ body {
                     background-color: lightgray;
                     border-radius: 4px;
                     margin-right: 5px;
+                    overflow: hidden;
                 }
                 & .link {
                     margin-right: 10px;
