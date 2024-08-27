@@ -62,7 +62,8 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
     //Performance logging
     const endTime = performance.now();
     const executionTime = endTime - startTime;
-    console.log(`getAllCampaigns Execution Time: ${executionTime} ms`);
+    console.debug(`getAllCampaigns Execution Time: ${executionTime} ms`);
+
     // Handle response codes
     if (response.status === 200) {
       const responseBody = await response.json();
@@ -192,7 +193,7 @@ export async function executeQuery(queryString) {
       //Performance logging
       const endTime = performance.now();
       const executionTime = endTime - startTime;
-      console.log(`executeQuery for ${queryString} Execution Time: ${executionTime} ms`);
+      console.debug(`executeQuery for ${queryString} Execution Time: ${executionTime} ms`);
 
       return response.json();
   }).then(data => {
