@@ -8,6 +8,10 @@ const startDateProp = 'taskPlannedStartDate';
 const endDateProp = 'taskPlannedEndDate';
 const taskStatusMappings = await getMappingArray('taskStatus');
 
+// Thumbnail cache array object to store the image objects for given programName, campaignName, and deliverableType
+//const thumbnailCache = [];
+const thumbnailCache = {};
+
 // Helper function to get task status mapping
 function getTaskStatusMapping(taskStatus) {
     return taskStatusMappings.find(mapping => mapping.value === taskStatus) || {};
@@ -90,7 +94,8 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     }
 
     var groupIndex = 1;
-    uniqueGroups.forEach((group) => {
+    
+    for (const group of uniqueGroups) {
         // find all members of this group
         const matchedItems = deliverables.filter(item => item.deliverableType === group);
 
@@ -132,7 +137,8 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
-        matchedItems.forEach((item) => {
+
+        for (const item of matchedItems) {
             const itemStartDate = (item[startDateProp]) ? new Date(item[startDateProp]) : viewStart;
             const itemEndDate = (item[endDateProp]) ? new Date(item[endDateProp]) : viewEnd;
 
@@ -174,11 +180,10 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
                 </div>
             `;
             itemEl.style.width = itemDurationPct + '%';
-            // Call the new function to fetch and add the thumbnail
-            addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
+            // Call the new function to fetch and add the thumbnail, ensuring sequential execution
+            await addThumbnailToItem(itemEl, item.programName, item.campaignName, item.deliverableType);
             itemWrapper.appendChild(itemEl);
-
-        });
+        }
 
         const groupEl = document.createElement('div');
         groupEl.classList.add('calendar-group', `color${groupIndex}`);
@@ -203,8 +208,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 
         contentWrapper.appendChild(groupEl);
         groupIndex +=1;
-
-    });
+    }
 
     calendarEl.appendChild(contentWrapper);
     block.querySelector('.calendar.tab').appendChild(calendarEl);
@@ -290,20 +294,33 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
 }
 
 async function addThumbnailToItem(itemEl, programName, campaignName, deliverableType) {
-    try {
-        const imageObject = await searchAsset(programName, campaignName,deliverableType);
-        if (imageObject && imageObject.imageUrl) {
-            const thumbnailDiv = itemEl.querySelector('.thumbnail');
-            const imgElement = document.createElement('img');
-            imgElement.src = imageObject.imageUrl;
-            imgElement.alt = imageObject.imageAltText;
-            imgElement.loading = 'lazy';
-            thumbnailDiv.appendChild(imgElement);
-        } else {
-            console.error("Image Object does not have a valid imageUrl");
+    // Create a unique key for the cache based on the parameters
+    const cacheKey = `${programName}-${campaignName}-${deliverableType}`;
+
+    // Check if the imageObject is already cached
+    let imageObject = thumbnailCache[cacheKey];
+
+    // If not cached, make the API call and store the result in the cache
+    if (!imageObject) {
+        try {
+            imageObject = await searchAsset(programName, campaignName, deliverableType);
+            thumbnailCache[cacheKey] = imageObject; // Store the result in the cache
+        } catch (error) {
+            console.error("Failed to load thumbnail image:", error);
+            return; // Exit the function if the API call fails
         }
-    } catch (error) {
-        console.error("Failed to load thumbnail image:", error);
+    }
+
+    // Use the cached or newly fetched imageObject
+    if (imageObject && imageObject.imageUrl) {
+        const thumbnailDiv = itemEl.querySelector('.thumbnail');
+        const imgElement = document.createElement('img');
+        imgElement.src = imageObject.imageUrl;
+        imgElement.alt = imageObject.imageAltText;
+        imgElement.loading = 'lazy';
+        thumbnailDiv.appendChild(imgElement);
+    } else {
+        console.error("Image Object does not have a valid imageUrl");
     }
 }
 
