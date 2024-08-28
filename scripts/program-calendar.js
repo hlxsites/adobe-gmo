@@ -8,8 +8,7 @@ const startDateProp = 'taskPlannedStartDate';
 const endDateProp = 'taskPlannedEndDate';
 const taskStatusMappings = await getMappingArray('taskStatus');
 
-// Thumbnail cache array object to store the image objects for given programName, campaignName, and deliverableType
-//const thumbnailCache = [];
+// Thumbnail cache array object to store the image objects using cacheKey = `${programName}-${campaignName}-${deliverableType}`;
 const thumbnailCache = {};
 
 // Helper function to get task status mapping
@@ -94,7 +93,7 @@ export async function buildCalendar(dataObj, block, type, mappingArray, period) 
     }
 
     var groupIndex = 1;
-    
+
     for (const group of uniqueGroups) {
         // find all members of this group
         const matchedItems = deliverables.filter(item => item.deliverableType === group);
