@@ -296,7 +296,7 @@ function buildHeader(program, queryVars) {
     const releaseTier = `
         <div class="header-row3">
             <span class="icon-release-tier"></span>
-            <span class="release-tier">Release Tier: ${program.releaseTier || "Not Available"}</span>
+            <span class="release-tier">Release Tier: ${program.releaseTier ? program.releaseTier : "Not Available"}</span>
         </div>`;
 
     const productGroup = `
@@ -754,7 +754,7 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
 
     // get start of the view
     viewStart = getTimeBounds(calendarDeliverables, "start", startDateProp);
-    viewStart = (!(isValidDate(viewStart)) || viewStart.getFullYear() === 1969) ? programLaunchDate : viewStart;   
+    viewStart = (!(isValidDate(viewStart)) || viewStart <= 0) ? programLaunchDate : viewStart;   
     const viewStartYear = viewStart.getUTCFullYear();
 
     const displayYear = period ? period.year : viewStartYear;
