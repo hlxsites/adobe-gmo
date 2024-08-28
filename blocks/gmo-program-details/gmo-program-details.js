@@ -3,7 +3,6 @@ import { executeQuery } from '../../scripts/graphql.js';
 import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
-//import { buildCalendar } from '../../scripts/program-calendar.js';
 
 let blockConfig;
 const queryVars = extractQueryVars();
