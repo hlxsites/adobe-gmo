@@ -15,13 +15,19 @@ const startDateProp = 'taskPlannedStartDate';
 const endDateProp = 'taskPlannedEndDate';
 let viewStart, viewEnd, calendarDeliverables;
 
+// Thumbnail cache array object to store the image objects using cacheKey = `${programName}-${campaignName}-${deliverableType}`;
+const thumbnailCache = {};
+
 export default async function decorate(block) {
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
+    const encodedPath = queryVars.path ? `${encodeURIComponent(queryVars.path)}` : '';
 
     blockConfig = readBlockConfig(block);
+    // Including path in the query if present
+    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}` +
+        (encodedPath ? `${encodedSemi}path=${encodedPath}` : '');
 
-    const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
 
     // Immediately render a placeholder header
@@ -705,23 +711,26 @@ function attachListener(htmlElement) {
 
 function extractQueryVars() {
     const urlStr = window.location.href;
-    const pnRegex = /.*programName=(.*?)&programID=(.*)/;
+    const pnRegex = /[?&]programName=([^&]+)&programID=([^&]+)(&path=([^&]+))?/;
     const match = urlStr.match(pnRegex);
     if (match && match[1] && match[2]) {
-        const pName = decodeURIComponent(match[1]);
-        let pID = decodeURIComponent(match[2])
+        const pName = decodeURIComponent(match[1]); // Removed the replace method
+        let pID = decodeURIComponent(match[2]);
+        let pPath = match[4] ? decodeURIComponent(match[4]) : null;
         if (pID.endsWith('#')) {
             pID = pID.slice(0, -1);
         }
         return {
             programName: pName,
-            programID: pID
-        }
+            programID: pID,
+            path: pPath
+        };
     } else {
         return {
             programName: 'Program Name Not Available',
-            programID: 'Program ID Not Available'
-        }
+            programID: 'Program ID Not Available',
+            path: null
+        };
     }
 }
 
@@ -890,8 +899,9 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
                 </div>
             `;
             itemEl.style.width = itemDurationPct + '%';
-            // Call the new function to fetch and add the thumbnail
-            addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
+
+            // Call the new function to fetch and add the thumbnail, ensuring sequential execution
+            await addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
             itemWrapper.appendChild(itemEl);
 
         };
@@ -1015,20 +1025,33 @@ async function getTaskStatusMapping(taskStatus) {
 }
 
 async function addThumbnailToItem(itemEl, programName, campaignName, deliverableType) {
-    try {
-        const imageObject = await searchAsset(programName, campaignName,deliverableType);
-        if (imageObject && imageObject.imageUrl) {
-            const thumbnailDiv = itemEl.querySelector('.thumbnail');
-            const imgElement = document.createElement('img');
-            imgElement.src = imageObject.imageUrl;
-            imgElement.alt = imageObject.imageAltText;
-            imgElement.loading = 'lazy';
-            thumbnailDiv.appendChild(imgElement);
-        } else {
-            console.error("Image Object does not have a valid imageUrl");
+    // Create a unique key for the cache based on the parameters, only add the campaignName in cacheKey when it is not null or empty
+    const cacheKey = campaignName ? `${programName}-${campaignName}-${deliverableType}` : `${programName}-${deliverableType}`;
+
+    // Check if the imageObject is already cached
+    let imageObject = thumbnailCache[cacheKey];
+
+    // If not cached, make the API call and store the result in the cache
+    if (!imageObject) {
+        try {
+            imageObject = await searchAsset(programName, campaignName, deliverableType);
+            thumbnailCache[cacheKey] = imageObject; // Store the result in the cache
+        } catch (error) {
+            console.error("Failed to load thumbnail image:", error);
+            return; // Exit the function if the API call fails
         }
-    } catch (error) {
-        console.error("Failed to load thumbnail image:", error);
+    }
+
+    // Use the cached or newly fetched imageObject
+    if (imageObject && imageObject.imageUrl) {
+        const thumbnailDiv = itemEl.querySelector('.thumbnail');
+        const imgElement = document.createElement('img');
+        imgElement.src = imageObject.imageUrl;
+        imgElement.alt = imageObject.imageAltText;
+        imgElement.loading = 'lazy';
+        thumbnailDiv.appendChild(imgElement);
+    } else {
+        console.error("Image Object does not have a valid imageUrl");
     }
 }
 
