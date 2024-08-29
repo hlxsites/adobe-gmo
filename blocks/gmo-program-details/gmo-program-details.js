@@ -1025,8 +1025,8 @@ async function getTaskStatusMapping(taskStatus) {
 }
 
 async function addThumbnailToItem(itemEl, programName, campaignName, deliverableType) {
-    // Create a unique key for the cache based on the parameters
-    const cacheKey = `${programName}-${campaignName}-${deliverableType}`;
+    // Create a unique key for the cache based on the parameters, only add the campaignName in cacheKey when it is not null or empty
+    const cacheKey = campaignName ? `${programName}-${campaignName}-${deliverableType}` : `${programName}-${deliverableType}`;
 
     // Check if the imageObject is already cached
     let imageObject = thumbnailCache[cacheKey];
