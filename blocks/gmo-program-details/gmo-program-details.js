@@ -1214,18 +1214,8 @@ function refreshCalendar(period, view) {
     block.querySelector('.calendar-wrapper').remove();
     block.querySelector('.filter-dropdown-content').remove();
 
-    buildCalendar(calendarDeliverables, block, view, deliverableMapping, period);
+    buildCalendar(calendarDeliverables, block, view, deliverableMappings, period);
 }
-
-// ?
-/*
-function lookupType(rawText) {
-    const typeMatch = deliverableMapping.filter(item => item.value === rawText);
-    const typeText =  typeMatch.length > 0 ? typeMatch[0].text : rawText;
-    return typeText;
-}
-    */
-
 
 function calendarYears(startYear, endYear) {
     let years = [];
