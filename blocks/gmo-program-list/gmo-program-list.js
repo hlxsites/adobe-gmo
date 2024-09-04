@@ -181,6 +181,7 @@ async function buildCampaignList(campaigns, numPerPage) {
         const programName = campaign.node.programName;
         const campaignName = campaign.node.campaignName;
         const programID = campaign.node.programID ? campaign.node.programID : "";
+        const path = campaign.node._path;
 
         campaignRow.classList.add('campaign-row');
         if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
@@ -190,9 +191,9 @@ async function buildCampaignList(campaigns, numPerPage) {
 
         const campaignIconLink = document.createElement('a');
         let campaignDetailsLink = host + `/${detailsPage}?programName=${programName}&`;
-        campaignDetailsLink += `programID=${programID}`
+        campaignDetailsLink += `programID=${programID}`;
+        campaignDetailsLink += `&path=${path}`;
         campaignIconLink.href = campaignDetailsLink;
-
         const campaignIcon = document.createElement('div');
         campaignIcon.classList.add('campaign-icon');
         campaignIcon.dataset.programname = programName;
@@ -202,7 +203,6 @@ async function buildCampaignList(campaigns, numPerPage) {
         campaignIconLink.appendChild(campaignIcon);
         const campaignNameWrapper = document.createElement('div');
         campaignNameWrapper.classList.add('campaign-name-wrapper', 'vertical-center');
-
 
         campaignNameWrapper.innerHTML = `
             <div class='campaign-name-label' data-property='campaign'>
