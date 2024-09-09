@@ -596,8 +596,8 @@ body {
                     background-color: #9D64E1;
                 }
             }
-            &#group5 {
-                background-color: #168a4a;
+            &.color5 {
+                background-color: #95dfb696;
                 border: 1px solid #24a25d;
                 & .group-header {
                     background-color: #137941;
