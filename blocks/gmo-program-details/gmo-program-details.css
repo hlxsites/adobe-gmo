@@ -454,7 +454,7 @@ body {
                 max-width: 100%; /* Adjusts the width to leave space for the group count */
                 display: inline-block; /* Ensures the element respects the max-width */
                 vertical-align: middle; /* Aligns it properly with other inline elements */
-                min-width: 45px; /* Ensure at least 5 characters show */
+                min-width: 52px; /* Ensure at least 5 characters show */
             }
             & .group-count {
                 position: absolute;
