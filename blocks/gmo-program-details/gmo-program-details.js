@@ -929,8 +929,7 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         });
 
         contentWrapper.appendChild(groupEl);
-        groupIndex +=1;
-
+        groupIndex = (groupIndex === 5) ? 1 : groupIndex + 1;
     };
 
     calendarEl.appendChild(contentWrapper);
