@@ -44,14 +44,15 @@ export default async function decorate(block) {
     // Wait for program data to render the actual header
     const programData = await executeQuery(programQueryString);
     const program = programData.data.programList.items[0];
-    const header = buildHeader(program, queryVars).outerHTML;
-
-    // Update the header with the actual data
-    block.querySelector('.placeholder-header').outerHTML = header;
 
     let imageObject = {imageUrl : '', imageAltText: '', assetCount: 0};
     let totalassets = 0;
-    if (program) {
+    let header = block.querySelector('.placeholder-header');
+
+    if (!(program === undefined)) {
+        const programHeader = buildHeader(program, queryVars).outerHTML;
+        // Update the header with the actual data
+        header.outerHTML = programHeader;
         try {
             imageObject = await searchAsset(program.programName, program.campaignName);
             if (imageObject) {
@@ -62,17 +63,17 @@ export default async function decorate(block) {
             console.error("Failed to load campaign image:", error);
         }
         decorateIcons(block);
-    }
-    else
-    {   //programName and campaignName is null
+    } else {
+        //programName and campaignName is null
+        header.textContent = 'Unable to retrieve program information.';
         block.innerHTML = `
         <div class="back-button">
             <span class="icon icon-back"></span>
             <span class="back-label">Back</span>
         </div>
         <div class="main-body-wrapper">
-            ${header}
-            <div class="no-data-msg">No data available.</div>
+            ${header.outerHTML}
+            <div class="no-data-msg">No program data available.</div>
         </div>
         `;
         try {
