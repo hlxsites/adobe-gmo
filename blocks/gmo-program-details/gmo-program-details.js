@@ -353,7 +353,7 @@ function insertImageIntoCampaignImg(block, imageObject) {
     imgElement.loading = 'lazy';
     imgElement.src = imageObject.imageUrl;
     imgElement.alt = imageObject.imageAltText;
-    campaignImgDiv.appendChild(imgElement);
+    if (campaignImgDiv) campaignImgDiv.appendChild(imgElement);
 }
 
 function switchTab(tab) {
