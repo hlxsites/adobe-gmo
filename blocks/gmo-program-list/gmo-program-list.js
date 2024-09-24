@@ -47,8 +47,39 @@ let currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 let currentGraphqlFilter = {};
 let totalPages = 0;
 //Get Campaign Count for pagination
-let campaignCount = await graphqlCampaignCount();
+let campaignCount = graphqlCampaignCount();
 let blockConfig;
+
+function showLoadingOverlay(targetDiv) {
+    const overlayEl = document.createElement('div');
+    overlayEl.className = 'loading-overlay';
+
+    // Create the spinner and loading message
+    const spinnerEl = document.createElement('div');
+    spinnerEl.className = 'loading-content';
+
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner';
+
+    const loadingMessage = document.createElement('span');
+    loadingMessage.className = 'loading-message';
+    loadingMessage.innerText = 'Loading...';
+
+    // Append spinner and message to content container
+    spinnerEl.appendChild(spinner);
+    spinnerEl.appendChild(loadingMessage);
+    overlayEl.appendChild(spinnerEl);
+
+    // Append overlay to the target div
+    targetDiv.appendChild(overlayEl);
+}
+
+function hideLoadingOverlay(targetDiv) {
+    const overlay = targetDiv.querySelector('.loading-overlay');
+    if (overlay) {
+        targetDiv.removeChild(overlay);
+    }
+}
 
 document.addEventListener('gmoCampaignListBlock', async function() {
     //Build graphq filter that is passed to the graphql persisted queries
@@ -74,6 +105,8 @@ document.addEventListener('gmoCampaignListBlock', async function() {
 });
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
+    block.innerHTML = ``;
+    showLoadingOverlay(block);
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
@@ -99,11 +132,11 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     currentPageInfo.itemCount = campaigns.length;
 
     // Calculate total number of pages
-    totalPages = Math.ceil(campaignCount / currentNumberPerPage);
+    totalPages = Math.ceil(await campaignCount / currentNumberPerPage);
 
     const listHeaders = buildListHeaders(headerConfig);
     const listItems = await buildCampaignList(campaigns, numPerPage);
-    const listFooter = buildListFooter(campaignCount, numPerPage);
+    const listFooter = buildListFooter(await campaignCount, numPerPage);
 
     block.innerHTML = `
         <div class="refresh-notification"></div>
@@ -117,6 +150,8 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     togglePaginationButtons();
 
     decorateIcons(block);
+
+    hideLoadingOverlay(block);
 
     // Lazy loading for images
     document.addEventListener('DOMContentLoaded', function() {
@@ -467,13 +502,13 @@ function repaginate(dropdown) {
     decorate(block, currentNumberPerPage, '', false, false);
 }
 
-function nextPage(nextBtn) {
+async function nextPage(nextBtn) {
     if (currentPage < totalPages) {
         currentPage++;
         const block = document.querySelector('.gmo-program-list.block');
-        decorate(block, currentNumberPerPage, currentPageInfo.nextCursor, false, true, currentGraphqlFilter);
+        await decorate(block, currentNumberPerPage, currentPageInfo.nextCursor, false, true, currentGraphqlFilter);
 
-        const prevBtn = document.querySelector('.footer-pagination-button.prev');
+        const prevBtn = block.querySelector('.footer-pagination-button.prev');
         prevBtn.classList.add('active');
 
         if (currentPage === totalPages) {
