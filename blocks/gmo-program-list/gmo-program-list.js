@@ -39,6 +39,7 @@ const headerConfig = [
 ]
 
 const DEFAULT_ITEMS_PER_PAGE = 8;
+//const programStatusMapping = statusMapping;
 //Global variables used by helper functions
 let currentPageInfo = {};
 let cursorArray = [];
@@ -93,7 +94,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentGraphqlFilter= generateFilterJSON(graphQLFilterArray);
     const block = document.querySelector('.gmo-program-list.block');
     //Get Campaign Count for pagination
-    campaignCount = await graphqlCampaignCount(currentGraphqlFilter);
+    campaignCount = graphqlCampaignCount(currentGraphqlFilter);
 
     //Reset page variables
     currentPageInfo = {};
@@ -105,7 +106,6 @@ document.addEventListener('gmoCampaignListBlock', async function() {
 });
 
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
-    block.innerHTML = ``;
     showLoadingOverlay(block);
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
@@ -135,7 +135,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     totalPages = Math.ceil(await campaignCount / currentNumberPerPage);
 
     const listHeaders = buildListHeaders(headerConfig);
-    const listItems = await buildCampaignList(campaigns, numPerPage);
+    const listItems = buildCampaignList(campaigns, numPerPage);
     const listFooter = buildListFooter(await campaignCount, numPerPage);
 
     block.innerHTML = `
@@ -144,7 +144,7 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
         </div>`;
     const listContainer = block.querySelector('.list-container');
     listContainer.appendChild(listHeaders);
-    listContainer.appendChild(listItems);
+    listContainer.appendChild(await listItems);
     listContainer.appendChild(listFooter);
     // Show Hide Previous and Next Page buttons
     togglePaginationButtons();
@@ -282,7 +282,7 @@ async function buildCampaignList(campaigns, numPerPage) {
 
         var campaignStatusWrapper = document.createElement('div');
         campaignStatusWrapper.classList.add('status-wrapper', 'column-6', 'vertical-center');
-        campaignStatusWrapper = buildStatus(campaignStatusWrapper, campaign);
+        campaignStatusWrapper = await buildStatus(campaignStatusWrapper, campaign);
 
         const campaignGeo = document.createElement('div');
         campaignGeo.textContent = formatGeos(campaign.node.p0TargetGeo);
@@ -305,10 +305,11 @@ function formatGeos(geoArray) {
     return geoArray.map(geo => geo.toUpperCase()).join(', ');
 }
 
-function buildStatus(statusWrapper, campaign) {
+async function buildStatus(statusWrapper, campaign) {
     const campaignStatus = document.createElement('div');
     const statusStr = checkBlankString(campaign.node.status);
-    const statusMatch = statusMapping.filter(item => item.value === statusStr);
+    const programStatusMapping = await statusMapping;
+    const statusMatch = programStatusMapping.filter(item => item.value === statusStr);
 
     let statusText, statusColor;
     if (statusMatch.length > 0) {
@@ -519,7 +520,7 @@ async function nextPage(nextBtn) {
     }
 }
 
-function prevPage(prevBtn) {
+async function prevPage(prevBtn) {
     if (currentPage > 1) {
         currentPage--;
         const block = document.querySelector('.gmo-program-list.block');
@@ -527,7 +528,7 @@ function prevPage(prevBtn) {
         const currentCursor = currentPageInfo.currentCursor;
         //Calculate cursor for previous page
         const indexCursor = cursorArray.indexOf(currentCursor) - currentNumberPerPage;
-        decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false,currentGraphqlFilter);
+        await decorate(block, currentNumberPerPage, cursorArray[indexCursor], true, false,currentGraphqlFilter);
         const nextBtn = document.querySelector('.footer-pagination-button.next');
         nextBtn.classList.add('active');
         if (currentPage === 1) {

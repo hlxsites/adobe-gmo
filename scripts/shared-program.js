@@ -3,7 +3,7 @@ import { getProductIconMapping, getBaseConfigPath, getQueryPaths } from './site-
 
 let iconMapping;
 const cfMapping = getQueryPaths();
-export let statusMapping = await getMappingArray('status');
+export let statusMapping = getMappingArray('status');
 export let productList = await getMappingArray('products');
 
 /**

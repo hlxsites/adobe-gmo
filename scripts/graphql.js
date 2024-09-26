@@ -5,6 +5,7 @@ import { logError } from './scripts.js';
 const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
 const projectId = 'gmo';
 
+/*
 export async function graphqlCampaignCount(filter = {}) {
   const queryName = 'getTotalPrograms';
   const encodedSemiColon = encodeURIComponent(';');
@@ -38,6 +39,41 @@ export async function graphqlCampaignCount(filter = {}) {
     throw error;
   }
 
+}
+  */
+
+export function graphqlCampaignCount(filter = {}) {
+  const queryName = 'getTotalPrograms';
+  const encodedSemiColon = encodeURIComponent(';');
+  const encodedFilter = encodeURIComponent(JSON.stringify(filter));
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}filter=${encodedFilter}`;
+
+  return getBearerToken()
+    .then(jwtToken => {
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: jwtToken,
+        },
+      };
+
+      return fetch(`${graphqlEndpoint}`, options);
+    })
+    .then(response => {
+      if (response.status === 200) {
+        return response.json().then(responseBody => responseBody.data.programList.items.length);
+      } else if (response.status === 404) {
+        return response.json().then(errorResponse => {
+          throw new Error(`Failed to get graphqlCampaignCount (404): ${errorResponse.detail}`);
+        });
+      } else {
+        throw new Error(`Failed to retrieve graphqlCampaignCount: ${response.status} ${response.statusText}`);
+      }
+    })
+    .catch(error => {
+      logError('graphqlCampaignCount', error);
+      throw error;
+    });
 }
 
 export async function graphqlAllCampaignsFilter(first,cursor,filter) {
