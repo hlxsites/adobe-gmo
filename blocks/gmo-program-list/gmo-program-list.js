@@ -1,7 +1,7 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
-import { getProductMapping, checkBlankString, statusMapping, dateFormat } from '../../scripts/shared-program.js'
+import { getProductMapping, checkBlankString, statusMapping, dateFormat, showLoadingOverlay, hideLoadingOverlay } from '../../scripts/shared-program.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -50,37 +50,6 @@ let totalPages = 0;
 //Get Campaign Count for pagination
 let campaignCount = graphqlCampaignCount();
 let blockConfig;
-
-function showLoadingOverlay(targetDiv) {
-    const overlayEl = document.createElement('div');
-    overlayEl.className = 'loading-overlay';
-
-    // Create the spinner and loading message
-    const spinnerEl = document.createElement('div');
-    spinnerEl.className = 'loading-content';
-
-    const spinner = document.createElement('div');
-    spinner.className = 'spinner';
-
-    const loadingMessage = document.createElement('span');
-    loadingMessage.className = 'loading-message';
-    loadingMessage.innerText = 'Loading...';
-
-    // Append spinner and message to content container
-    spinnerEl.appendChild(spinner);
-    spinnerEl.appendChild(loadingMessage);
-    overlayEl.appendChild(spinnerEl);
-
-    // Append overlay to the target div
-    targetDiv.appendChild(overlayEl);
-}
-
-function hideLoadingOverlay(targetDiv) {
-    const overlay = targetDiv.querySelector('.loading-overlay');
-    if (overlay) {
-        targetDiv.removeChild(overlay);
-    }
-}
 
 document.addEventListener('gmoCampaignListBlock', async function() {
     //Build graphq filter that is passed to the graphql persisted queries

@@ -29,6 +29,10 @@ body {
     }
 }
 
+.gmo-program-details-wrapper {
+    margin-top: 50px;
+}
+
 .gmo-program-details.block {
     & .h1 {
         font: normal normal bold 18px/27px Adobe Clean;

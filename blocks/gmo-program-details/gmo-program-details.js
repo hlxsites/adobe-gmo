@@ -1,6 +1,6 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray } from '../../scripts/shared-program.js';
+import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray, showLoadingOverlay, hideLoadingOverlay } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 
@@ -19,6 +19,7 @@ let viewStart, viewEnd, calendarDeliverables;
 const thumbnailCache = {};
 
 export default async function decorate(block) {
+    showLoadingOverlay(block);
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
     const encodedPath = queryVars.path ? `${encodeURIComponent(queryVars.path)}` : '';
@@ -219,7 +220,7 @@ export default async function decorate(block) {
     `;
 
     // Wait for deliverables data
-    const deliverables = await executeQuery(deliverableQueryString);
+    const deliverables = executeQuery(deliverableQueryString);
 
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
@@ -228,14 +229,14 @@ export default async function decorate(block) {
     buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
     buildFieldScopes('platforms', uniquePlatforms, block);
 
-    const table = await buildTable(await deliverables).then(async (rows) => {
+    const table = buildTable(await deliverables).then(async (rows) => {
         return rows;
     });
 
     // Batch Dom Updates
     const tableRoot = block.querySelector('.table-content');
     const fragment = document.createDocumentFragment();
-    fragment.appendChild(table);
+    fragment.appendChild(await table);
     tableRoot.appendChild(fragment);
 
     buildStatus(program.status);
@@ -266,6 +267,7 @@ export default async function decorate(block) {
     });
 
     decorateIcons(block);
+    hideLoadingOverlay(block);
     buildCalendar(await deliverables, block, "year", await deliverableMappings);
 }
 
@@ -478,7 +480,7 @@ function buildArtifactLinks(program) {
 async function buildStatus(status) {
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('campaign-status');
-    const statusMatch = filterArray(statusMapping, 'value', status);
+    const statusMatch = filterArray(await statusMapping, 'value', status);
     const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
     statusDiv.textContent = statusText;

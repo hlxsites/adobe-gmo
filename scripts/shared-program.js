@@ -63,3 +63,34 @@ export async function getMappingArray(type) {
     })
     return mappings;
 }
+
+export function showLoadingOverlay(targetDiv) {
+    const overlayEl = document.createElement('div');
+    overlayEl.className = 'loading-overlay';
+
+    // Create the spinner and loading message
+    const spinnerEl = document.createElement('div');
+    spinnerEl.className = 'loading-content';
+
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner';
+
+    const loadingMessage = document.createElement('span');
+    loadingMessage.className = 'loading-message';
+    loadingMessage.innerText = 'Loading...';
+
+    // Append spinner and message to content container
+    spinnerEl.appendChild(spinner);
+    spinnerEl.appendChild(loadingMessage);
+    overlayEl.appendChild(spinnerEl);
+
+    // Append overlay to the target div
+    targetDiv.appendChild(overlayEl);
+}
+
+export function hideLoadingOverlay(targetDiv) {
+    const overlay = targetDiv.querySelector('.loading-overlay');
+    if (overlay) {
+        targetDiv.removeChild(overlay);
+    }
+}
