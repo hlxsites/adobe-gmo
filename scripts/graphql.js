@@ -5,43 +5,6 @@ import { logError } from './scripts.js';
 const baseApiUrl = `${await getGraphqlEndpoint()}/graphql/execute.json`;
 const projectId = 'gmo';
 
-/*
-export async function graphqlCampaignCount(filter = {}) {
-  const queryName = 'getTotalPrograms';
-  const encodedSemiColon = encodeURIComponent(';');
-  const encodedFilter = encodeURIComponent(JSON.stringify(filter));
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}filter=${encodedFilter}`;
-  const jwtToken = await getBearerToken();
-
-  try {
-    const options = {
-      method: 'GET',
-      headers: {
-        Authorization: jwtToken,
-      },
-    };
-    const response = await fetch(`${graphqlEndpoint}`, options);
-    // Handle response codes
-    if (response.status === 200) {
-      const responseBody = await response.json();
-      return responseBody.data.programList.items.length;
-    } if (response.status === 404) {
-      // Handle 404 error
-      const errorResponse = await response.json();
-      throw new Error(`Failed to get graphqlCampaignCount (404): ${errorResponse.detail}`);
-    } else {
-      // Handle other response codes
-      throw new Error(`Failed to retrieve graphqlCampaignCount: ${response.status} ${response.statusText}`);
-    }
-  } catch (error) {
-    // Handle network or other errors
-    logError('graphqlCampaignCount', error);
-    throw error;
-  }
-
-}
-  */
-
 export function graphqlCampaignCount(filter = {}) {
   const queryName = 'getTotalPrograms';
   const encodedSemiColon = encodeURIComponent(';');

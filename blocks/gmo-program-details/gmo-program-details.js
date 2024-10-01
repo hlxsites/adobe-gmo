@@ -19,7 +19,6 @@ let viewStart, viewEnd, calendarDeliverables;
 const thumbnailCache = {};
 
 export default async function decorate(block) {
-    showLoadingOverlay(block);
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
     const encodedPath = queryVars.path ? `${encodeURIComponent(queryVars.path)}` : '';
@@ -41,6 +40,7 @@ export default async function decorate(block) {
         <div class="placeholder-header">Loading program details...</div>
     </div>
     `;
+    showLoadingOverlay(block);
 
     // Wait for program data to render the actual header
     const programData = await executeQuery(programQueryString);
