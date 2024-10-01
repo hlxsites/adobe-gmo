@@ -1,6 +1,10 @@
 body {
     background-color: rgb(247, 246, 246);
 }
+.gmo-program-list.block {
+    position: relative;
+    min-height: 500px;
+}
 .refresh-notification {
     text-align: right;
     font-size: 14px;
@@ -101,6 +105,7 @@ body {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 4;
+    line-clamp: 4;
     overflow: hidden;
     text-overflow: ellipsis;
 }
