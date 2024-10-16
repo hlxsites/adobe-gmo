@@ -1,16 +1,20 @@
 import { decorateIcons, readBlockConfig } from '../../scripts/lib-franklin.js';
 import { executeQuery } from '../../scripts/graphql.js';
-import { filterArray, getProductMapping, checkBlankString, dateFormat, statusMapping, getMappingArray, showLoadingOverlay, hideLoadingOverlay } from '../../scripts/shared-program.js';
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
+import { 
+    filterArray, getProductMapping, checkBlankString,
+    dateFormat, statusMapping, getMappingArray,
+    showLoadingOverlay, hideLoadingOverlay, div,
+    span, img
+} from '../../scripts/shared-program.js';
+
 
 let blockConfig;
+let deliverableMappings, platformMappings, taskStatusMappings;
 const queryVars = extractQueryVars();
 const programName = queryVars.programName;
 const programID = queryVars.programID;
-const deliverableMappings = getMappingArray('deliverableType');
-const platformMappings = getMappingArray('platforms');
-const taskStatusMappings = getMappingArray('taskStatus');
 const startDateProp = 'taskPlannedStartDate';
 const endDateProp = 'taskPlannedEndDate';
 let viewStart, viewEnd, calendarDeliverables;
@@ -18,38 +22,244 @@ let viewStart, viewEnd, calendarDeliverables;
 // Thumbnail cache array object to store the image objects using cacheKey = `${programName}-${campaignName}-${deliverableType}`;
 const thumbnailCache = {};
 
+/*  todo
+*   populate overview with static/placeholder html
+*       - add tabs with 'loading' spinner if you manage to click to them (deliverables, calendar)
+*       - products, audiences should have loading spinner?
+*/
+
 export default async function decorate(block) {
+    blockConfig = readBlockConfig(block);
+    block.innerHTML = ` `;
+
+    const currentYear = new Date().getFullYear();
+
+    const backButton = div({ class: 'back-button'}, span({ class: 'icon icon-back'}), span({ class: 'back-label'}, 'Back'));
+    const bodyWrapper = div({ class: 'main-body-wrapper'});
+    // todo: refactor css to fix this 'header-row3' stuff
+    const headerWrapper = div(
+        { class: 'details-header-wrapper'}, 
+        div({ class: 'campaign-img'}), 
+        div(
+            { class: 'header-title'},
+            div({ class: 'header-row1'}, span({ class: 'h1'}, 'Not Available')),
+            div(
+                { class: 'header-row2 header-row3'},
+                div({ class: 'header-row3 data-element'}, 
+                    span({ class: 'icon icon-calendar'}),
+                    span({ class: 'date-tooltip'}, 'Proposed Launch Date'),
+                    span({ class: 'campaign-date'}, 'Not Available'),
+                ),
+                span({ class: 'driver-text'}, 'Project Owner: Not Available'),
+                div(
+                    { class: 'header-row3 data-element'},
+                    span({ class: 'icon icon-release-tier'}),
+                    span({ class: 'release-tier'}, 'Release Tier: Not Available'),
+                ),
+                div(
+                    { class: 'header-row3 data-element'},
+                    span({ class: 'icon icon-productGroup'}),
+                    span({ class: 'productGroup'}, 'Not Available'),
+                ),
+             ),
+        ),
+    );
+
+    // tab wrapper
+    const tabWrapper = div(
+        { class: 'tab-wrapper'},
+        div({ id: 'tab1toggle', class: 'tabBtn active', 'data-target': 'tab1'}, 'Overview'),
+        div({ id: 'tab2toggle', class: 'tabBtn', 'data-target': 'tab2'}, 'Deliverables'),
+        div({ id: 'tab3toggle', class: 'tabBtn', 'data-target': 'tab3'}, 'Calendar'),
+    );
+
+    // overview tab
+    const overviewTab = div(
+        { id: 'tab1', class: 'two-column overview tab'},
+        div(
+            { class: 'overview-wrapper'},
+            span({ class: 'h1 overview-heading'}, 'At a Glance'),
+            div(
+                { class: 'product-overview-wrapper'},
+                span({ class: 'h3'}, 'Marketing Goal'),
+                div({ class: 'overview paragraph hide-overflow'}, ' '),
+                div({ class: 'button no-bg read-more'}, 'Read more'),
+            ),
+            div(
+                { class: 'product-value-wrapper'},
+                span({ class: 'h3'}, 'Product Value'),
+                div({ class: 'description paragraph hide-overflow'}, ' '),
+                div({ class: 'button no-bg read-more'}, 'Read more'),
+            ),
+            div(
+                { class: 'kpis-wrapper'},
+                span({ class: 'h3'}, 'KPIs to Measure Success'),
+            ),
+            div(
+                { class: 'kpis-wrapper market-wrapper'},
+                span({ class: 'h3'}, 'Target Market Area'),
+            ),
+            div(
+                { class: 'use-cases-wrapper inactive'},
+                span({ class: 'h3'}, 'Hero Use Cases'),
+                div(
+                    { class: 'tags-wrapper'},
+                    div({ class: 'use-case-tag'}, 'Text to Image'),
+                    div({ class: 'use-case-tag'}, 'Use Case 2'),
+                )
+
+            ),
+            div(
+                { class: 'main-message-wrapper inactive'},
+                span({ class: 'h3'}, 'Main Message'),
+                span(
+                    { class: 'description'},
+                    'A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.',
+                ),
+            ),
+            div(
+                { id: 'deliverable-type', class: 'channel-scope-wrapper'},
+                span({ class: 'h3'}, 'Deliverable Type'),
+                div({ class: 'tags-wrapper'}),
+            ),
+            div(
+                { id: 'platforms', class: 'channel-scope-wrapper'},
+                span({ class: 'h3'}, 'Platforms'),
+                div({ class: 'tags-wrapper'}),
+            ),
+        ),
+        div(
+            { class: 'infocards-wrapper'},
+            div(
+                { class: 'card products'},
+                div({ class: 'card-heading h3'}, 'Products'),
+            ),
+            div(
+                { class: 'card audiences'},
+                div({ class: 'card-heading h3'}, 'Audiences'),
+            )
+        ),
+    );
+
+    // deliverables tab
+    const deliverablesTab = div(
+        { id: 'tab2', class: 'deliverables tab inactive'},
+        div(
+            { class: 'page-heading'},
+            div(
+                { class: 'total-assets total-assets-tooltip' },
+                div({ class: 'h3'}, 'Total Approved Assets'),
+                span({ id: 'totalassets', class: 'description'}, 'Not Available'),
+                span(
+                    { class: 'tooltiptext'},
+                    'To view the assets, go to the "All Asset" search page and use Program and Campaign name facet to filter the assets.',
+                ),
+            ),
+        ),
+        div(
+            { class: 'table-wrapper'},
+            div(
+                { class: 'table-header' },
+                div({ class: 'header table-column column1' }, 'Deliverable Task Name'),
+                div({ class: 'header table-column column2' }, 'Deliverable Type'),
+                div({ class: 'header table-column column3' }, 'Platforms'),
+                div({ class: 'header table-column column4' }, 'QA Files'),
+                div({ class: 'header table-column column5' }, 'Final Asset'),
+                div({ class: 'header table-column column7' }, 'Status Update'),
+                div({ class: 'header table-column column8' }, 'Completion Date'),
+                div({ class: 'header table-column column9' }, 'Task Owner'),               
+            ),
+            div({ class: 'table-content' }),
+        )       
+    );
+
+    // calendar tab
+    const calendarTab = div(
+        { id: 'tab3', class: 'calendar tab inactive'},
+        div(
+            { class: 'control-wrapper' },
+            div(
+                { class: 'inc-dec-wrapper' },
+                div(
+                    { class: 'year-switch' },
+                    div(
+                        { id: 'dec-year', class: 'year-toggle' },
+                        img(
+                            { class: 'left', 'data-direction': 'left', src: '/icons/chevron-right.svg'},
+                        ),
+                    ),
+                    div(
+                        { id: 'inc-year', class: 'year-toggle' },
+                        img(
+                            { class: 'right', 'data-direction': 'right', src: '/icons/chevron-right.svg'},
+                        ),
+                    )
+                ),
+                div(
+                    { class: 'current-year', 'data-quarter': '1', 'data-year': `${currentYear}` },
+                    `${currentYear}`,
+                ),
+            ),
+            div(
+                { class: 'right-controls' },
+                div({ class: 'today-button' }, 'Today'),
+                div(
+                    { class: 'filter-dropdown-wrapper' },
+                    div(
+                        { class: 'filter-dropdown-button' },
+                        div({ class: 'label' }, 'Selected View: Year'),
+                        span({ class: 'icon icon-chevronDown' }),
+                        span({ class: 'icon icon-chevronUp inactive' }),
+                    ),
+                ),
+            ),
+        ),
+    );
+
+    bodyWrapper.appendChild(headerWrapper);
+    bodyWrapper.appendChild(tabWrapper);
+    bodyWrapper.appendChild(overviewTab);
+    bodyWrapper.appendChild(deliverablesTab);
+    bodyWrapper.appendChild(calendarTab);
+    showLoadingOverlay(bodyWrapper);
+    block.appendChild(backButton);
+    block.appendChild(bodyWrapper);
+    decorateIcons(block);
+
+    // add dynamic data
+    addProgramStats(block);
+
+    // todo: enable buttons/clickables
+    enableBackBtn(block, blockConfig);
+}
+
+async function addProgramStats(block) {
+    // mappings
+    deliverableMappings = getMappingArray('deliverableType');
+    platformMappings = getMappingArray('platforms');
+    taskStatusMappings = getMappingArray('taskStatus');
+
+    // main program data
     const encodedSemi = encodeURIComponent(';');
     const encodedProgram = encodeURIComponent(programName);
     const encodedPath = queryVars.path ? `${encodeURIComponent(queryVars.path)}` : '';
-
-    blockConfig = readBlockConfig(block);
-    // Including path in the query if present
     const programQueryString = `getProgramDetails${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}` +
         (encodedPath ? `${encodedSemi}path=${encodedPath}` : '');
-
-    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
-
-    // Immediately render a placeholder header
-    block.innerHTML = `
-    <div class="back-button">
-        <span class="icon icon-back"></span>
-        <span class="back-label">Back</span>
-    </div>
-    <div class="main-body-wrapper">
-        <div class="placeholder-header">Loading program details...</div>
-    </div>
-    `;
-    showLoadingOverlay(block);
-
-    // Wait for program data to render the actual header
     const programData = await executeQuery(programQueryString);
     const program = programData.data.programList.items[0];
+    const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
+    const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
+    const bodyWrapper = document.querySelector('.main-body-wrapper');
 
+    // for deliverable list
+    const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+
+    // for thumbnails
     let imageObject = {imageUrl : '', imageAltText: '', assetCount: 0};
     let totalassets = 0;
-    let header = block.querySelector('.placeholder-header');
 
+    // build header - todo: separate into own function
+    let header = block.querySelector('.details-header-wrapper');
     if (!(program === undefined)) {
         const programHeader = buildHeader(program, queryVars).outerHTML;
         // Update the header with the actual data
@@ -63,7 +273,6 @@ export default async function decorate(block) {
         } catch (error) {
             console.error("Failed to load campaign image:", error);
         }
-        decorateIcons(block);
     } else {
         //programName and campaignName is null
         header.textContent = 'Unable to retrieve program information.';
@@ -87,175 +296,52 @@ export default async function decorate(block) {
         } catch (error) {
             console.error("Failed to load campaign image:", error);
         }
-
-        decorateIcons(block);
-        enableBackBtn(block, blockConfig);
-        return;
+        hideLoadingOverlay(bodyWrapper);
     }
 
+    // start populating needed statistics and areas
+    // add major UI elements
     const p0TargetMarketArea = program.p0TargetMarketArea;
     const p1TargetMarketArea = program.p1TargetMarketArea;
-    const kpis = buildKPIList(program).outerHTML;
-    const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea).outerHTML;
-    const audiences = buildAudienceList(program).outerHTML;
-    const artifactLinks = buildArtifactLinks(program).outerHTML;
+    const kpis = buildKPIList(program);
+    const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea);
+    const audiences = buildAudienceList(program);
+    const artifactLinks = buildArtifactLinks(program);
 
-    const currentYear = new Date().getFullYear();
+    document.querySelector('.kpis-wrapper').appendChild(kpis);
+    document.querySelector('.market-wrapper').appendChild(targetMarketAreas);
+    document.querySelector('.card.audiences').appendChild(audiences);
+    document.querySelector('.overview-wrapper').appendChild(artifactLinks);
 
-    // Inject the additional HTML content
-    block.querySelector('.main-body-wrapper').innerHTML += `
-        <div class="tab-wrapper">
-            <div id="tab1toggle" data-target="tab1" class="tabBtn active">Overview</div>
-            <div id="tab2toggle" data-target="tab2" class="tabBtn">Deliverables</div>
-            <div id="tab3toggle" data-target="tab3" class="tabBtn">Calendar</div>
-        </div>
-        <div id="tab1" class="two-column overview tab">
-            <div class="overview-wrapper">
-                <span class="h1 overview-heading">At a Glance</span>
-                <div class="product-overview-wrapper">
-                    <span class="h3">Marketing Goal</span>
-                    <div class="overview paragraph hide-overflow">${checkBlankString(program.marketingGoal.plaintext)}</div>
-                    <div class="button no-bg read-more">Read more</div>
-                </div>
-                <div class="product-value-wrapper">
-                    <span class="h3">Product Value</span>
-                    <div class="description paragraph hide-overflow">${checkBlankString(program.productValue.plaintext)}</div>
-                    <div class="button no-bg read-more">Read more</div>
-                </div>
-                <div class="kpis-wrapper">
-                    <span class="h3">KPIs to Measure Success</span>
-                    ${kpis}
-                </div>
-                <div class="kpis-wrapper">
-                    <span class="h3">Target Market Area</span>
-                    ${targetMarketAreas}
-                </div>
-                <div class="use-cases-wrapper inactive">
-                    <span class="h3">Hero Use Cases</span>
-                    <div class="tags-wrapper">
-                        <div class="use-case-tag">Text to Image</div>
-                        <div class="use-case-tag">Use Case 2</div>
-                    </div>
-                </div>
-                <div class="main-message-wrapper inactive">
-                    <span class="h3">Main Message</span>
-                    <span class="description">
-                        A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.
-                    </span>
-                </div>
+    // add text
+    const marketingGoal = checkBlankString(program.marketingGoal.plaintext);
+    document.querySelector('.product-overview-wrapper > .paragraph').textContent = marketingGoal;
+    const productValue = checkBlankString(program.productValue.plaintext);
+    document.querySelector('.product-value-wrapper > .paragraph').textContent = productValue;
 
-                <div id="deliverable-type" class="channel-scope-wrapper">
-                    <span class="h3">Deliverable Type</span>
-                    <div class="tags-wrapper">
-                    </div>
-                </div>
-
-                <div id="platforms" class="channel-scope-wrapper">
-                    <span class="h3">Platforms</span>
-                    <div class="tags-wrapper">
-                    </div>
-                </div>
-                ${artifactLinks}
-            </div>
-            <div class="infocards-wrapper">
-                <div class="card products">
-                    <div class="card-heading h3">Products</div>
-                </div>
-                <div class="card audiences">
-                    <div class="card-heading h3">Audiences</div>
-                    ${audiences}
-                </div>
-            </div>
-        </div>
-        <div id="tab2" class="deliverables tab inactive">
-            <div class="page-heading">
-                ${artifactLinks}
-                <div class="total-assets total-assets-tooltip">
-                    <div class="h3">Total Approved Assets</div>
-                    <span id="totalassets" class="description">${totalassets}</span>
-                    <span class="tooltiptext">To view the assets, go to the "All Asset" search page and use Program and Campaign name facet to filter the assets</span>
-                </div>
-            </div>
-            <div class="table-wrapper">
-                <div class="table-header">
-                    <div class="header table-column column1">Deliverable Task Name</div>
-                    <div class="header table-column column2">Deliverable Type</div>
-                    <div class="header table-column column3">Platforms</div>
-                    <div class="header table-column column4">QA Files</div>
-                    <div class="header table-column column5">Final Asset</div>
-                    <div class="header table-column column7">Status Update</div>
-                    <div class="header table-column column8">Completion Date</div>
-                    <div class="header table-column column9">Task Owner</div>
-                </div>
-                <div class="table-content">
-                </div>
-            </div>
-        </div>
-        <div id="tab3" class="calendar tab inactive">
-            <div class="control-wrapper">
-                <div class="inc-dec-wrapper">
-                    <div class="year-switch">
-                        <div id="dec-year" class="year-toggle">
-                            <img class="left" data-direction="left" src="/icons/chevron-right.svg"></img>
-                        </div>
-                        <div id="inc-year" class="year-toggle">
-                            <img class="right" data-direction="right" src="/icons/chevron-right.svg"></img>
-                        </div>
-                    </div>
-                    <div class="current-year" data-quarter="1" data-year="${currentYear}">${currentYear}</div>
-                </div>
-                <div class="right-controls">
-                    <div class="today-button">Today</div>
-                    <div class="filter-dropdown-wrapper">
-                        <div class="filter-dropdown-button">
-                            <div class="label">Selected View: Year</div>
-                            <span class="icon icon-chevronDown"></span>
-                            <span class="icon icon-chevronUp inactive"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    `;
-
-    // Wait for deliverables data
-    const deliverables = executeQuery(deliverableQueryString);
-
-    const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
-    const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
-
+    // additional dom updates
     buildProductCard(program);
     buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
     buildFieldScopes('platforms', uniquePlatforms, block);
 
+    // deliverables tab
+    const deliverables = executeQuery(deliverableQueryString);
+    document.querySelector('.page-heading').appendChild(artifactLinks);
+    document.querySelector('.total-assets > .description').textContent = totalassets;
+
     const table = buildTable(await deliverables).then(async (rows) => {
         return rows;
     });
-
-    // Batch Dom Updates
     const tableRoot = block.querySelector('.table-content');
     const fragment = document.createDocumentFragment();
     fragment.appendChild(await table);
     tableRoot.appendChild(fragment);
-
     buildStatus(program.status);
 
-    // Optimize Event Listeners: Added debouncing to event listeners to prevent performance issues.
-    const debounce = (func, delay) => {
-        let timeout;
-        return (...args) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), delay);
-        };
-    };
+    // calendar tab
+    buildCalendar(await deliverables, block, "year", await deliverableMappings);
 
-    block.querySelector('.tab-wrapper').addEventListener('click', debounce((event) => {
-        switchTab(event.target);
-    }, 300));
-
-    enableBackBtn(block, blockConfig);
-    
+    // enable 'read more' buttons
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
@@ -266,9 +352,16 @@ export default async function decorate(block) {
         });
     });
 
+    // enable tab switching
+    block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
+        switchTab(event.target);
+    });
+
+    // decorate any new icons
     decorateIcons(block);
-    hideLoadingOverlay(block);
-    buildCalendar(await deliverables, block, "year", await deliverableMappings);
+
+    // remove loading spinner
+    hideLoadingOverlay(bodyWrapper);
 }
 
 function enableBackBtn(block, blockConfig) {
