@@ -294,8 +294,8 @@ async function addProgramStats(block) {
 
     // start populating needed statistics and areas
     // add major UI elements
-    const p0TargetMarketArea = program.p0TargetMarketArea;
-    const p1TargetMarketArea = program.p1TargetMarketArea;
+    const p0TargetMarketArea = program.p0TargetMarketArea ? program.p0TargetMarketArea : null;
+    const p1TargetMarketArea = program.p1TargetMarketArea ? program.p1TargetMarketArea : null;
     const kpis = buildKPIList(program);
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea);
     const audiences = buildAudienceList(program);
