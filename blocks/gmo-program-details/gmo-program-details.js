@@ -290,6 +290,7 @@ async function addProgramStats(block) {
             console.error("Failed to load campaign image:", error);
         }
         hideLoadingOverlay(bodyWrapper);
+        enableBackBtn(block, blockConfig);
         decorateIcons(block);
         return;
     }
