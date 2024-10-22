@@ -103,14 +103,6 @@ export default async function decorate(block) {
 
             ),
             div(
-                { class: 'main-message-wrapper inactive'},
-                span({ class: 'h3'}, 'Main Message'),
-                span(
-                    { class: 'description'},
-                    'A major genAI release of the Photoshop beta app that delivers new and enhanced generative AI capabilities.',
-                ),
-            ),
-            div(
                 { id: 'deliverable-type', class: 'channel-scope-wrapper'},
                 span({ class: 'h3'}, 'Deliverable Type'),
                 div({ class: 'tags-wrapper'}),
