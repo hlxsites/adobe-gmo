@@ -290,6 +290,8 @@ async function addProgramStats(block) {
             console.error("Failed to load campaign image:", error);
         }
         hideLoadingOverlay(bodyWrapper);
+        decorateIcons(block);
+        return;
     }
 
     // start populating needed statistics and areas
