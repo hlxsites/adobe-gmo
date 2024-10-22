@@ -22,12 +22,6 @@ let viewStart, viewEnd, calendarDeliverables;
 // Thumbnail cache array object to store the image objects using cacheKey = `${programName}-${campaignName}-${deliverableType}`;
 const thumbnailCache = {};
 
-/*  todo
-*   populate overview with static/placeholder html
-*       - add tabs with 'loading' spinner if you manage to click to them (deliverables, calendar)
-*       - products, audiences should have loading spinner?
-*/
-
 export default async function decorate(block) {
     blockConfig = readBlockConfig(block);
     block.innerHTML = ` `;
@@ -36,7 +30,6 @@ export default async function decorate(block) {
 
     const backButton = div({ class: 'back-button'}, span({ class: 'icon icon-back'}), span({ class: 'back-label'}, 'Back'));
     const bodyWrapper = div({ class: 'main-body-wrapper'});
-    // todo: refactor css to fix this 'header-row3' stuff
     const headerWrapper = div(
         { class: 'details-header-wrapper'}, 
         div({ class: 'campaign-img'}), 
@@ -229,7 +222,7 @@ export default async function decorate(block) {
     // add dynamic data
     addProgramStats(block);
 
-    // todo: enable buttons/clickables
+    // enable back button
     enableBackBtn(block, blockConfig);
 }
 
@@ -258,7 +251,7 @@ async function addProgramStats(block) {
     let imageObject = {imageUrl : '', imageAltText: '', assetCount: 0};
     let totalassets = 0;
 
-    // build header - todo: separate into own function
+    // build header
     let header = block.querySelector('.details-header-wrapper');
     if (!(program === undefined)) {
         const programHeader = buildHeader(program, queryVars).outerHTML;
@@ -1439,7 +1432,7 @@ function scrollOnInit(element, scrollPct) {
 }
 
 function getHorizontalOverflow(element) {
-    return element.scrollWidth - element.clientWidth;
+    return ((element.scrollWidth - element.clientWidth) + 4);
 }
 
 function resizeGroups() {
