@@ -31,10 +31,12 @@ body {
 
 .gmo-program-details-wrapper {
     margin-top: 50px;
+    min-height: 400px;
 }
 
 .gmo-program-details.block {
     position: relative;
+    min-height: 400px;
     & .h1 {
         font: normal normal bold 18px/27px Adobe Clean;
     }
@@ -48,6 +50,8 @@ body {
         font: normal normal normal 14px/21px Adobe Clean;
     }
     & > .main-body-wrapper {
+        min-height: 300px;
+        position: relative;
         display: flex;
         flex-direction: column;
         background: #FFFFFF;
