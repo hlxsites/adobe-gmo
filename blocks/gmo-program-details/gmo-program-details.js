@@ -306,7 +306,7 @@ async function addProgramStats(block) {
     document.querySelector('.product-overview-wrapper > .paragraph').textContent = marketingGoal;
     const productValue = checkBlankString(program.productValue.plaintext);
     document.querySelector('.product-value-wrapper > .paragraph').textContent = productValue;
-
+    
     // additional dom updates
     buildProductCard(program);
     buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
