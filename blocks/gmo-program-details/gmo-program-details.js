@@ -64,7 +64,7 @@ export default async function decorate(block) {
         div({ id: 'tab1toggle', class: 'tabBtn active', 'data-target': 'tab1'}, 'Overview'),
         div({ id: 'tab2toggle', class: 'tabBtn', 'data-target': 'tab2'}, 'Deliverables'),
         div({ id: 'tab3toggle', class: 'tabBtn', 'data-target': 'tab3'}, 'Calendar'),
-    );
+        );
 
     // overview tab
     const overviewTab = div(
@@ -105,11 +105,13 @@ export default async function decorate(block) {
             div(
                 { id: 'deliverable-type', class: 'channel-scope-wrapper'},
                 span({ class: 'h3'}, 'Deliverable Type'),
+                div({ class: 'description'}, 'Select a deliverable type to display platform the assets were created for.'),
                 div({ class: 'tags-wrapper'}),
             ),
             div(
                 { id: 'platforms', class: 'channel-scope-wrapper'},
                 span({ class: 'h3'}, 'Platforms'),
+                div({ class: 'description'}, 'Select a platform to display deliverable type the assets were created for.'),
                 div({ class: 'tags-wrapper'}),
             ),
         ),
@@ -234,6 +236,8 @@ async function addProgramStats(block) {
     const program = programData.data.programList.items[0];
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
+    const uniqueDeliverableTypesCount = uniqueDeliverableTypes.length;
+    const uniquePlatformsCount = uniquePlatforms.length;
     const bodyWrapper = document.querySelector('.main-body-wrapper');
 
     // for deliverable list
@@ -316,6 +320,72 @@ async function addProgramStats(block) {
     const deliverables = executeQuery(deliverableQueryString);
     document.querySelector('.page-heading').appendChild(artifactLinks);
     document.querySelector('.total-assets > .description').textContent = totalassets;
+
+    //Create a map to store the associations
+    const deliverableTypeToPlatformsMap = new Map();
+    // Create a map to store the associations
+    const platformToDeliverableTypesMap1 = new Map();
+
+    // Populate the map
+    programData.data.deliverableList.items.forEach(item => {
+    const deliverableType = item.deliverableType; //string
+    const platforms = item.platforms; // array of platform strings
+
+    if (!deliverableTypeToPlatformsMap.has(deliverableType)) {
+        deliverableTypeToPlatformsMap.set(deliverableType, platforms);
+    } else {
+        deliverableTypeToPlatformsMap.set(deliverableType, deliverableTypeToPlatformsMap.get(deliverableType).concat(platforms));
+    }
+
+    platforms.forEach(platform => {
+        if (!platformToDeliverableTypesMap1.has(platform)) {
+            // Create a new set for each platform with the deliverable type added to the new array.
+            platformToDeliverableTypesMap1.set(platform, new Array());
+        }
+        platformToDeliverableTypesMap1.get(platform).push(deliverableType);
+    });
+
+    });
+
+    console.log('Deliverable Type to Platforms Map:', deliverableTypeToPlatformsMap);
+    console.log('Platform to Deliverable Types Map:', platformToDeliverableTypesMap1);
+
+    // Calculate the number of unique platforms for each deliverable type
+    const deliverableTypeToPlatformCount = {};
+    deliverableTypeToPlatformsMap.forEach((platformsSet, deliverableType) => {
+    deliverableTypeToPlatformCount[deliverableType] = platformsSet.size;
+    });
+
+    console.log('Deliverable Type to Platform Count:', deliverableTypeToPlatformCount);
+    
+    const platformToDeliverableTypesMap = new Map();
+    
+    // Populate the map
+    programData.data.deliverableList.items.forEach(item => {
+    const deliverableType = item.deliverableType;
+    const platforms = item.platforms;
+    
+    platforms.forEach(platform => {
+        if (!platformToDeliverableTypesMap.has(platform)) {
+            platformToDeliverableTypesMap.set(platform, new Set());
+            }
+            platformToDeliverableTypesMap.get(platform).add(deliverableType);
+        });
+    });
+    
+    // Calculate the number of unique deliverable types for each platform
+    const platformToDeliverableTypeCount = {};
+    platformToDeliverableTypesMap.forEach((deliverableTypesSet, platform) => {
+        platformToDeliverableTypeCount[platform] = deliverableTypesSet.size;
+    });
+    
+    console.log('Platform to Deliverable Type Count:', platformToDeliverableTypeCount);
+
+    buildProductCard(program);
+    buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block, deliverableTypeToPlatformsMap);
+    buildFieldScopes('platforms', uniquePlatforms, block, platformToDeliverableTypesMap1);
+    // console.log('Deliverables:', uniqueDeliverableTypes);
+    // console.log('Platforms:', uniquePlatforms);
 
     const table = buildTable(await deliverables).then(async (rows) => {
         return rows;
@@ -452,7 +522,7 @@ function switchTab(tab) {
 }
 
 
-async function buildFieldScopes(scopeTypeId, scopes, block) {
+async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
     if (scopes.length == 0) {
         block.querySelector(`#${scopeTypeId}.channel-scope-wrapper`).classList.add('inactive');
         return;
@@ -460,12 +530,54 @@ async function buildFieldScopes(scopeTypeId, scopes, block) {
     const scopesParent = block.querySelector(`#${scopeTypeId}.channel-scope-wrapper .tags-wrapper`);
     scopes.forEach(async (scope) => {
         if (scope == null || scope == undefined || scope == '') return;
-        const tag = document.createElement('div');
+        const tag = document.createElement('button');
         tag.classList.add('scope-tag');
         tag.textContent = await lookupType(scope, scopeTypeId);
-        scopesParent.appendChild(tag);
-    });
-}
+        const associatedItems = associationMap.get(scope);
+        console.log('Associated Items:', associatedItems);
+        
+            scopesParent.appendChild(tag);
+        
+            tag.addEventListener('click', async () => {
+                // Hide all buttons
+                const allTags = document.querySelectorAll('.scope-tag');
+                allTags.forEach(t => t.style.display = 'none');
+        
+                // Update the clicked button's text content to include the length
+                tag.textContent = `${associatedItems}: ${await lookupType(scope, scopeTypeId)} (${associatedItems.length})`;
+                tag.style.display = 'inline-block';
+        
+                // Show the associated buttons
+                associatedItems.forEach(item => {
+                    const associatedTag = Array.from(allTags).find(t => t.textContent.includes(item));
+                    if (associatedTag) {
+                        associatedTag.style.display = 'inline-block';
+                    }
+                });
+        
+                // Create a clear selection button
+                let clearButton = document.querySelector('#clear-selection');
+                if (!clearButton) {
+                    clearButton = document.createElement('button');
+                    clearButton.id = 'clear-selection';
+                    clearButton.textContent = 'Clear Selection';
+                    clearButton.style.marginLeft = '10px';
+                    clearButton.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        // Show all buttons
+                        allTags.forEach(t => t.style.display = 'inline-block');
+                        clearButton.style.display = 'none';
+                        // Reset the text content of the clicked button
+                        tag.textContent = await lookupType(scope, scopeTypeId);
+                    });
+                    const deliverableTypeElement = document.querySelector(`#${scopeTypeId}.channel-scope-wrapper`);
+                    deliverableTypeElement.parentNode.insertBefore(clearButton, deliverableTypeElement.nextSibling);
+                } else {
+                    clearButton.style.display = 'inline-block';
+                }
+            });
+        });
+    }
 
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');
