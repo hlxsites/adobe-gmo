@@ -646,6 +646,9 @@ body {
         color: #505050;
         cursor: pointer;
     }
+    .collection-block {
+        width: fit-content;
+    }
 }
 
 .kpis-wrapper {
@@ -790,6 +793,10 @@ body {
                 margin-right: 30px;
             }
         }
+    }
+    .collection-link-wrapper {
+        display: flex;
+        flex-direction: column;
     }
 }
 

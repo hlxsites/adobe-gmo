@@ -6,7 +6,7 @@ import {
     filterArray, getProductMapping, checkBlankString,
     dateFormat, statusMapping, getMappingArray,
     showLoadingOverlay, hideLoadingOverlay, div,
-    span, img
+    span, img, a
 } from '../../scripts/shared-program.js';
 
 
@@ -149,7 +149,7 @@ export default async function decorate(block) {
                 div({ class: 'header table-column column2' }, 'Deliverable Type'),
                 div({ class: 'header table-column column3' }, 'Platforms'),
                 div({ class: 'header table-column column4' }, 'QA Files'),
-                div({ class: 'header table-column column5' }, 'Final Asset'),
+                div({ class: 'header table-column column5' }, 'Asset Link(s)'),
                 div({ class: 'header table-column column7' }, 'Status Update'),
                 div({ class: 'header table-column column8' }, 'Completion Date'),
                 div({ class: 'header table-column column9' }, 'Task Owner'),               
@@ -232,6 +232,7 @@ async function addProgramStats(block) {
         (encodedPath ? `${encodedSemi}path=${encodedPath}` : '');
     const programData = await executeQuery(programQueryString);
     const program = programData.data.programList.items[0];
+
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
     const bodyWrapper = document.querySelector('.main-body-wrapper');
@@ -295,11 +296,13 @@ async function addProgramStats(block) {
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea);
     const audiences = buildAudienceList(program);
     const artifactLinks = buildArtifactLinks(program);
+    const collections = buildProgramCollections(program);
 
     document.querySelector('.kpis-wrapper').appendChild(kpis);
     document.querySelector('.market-wrapper').appendChild(targetMarketAreas);
     document.querySelector('.card.audiences').appendChild(audiences);
     document.querySelector('.overview-wrapper').appendChild(artifactLinks);
+    if (collections) document.querySelector('.overview-wrapper').appendChild(collections);
 
     // add text
     const marketingGoal = checkBlankString(program.marketingGoal.plaintext);
@@ -358,6 +361,33 @@ function enableBackBtn(block, blockConfig) {
         const listPage = blockConfig.listpage;
         document.location.href = host + `/${listPage}`;
     })
+}
+
+function buildProgramCollections(program) {
+    const programCollections = program.programLevelcollectionLink;
+    if (programCollections) {
+        const collectionsSection = div(
+            { id: 'collections', class: 'channel-scope-wrapper' },
+            div({ class: 'h3' }, 'Collections')
+        );
+        const collectionsWrapper = div(
+            { id: 'collections-wrapper', class: 'tags-wrapper' },            
+        );
+    
+        programCollections.forEach((collection) => {
+            const splitString = collection.split(';');
+            const collectionName = (splitString.length < 2) ? 'Collection' : splitString.slice(1).join(';').trim();
+            const collectionBlock = div(
+                { class: 'collection-block scope-tag' }, 
+                a({ class: 'collection-link', href: `${collection}` }, collectionName)
+            );
+            collectionsWrapper.appendChild(collectionBlock);
+        });
+        collectionsSection.appendChild(collectionsWrapper);
+        return collectionsSection;
+    } else {
+        return null;
+    }
 }
 
 function buildDriverField(driverName) {
@@ -701,23 +731,25 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     return headerRow;
 }
 
-async function buildTableRow(deliverableJson, kpi, createHidden) {
+async function buildTableRow(deliverable, kpi, createHidden) {
     //look up friendly name for deliverable type
-    const typeLabel = await lookupType(deliverableJson.deliverableType, 'deliverable-type');
+    const typeLabel = await lookupType(deliverable.deliverableType, 'deliverable-type');
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
-    const status = (deliverableJson.deliverableStatusUpdate == null) ? "Not Available" : deliverableJson.deliverableStatusUpdate + "%";
-    const statusPct = (deliverableJson.deliverableStatusUpdate == null) ? "0%" : deliverableJson.deliverableStatusUpdate + "%";
+    const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
+    const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
+    const assetLinks = createAssetLink(deliverable);
+    console.log(assetLinks);
     dataRow.innerHTML = `
-        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverableJson.deliverableName)}</div>
+        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverable.deliverableName)}</div>
         <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
         <div class='property table-column column3 platforms'></div>
         <div class='property table-column column4 qa-files'>
-            ${deliverableJson.reviewLink ? '<a href="' + deliverableJson.reviewLink + '"target="_blank" class="campaign-link">QA Files</a> ': "Not Available"}
+            ${deliverable.reviewLink ? '<a href="' + deliverable.reviewLink + '"target="_blank" class="campaign-link">QA Files</a> ': "Not Available"}
         </div>
         <div class='property table-column column5'>
-            ${deliverableJson.linkedFolderLink ? '<a href="' + deliverableJson.linkedFolderLink + '"target="_blank" class="campaign-link">Final Asset</a> ': "Not Available"}
+            ${assetLinks.outerHTML}
         </div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
@@ -732,12 +764,12 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
             </div>
         </div>
         <div class='property table-column column8 date-wrapper'>
-            <div class='completion-date'>${dateFormat(deliverableJson.taskCompletionDate)}</div>
-            ${deliverableJson.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverableJson.previousTaskCompletionDate + '</div> ': ""}
+            <div class='completion-date'>${dateFormat(deliverable.taskCompletionDate)}</div>
+            ${deliverable.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverable.previousTaskCompletionDate + '</div> ': ""}
         </div>
-        <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
+        <div class='property table-column column9'>${checkBlankString(deliverable.driver)}</div>
     `;
-    createPlatformString(deliverableJson.platforms, dataRow);
+    createPlatformString(deliverable.platforms, dataRow);
     return dataRow;
 }
 
@@ -753,6 +785,29 @@ async function createPlatformString(platforms, htmlElem) {
         platformString = 'Not Available'
     }
     htmlElem.querySelector('.column3.platforms').textContent = platformString;
+}
+
+function createAssetLink(deliverable) {
+    const collections = deliverable.collectionLink;
+    const linkWrapper = div({ class: 'collection-link-wrapper '});
+    if (collections) {
+        collections.forEach((collection) => {
+            const splitString = collection.split(';');
+            const collectionName = (splitString.length < 2) ? 'Collection' : splitString.slice(1).join(';').trim();
+            const collectionLink = a({ class: 'collection-link', href: collection, target: '_blank' }, collectionName);
+            linkWrapper.appendChild(collectionLink);
+        });
+    } else {
+        const linkedFolder = deliverable.linkedFolderLink;
+        if (linkedFolder) {
+            const linkedFolderLink = a({ class: 'campaign-link', target: '_blank', href: linkedFolder }, 'Final Asset');
+            linkWrapper.appendChild(linkedFolderLink);
+        } else {
+            linkWrapper.textContent = 'Not Available';
+        }
+        
+    }
+    return linkWrapper;
 }
 
 function sortRows(rows) {
