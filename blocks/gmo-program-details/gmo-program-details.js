@@ -302,7 +302,6 @@ async function addProgramStats(block) {
     document.querySelector('.market-wrapper').appendChild(targetMarketAreas);
     document.querySelector('.card.audiences').appendChild(audiences);
     document.querySelector('.overview-wrapper').appendChild(artifactLinks);
-    if (collections) document.querySelector('.overview-wrapper').appendChild(collections);
 
     // add text
     const marketingGoal = checkBlankString(program.marketingGoal.plaintext);
@@ -319,6 +318,7 @@ async function addProgramStats(block) {
     const deliverables = executeQuery(deliverableQueryString);
     document.querySelector('.page-heading').appendChild(artifactLinks);
     document.querySelector('.total-assets > .description').textContent = totalassets;
+    if (collections) document.querySelector('.deliverables > .page-heading').appendChild(collections);
 
     const table = buildTable(await deliverables).then(async (rows) => {
         return rows;
@@ -366,25 +366,21 @@ function enableBackBtn(block, blockConfig) {
 function buildProgramCollections(program) {
     const programCollections = program.programLevelcollectionLink;
     if (programCollections) {
-        const collectionsSection = div(
-            { id: 'collections', class: 'channel-scope-wrapper' },
-            div({ class: 'h3' }, 'Collections')
+        const collectionsElem = div(
+            { id: 'collections-wrapper', class: 'collections-wrapper' },
+            div({ class: 'h3' }, 'Program Collection'),
         );
-        const collectionsWrapper = div(
-            { id: 'collections-wrapper', class: 'tags-wrapper' },            
-        );
+        const collectionsLinksWrapper = div({ class: 'collections' });
     
         programCollections.forEach((collection) => {
             const splitString = collection.split(';');
+            const collectionHref = splitString[0];
             const collectionName = (splitString.length < 2) ? 'Collection' : splitString.slice(1).join(';').trim();
-            const collectionBlock = div(
-                { class: 'collection-block scope-tag' }, 
-                a({ class: 'collection-link', href: `${collection}` }, collectionName)
-            );
-            collectionsWrapper.appendChild(collectionBlock);
+            const collectionLink = a({ class: 'collection-link', href: `${collectionHref}` }, collectionName);
+            collectionsLinksWrapper.appendChild(collectionLink);
         });
-        collectionsSection.appendChild(collectionsWrapper);
-        return collectionsSection;
+        collectionsElem.appendChild(collectionsLinksWrapper);
+        return collectionsElem;
     } else {
         return null;
     }
