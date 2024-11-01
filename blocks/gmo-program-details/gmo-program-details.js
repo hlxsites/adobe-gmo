@@ -533,47 +533,43 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
         const tag = document.createElement('button');
         tag.classList.add('scope-tag');
         tag.textContent = await lookupType(scope, scopeTypeId);
-        const associatedItems = associationMap.get(scope);
-        console.log('Associated Items:', associatedItems);
+        const filteredItems = associationMap.get(scope);
+        console.log('Associated Items:', filteredItems);
         
             scopesParent.appendChild(tag);
         
+            let isSelected = false;
+            
             tag.addEventListener('click', async () => {
-                // Hide all buttons
-                const allTags = document.querySelectorAll('.scope-tag');
-                allTags.forEach(t => t.style.display = 'none');
-        
-                // Update the clicked button's text content to include the length
-                tag.textContent = `${associatedItems}: ${await lookupType(scope, scopeTypeId)} (${associatedItems.length})`;
-                tag.style.display = 'inline-block';
-        
-                // Show the associated buttons
-                associatedItems.forEach(item => {
-                    const associatedTag = Array.from(allTags).find(t => t.textContent.includes(item));
-                    if (associatedTag) {
-                        associatedTag.style.display = 'inline-block';
-                    }
-                });
-        
-                // Create a clear selection button
-                let clearButton = document.querySelector('#clear-selection');
-                if (!clearButton) {
-                    clearButton = document.createElement('button');
-                    clearButton.id = 'clear-selection';
-                    clearButton.textContent = 'Clear Selection';
-                    clearButton.style.marginLeft = '10px';
-                    clearButton.addEventListener('click', async (e) => {
-                        e.preventDefault();
-                        // Show all buttons
-                        allTags.forEach(t => t.style.display = 'inline-block');
-                        clearButton.style.display = 'none';
-                        // Reset the text content of the clicked button
-                        tag.textContent = await lookupType(scope, scopeTypeId);
-                    });
-                    const deliverableTypeElement = document.querySelector(`#${scopeTypeId}.channel-scope-wrapper`);
-                    deliverableTypeElement.parentNode.insertBefore(clearButton, deliverableTypeElement.nextSibling);
+                if (isSelected) {
+                    // Clear the selection
+                    const allTags = document.querySelectorAll('.scope-tag');
+                    allTags.forEach(t => t.style.display = 'inline-block');
+                    tag.textContent = await lookupType(scope, scopeTypeId);
+                    isSelected = false;
                 } else {
-                    clearButton.style.display = 'inline-block';
+                    // Hide all buttons
+                    const allTags = document.querySelectorAll('.scope-tag');
+                    console.log('All Tags:', allTags);
+                    allTags.forEach(t => t.style.display = 'none');
+            
+                    // Get the associated items
+                    const associatedItems = associationMap.get(scope);
+            
+                    // Update the clicked button's text content to include the length
+                    tag.textContent = `${associatedItems}: ${await lookupType(scope, scopeTypeId)} (${associatedItems.length})`;
+                    tag.style.display = 'inline-block';
+            
+                    // Show the associated buttons
+                    associatedItems.forEach(item => {
+                        const associatedTag = Array.from(allTags).find(t => t.textContent.includes(item));
+                        console.log('Associated Tag:', associatedTag);
+                        if (associatedTag) {
+                            associatedTag.style.display = 'inline-block';
+                        }
+                    });
+            
+                    isSelected = true;
                 }
             });
         });
