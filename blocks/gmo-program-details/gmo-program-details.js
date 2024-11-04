@@ -313,8 +313,8 @@ async function addProgramStats(block) {
     
     // additional dom updates
     buildProductCard(program);
-    buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
-    buildFieldScopes('platforms', uniquePlatforms, block);
+    // buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
+    // buildFieldScopes('platforms', uniquePlatforms, block);
 
     // deliverables tab
     const deliverables = executeQuery(deliverableQueryString);
@@ -533,6 +533,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
         const tag = document.createElement('button');
         tag.classList.add('scope-tag');
         tag.textContent = await lookupType(scope, scopeTypeId);
+        tag.id = scope;
         const filteredItems = associationMap.get(scope);
         console.log('Associated Items:', filteredItems);
         
@@ -555,14 +556,22 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
             
                     // Get the associated items
                     const associatedItems = associationMap.get(scope);
+                    console.log('Associated Items:', associatedItems);
             
                     // Update the clicked button's text content to include the length
                     tag.textContent = `${associatedItems}: ${await lookupType(scope, scopeTypeId)} (${associatedItems.length})`;
                     tag.style.display = 'inline-block';
+
+                    // selectedTextContent = await lookupType(scope, scopeTypeId);
             
                     // Show the associated buttons
                     associatedItems.forEach(item => {
-                        const associatedTag = Array.from(allTags).find(t => t.textContent.includes(item));
+                        // alternateTextContent = await lookupType(item, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                        // console.log('Alternate Text Content:', alternateTextContent);
+                        // const associatedTag = Array.from(allTags).find(t => t.textContent.includes(item));
+                        // const associatedTag = Array.from(allTags).find(async t => t.textContent.includes(await lookupType(item, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type')));
+                        // const associatedTag = Array.from(allTags).find(t => t.textContent.toLowerCase().includes(item.toLowerCase()));
+                        const associatedTag = Array.from(allTags).find(t => t.id.includes(item));
                         console.log('Associated Tag:', associatedTag);
                         if (associatedTag) {
                             associatedTag.style.display = 'inline-block';
