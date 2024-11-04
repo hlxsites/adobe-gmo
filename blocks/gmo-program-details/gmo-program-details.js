@@ -149,7 +149,7 @@ export default async function decorate(block) {
                 div({ class: 'header table-column column2' }, 'Deliverable Type'),
                 div({ class: 'header table-column column3' }, 'Platforms'),
                 div({ class: 'header table-column column4' }, 'QA Files'),
-                div({ class: 'header table-column column5' }, 'Asset Link(s)'),
+                div({ class: 'header table-column column5' }, 'Approved Asset Link(s)'),
                 div({ class: 'header table-column column7' }, 'Status Update'),
                 div({ class: 'header table-column column8' }, 'Completion Date'),
                 div({ class: 'header table-column column9' }, 'Task Owner'),               
@@ -363,6 +363,7 @@ function enableBackBtn(block, blockConfig) {
     })
 }
 
+// todo update
 function buildProgramCollections(program) {
     const programCollections = program.programLevelcollectionLink;
     if (programCollections) {
@@ -373,10 +374,8 @@ function buildProgramCollections(program) {
         const collectionsLinksWrapper = div({ class: 'collections' });
     
         programCollections.forEach((collection) => {
-            const splitString = collection.split(';');
-            const collectionHref = splitString[0];
-            const collectionName = (splitString.length < 2) ? 'Collection' : splitString.slice(1).join(';').trim();
-            const collectionLink = a({ class: 'collection-link', href: `${collectionHref}` }, collectionName);
+            const collectionData = parseCollectionLink(collection);
+            const collectionLink = a({ class: 'collection-link', href: collectionData.link }, collectionData.name);
             collectionsLinksWrapper.appendChild(collectionLink);
         });
         collectionsElem.appendChild(collectionsLinksWrapper);
@@ -736,7 +735,6 @@ async function buildTableRow(deliverable, kpi, createHidden) {
     const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
     const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
     const assetLinks = createAssetLink(deliverable);
-    console.log(assetLinks);
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverable.deliverableName)}</div>
         <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
@@ -788,9 +786,8 @@ function createAssetLink(deliverable) {
     const linkWrapper = div({ class: 'collection-link-wrapper '});
     if (collections) {
         collections.forEach((collection) => {
-            const splitString = collection.split(';');
-            const collectionName = (splitString.length < 2) ? 'Collection' : splitString.slice(1).join(';').trim();
-            const collectionLink = a({ class: 'collection-link', href: collection, target: '_blank' }, collectionName);
+            const collectionData = parseCollectionLink(collection);
+            const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank', title: collectionData.name }, collectionData.name);
             linkWrapper.appendChild(collectionLink);
         });
     } else {
@@ -804,6 +801,31 @@ function createAssetLink(deliverable) {
         
     }
     return linkWrapper;
+}
+
+function parseCollectionLink(collectionString) {
+    let collectionName, collectionPlatform, collectionCategory, collectionLink;
+
+    const splitString = collectionString.split(' | ');
+
+    if (splitString.length > 1) {
+        collectionName = splitString[0];
+        collectionPlatform = splitString[1];
+        [ collectionCategory, collectionLink ] = splitString[2].split(';');
+    } else {
+        collectionName = 'Collection';
+        collectionPlatform, collectionCategory = 'Not Available';
+        collectionLink = splitString[0];
+    }
+
+    const parsedCollection = {
+        'name': collectionName,
+        'platform': collectionPlatform,
+        'category': collectionCategory,
+        'link': collectionLink,
+    }
+
+    return parsedCollection;
 }
 
 function sortRows(rows) {
