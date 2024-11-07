@@ -1052,3 +1052,12 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.selected {
+    background-color: #0096FF;
+    .scope{
+        color: white;
+        font-weight: bold; /* Optional: to make the text bold */
+    }
+    
+}
