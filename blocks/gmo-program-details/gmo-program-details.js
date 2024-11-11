@@ -315,8 +315,6 @@ async function addProgramStats(block) {
     
     // additional dom updates
     buildProductCard(program);
-    // buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
-    // buildFieldScopes('platforms', uniquePlatforms, block);
 
     // deliverables tab
     const deliverables = executeQuery(deliverableQueryString);
@@ -332,13 +330,6 @@ async function addProgramStats(block) {
     programData.data.deliverableList.items.forEach(item => {
         const deliverableType = item.deliverableType; //deliverableType
         const platforms = item.platforms; // array of platform strings
-
-        // if (!deliverableTypeToPlatformsMap.has(deliverableType)) {
-        //     const platformDeliverableTypesAssetCountMap = new Map();
-        //     deliverableTypeToPlatformsMap.set(deliverableType, platforms);
-        // } else {
-        //     deliverableTypeToPlatformsMap.set(deliverableType, deliverableTypeToPlatformsMap.get(deliverableType).concat(platforms));
-        // }
 
         platforms.forEach(async platform => {
             let assetResult = {imageUrl : '', imageAltText: '', assetCount: 0};
@@ -370,20 +361,9 @@ async function addProgramStats(block) {
                 platformdeliverableTypesAssetCountMap.set(deliverableType, assetCount);
                 platformToDeliverableTypesMap.set(platform, platformdeliverableTypesAssetCountMap);
             }
-
-            // if (!platformToDeliverableTypesMap.has(platform)) {
-            //     const deliverableTypesPlatformAssetCountMap = new Map();
-            //     deliverableTypesPlatformAssetCountMap.set(platform, assetResult.assetCount);
-            //     // Create a new set for each platform with the deliverable type added to the new array.
-            //     platformToDeliverableTypesMap.set(platform, new Array());
-            // }
-            // platformToDeliverableTypesMap.get(platform).push(deliverableType);
         });
 
     });
-
-    console.log('Deliverable Type to Platforms Map:', deliverableTypeToPlatformsMap);
-    console.log('Platform to Deliverable Types Map:', platformToDeliverableTypesMap);
 
     buildProductCard(program);
     buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block, deliverableTypeToPlatformsMap);
@@ -587,7 +567,6 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     console.log('Associated Items:', associatedItems);
             
                     // Update the clicked button's text content to include the length
-                    // tag.textContent = `${associatedItems}: ${await lookupType(scope, scopeTypeId)} (${associatedItems.associatedAssetCount})`;
                     tag.textContent = `${await lookupType(scope, scopeTypeId)}`;
                     tag.style.display = 'inline-block';
 
@@ -627,10 +606,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                         tag.click();
                     });
                     // Append the "Clear selection" hyperlink text next to the headingDiv as its first child
-                    // headingDiv.insertBefore(clearSelection, headingDiv.childNodes[1]);
                     headingDiv.firstChild.appendChild(clearSelection);
-
-                    // headingDiv.appendChild(clearSelection);
                 
                 }
             });
