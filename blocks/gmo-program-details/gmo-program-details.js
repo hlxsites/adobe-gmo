@@ -558,6 +558,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                             let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
                             associatedTag.textContent = `${alternateTextContent}`;
                             associatedTag.style.display = 'inline-block';
+                            associatedTag.style.pointerEvents = 'auto'; // Make the clickable
                         }
                     });
 
@@ -571,6 +572,10 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     
                     // Remove the appended heading.textContent
                     heading.textContent = heading.textContent.split(' (')[0];
+
+                    // Remove the "Clear selection" hyperlink text next to the headingDiv
+                    let clearSelection = document.getElementById('clear-selection');
+                    clearSelection.remove();
                 } else {
                     // Hide all buttons
                     const allTags = document.querySelectorAll('.scope-tag');
@@ -599,24 +604,35 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                             associatedTag.textContent = `${await lookupType(scope, scopeTypeId)}: ${alternateTextContent} (${count})`;
                             associatedTag.style.display = 'inline-block';
                             associatedTag.style.pointerEvents = 'none'; // Make the tag non-clickable
-                            
-                        // Reset the button after a certain condition or event
-                        setTimeout(() => {
-                        associatedTag.style.pointerEvents = 'auto'; // Make the tag clickable again
-                        });
                         }
                     });
                     // Add the selected class to the clicked button
                     tag.classList.add('selected');
                     isSelected = true;
-                    let headingDiv = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                    let alternateHeadingDiv = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
                     // Fetch h3 class from headingDiv
-                    let heading = headingDiv.querySelector('span.h3');
+                    let alternateHeading = alternateHeadingDiv.querySelector('span.h3');
                     
                     // Append heading.textContent with number 3
-                    heading.textContent = `${heading.textContent} (${totalAssociatedAssetCount} ${totalAssociatedAssetCount > 1 ? 'assets' : 'asset'})`;
+                    alternateHeading.textContent = `${alternateHeading.textContent} (${totalAssociatedAssetCount} ${totalAssociatedAssetCount > 1 ? 'assets' : 'asset'})`;
+                    
+                    let headingDiv = document.getElementById((scopeTypeId));
+
+                    // Add a "Clear selection" hyperlink text next to the headingDiv
+                    let clearSelection = document.createElement('a');
+                    clearSelection.id = 'clear-selection';
+                    clearSelection.classList.add('clear-selection');
+                    clearSelection.textContent = 'Clear selection';
+                    clearSelection.addEventListener('click', () => {
+                        tag.click();
+                    });
+                    // Append the "Clear selection" hyperlink text next to the headingDiv as its first child
+                    // headingDiv.insertBefore(clearSelection, headingDiv.childNodes[1]);
+                    headingDiv.firstChild.appendChild(clearSelection);
+
+                    // headingDiv.appendChild(clearSelection);
+                
                 }
-            
             });
         });
     }
