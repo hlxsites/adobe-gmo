@@ -533,7 +533,6 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     // Reset the associated buttons
                     associatedItems.forEach(async (_count, key) => {
                         const associatedTag = Array.from(allTags).find(t => t.id.includes(key));
-                        // console.log('Associated Tag:', associatedTag);
                         if (associatedTag) {
                             let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
                             associatedTag.textContent = `${alternateTextContent}`;
