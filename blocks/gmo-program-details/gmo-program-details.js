@@ -64,7 +64,7 @@ export default async function decorate(block) {
         div({ id: 'tab1toggle', class: 'tabBtn active', 'data-target': 'tab1'}, 'Overview'),
         div({ id: 'tab2toggle', class: 'tabBtn', 'data-target': 'tab2'}, 'Deliverables'),
         div({ id: 'tab3toggle', class: 'tabBtn', 'data-target': 'tab3'}, 'Calendar'),
-    );
+        );
 
     // overview tab
     const overviewTab = div(
@@ -105,11 +105,13 @@ export default async function decorate(block) {
             div(
                 { id: 'deliverable-type', class: 'channel-scope-wrapper'},
                 span({ class: 'h3'}, 'Deliverable Type'),
+                div({ class: 'description'}, 'Select a deliverable type to display platform the assets were created for.'),
                 div({ class: 'tags-wrapper'}),
             ),
             div(
                 { id: 'platforms', class: 'channel-scope-wrapper'},
                 span({ class: 'h3'}, 'Platforms'),
+                div({ class: 'description'}, 'Select a platform to display deliverable type the assets were created for.'),
                 div({ class: 'tags-wrapper'}),
             ),
         ),
@@ -238,6 +240,10 @@ async function addProgramStats(block) {
 
     // for deliverable list
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
+    let imageTest = {imageUrl : '', imageAltText: '', assetCount: 0};
+    imageTest = await searchAsset(programName, programName.campaignName, 'email', 'appier');
+    console.log('Image Test:', imageTest);
+
 
     // for thumbnails
     let imageObject = {imageUrl : '', imageAltText: '', assetCount: 0};
@@ -309,13 +315,59 @@ async function addProgramStats(block) {
     
     // additional dom updates
     buildProductCard(program);
-    buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block);
-    buildFieldScopes('platforms', uniquePlatforms, block);
 
     // deliverables tab
     const deliverables = executeQuery(deliverableQueryString);
     document.querySelector('.page-heading').appendChild(artifactLinks);
     document.querySelector('.total-assets > .description').textContent = totalassets;
+
+    //Create a map to store the associations
+    const deliverableTypeToPlatformsMap = new Map();
+    // Create a map to store the associations
+    const platformToDeliverableTypesMap = new Map();
+
+    // Populate the map
+    programData.data.deliverableList.items.forEach(item => {
+        const deliverableType = item.deliverableType; //deliverableType
+        const platforms = item.platforms; // array of platform strings
+
+        platforms.forEach(async platform => {
+            let assetResult = {imageUrl : '', imageAltText: '', assetCount: 0};
+            assetResult = await searchAsset(programName, programName.campaignName, deliverableType, platform);
+            let assetCount = assetResult.assetCount;
+            // deliverableType, platform, assetCount
+            if (!deliverableTypeToPlatformsMap.has(deliverableType)) {
+                // Case: If the deliverable type is not in the map, create a new entry with the platform added to the new map.
+                const deliverableTypesPlatformAssetCountMap = new Map();
+                deliverableTypesPlatformAssetCountMap.set(platform, assetCount);
+                // Create a new entry for each deliverable type with the new map.
+                deliverableTypeToPlatformsMap.set(deliverableType, deliverableTypesPlatformAssetCountMap);
+            } else {
+                // Case: If the deliverable type is in the map, add the platform to the existing set.
+                const deliverableTypesPlatformAssetCountMap = deliverableTypeToPlatformsMap.get(deliverableType);
+                deliverableTypesPlatformAssetCountMap.set(platform, assetCount);
+                deliverableTypeToPlatformsMap.set(deliverableType, deliverableTypesPlatformAssetCountMap);
+            }
+
+            if (!platformToDeliverableTypesMap.has(platform)) {
+                // Case: If the platform is not in the map, create a new entry with the deliverableType added to the new map.
+                const platformdeliverableTypesAssetCountMap = new Map();
+                platformdeliverableTypesAssetCountMap.set(deliverableType, assetCount);
+                // Create a new entry for each platform with the new map.
+                platformToDeliverableTypesMap.set(platform, platformdeliverableTypesAssetCountMap);
+            } else {
+                // Case: If the platform is in the map, add the deliverableType to the existing set.
+                const platformdeliverableTypesAssetCountMap = platformToDeliverableTypesMap.get(platform);
+                platformdeliverableTypesAssetCountMap.set(deliverableType, assetCount);
+                platformToDeliverableTypesMap.set(platform, platformdeliverableTypesAssetCountMap);
+            }
+        });
+
+    });
+
+    buildProductCard(program);
+    buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block, deliverableTypeToPlatformsMap);
+    buildFieldScopes('platforms', uniquePlatforms, block, platformToDeliverableTypesMap);
 
     const table = buildTable(await deliverables).then(async (rows) => {
         return rows;
@@ -452,7 +504,7 @@ function switchTab(tab) {
 }
 
 
-async function buildFieldScopes(scopeTypeId, scopes, block) {
+async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
     if (scopes.length == 0) {
         block.querySelector(`#${scopeTypeId}.channel-scope-wrapper`).classList.add('inactive');
         return;
@@ -460,12 +512,105 @@ async function buildFieldScopes(scopeTypeId, scopes, block) {
     const scopesParent = block.querySelector(`#${scopeTypeId}.channel-scope-wrapper .tags-wrapper`);
     scopes.forEach(async (scope) => {
         if (scope == null || scope == undefined || scope == '') return;
-        const tag = document.createElement('div');
+        const tag = document.createElement('button');
         tag.classList.add('scope-tag');
         tag.textContent = await lookupType(scope, scopeTypeId);
-        scopesParent.appendChild(tag);
-    });
-}
+        tag.id = scope;
+            scopesParent.appendChild(tag);
+            
+            let isSelected = false;
+            
+            tag.addEventListener('click', async () => {
+                if (isSelected) {
+                    // Clear the selection
+                    const allTags = document.querySelectorAll('.scope-tag');
+                    allTags.forEach(t => {
+                    t.style.display = 'inline-block';
+                     t.classList.remove('selected'); // Remove the selected class
+                    });
+                    const associatedItems = associationMap.get(scope);
+
+                    // Reset the associated buttons
+                    associatedItems.forEach(async (_count, key) => {
+                        const associatedTag = Array.from(allTags).find(t => t.id.includes(key));
+                        if (associatedTag) {
+                            let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                            associatedTag.textContent = `${alternateTextContent}`;
+                            associatedTag.style.display = 'inline-block';
+                            associatedTag.style.pointerEvents = 'auto'; // Make the clickable
+                        }
+                    });
+
+                    tag.textContent = await lookupType(scope, scopeTypeId);
+                    isSelected = false;
+
+                    // Reset the heading text content
+                    let headingDiv = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                    // Fetch h3 class from headingDiv
+                    let heading = headingDiv.querySelector('span.h3');
+                    
+                    // Remove the appended heading.textContent
+                    heading.textContent = heading.textContent.split(' (')[0];
+
+                    // Remove the "Clear selection" hyperlink text next to the headingDiv
+                    let clearSelection = document.getElementById('clear-selection');
+                    clearSelection.remove();
+                } else {
+                    // Hide all buttons
+                    const allTags = document.querySelectorAll('.scope-tag');
+                    console.log('All Tags:', allTags);
+                    allTags.forEach(t => t.style.display = 'none');
+            
+                    // Get the associated items
+                    const associatedItems = associationMap.get(scope);
+                    console.log('Associated Items:', associatedItems);
+            
+                    // Update the clicked button's text content to include the length
+                    tag.textContent = `${await lookupType(scope, scopeTypeId)}`;
+                    tag.style.display = 'inline-block';
+
+                    // selectedTextContent = await lookupType(scope, scopeTypeId);
+                    let totalAssociatedAssetCount = 0;
+            
+                    // Show the associated buttons
+                    associatedItems.forEach(async (count, key) => {
+                        totalAssociatedAssetCount = totalAssociatedAssetCount + count;
+                        const associatedTag = Array.from(allTags).find(t => t.id.includes(key));
+                        console.log('Associated Tag:', associatedTag);
+                        let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                        if (associatedTag) {
+                            associatedTag.textContent = `${await lookupType(scope, scopeTypeId)}: ${alternateTextContent} (${count})`;
+                            associatedTag.style.display = 'inline-block';
+                            associatedTag.style.pointerEvents = 'none'; // Make the tag non-clickable
+                        }
+                    });
+                    // Add the selected class to the clicked button
+                    tag.classList.add('selected');
+                    isSelected = true;
+                    let alternateHeadingDiv = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                    // Fetch h3 class from headingDiv
+                    let alternateHeading = alternateHeadingDiv.querySelector('span.h3');
+                    
+                    // Append heading.textContent with number 3
+                    alternateHeading.textContent = `${alternateHeading.textContent} (${totalAssociatedAssetCount} ${totalAssociatedAssetCount > 1 ? 'assets' : 'asset'})`;
+                    
+                    let headingDiv = document.getElementById((scopeTypeId));
+
+                    // Add a "Clear selection" hyperlink text next to the headingDiv
+                    let clearSelection = document.createElement('a');
+                    clearSelection.id = 'clear-selection';
+                    clearSelection.classList.add('clear-selection');
+                    clearSelection.textContent = 'Clear selection';
+                    clearSelection.addEventListener('click', () => {
+                        tag.click();
+                    });
+                    // Append the "Clear selection" hyperlink text next to the headingDiv as its first child
+                    headingDiv.firstChild.appendChild(clearSelection);
+                
+                }
+            });
+        });
+    }
 
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');

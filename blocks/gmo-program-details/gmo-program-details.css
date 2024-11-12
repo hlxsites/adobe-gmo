@@ -691,6 +691,11 @@ body {
         &:not(:last-child) {
             margin-right: 5px;
         }
+        &.selected{
+            background-color: #0096FF;
+            color: white;
+        }
+        
     }
 }
 
@@ -1051,4 +1056,20 @@ body {
     line-clamp: 3;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.selected {
+    background-color: #0096FF;
+    .scope{
+        color: white;
+        font-weight: bold; /* Optional: to make the text bold */
+    }
+    
+}
+
+.clear-selection {
+    font-weight: normal;
+    color: #0096FF;
+    cursor: pointer;
+    margin-left: 10px;
 }
