@@ -793,7 +793,7 @@ function createAssetLink(deliverable) {
     } else {
         const linkedFolder = deliverable.linkedFolderLink;
         if (linkedFolder) {
-            const linkedFolderLink = a({ class: 'campaign-link', target: '_blank', href: linkedFolder }, 'Final Asset');
+            const linkedFolderLink = a({ class: 'campaign-link', target: '_blank', href: linkedFolder }, 'Approved Assets (Workfront)');
             linkWrapper.appendChild(linkedFolderLink);
         } else {
             linkWrapper.textContent = 'Not Available';
