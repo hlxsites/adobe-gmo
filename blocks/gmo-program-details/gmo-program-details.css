@@ -804,8 +804,6 @@ body {
         .collection-link {
             display: block;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
     }
 }
@@ -1032,7 +1030,7 @@ body {
 }
 
 .column5 {
-    width: 150px;
+    width: 410px;
     margin-right: 40px;
 }
 
@@ -1061,7 +1059,7 @@ body {
 
 .table-column {
     &:not(:last-child) {
-        margin-right: 85px;
+        margin-right: 45px;
     }
 }
 

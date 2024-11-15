@@ -149,7 +149,7 @@ export default async function decorate(block) {
                 div({ class: 'header table-column column2' }, 'Deliverable Type'),
                 div({ class: 'header table-column column3' }, 'Platforms'),
                 div({ class: 'header table-column column4' }, 'QA Files'),
-                div({ class: 'header table-column column5' }, 'Approved Asset Link(s)'),
+                div({ class: 'header table-column column5' }, 'Approved Collection Link(s)'),
                 div({ class: 'header table-column column7' }, 'Status Update'),
                 div({ class: 'header table-column column8' }, 'Completion Date'),
                 div({ class: 'header table-column column9' }, 'Task Owner'),               
@@ -363,7 +363,6 @@ function enableBackBtn(block, blockConfig) {
     })
 }
 
-// todo update
 function buildProgramCollections(program) {
     const programCollections = program.programLevelcollectionLink;
     if (programCollections) {
@@ -787,7 +786,8 @@ function createAssetLink(deliverable) {
     if (collections) {
         collections.forEach((collection) => {
             const collectionData = parseCollectionLink(collection);
-            const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank', title: collectionData.name }, collectionData.name);
+            const parsedCollectionName = parseCollectionName(collectionData.name);
+            const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank', title: collectionData.name }, parsedCollectionName);
             linkWrapper.appendChild(collectionLink);
         });
     } else {
@@ -801,6 +801,20 @@ function createAssetLink(deliverable) {
         
     }
     return linkWrapper;
+}
+
+function parseCollectionName(rawString) {
+    //const collectionName = rawString;
+    const collectionName = 'Adobe.com Run the business express photoshop email campaign 2024-2025-2026 | Express, Photoshop, Milo | Another data point here';
+    const maxLength = 73;
+    const charsToShow = 34;
+    
+    if (collectionName.length > maxLength) {
+        const truncatedString = collectionName.slice(0, charsToShow) + "[...]" + collectionName.slice(-charsToShow);
+        return truncatedString;
+    } else {
+        return collectionName;
+    }
 }
 
 function parseCollectionLink(collectionString) {
