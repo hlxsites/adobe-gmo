@@ -804,8 +804,7 @@ function createAssetLink(deliverable) {
 }
 
 function parseCollectionName(rawString) {
-    //const collectionName = rawString;
-    const collectionName = 'Adobe.com Run the business express photoshop email campaign 2024-2025-2026 | Express, Photoshop, Milo | Another data point here';
+    const collectionName = rawString;
     const maxLength = 73;
     const charsToShow = 34;
     
