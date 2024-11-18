@@ -128,6 +128,7 @@ export default async function decorate(block) {
         ),
     );
 
+
     // deliverables tab
     const deliverablesTab = div(
         { id: 'tab2', class: 'deliverables tab inactive'},
@@ -328,13 +329,23 @@ async function addProgramStats(block) {
 
     // Populate the map
     programData.data.deliverableList.items.forEach(item => {
-        const deliverableType = item.deliverableType; //deliverableType
+        const deliverableType = item.deliverableType; //array of deliverableType
         const platforms = item.platforms; // array of platform strings
-
+        // If deliverableType or platforms is null, skip the iteration
+        if (deliverableType === null || deliverableType === undefined || platforms === null || platforms === undefined) {
+            return;
+        }
+        //if deliverableType or Platforms has same value, show both buttons
+        if (deliverableType.value === 0 || platforms.value === 0) {
+            return;
+        }
+        
         platforms.forEach(async platform => {
             let assetResult = {imageUrl : '', imageAltText: '', assetCount: 0};
             assetResult = await searchAsset(programName, programName.campaignName, deliverableType, platform);
             let assetCount = assetResult.assetCount;
+
+            
             // deliverableType, platform, assetCount
             if (!deliverableTypeToPlatformsMap.has(deliverableType)) {
                 // Case: If the deliverable type is not in the map, create a new entry with the platform added to the new map.
@@ -522,6 +533,10 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
             
             tag.addEventListener('click', async () => {
                 if (isSelected) {
+                    let headingDiv1 = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                    // Fetch all .scope-tag class from headingDiv1
+                    let alternativeTags = headingDiv1.querySelectorAll('.scope-tag');
+
                     // Clear the selection
                     const allTags = document.querySelectorAll('.scope-tag');
                     allTags.forEach(t => {
@@ -529,17 +544,20 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                      t.classList.remove('selected'); // Remove the selected class
                     });
                     const associatedItems = associationMap.get(scope);
+                    console.log('Associated Items:', associatedItems);
 
                     // Reset the associated buttons
-                    associatedItems.forEach(async (_count, key) => {
-                        const associatedTag = Array.from(allTags).find(t => t.id.includes(key));
-                        if (associatedTag) {
-                            let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
-                            associatedTag.textContent = `${alternateTextContent}`;
-                            associatedTag.style.display = 'inline-block';
-                            associatedTag.style.pointerEvents = 'auto'; // Make the clickable
-                        }
-                    });
+                    if (associatedItems) {
+                        associatedItems.forEach(async (_count, key) => {
+                            const associatedTag = Array.from(alternativeTags).find(t => t.id.includes(key));
+                            if (associatedTag) {
+                                let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                                associatedTag.textContent = `${alternateTextContent}`;
+                                associatedTag.style.display = 'inline-block';
+                                associatedTag.style.pointerEvents = 'auto'; // Make the clickable
+                            }
+                        });
+                    }
 
                     tag.textContent = await lookupType(scope, scopeTypeId);
                     isSelected = false;
@@ -560,6 +578,11 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     const allTags = document.querySelectorAll('.scope-tag');
                     console.log('All Tags:', allTags);
                     allTags.forEach(t => t.style.display = 'none');
+
+                    let associatedHeadingDiv = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                    // Fetch all .scope-tag class from associatedHeadingDiv
+                    let alternativeTags = associatedHeadingDiv.querySelectorAll('.scope-tag');
+                    console.log('All Tags1:', alternativeTags);
             
                     // Get the associated items
                     const associatedItems = associationMap.get(scope);
@@ -573,17 +596,21 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     let totalAssociatedAssetCount = 0;
             
                     // Show the associated buttons
-                    associatedItems.forEach(async (count, key) => {
-                        totalAssociatedAssetCount = totalAssociatedAssetCount + count;
-                        const associatedTag = Array.from(allTags).find(t => t.id.includes(key));
-                        console.log('Associated Tag:', associatedTag);
-                        let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
-                        if (associatedTag) {
-                            associatedTag.textContent = `${await lookupType(scope, scopeTypeId)}: ${alternateTextContent} (${count})`;
-                            associatedTag.style.display = 'inline-block';
-                            associatedTag.style.pointerEvents = 'none'; // Make the tag non-clickable
-                        }
-                    });
+                    if (associatedItems) {
+                        associatedItems.forEach(async (count, key) => {
+                            totalAssociatedAssetCount = totalAssociatedAssetCount + count;
+                            const associatedTag = Array.from(alternativeTags).find(t => t.id.includes(key));
+                            console.log('Associated Tag:', associatedTag);
+                            let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
+                            console.log('Alternate Text Content:', alternateTextContent);
+                            if (associatedTag) {
+                                associatedTag.textContent = `${await lookupType(scope, scopeTypeId)}: ${alternateTextContent} (${count})`;
+                                associatedTag.style.display = 'inline-block';
+                                associatedTag.style.pointerEvents = 'none'; // Make the tag non-clickable
+                                
+                            }
+                        });
+                    }
                     // Add the selected class to the clicked button
                     tag.classList.add('selected');
                     isSelected = true;
