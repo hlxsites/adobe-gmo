@@ -64,7 +64,7 @@ export default async function decorate(block) {
         div({ id: 'tab1toggle', class: 'tabBtn active', 'data-target': 'tab1'}, 'Overview'),
         div({ id: 'tab2toggle', class: 'tabBtn', 'data-target': 'tab2'}, 'Deliverables'),
         div({ id: 'tab3toggle', class: 'tabBtn', 'data-target': 'tab3'}, 'Calendar'),
-    );
+        );
 
     // overview tab
     const overviewTab = div(
@@ -241,10 +241,6 @@ async function addProgramStats(block) {
 
     // for deliverable list
     const deliverableQueryString = `getProgramDeliverables${encodedSemi}programName=${encodedProgram}${encodedSemi}programID=${encodeURIComponent(programID)}`;
-    let imageTest = {imageUrl : '', imageAltText: '', assetCount: 0};
-    imageTest = await searchAsset(programName, programName.campaignName, 'email', 'appier');
-    console.log('Image Test:', imageTest);
-
     let imageTest = {imageUrl : '', imageAltText: '', assetCount: 0};
     imageTest = await searchAsset(programName, programName.campaignName, 'email', 'appier');
     console.log('Image Test:', imageTest);
@@ -518,7 +514,6 @@ function switchTab(tab) {
 
 
 async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
-async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
     if (scopes.length == 0) {
         block.querySelector(`#${scopeTypeId}.channel-scope-wrapper`).classList.add('inactive');
         return;
@@ -526,7 +521,6 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
     const scopesParent = block.querySelector(`#${scopeTypeId}.channel-scope-wrapper .tags-wrapper`);
     scopes.forEach(async (scope) => {
         if (scope == null || scope == undefined || scope == '') return;
-        const tag = document.createElement('button');
         const tag = document.createElement('button');
         tag.classList.add('scope-tag');
         tag.textContent = await lookupType(scope, scopeTypeId);
@@ -586,7 +580,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     let associatedHeadingDiv = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
                     // Fetch all .scope-tag class from associatedHeadingDiv
                     let alternativeTags = associatedHeadingDiv.querySelectorAll('.scope-tag');
-                    console.log('All Tags:', alternativeTags);
+                    console.log('All Tags1:', alternativeTags);
             
                     // Get the associated items
                     const associatedItems = associationMap.get(scope);
