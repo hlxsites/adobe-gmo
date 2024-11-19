@@ -344,7 +344,6 @@ async function addProgramStats(block) {
             assetResult = await searchAsset(programName, programName.campaignName, deliverableType, platform);
             let assetCount = assetResult.assetCount;
 
-            
             // deliverableType, platform, assetCount
             if (!deliverableTypeToPlatformsMap.has(deliverableType)) {
                 // Case: If the deliverable type is not in the map, create a new entry with the platform added to the new map.
@@ -581,7 +580,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     let associatedHeadingDiv = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
                     // Fetch all .scope-tag class from associatedHeadingDiv
                     let alternativeTags = associatedHeadingDiv.querySelectorAll('.scope-tag');
-                    console.log('All Tags1:', alternativeTags);
+                    console.log('All Tags:', alternativeTags);
             
                     // Get the associated items
                     const associatedItems = associationMap.get(scope);
