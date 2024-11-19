@@ -339,7 +339,6 @@ async function addProgramStats(block) {
         if (deliverableType.value === 0 || platforms.value === 0) {
             return;
         }
-        
         platforms.forEach(async platform => {
             let assetResult = {imageUrl : '', imageAltText: '', assetCount: 0};
             assetResult = await searchAsset(programName, programName.campaignName, deliverableType, platform);
