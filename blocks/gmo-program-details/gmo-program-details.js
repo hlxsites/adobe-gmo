@@ -374,7 +374,7 @@ function buildProgramCollections(program) {
     
         programCollections.forEach((collection) => {
             const collectionData = parseCollectionLink(collection);
-            const collectionLink = a({ class: 'collection-link', href: collectionData.link }, collectionData.name);
+            const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank' }, collectionData.name);
             collectionsLinksWrapper.appendChild(collectionLink);
         });
         collectionsElem.appendChild(collectionsLinksWrapper);
