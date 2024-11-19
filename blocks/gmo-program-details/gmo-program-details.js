@@ -786,7 +786,7 @@ function createAssetLink(deliverable) {
     if (collections) {
         collections.forEach((collection) => {
             const collectionData = parseCollectionLink(collection);
-            const parsedCollectionName = parseCollectionName(collectionData.name);
+            const parsedCollectionName = parseCollectionName(collectionData.fullName);
             const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank', title: collectionData.name }, parsedCollectionName);
             linkWrapper.appendChild(collectionLink);
         });
@@ -818,8 +818,10 @@ function parseCollectionName(rawString) {
 
 function parseCollectionLink(collectionString) {
     let collectionName, collectionPlatform, collectionCategory, collectionLink;
-
+    const fullNameSplit = collectionString.split(';');
     const splitString = collectionString.split(' | ');
+
+    const fullName = (fullNameSplit.length > 1) ? fullNameSplit[0] : 'Collection';
 
     if (splitString.length > 1) {
         collectionName = splitString[0];
@@ -836,6 +838,7 @@ function parseCollectionLink(collectionString) {
         'platform': collectionPlatform,
         'category': collectionCategory,
         'link': collectionLink,
+        'fullName': fullName
     }
 
     return parsedCollection;
