@@ -64,7 +64,6 @@ export default async function decorate(block) {
         img({ class: 'icon icon-download' , 'data-direction': 'left', src: '/icons/download-button.svg'}),
         span({ class: 'button-label'}, 'Export Asset Count'),
     );
-    
 
     // tab wrapper
     const tabWrapper = div(
@@ -385,6 +384,60 @@ async function addProgramStats(block) {
 
     });
 
+    // Attach event listener to the button
+    const exportAssetCountButton = document.querySelector('.export-asset-count-button');
+    exportAssetCountButton.addEventListener('click', () => {
+    createCSV(deliverableTypeToPlatformsMap);
+    });
+
+            function createCSV(deliverableTypeToPlatformsMap) {
+            // Define the CSV header
+            let header = `Program name: ${program.programName}\n\n`;
+            let csvContent = `data:text/csv;charset=utf-8,${header}Deliverable Type,Platforms (by Deliverable Type),Deliverable Types - Asset Counts,Platform - Asset Counts\n`;
+            let grandTotalAssetCount = 0;
+
+            // Iterate over the deliverableTypeToPlatformsMap to extract data
+            deliverableTypeToPlatformsMap.forEach((platformsMap, deliverableType) => {
+                let totalAssetCount = 0;
+                
+                platformsMap.forEach(assetCount => {
+                    totalAssetCount += assetCount;
+                });
+        
+                // Add the deliverable type row
+                csvContent += `${deliverableType},All platforms,${totalAssetCount},\n`;
+        
+                // Add the platform rows
+                platformsMap.forEach((assetCount, platform) => {
+                    csvContent += `,${platform},,${assetCount}\n`;
+                });
+
+               // Add to grand total
+                grandTotalAssetCount += totalAssetCount;
+            });
+
+             // add a blank row
+             csvContent += '\n';
+
+            // Add the grand total asset count row and bold the text  
+            csvContent += `Total Asset Count,,${grandTotalAssetCount},\n`;
+
+            // Encode the CSV content
+            const encodedUri = encodeURI(csvContent);
+        
+            // Create a link element to download the CSV file
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "marketing-dashboard-hcv-count.csv");
+        
+            // Append the link to the document body and trigger the download
+            document.body.appendChild(link);
+            link.click();
+        
+            // Remove the link from the document
+            document.body.removeChild(link);
+        }
+
     buildProductCard(program);
     buildFieldScopes('deliverable-type', uniqueDeliverableTypes, block, deliverableTypeToPlatformsMap);
     buildFieldScopes('platforms', uniquePlatforms, block, platformToDeliverableTypesMap);
@@ -553,7 +606,6 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                      t.classList.remove('selected'); // Remove the selected class
                     });
                     const associatedItems = associationMap.get(scope);
-                    console.log('Associated Items:', associatedItems);
 
                     // Reset the associated buttons
                     if (associatedItems) {
@@ -585,17 +637,14 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                 } else {
                     // Hide all buttons
                     const allTags = document.querySelectorAll('.scope-tag');
-                    console.log('All Tags:', allTags);
                     allTags.forEach(t => t.style.display = 'none');
 
                     let associatedHeadingDiv = document.getElementById((scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
                     // Fetch all .scope-tag class from associatedHeadingDiv
                     let alternativeTags = associatedHeadingDiv.querySelectorAll('.scope-tag');
-                    console.log('All Tags1:', alternativeTags);
             
                     // Get the associated items
                     const associatedItems = associationMap.get(scope);
-                    console.log('Associated Items:', associatedItems);
             
                     // Update the clicked button's text content to include the length
                     tag.textContent = `${await lookupType(scope, scopeTypeId)}`;
@@ -609,9 +658,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                         associatedItems.forEach(async (count, key) => {
                             totalAssociatedAssetCount = totalAssociatedAssetCount + count;
                             const associatedTag = Array.from(alternativeTags).find(t => t.id.includes(key));
-                            console.log('Associated Tag:', associatedTag);
                             let alternateTextContent = await lookupType(associatedTag.id, (scopeTypeId === 'deliverable-type') ? 'platforms' : 'deliverable-type');
-                            console.log('Alternate Text Content:', alternateTextContent);
                             if (associatedTag) {
                                 associatedTag.textContent = `${await lookupType(scope, scopeTypeId)}: ${alternateTextContent} (${count})`;
                                 associatedTag.style.display = 'inline-block';
