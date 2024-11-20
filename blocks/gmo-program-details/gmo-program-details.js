@@ -58,6 +58,14 @@ export default async function decorate(block) {
         ),
     );
 
+    // export asset count button
+    const exportAssetCountButton = div(
+        { class: 'export-asset-count-button'},
+        img({ class: 'icon icon-download' , 'data-direction': 'left', src: '/icons/download-button.svg'}),
+        span({ class: 'button-label'}, 'Export Asset Count'),
+    );
+    
+
     // tab wrapper
     const tabWrapper = div(
         { class: 'tab-wrapper'},
@@ -116,6 +124,9 @@ export default async function decorate(block) {
             ),
         ),
         div(
+            exportAssetCountButton,
+        ),
+        div(
             { class: 'infocards-wrapper'},
             div(
                 { class: 'card products'},
@@ -124,7 +135,7 @@ export default async function decorate(block) {
             div(
                 { class: 'card audiences'},
                 div({ class: 'card-heading h3'}, 'Audiences'),
-            )
+            ),
         ),
     );
 
@@ -635,7 +646,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                 }
             });
         });
-    }
+    }    
 
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');

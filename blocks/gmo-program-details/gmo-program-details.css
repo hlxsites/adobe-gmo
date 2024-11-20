@@ -29,6 +29,27 @@ body {
     }
 }
 
+.export-asset-count-button{
+    background-color: #FFFFFF;
+    font: normal normal normal 15px/18px Adobe Clean;
+    height: 32px;
+    display: flex;
+    padding-right: 12px;
+    align-items: center;
+    border: 1px solid #D3D3D3;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover {
+        background-color: #c5c8c9;
+    }
+    & > .icon {
+        width: 15px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+}
+
 .gmo-program-details-wrapper {
     margin-top: 50px;
     min-height: 400px;
@@ -1073,3 +1094,4 @@ body {
     cursor: pointer;
     margin-left: 10px;
 }
+
