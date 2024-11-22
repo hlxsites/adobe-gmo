@@ -29,6 +29,28 @@ body {
     }
 }
 
+.export-asset-count-button{
+    background-color: #FFFFFF;
+    font: normal normal normal 15px/18px Adobe Clean;
+    height: auto;
+    width: auto;
+    display: flex;
+    padding: 5px 10px 5px 10px;
+    align-items: center;
+    border: 1px solid #D3D3D3;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover {
+        background-color: #c5c8c9;
+    }
+    & > .icon {
+        width: 15px;
+        margin-left: 5px;
+        margin-right: 8px;
+    }
+    
+}
+
 .gmo-program-details-wrapper {
     margin-top: 50px;
     min-height: 400px;
@@ -195,6 +217,11 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    position: relative;
+    & .export-asset-count-button{
+        position:absolute;
+        right: 450px;
+    }
 }
 .tab.calendar {
     margin-top:10px;
@@ -693,6 +720,7 @@ body {
         margin-bottom: 5px; 
         &:not(:last-child) {
             margin-right: 5px;
+                cursor: pointer;
         }
         &.selected{
             background-color: #0096FF;
@@ -1098,3 +1126,4 @@ body {
     cursor: pointer;
     margin-left: 10px;
 }
+
