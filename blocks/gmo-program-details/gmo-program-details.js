@@ -12,7 +12,6 @@ import {
 
 let blockConfig;
 let deliverableMappings, platformMappings, taskStatusMappings;
-let deliverableMappings, platformMappings, taskStatusMappings;
 const queryVars = extractQueryVars();
 const programName = queryVars.programName;
 const programID = queryVars.programID;
