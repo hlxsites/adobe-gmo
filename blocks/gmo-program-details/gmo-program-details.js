@@ -264,7 +264,6 @@ async function addProgramStats(block) {
     // build header
     let header = block.querySelector('.details-header-wrapper');
     // build header
-    let header = block.querySelector('.details-header-wrapper');
     if (!(program === undefined)) {
         const programHeader = buildHeader(program, queryVars).outerHTML;
         // Update the header with the actual data
