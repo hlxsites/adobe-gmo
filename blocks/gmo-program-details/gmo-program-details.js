@@ -6,7 +6,7 @@ import {
     filterArray, getProductMapping, checkBlankString,
     dateFormat, statusMapping, getMappingArray,
     showLoadingOverlay, hideLoadingOverlay, div,
-    span, img
+    span, img, a
 } from '../../scripts/shared-program.js';
 
 
@@ -56,6 +56,13 @@ export default async function decorate(block) {
                 ),
              ),
         ),
+    );
+
+    // export asset count button
+    const exportAssetCountButton = div(
+        { class: 'export-asset-count-button'},
+        img({ class: 'icon icon-download' , 'data-direction': 'left', src: '/icons/download-button.svg'}),
+        span({ class: 'button-label'}, 'Export Asset Count'),
     );
 
     // export asset count button
@@ -126,6 +133,9 @@ export default async function decorate(block) {
             exportAssetCountButton,
         ),
         div(
+            exportAssetCountButton,
+        ),
+        div(
             { class: 'infocards-wrapper'},
             div(
                 { class: 'card products'},
@@ -162,7 +172,7 @@ export default async function decorate(block) {
                 div({ class: 'header table-column column2' }, 'Deliverable Type'),
                 div({ class: 'header table-column column3' }, 'Platforms'),
                 div({ class: 'header table-column column4' }, 'QA Files'),
-                div({ class: 'header table-column column5' }, 'Final Asset'),
+                div({ class: 'header table-column column5' }, 'Approved Collection Link(s)'),
                 div({ class: 'header table-column column7' }, 'Status Update'),
                 div({ class: 'header table-column column8' }, 'Completion Date'),
                 div({ class: 'header table-column column9' }, 'Task Owner'),               
@@ -245,6 +255,7 @@ async function addProgramStats(block) {
         (encodedPath ? `${encodedSemi}path=${encodedPath}` : '');
     const programData = await executeQuery(programQueryString);
     const program = programData.data.programList.items[0];
+
     const uniqueDeliverableTypes = getUniqueItems(programData.data.deliverableList.items, 'deliverableType');
     const uniquePlatforms = getUniqueItems(programData.data.deliverableList.items, 'platforms');
     const bodyWrapper = document.querySelector('.main-body-wrapper');
@@ -262,6 +273,7 @@ async function addProgramStats(block) {
 
     // build header
     let header = block.querySelector('.details-header-wrapper');
+    // build header
     if (!(program === undefined)) {
         const programHeader = buildHeader(program, queryVars).outerHTML;
         // Update the header with the actual data
@@ -312,6 +324,7 @@ async function addProgramStats(block) {
     const targetMarketAreas = buildTargetMarketAreaList(p0TargetMarketArea,p1TargetMarketArea);
     const audiences = buildAudienceList(program);
     const artifactLinks = buildArtifactLinks(program);
+    const collections = buildProgramCollections(program);
 
     document.querySelector('.kpis-wrapper').appendChild(kpis);
     document.querySelector('.market-wrapper').appendChild(targetMarketAreas);
@@ -331,6 +344,7 @@ async function addProgramStats(block) {
     const deliverables = executeQuery(deliverableQueryString);
     document.querySelector('.page-heading').appendChild(artifactLinks);
     document.querySelector('.total-assets > .description').textContent = totalassets;
+    if (collections) document.querySelector('.deliverables > .page-heading').appendChild(collections);
 
     //Create a map to store the associations
     const deliverableTypeToPlatformsMap = new Map();
@@ -455,6 +469,10 @@ async function addProgramStats(block) {
     buildCalendar(await deliverables, block, "year", await deliverableMappings);
 
     // enable 'read more' buttons
+    // calendar tab
+    buildCalendar(await deliverables, block, "year", await deliverableMappings);
+
+    // enable 'read more' buttons
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
@@ -471,7 +489,16 @@ async function addProgramStats(block) {
     });
 
     // decorate any new icons
+    // enable tab switching
+    block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
+        switchTab(event.target);
+    });
+
+    // decorate any new icons
     decorateIcons(block);
+
+    // remove loading spinner
+    hideLoadingOverlay(bodyWrapper);
 
     // remove loading spinner
     hideLoadingOverlay(bodyWrapper);
@@ -483,6 +510,27 @@ function enableBackBtn(block, blockConfig) {
         const listPage = blockConfig.listpage;
         document.location.href = host + `/${listPage}`;
     })
+}
+
+function buildProgramCollections(program) {
+    const programCollections = program.programLevelcollectionLink;
+    if (programCollections) {
+        const collectionsElem = div(
+            { id: 'collections-wrapper', class: 'collections-wrapper' },
+            div({ class: 'h3' }, 'Program Collection'),
+        );
+        const collectionsLinksWrapper = div({ class: 'collections' });
+    
+        programCollections.forEach((collection) => {
+            const collectionData = parseCollectionLink(collection);
+            const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank' }, collectionData.name);
+            collectionsLinksWrapper.appendChild(collectionLink);
+        });
+        collectionsElem.appendChild(collectionsLinksWrapper);
+        return collectionsElem;
+    } else {
+        return null;
+    }
 }
 
 function buildDriverField(driverName) {
@@ -693,6 +741,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                 }
             });
         });
+    }    
     }    
 
 function buildKPIList(program) {
@@ -929,23 +978,24 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     return headerRow;
 }
 
-async function buildTableRow(deliverableJson, kpi, createHidden) {
+async function buildTableRow(deliverable, kpi, createHidden) {
     //look up friendly name for deliverable type
-    const typeLabel = await lookupType(deliverableJson.deliverableType, 'deliverable-type');
+    const typeLabel = await lookupType(deliverable.deliverableType, 'deliverable-type');
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
-    const status = (deliverableJson.deliverableStatusUpdate == null) ? "Not Available" : deliverableJson.deliverableStatusUpdate + "%";
-    const statusPct = (deliverableJson.deliverableStatusUpdate == null) ? "0%" : deliverableJson.deliverableStatusUpdate + "%";
+    const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
+    const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
+    const assetLinks = createAssetLink(deliverable);
     dataRow.innerHTML = `
-        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverableJson.deliverableName)}</div>
+        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverable.deliverableName)}</div>
         <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
         <div class='property table-column column3 platforms'></div>
         <div class='property table-column column4 qa-files'>
-            ${deliverableJson.reviewLink ? '<a href="' + deliverableJson.reviewLink + '"target="_blank" class="campaign-link">QA Files</a> ': "Not Available"}
+            ${deliverable.reviewLink ? '<a href="' + deliverable.reviewLink + '"target="_blank" class="campaign-link">QA Files</a> ': "Not Available"}
         </div>
         <div class='property table-column column5'>
-            ${deliverableJson.linkedFolderLink ? '<a href="' + deliverableJson.linkedFolderLink + '"target="_blank" class="campaign-link">Final Asset</a> ': "Not Available"}
+            ${assetLinks.outerHTML}
         </div>
         <div class='property table-column column7 justify-center'>
             <div class='status-wrapper'>
@@ -960,12 +1010,12 @@ async function buildTableRow(deliverableJson, kpi, createHidden) {
             </div>
         </div>
         <div class='property table-column column8 date-wrapper'>
-            <div class='completion-date'>${dateFormat(deliverableJson.taskCompletionDate)}</div>
-            ${deliverableJson.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverableJson.previousTaskCompletionDate + '</div> ': ""}
+            <div class='completion-date'>${dateFormat(deliverable.taskCompletionDate)}</div>
+            ${deliverable.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverable.previousTaskCompletionDate + '</div> ': ""}
         </div>
-        <div class='property table-column column9'>${checkBlankString(deliverableJson.driver)}</div>
+        <div class='property table-column column9'>${checkBlankString(deliverable.driver)}</div>
     `;
-    createPlatformString(deliverableJson.platforms, dataRow);
+    createPlatformString(deliverable.platforms, dataRow);
     return dataRow;
 }
 
@@ -981,6 +1031,70 @@ async function createPlatformString(platforms, htmlElem) {
         platformString = 'Not Available'
     }
     htmlElem.querySelector('.column3.platforms').textContent = platformString;
+}
+
+function createAssetLink(deliverable) {
+    const collections = deliverable.collectionLink;
+    const linkWrapper = div({ class: 'collection-link-wrapper '});
+    if (collections) {
+        collections.forEach((collection) => {
+            const collectionData = parseCollectionLink(collection);
+            const parsedCollectionName = parseCollectionName(collectionData.fullName);
+            const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank', title: collectionData.name }, parsedCollectionName);
+            linkWrapper.appendChild(collectionLink);
+        });
+    } else {
+        const linkedFolder = deliverable.linkedFolderLink;
+        if (linkedFolder) {
+            const linkedFolderLink = a({ class: 'campaign-link', target: '_blank', href: linkedFolder }, 'Approved Assets (Workfront)');
+            linkWrapper.appendChild(linkedFolderLink);
+        } else {
+            linkWrapper.textContent = 'Not Available';
+        }
+        
+    }
+    return linkWrapper;
+}
+
+function parseCollectionName(rawString) {
+    const collectionName = rawString;
+    const maxLength = 73;
+    const charsToShow = 34;
+    
+    if (collectionName.length > maxLength) {
+        const truncatedString = collectionName.slice(0, charsToShow) + "[...]" + collectionName.slice(-charsToShow);
+        return truncatedString;
+    } else {
+        return collectionName;
+    }
+}
+
+function parseCollectionLink(collectionString) {
+    let collectionName, collectionPlatform, collectionCategory, collectionLink;
+    const fullNameSplit = collectionString.split(';');
+    const splitString = collectionString.split(' | ');
+
+    const fullName = (fullNameSplit.length > 1) ? fullNameSplit[0] : 'Collection';
+
+    if (splitString.length > 1) {
+        collectionName = splitString[0];
+        collectionPlatform = splitString[1];
+        [ collectionCategory, collectionLink ] = splitString[2].split(';');
+    } else {
+        collectionName = 'Collection';
+        collectionPlatform, collectionCategory = 'Not Available';
+        collectionLink = splitString[0];
+    }
+
+    const parsedCollection = {
+        'name': collectionName,
+        'platform': collectionPlatform,
+        'category': collectionCategory,
+        'link': collectionLink,
+        'fullName': fullName
+    }
+
+    return parsedCollection;
 }
 
 function sortRows(rows) {
