@@ -731,8 +731,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                 }
             });
         });
-    }    
-    }    
+    }   
 
 function buildKPIList(program) {
     let kpiList = document.createElement('ul');
