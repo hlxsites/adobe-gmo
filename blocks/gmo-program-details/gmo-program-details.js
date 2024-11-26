@@ -263,7 +263,6 @@ async function addProgramStats(block) {
 
     // build header
     let header = block.querySelector('.details-header-wrapper');
-    // build header
     if (!(program === undefined)) {
         const programHeader = buildHeader(program, queryVars).outerHTML;
         // Update the header with the actual data
@@ -459,10 +458,6 @@ async function addProgramStats(block) {
     buildCalendar(await deliverables, block, "year", await deliverableMappings);
 
     // enable 'read more' buttons
-    // calendar tab
-    buildCalendar(await deliverables, block, "year", await deliverableMappings);
-
-    // enable 'read more' buttons
     block.querySelectorAll('.read-more').forEach((button) => {
         button.addEventListener('click', (event) => {
             const readMore = event.target;
@@ -479,16 +474,7 @@ async function addProgramStats(block) {
     });
 
     // decorate any new icons
-    // enable tab switching
-    block.querySelector('.tab-wrapper').addEventListener('click', (event) => {
-        switchTab(event.target);
-    });
-
-    // decorate any new icons
     decorateIcons(block);
-
-    // remove loading spinner
-    hideLoadingOverlay(bodyWrapper);
 
     // remove loading spinner
     hideLoadingOverlay(bodyWrapper);
