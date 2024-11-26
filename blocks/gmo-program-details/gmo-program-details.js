@@ -65,13 +65,6 @@ export default async function decorate(block) {
         span({ class: 'button-label'}, 'Export Asset Count'),
     );
 
-    // export asset count button
-    const exportAssetCountButton = div(
-        { class: 'export-asset-count-button'},
-        img({ class: 'icon icon-download' , 'data-direction': 'left', src: '/icons/download-button.svg'}),
-        span({ class: 'button-label'}, 'Export Asset Count'),
-    );
-
     // tab wrapper
     const tabWrapper = div(
         { class: 'tab-wrapper'},
@@ -128,9 +121,6 @@ export default async function decorate(block) {
                 div({ class: 'description'}, 'Select a platform to display deliverable type the assets were created for.'),
                 div({ class: 'tags-wrapper'}),
             ),
-        ),
-        div(
-            exportAssetCountButton,
         ),
         div(
             exportAssetCountButton,
