@@ -83,12 +83,12 @@ export async function graphqlAllCampaignsFilter(first,cursor,filter) {
 
 }
 
-export async function graphqlCampaignByName(campaignName) {
-  const queryName = 'getCampaignNameFilter';
-  const encodedCampaignName = encodeURIComponent(campaignName);
+export async function graphqlProgramByName(programName) {
+  const queryName = 'getProgramNameFilter';
+  const encodedProgramName = encodeURIComponent(programName);
   const encodedSemiColon = encodeURIComponent(';');
   //persisted query URLs have to be encoded together with the first semicolon
-  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}campaignName=${encodedCampaignName}`;
+  const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}programName=${encodedProgramName}`;
   const jwtToken = await getBearerToken();
 
   // Return the fetch promise chain so that it can be awaited outside

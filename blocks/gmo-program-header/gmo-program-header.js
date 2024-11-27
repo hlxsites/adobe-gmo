@@ -1,5 +1,6 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-import { graphqlCampaignByName } from '../../scripts/graphql.js';
+//import { graphqlCampaignByName } from '../../scripts/graphql.js';
+import { graphqlProgramByName } from '../../scripts/graphql.js';
 import { statusMapping, productList, getMappingArray } from '../../scripts/shared-program.js';
 
 export default async function decorate(block) {
@@ -80,9 +81,9 @@ export default async function decorate(block) {
         const value = this.value;
         if (value)
         {
-          const graphqlData = await graphqlCampaignByName(value);
+          const graphqlData = await graphqlProgramByName(value);
           //Get unique values
-          const searchItems = Array.from(new Set(graphqlData.data.programList.items.map(item => item.campaignName)));
+          const searchItems = Array.from(new Set(graphqlData.data.programList.items.map(item => item.programName)));
           autocomplete(value, searchItems);
         }
         else
