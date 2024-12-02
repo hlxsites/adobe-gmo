@@ -57,7 +57,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     const searchInputValue = document.getElementById('campaign-search').value;
     if (searchInputValue!=='')
     {
-      graphQLFilterArray.push({type:'campaignName', value:searchInputValue, operator:'='})
+      graphQLFilterArray.push({type:'programName', value:searchInputValue, operator:'='})
     }
 
     currentGraphqlFilter= generateFilterJSON(graphQLFilterArray);
