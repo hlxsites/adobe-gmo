@@ -8,7 +8,7 @@ export default async function decorate(block) {
     <div class="inputs-wrapper">
         <div class="search-wrapper">
             <span class="icon icon-search"></span>
-            <input id="campaign-search" maxlength="512" type="search" class="campaign-search" placeholder="Search Marketing Moments...">
+            <input id="campaign-search" maxlength="512" type="search" class="campaign-search" placeholder="Search by Program Name...">
             <!-- autocomplete feature-->
             <div id="autocomplete-list" class="autocomplete-items"></div>
         </div>
