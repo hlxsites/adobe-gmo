@@ -140,7 +140,6 @@ export default async function decorate(block) {
 
 
     // deliverables tab
-    // todo: expand/collapse into +/-
     const deliverablesTab = div(
         { id: 'tab2', class: 'deliverables tab inactive'},
         div(
