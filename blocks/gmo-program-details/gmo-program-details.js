@@ -140,6 +140,7 @@ export default async function decorate(block) {
 
 
     // deliverables tab
+    const expandCollapseTooltip = 'Expand/Collapse All Deliverable Tasks';
     const deliverablesTab = div(
         { id: 'tab2', class: 'deliverables tab inactive'},
         div(
@@ -158,6 +159,8 @@ export default async function decorate(block) {
             { class: 'table-wrapper'},
             div(
                 { class: 'table-header' },
+                img({ class: 'expand-deliverables showhide-deliverables', src: "/icons/AddCircle_18_N.svg", title: expandCollapseTooltip }),
+                img({ class: 'collapse-deliverables showhide-deliverables inactive', src: "/icons/RemoveCircle_18_N.svg", title: expandCollapseTooltip }),
                 div({ class: 'header table-column column1' }, 'Deliverable Task Name'),
                 div({ class: 'header table-column column2' }, 'Deliverable Type'),
                 div({ class: 'header table-column column3' }, 'Platforms'),
@@ -473,12 +476,39 @@ async function addProgramStats(block) {
         switchTab(event.target);
     });
 
+    // enable expand/collapse all deliverables
+    block.querySelectorAll('.expand-deliverables, .collapse-deliverables').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const clickedBtn = event.currentTarget;
+            document.querySelector('.showhide-deliverables.inactive').classList.toggle('inactive');
+            clickedBtn.classList.toggle('inactive');
+    
+            const expand = clickedBtn.classList.contains('expand-deliverables');
+            document.querySelectorAll('.row.collapsible').forEach((group) => toggleGroup(group, expand));
+        });
+    })
+
     // decorate any new icons
     decorateIcons(block);
 
     // remove loading spinner
     hideLoadingOverlay(bodyWrapper);
 }
+
+function toggleGroup(group, expand) {
+    if (expand) {
+        group.querySelector('.icon-next').classList.add('inactive');
+        group.querySelector('.icon-collapse').classList.remove('inactive');
+    } else {
+        group.querySelector('.icon-next').classList.remove('inactive');
+        group.querySelector('.icon-collapse').classList.add('inactive');
+    }
+    Array.from(group.children).forEach((child) => {
+        if (child.classList.contains('row')) {
+            child.classList.toggle('inactive', !expand);
+        }
+    });
+};
 
 function enableBackBtn(block, blockConfig) {
     block.querySelector('.back-button').addEventListener('click', () => {
