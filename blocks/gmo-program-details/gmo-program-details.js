@@ -141,6 +141,7 @@ export default async function decorate(block) {
 
     // deliverables tab
     const expandCollapseTooltip = 'Expand/Collapse All Deliverable Tasks';
+    const expandCollapseTooltip = 'Expand/Collapse All Deliverable Tasks';
     const deliverablesTab = div(
         { id: 'tab2', class: 'deliverables tab inactive'},
         div(
@@ -159,6 +160,8 @@ export default async function decorate(block) {
             { class: 'table-wrapper'},
             div(
                 { class: 'table-header' },
+                img({ class: 'expand-deliverables showhide-deliverables', src: "/icons/AddCircle_18_N.svg", title: expandCollapseTooltip }),
+                img({ class: 'collapse-deliverables showhide-deliverables inactive', src: "/icons/RemoveCircle_18_N.svg", title: expandCollapseTooltip }),
                 img({ class: 'expand-deliverables showhide-deliverables', src: "/icons/AddCircle_18_N.svg", title: expandCollapseTooltip }),
                 img({ class: 'collapse-deliverables showhide-deliverables inactive', src: "/icons/RemoveCircle_18_N.svg", title: expandCollapseTooltip }),
                 div({ class: 'header table-column column1' }, 'Deliverable Task Name'),
