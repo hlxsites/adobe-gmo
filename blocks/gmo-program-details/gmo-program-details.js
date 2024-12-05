@@ -426,7 +426,7 @@ async function addProgramStats(block) {
              csvContent += '\n';
 
             // Add the grand total asset count row and bold the text  
-            csvContent += `Total Unique Asset Count,,${grandTotalAssetCount},\n`;
+            csvContent += `Instances of assets deployed,,${grandTotalAssetCount},\n`;
 
             // Encode the CSV content
             const encodedUri = encodeURI(csvContent);
