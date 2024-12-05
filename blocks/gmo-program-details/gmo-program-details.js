@@ -141,6 +141,7 @@ export default async function decorate(block) {
 
     // deliverables tab
     const expandCollapseTooltip = 'Expand/Collapse All Deliverable Tasks';
+    const expandCollapseTooltip = 'Expand/Collapse All Deliverable Tasks';
     const deliverablesTab = div(
         { id: 'tab2', class: 'deliverables tab inactive'},
         div(
@@ -765,7 +766,6 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                 }
             });
         });
-    }   
     }   
 
 function buildKPIList(program) {
