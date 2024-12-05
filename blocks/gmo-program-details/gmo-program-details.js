@@ -511,7 +511,6 @@ function toggleGroup(group, expand) {
         }
     });
 };
-}
 
 function toggleGroup(group, expand) {
     if (expand) {
