@@ -51,7 +51,7 @@ async function getUnderdevelopmentIcon() {
  * @throws {Error} If an HTTP error or network error occurs.
  */
 
-export async function searchAsset(programName, campaignName, deliverableType = '', imageWidth = 80) {
+export async function searchAsset(programName, campaignName, deliverableType = '', platform = '', imageWidth = 80) {
   const adminConfig = await getAdminConfig();
   const deliveryURL = await initDeliveryEnvironment();
 
@@ -76,6 +76,11 @@ export async function searchAsset(programName, campaignName, deliverableType = '
   if (deliverableType) { // Check if deliverableType is not null
     facetFilters.push('gmo-deliverableType :'+ deliverableType);
   }
+
+  if (platform) { // Check if platform is not null
+    facetFilters.push('gmo-platform :'+ platform);
+  }
+  
   const data = {
     requests: [
       {
