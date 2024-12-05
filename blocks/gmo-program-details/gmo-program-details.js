@@ -141,7 +141,6 @@ export default async function decorate(block) {
 
     // deliverables tab
     const expandCollapseTooltip = 'Expand/Collapse All Deliverable Tasks';
-    const expandCollapseTooltip = 'Expand/Collapse All Deliverable Tasks';
     const deliverablesTab = div(
         { id: 'tab2', class: 'deliverables tab inactive'},
         div(
@@ -512,6 +511,22 @@ function toggleGroup(group, expand) {
         }
     });
 };
+}
+
+function toggleGroup(group, expand) {
+    if (expand) {
+        group.querySelector('.icon-next').classList.add('inactive');
+        group.querySelector('.icon-collapse').classList.remove('inactive');
+    } else {
+        group.querySelector('.icon-next').classList.remove('inactive');
+        group.querySelector('.icon-collapse').classList.add('inactive');
+    }
+    Array.from(group.children).forEach((child) => {
+        if (child.classList.contains('row')) {
+            child.classList.toggle('inactive', !expand);
+        }
+    });
+};
 
 function enableBackBtn(block, blockConfig) {
     block.querySelector('.back-button').addEventListener('click', () => {
@@ -750,6 +765,7 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                 }
             });
         });
+    }   
     }   
 
 function buildKPIList(program) {
