@@ -139,6 +139,7 @@ export default async function decorate(block) {
     );
 
 
+
     // deliverables tab
     const expandCollapseTooltip = 'Expand/Collapse All Deliverable Tasks';
     const deliverablesTab = div(
@@ -330,7 +331,7 @@ async function addProgramStats(block) {
     document.querySelector('.product-value-wrapper > .paragraph').textContent = productValue;
     
     // additional dom updates
-    buildProductCard(program);
+    //buildProductCard(program);
 
     // deliverables tab
     const deliverables = executeQuery(deliverableQueryString);
@@ -426,7 +427,7 @@ async function addProgramStats(block) {
              csvContent += '\n';
 
             // Add the grand total asset count row and bold the text  
-            csvContent += `Total Unique Asset Count,,${grandTotalAssetCount},\n`;
+            csvContent += `Instances of assets deployed,,${grandTotalAssetCount},\n`;
 
             // Encode the CSV content
             const encodedUri = encodeURI(csvContent);
