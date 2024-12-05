@@ -330,7 +330,7 @@ async function addProgramStats(block) {
     document.querySelector('.product-value-wrapper > .paragraph').textContent = productValue;
     
     // additional dom updates
-    buildProductCard(program);
+    //buildProductCard(program);
 
     // deliverables tab
     const deliverables = executeQuery(deliverableQueryString);
