@@ -119,6 +119,7 @@ export default async function decorate(block) {
                 { id: 'platforms', class: 'channel-scope-wrapper'},
                 span({ class: 'h3'}, 'Platforms'),
                 div({ class: 'description'}, 'Select a platform to display deliverable type the assets were created for.'),
+                div({ class: 'description'}, 'Select a platform to display deliverable type the assets were created for.'),
                 div({ class: 'tags-wrapper'}),
             ),
         ),
@@ -137,6 +138,7 @@ export default async function decorate(block) {
             ),
         ),
     );
+
 
 
     // deliverables tab
