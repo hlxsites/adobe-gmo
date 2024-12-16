@@ -1350,6 +1350,15 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         contentWrapper.dataset.view = "year";
     }
 
+    // start new
+    const contentWrapperDiv = div({ class: 'calendar-content-wrapper' });
+    if (type === 'quater') {
+        contentWrapperDiv.classList.add('quarter-view');
+        contentWrapperDiv.dataset.view = 'quarter';
+    } else {
+        contentWrapperDiv.dataset.vew = 'year';
+    }
+
     var groupIndex = 1;
     for (const group of uniqueGroups) {
         const groupType = await lookupType(group, 'deliverable-type');
@@ -1395,6 +1404,9 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         const itemWrapper = document.createElement('div');
         itemWrapper.classList.add('group-content');
 
+        //
+        const itemWrapperDiv = div({ class: 'group-content' });
+
         for (const item of matchedItems) {
             const itemStartDate = (item[startDateProp]) ? new Date(item[startDateProp]) : viewStart;
             const itemEndDate = (item[endDateProp]) ? new Date(item[endDateProp]) : viewEnd;
@@ -1405,15 +1417,43 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
 
             let daysDifference = Math.floor((itemStartDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const startPctDiff = ((daysDifference / groupDuration) * 100).toFixed(2);
+            /*
             let itemEl = document.createElement('div');
             itemEl.classList.add('item');
             itemEl.style.marginLeft = startPctDiff + '%';
+            */
+
+            
 
             // Find the corresponding color code from the taskStatusMappings array
             const itemStatusMapping = await getTaskStatusMapping(item.taskStatus);
             const { text: statusText = 'Unknown Status', 'color-code': colorCode = 'green' } = itemStatusMapping;
 
+            const itemElDiv = div({ class: 'item', style: `margin-left: ${startPctDiff}%;width: ${itemDurationPct}%`},
+                div({ class: 'color-tab'}),
+                div({ class: 'item-content' },
+                    div({ class: 'content-row' },
+                        div({ class: 'info' },
+                            div({ class: 'thumbnail' }),
+                            div({ class: 'name', title: item.deliverableName}, item.deliverableName),
+                            div({ class: 'item-status', dataStatus: checkBlankString(item.taskStatus),
+                                style: `background-color: #${colorCode}`, title: statusText,
+                            }),
+                        ),
+                    ),
+                    div({ class: 'content-row bottom' },
+                        itemEndDateStr 
+                            ? div({ class: 'start-date', title: `Task Planned End Date: ${itemEndDateStr}`}, `End Date: ${itemEndDateStr}`)
+                            : '',
+                        div({ class: 'link' },
+                            a({ href: item.reviewLink, target: '_blank' }, 'QA Files'),
+                        )
+                    )
+                )
+            );
+
             // Create a placeholder for the thumbnail
+            /*
             itemEl.innerHTML = `
                 <div class="color-tab"></div>
                 <div class="item-content">
@@ -1437,10 +1477,14 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
                 </div>
             `;
             itemEl.style.width = itemDurationPct + '%';
+            */
 
             // Call the new function to fetch and add the thumbnail, ensuring sequential execution
-            await addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
+            /*await addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
             itemWrapper.appendChild(itemEl);
+            */
+            await addThumbnailToItem(itemElDiv, item.programName, item.campaignName,item.deliverableType);
+            itemWrapper.appendChild(itemElDiv);
 
         };
 
