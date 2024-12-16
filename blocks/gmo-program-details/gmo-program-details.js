@@ -959,7 +959,7 @@ async function buildTable(jsonResponse) {
             rows.appendChild(headerRow);
         }
         matchingCampaigns.forEach(async (campaign) => {
-            const tableRow = await buildTableRow(campaign, programKpi, !emptyCategory);
+            const tableRow = await buildTableRow(campaign, !emptyCategory);
             headerRow.appendChild(tableRow);
         })
         // sort grouped rows by date
@@ -1053,15 +1053,51 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     return headerRowDiv;
 }
 
-async function buildTableRow(deliverable, kpi, createHidden) {
+async function buildTableRow(deliverable, createHidden) {
     //look up friendly name for deliverable type
     const typeLabel = await lookupType(deliverable.deliverableType, 'deliverable-type');
+    const assetLinks = createAssetLink(deliverable);
+    const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
+    const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
+
+    const dataRowDiv = div({ class: 'row datarow' },
+        div({ class: 'property table-column column1 deliverable-name' }, checkBlankString(deliverable.deliverableName)),
+        div({ class: 'property table-column column2 deliverable-type' }, checkBlankString(typeLabel)),
+        div({ class: 'property table-column column3 platforms' }),
+        div({ class: 'property table-column column4 qa-files' },
+            deliverable.reviewLink 
+            ? a({ class: 'campaign-link', target: '_blank', href: deliverable.reviewLink }, 'QA Files')
+            : 'Not Available'
+        ),
+        div({ class: 'property table-column column5' }, assetLinks),
+        div({ class: 'property table-column column7 justify-center' },
+            div({ class: 'status-wrapper '},
+                div({ class: 'status-heading' },
+                    div({ class: 'status-label' }, 'Progress'),
+                    div({ class: 'status-percent' }, status),
+                ),
+                div({ class: 'status-bar-wrapper' },
+                    div({ class: 'status-bar-underlay' }),
+                    div({ class: 'status-bar', style: `width: ${statusPct}` }),
+                ),
+            )
+        ),
+        div({ class: 'property table-column column8 date-wrapper' },
+            div({ class: 'completion-date' }, dateFormat(deliverable.taskCompletionDate)),
+            deliverable.previousTaskCompletionDate
+                ? div({ class: 'revised-date' }, `Revised from ${deliverable.previousTaskCompletionDate}`)
+                : ''
+        ),
+        div({ class: 'property table-column column9' }, checkBlankString(deliverable.driver)),
+    );
+    if (createHidden) dataRowDiv.classList.add('inactive');
+
+/*
     const dataRow = document.createElement('div');
     dataRow.classList.add('row', 'datarow');
     if (createHidden) dataRow.classList.add('inactive');
-    const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
-    const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
-    const assetLinks = createAssetLink(deliverable);
+    
+    
     dataRow.innerHTML = `
         <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverable.deliverableName)}</div>
         <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
@@ -1090,8 +1126,9 @@ async function buildTableRow(deliverable, kpi, createHidden) {
         </div>
         <div class='property table-column column9'>${checkBlankString(deliverable.driver)}</div>
     `;
-    createPlatformString(deliverable.platforms, dataRow);
-    return dataRow;
+    */
+    createPlatformString(deliverable.platforms, dataRowDiv);
+    return dataRowDiv;
 }
 
 async function createPlatformString(platforms, htmlElem) {
