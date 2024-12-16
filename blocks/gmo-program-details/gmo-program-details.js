@@ -331,9 +331,6 @@ async function addProgramStats(block) {
     document.querySelector('.product-overview-wrapper > .paragraph').textContent = marketingGoal;
     const productValue = checkBlankString(program.productValue.plaintext);
     document.querySelector('.product-value-wrapper > .paragraph').textContent = productValue;
-    
-    // additional dom updates
-    //buildProductCard(program);
 
     // deliverables tab
     const deliverables = executeQuery(deliverableQueryString);
@@ -1021,23 +1018,39 @@ async function lookupType(rawText, mappingType) {
 async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     //look up friendly name for deliverable type
     const typeLabel = await lookupType(category, 'deliverable-type');
+    const headerRowDiv = div({ class: 'row collapsible header' });
+    const divOpen = div({ class: 'heading-wrapper' },
+        img({ class: 'icon-next', src: '/icons/next.svg' }),
+        img({ class: 'icon-collapse inactive', src: '/icons/collapse.svg' }),
+        div({ class: 'headertext' }, `${typeLabel} (${matchCount})`),
+    );
+    if (headerType === 'subcategory') {
+        headerRowDiv.classList.add('subheader');
+        divOpen.classList.add('subheading');
+    }
+    headerRowDiv.appendChild(divOpen);
+    /*
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'collapsible', 'header');
-    let divopen;
+    //let divopen;
+    
     if (headerType === 'subcategory') {
         headerRow.classList.add('subheader');
         divopen = '<div class="heading-wrapper subheading">';
     } else {
         divopen = '<div class="heading-wrapper">';
     }
-    if (isInactive) headerRow.classList.add('inactive');
+    */
+    if (isInactive) headerRowDiv.classList.add('inactive');
+    /*
     headerRow.innerHTML = `
-        ${divopen}
+        ${divOpen}
             <img class="icon-next" src="/icons/next.svg"></img>
             <img class="icon-collapse inactive" src="/icons/collapse.svg"></img>
             <div class="headertext">${typeLabel} (${matchCount})</div>
         </div>`;
-    return headerRow;
+        */
+    return headerRowDiv;
 }
 
 async function buildTableRow(deliverable, kpi, createHidden) {
