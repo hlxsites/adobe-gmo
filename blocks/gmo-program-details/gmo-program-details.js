@@ -282,17 +282,19 @@ async function addProgramStats(block) {
         }
     } else {
         //programName and campaignName is null
+        const noDataBlock = div(
+            div({ class: 'back-button' },
+                span({ class: 'icon icon-back' }),
+                span({ class: 'back-label' }, 'Back')
+            ),
+            div({ class: 'main-body-wrapper' }, 
+                header,
+                div({ class: 'no-data-msg' }, 'No program data available.'),
+            ),
+        );
         header.textContent = 'Unable to retrieve program information.';
-        block.innerHTML = `
-        <div class="back-button">
-            <span class="icon icon-back"></span>
-            <span class="back-label">Back</span>
-        </div>
-        <div class="main-body-wrapper">
-            ${header.outerHTML}
-            <div class="no-data-msg">No program data available.</div>
-        </div>
-        `;
+        block.innerHTML = noDataBlock.innerHTML;
+
         try {
             //programName and campaignName is null display under development icon
             imageObject = await searchAsset(null, null);
@@ -540,19 +542,54 @@ function buildProgramCollections(program) {
     }
 }
 
+/*
 function buildDriverField(driverName) {
     const driverSpan = document.createElement('span');
     driverSpan.classList.add('driver-text');
     driverSpan.innerHTML = `Project Owner: ${driverName}`;
     return driverSpan;
 }
-
+*/
 function buildHeader(program, queryVars) {
+    /*
     const headerWrapper = document.createElement('div');
     headerWrapper.classList.add('details-header-wrapper');
+    */
+    const programName = program ? program.programName : queryVars.programName;
+    
+    const dateDiv = program?.launchDate
+        ? div({ class: 'header-row3'},
+            span({ class: 'icon icon-calendar' }),
+            span({ class: 'date-tooltip' }, 'Proposed Launch Date'),
+            span({ class: 'campaign-date' }, formatDate(program.launchDate)),
+        ) 
+        : "";
+    const campaignNameDiv = program?.campaignName 
+        ? div({ class: 'header-row2' },
+            span({ class: 'subtitle' },
+            program.campaignName))
+        : "";
+    const releaseTierDiv = div({ class: 'header-row3' },
+        span({ class: 'icon-release-tier' }),
+        span({ class: 'release-tier' }, `Release Tier: ${program.releaseTier ? program.releaseTier : 'Not Available'}`),
+    );
+    const productGroupDiv = div({ class: 'header-row3' },
+        span({ class: 'icon-productGroup' }),
+        span({ class: 'productGroup' }, `${program.productGroup && program.productGroup.length > 0 ? program.productGroup.join(', ') : "Not Available"}`)
+    );
+    const driverDiv = program 
+        ? span({ class: 'driver-text' }, `Project Owner: ${program.driver ? program.driver : "Not Available"}`)
+        : "";
+
+    /*
+        const driverSpan = document.createElement('span');
+    driverSpan.classList.add('driver-text');
+    driverSpan.innerHTML = `Project Owner: ${driverName}`;
+    return driverSpan;
+    
+
     const date = program && program.launchDate ? `<div class="header-row3"><span class="icon icon-calendar">` +
         `</span><span class="date-tooltip">Proposed Launch Date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
-    const programName = program ? program.programName : queryVars.programName;
     const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
 
     const driver = program && program.driver ? program.driver : "Not Available";
@@ -561,6 +598,7 @@ function buildHeader(program, queryVars) {
     if (program){
       driverField=buildDriverField(driver).outerHTML;
     }
+    
 
     const releaseTier = `
         <div class="header-row3">
@@ -573,7 +611,23 @@ function buildHeader(program, queryVars) {
             <span class="icon-productGroup"></span>
             <span class="productGroup">${program.productGroup && program.productGroup.length > 0 ? program.productGroup.join(', ') : "Not Available"}</span>
         </div>`;
-
+    */
+    const header = div({ class: 'details-header-wrapper' },
+        div({ class: 'campaign-img' }),
+        div({ class: 'header-title' },
+            div({ class: 'header-row1' },
+                span({ class: 'h1' }, programName)
+            ),
+            campaignNameDiv,
+            div({ class: 'header-row3' },
+                dateDiv,
+                driverDiv,
+                releaseTierDiv,
+                productGroupDiv
+            ),
+        )
+    );
+    /*
     headerWrapper.innerHTML = `
         <div class="campaign-img">
         </div>
@@ -590,7 +644,9 @@ function buildHeader(program, queryVars) {
             </div>
         </div>
     `
-    return headerWrapper;
+    */
+    //return headerWrapper;
+    return header;
 }
 
 /**
