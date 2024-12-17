@@ -1401,8 +1401,8 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         // calculate the duration of the group as that helps set the width of its members
         const groupDuration = Math.floor((latestEndDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
 
-        const itemWrapper = document.createElement('div');
-        itemWrapper.classList.add('group-content');
+        //const itemWrapper = document.createElement('div');
+        //itemWrapper.classList.add('group-content');
 
         //
         const itemWrapperDiv = div({ class: 'group-content' });
@@ -1436,7 +1436,7 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
                         div({ class: 'info' },
                             div({ class: 'thumbnail' }),
                             div({ class: 'name', title: item.deliverableName}, item.deliverableName),
-                            div({ class: 'item-status', dataStatus: checkBlankString(item.taskStatus),
+                            div({ class: 'item-status', 'data-status': checkBlankString(item.taskStatus),
                                 style: `background-color: #${colorCode}`, title: statusText,
                             }),
                         ),
@@ -1484,11 +1484,26 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
             itemWrapper.appendChild(itemEl);
             */
             await addThumbnailToItem(itemElDiv, item.programName, item.campaignName,item.deliverableType);
-            itemWrapper.appendChild(itemElDiv);
+            //itemWrapper.appendChild(itemElDiv);
+            itemWrapperDiv.appendChild(itemElDiv);
 
         };
 
         //await lookupType(category, 'deliverable-type');
+
+        const groupElDiv = div({ class: `calendar-group color${groupIndex}`,
+            style: `margin-left: ${startPosition}%;width: ${widthOfGroup}%`},
+                div({ class: 'group-header'},
+                    div({ class: 'left-block' },
+                        img({ src: '/icons/chevron-right.svg', class: 'group-expand group-controls inactive'}),
+                        img({ src: '/icons/chevron-right.svg', class: 'group-collapse group-controls'}),
+                        div({ class: 'group-heading', title: `${groupType}`}, groupType),
+                        div({ class: 'group-count'}, matchedItems.length)
+                    ),
+                    div({ class: 'right-block' }),
+                ),
+        );
+        /*
         const groupEl = document.createElement('div');
         groupEl.classList.add('calendar-group', `color${groupIndex}`);
         groupEl.style.marginLeft = startPosition + '%';
@@ -1505,12 +1520,14 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
                 </div>
             </div>
         `;
-        groupEl.appendChild(itemWrapper);
-        groupEl.querySelectorAll('.group-controls').forEach((arrow) => {
+        */
+        //groupElDiv.appendChild(itemWrapper);
+        groupElDiv.appendChild(itemWrapperDiv);
+        groupElDiv.querySelectorAll('.group-controls').forEach((arrow) => {
             arrow.addEventListener('click', showHideGroup);
         });
 
-        contentWrapper.appendChild(groupEl);
+        contentWrapper.appendChild(groupElDiv);
         groupIndex = (groupIndex === 5) ? 1 : groupIndex + 1;
     };
 
@@ -1518,15 +1535,18 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     block.querySelector('.calendar.tab').appendChild(calendarEl);
 
     // populate "filter" dropdown
-    const filterDropdown = document.createElement('div');
-    filterDropdown.classList.add('filter-dropdown-content');
+    //const filterDropdown = document.createElement('div');
+    //filterDropdown.classList.add('filter-dropdown-content');
+    const filterDropdown = div({ class: 'filter-dropdown-content'});
     const uniqueYears = getUniqueYears(calendarDeliverables);
-    const yearOptionLabel = document.createElement('div');
-    yearOptionLabel.classList.add('filter-label');
-    yearOptionLabel.textContent = 'Year';
-    const quarterOptionLabel = document.createElement('div');
-    quarterOptionLabel.classList.add('filter-label');
-    quarterOptionLabel.textContent = 'Quarter';
+    //const yearOptionLabel = document.createElement('div');
+    //yearOptionLabel.classList.add('filter-label');
+    //yearOptionLabel.textContent = 'Year';
+    const yearOptionLabel = div({ class: 'filter-label' }, 'Year');
+    //const quarterOptionLabel = document.createElement('div');
+    //quarterOptionLabel.classList.add('filter-label');
+    //quarterOptionLabel.textContent = 'Quarter';
+    const quarterOptionLabel = div({ class: 'filter-label' }, 'Quarter');
     filterDropdown.appendChild(yearOptionLabel);
 
     // when choosing 'Quarter' the top left controls change to control the quarter in focus
@@ -1542,11 +1562,11 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     filterDropdown.appendChild(quarterOptionLabel);
     const quarters = [ 1, 2, 3, 4 ];
     quarters.forEach((quarter) => {
-        const quarterOption = document.createElement('div');
-        quarterOption.classList.add('filter-option');
-        quarterOption.dataset.period = quarter;
-        quarterOption.textContent = quarter;
-        //quarterOption.addEventListener('click', filterDropdownSelection);
+        const quarterOption = div({ class: 'filter-option', 'data-period': quarter }, quarter);
+        //const quarterOption = document.createElement('div');
+        //quarterOption.classList.add('filter-option');
+        //quarterOption.dataset.period = quarter;
+        //quarterOption.textContent = quarter;
         quarterOption.addEventListener('click', (event) => filterDropdownSelection(event, viewStartYear, years.length));
         filterDropdown.appendChild(quarterOption);
     })
@@ -1567,10 +1587,11 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
     const monthEl = block.querySelector(`.month-wrapper[data-year='${currentYear}'] .month[data-num='${currentMonth}']`);
     monthEl.classList.add('current');
-    const lineEl = document.createElement('div');
-    lineEl.classList.add('calendar-indicator');
-    // use direct style for offset
-    lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
+    // use direct style for line offset
+    const lineEl = div({ class: 'calendar-indicator', style: `margin-right: ${((-2 * percentOfMonth) + 100)}%` })
+    //const lineEl = document.createElement('div');
+    //lineEl.classList.add('calendar-indicator');
+    //lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
     monthEl.appendChild(lineEl);
     
     // close dropdown listener for clicks outside open dropdown
@@ -1626,11 +1647,13 @@ async function addThumbnailToItem(itemEl, programName, campaignName, deliverable
     // Use the cached or newly fetched imageObject
     if (imageObject && imageObject.imageUrl) {
         const thumbnailDiv = itemEl.querySelector('.thumbnail');
-        const imgElement = document.createElement('img');
-        imgElement.src = imageObject.imageUrl;
-        imgElement.alt = imageObject.imageAltText;
-        imgElement.loading = 'lazy';
-        thumbnailDiv.appendChild(imgElement);
+        const imgEl = img({ src: imageObject.imageUrl, alt: imageObject.imageAltText, loading: 'lazy' });
+        //const imgElement = document.createElement('img');
+        //imgElement.src = imageObject.imageUrl;
+        //imgElement.alt = imageObject.imageAltText;
+        //imgElement.loading = 'lazy';
+        //thumbnailDiv.appendChild(imgElement);
+        thumbnailDiv.appendChild(imgEl);
     } else {
         console.error("Image Object does not have a valid imageUrl");
     }
