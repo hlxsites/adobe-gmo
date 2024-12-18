@@ -528,7 +528,8 @@ function buildProgramCollections(program) {
         const collectionsLinksWrapper = div({ class: 'collections' });
     
         programCollections.forEach((collection) => {
-            const collectionData = parseCollectionLink(collection);
+            //const collectionData = parseCollectionLink(collection);
+            const collectionData = parseProgramCollectionLink(collection);
             const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank' }, collectionData.name);
             collectionsLinksWrapper.appendChild(collectionLink);
         });
@@ -1181,7 +1182,27 @@ function parseCollectionName(rawString) {
     }
 }
 
+function parseProgramCollectionLink(collectionString) {
+    let collectionName, collectionLink;
+    const splitString = collectionString.split(';');
+    if (splitString.length > 1) {
+        collectionName = splitString[0];
+        collectionLink = splitString[1];
+    } else {
+        collectionName = 'Collection';
+        collectionLink = splitString[0];
+    }
+
+    const parsedCollection = {
+        'name': collectionName,
+        'link': collectionLink,
+    }
+
+    return parsedCollection;
+}
+
 function parseCollectionLink(collectionString) {
+    // example: FY2582_And it also snowed;https://experience.adobe.com/?repoId=delivery-p108396-e1046543.adobeaemcloud.com#/@wfadoberm/assets/contenthub/collections/urn:cid:aem:4ff35fe0-88c9-48f7-92cd-6400d8001791
     let collectionName, collectionPlatform, collectionCategory, collectionLink;
     const fullNameSplit = collectionString.split(';');
     const splitString = collectionString.split(' | ');
@@ -1312,7 +1333,9 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
 
     // get end of the view
     viewEnd = getTimeBounds(calendarDeliverables, "end", endDateProp);
-    if (!(isValidDate(viewEnd)) || viewEnd <= 0) {
+
+    // update- if viewEnd is before viewStart, ignore and set arbitrary viewStart+1 month end date
+    if (!(isValidDate(viewEnd)) || viewEnd <= 0 || viewEnd < viewStart) {
         viewEnd = new Date(viewStart);
         viewEnd.setMonth(viewStart.getMonth() + 1);
     }
