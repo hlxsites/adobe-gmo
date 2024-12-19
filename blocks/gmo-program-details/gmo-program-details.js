@@ -523,7 +523,7 @@ function buildProgramCollections(program) {
     if (programCollections) {
         const collectionsElem = div(
             { id: 'collections-wrapper', class: 'collections-wrapper' },
-            div({ class: 'h3' }, 'Program Collection'),
+            div({ class: 'h3' }, 'Collection(s)'),
         );
         const collectionsLinksWrapper = div({ class: 'collections' });
     
@@ -1609,13 +1609,17 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
     const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
     const monthEl = block.querySelector(`.month-wrapper[data-year='${currentYear}'] .month[data-num='${currentMonth}']`);
-    monthEl.classList.add('current');
-    // use direct style for line offset
-    const lineEl = div({ class: 'calendar-indicator', style: `margin-right: ${((-2 * percentOfMonth) + 100)}%` })
-    //const lineEl = document.createElement('div');
-    //lineEl.classList.add('calendar-indicator');
-    //lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
-    monthEl.appendChild(lineEl);
+    // account for view not including current date
+    if (monthEl) {
+        monthEl.classList.add('current');
+        // use direct style for line offset
+        const lineEl = div({ class: 'calendar-indicator', style: `margin-right: ${((-2 * percentOfMonth) + 100)}%` })
+        //const lineEl = document.createElement('div');
+        //lineEl.classList.add('calendar-indicator');
+        //lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
+        monthEl.appendChild(lineEl);
+    }
+
     
     // close dropdown listener for clicks outside open dropdown
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
@@ -1853,23 +1857,74 @@ function calendarYears(startYear, endYear) {
 }
 
 function buildYearCal(years) {
-    const calendarEl = document.createElement('div');
-    calendarEl.classList.add('calendar-wrapper');
+    //const calendarEl = document.createElement('div');
+    //calendarEl.classList.add('calendar-wrapper');
+    const calendarEl = div({ class: 'calendar-wrapper' });
     if (years.length > 1) calendarEl.classList.add('multiyear');
-    const backgroundEl = document.createElement('div');
-    backgroundEl.classList.add('calendar-background');
-    backgroundEl.style.width = (years.length * 100) + '%';
+    //const backgroundEl = document.createElement('div');
+    //backgroundEl.classList.add('calendar-background');
+    //backgroundEl.style.width = (years.length * 100) + '%';
+    const backgroundEl = div({ class: 'calendar-background', style: `width: ${(years.length * 100)}%` });
 
     years.forEach((year) => {
-        const yearWrapper = document.createElement('div');
-        yearWrapper.dataset.year = year;
-        yearWrapper.classList.add('year-wrapper');
-        yearWrapper.style.width = (100 / years.length) + '%';
-        const calendarHeader = document.createElement('div');
-        calendarHeader.classList.add('header-wrapper');
-        const quartersHeader = document.createElement('div');
-        quartersHeader.classList.add('quarter-header');
-        quartersHeader.innerHTML = `
+        //const yearWrapper = document.createElement('div');
+        //yearWrapper.dataset.year = year;
+        //yearWrapper.classList.add('year-wrapper');
+        //yearWrapper.style.width = (100 / years.length) + '%';
+        const yearWrapper = div({ class: 'year-wrapper', style: `width: ${(100 / years.length)}%`, 'data-year': year },
+            div({ class: 'header-wrapper' },
+                div({ class: 'quarter-header' },
+                    div({ class: 'quarter' }, `Q1 ${year}`),
+                    div({ class: 'quarter' }, `Q2 ${year}`),
+                    div({ class: 'quarter' }, `Q3 ${year}`),
+                    div({ class: 'quarter' }, `Q4 ${year}`),
+                ),
+            ),
+            div({ class: 'month-wrapper', 'data-year': year },
+                div({ class: 'month', 'data-num': '1'},
+                    div({ class: 'label' }, 'Jan'),
+                ),
+                div({ class: 'month', 'data-num': '2'},
+                    div({ class: 'label' }, 'Feb'),
+                ),
+                div({ class: 'month', 'data-num': '3'},
+                    div({ class: 'label' }, 'Mar'),
+                ),
+                div({ class: 'month', 'data-num': '4'},
+                    div({ class: 'label' }, 'Apr'),
+                ),
+                div({ class: 'month', 'data-num': '5'},
+                    div({ class: 'label' }, 'May'),
+                ),
+                div({ class: 'month', 'data-num': '6'},
+                    div({ class: 'label' }, 'Jun'),
+                ),
+                div({ class: 'month', 'data-num': '7'},
+                    div({ class: 'label' }, 'Jul'),
+                ),
+                div({ class: 'month', 'data-num': '8'},
+                    div({ class: 'label' }, 'Aug'),
+                ),
+                div({ class: 'month', 'data-num': '9'},
+                    div({ class: 'label' }, 'Sep'),
+                ),
+                div({ class: 'month', 'data-num': '10'},
+                    div({ class: 'label' }, 'Oct'),
+                ),
+                div({ class: 'month', 'data-num': '11'},
+                    div({ class: 'label' }, 'Nov'),
+                ),
+                div({ class: 'month', 'data-num': '12'},
+                    div({ class: 'label' }, 'Dec'),
+                ),
+            )
+        );
+        //const calendarHeader = document.createElement('div');
+        //calendarHeader.classList.add('header-wrapper');
+        //const calendarHeader = div({ class: 'header-wrapper' });
+        //const quartersHeader = document.createElement('div');
+        //quartersHeader.classList.add('quarter-header');
+        /*quartersHeader.innerHTML = `
             <div class="quarter">Q1 ${year}</div>
             <div class="quarter">Q2 ${year}</div>
             <div class="quarter">Q3 ${year}</div>
@@ -1896,6 +1951,7 @@ function buildYearCal(years) {
         `;
         yearWrapper.appendChild(calendarHeader);
         yearWrapper.appendChild(monthsWrapper);
+        */
         backgroundEl.appendChild(yearWrapper);
     });
     calendarEl.appendChild(backgroundEl);
@@ -1904,31 +1960,82 @@ function buildYearCal(years) {
 
 
 function buildQuarterCal(years) {
-    const calendarEl = document.createElement('div');
-    calendarEl.classList.add('calendar-wrapper', 'quarter-view');
+    //const calendarEl = document.createElement('div');
+    //calendarEl.classList.add('calendar-wrapper', 'quarter-view');
+    const calendarEl = div({ class: 'calendar-wrapper quarter-view' });
     if (years.length > 1) calendarEl.classList.add('multiyear');
-    const backgroundEl = document.createElement('div');
-    backgroundEl.classList.add('calendar-background');
+    //const backgroundEl = document.createElement('div');
+    //backgroundEl.classList.add('calendar-background');
     // this is wider for 'quarter' view- see equivalent in 'year' view.
-    backgroundEl.style.width = (years.length * 300) + '%';
+    //backgroundEl.style.width = (years.length * 300) + '%';
+    const backgroundEl = div({ class: 'calendar-background', style: `width: ${(years.length * 300)}%`});
 
     years.forEach((year) => {
-        const yearWrapper = document.createElement('div');
-        yearWrapper.dataset.year = year;
-        yearWrapper.classList.add('year-wrapper');
-        yearWrapper.style.width = (100 / years.length) + '%';
-        const calendarHeader = document.createElement('div');
-        calendarHeader.classList.add('header-wrapper');
-        const quartersHeader = document.createElement('div');
-        quartersHeader.classList.add('quarter-header');
-        quartersHeader.innerHTML = `
-            <div class="quarter">Fiscal Q1 ${year}</div>
-            <div class="quarter">Fiscal Q2 ${year}</div>
-            <div class="quarter">Fiscal Q3 ${year}</div>
-            <div class="quarter">Fiscal Q4 ${year}</div>
-        `;
-        calendarHeader.appendChild(quartersHeader);
+        const yearWrapper = div({ class: 'year-wrapper', style: `width: ${(100 / years.length)}%`, 'data-year': year },
+            div({ class: 'header-wrapper' },
+                div({ class: 'quarter-header' },
+                    div({ class: 'quarter' }, `Fiscal Q1 ${year}`),
+                    div({ class: 'quarter' }, `Fiscal Q2 ${year}`),
+                    div({ class: 'quarter' }, `Fiscal Q3 ${year}`),
+                    div({ class: 'quarter' }, `Fiscal Q4 ${year}`),
+                ),
+            ),
+            div({ class: 'month-wrapper', 'data-year': year },
+                div({ class: 'month', 'data-num': '12'},
+                    div({ class: 'label' }, 'Dec Q1'),
+                ),
+                div({ class: 'month', 'data-num': '1'},
+                    div({ class: 'label' }, 'Jan Q1'),
+                ),
+                div({ class: 'month', 'data-num': '2'},
+                    div({ class: 'label' }, 'Feb Q1'),
+                ),
+                div({ class: 'month', 'data-num': '3'},
+                    div({ class: 'label' }, 'Mar Q2'),
+                ),
+                div({ class: 'month', 'data-num': '4'},
+                    div({ class: 'label' }, 'Apr Q2'),
+                ),
+                div({ class: 'month', 'data-num': '5'},
+                    div({ class: 'label' }, 'May Q2'),
+                ),
+                div({ class: 'month', 'data-num': '6'},
+                    div({ class: 'label' }, 'Jun Q3'),
+                ),
+                div({ class: 'month', 'data-num': '7'},
+                    div({ class: 'label' }, 'Jul Q3'),
+                ),
+                div({ class: 'month', 'data-num': '8'},
+                    div({ class: 'label' }, 'Aug Q3'),
+                ),
+                div({ class: 'month', 'data-num': '9'},
+                    div({ class: 'label' }, 'Sep Q4'),
+                ),
+                div({ class: 'month', 'data-num': '10'},
+                    div({ class: 'label' }, 'Oct Q4'),
+                ),
+                div({ class: 'month', 'data-num': '11'},
+                    div({ class: 'label' }, 'Nov Q4'),
+                ),
+            )
+        );
+        //const yearWrapper = document.createElement('div');
+        //yearWrapper.dataset.year = year;
+        //yearWrapper.classList.add('year-wrapper');
+        //yearWrapper.style.width = (100 / years.length) + '%';
+        //const calendarHeader = document.createElement('div');
+        //calendarHeader.classList.add('header-wrapper');
+        //const quartersHeader = document.createElement('div');
+        //quartersHeader.classList.add('quarter-header');
+        //quartersHeader.innerHTML = `
+        //    <div class="quarter">Fiscal Q1 ${year}</div>
+        //    <div class="quarter">Fiscal Q2 ${year}</div>
+        //    <div class="quarter">Fiscal Q3 ${year}</div>
+        //    <div class="quarter">Fiscal Q4 ${year}</div>
+        //`;
+        //calendarHeader.appendChild(quartersHeader);
 
+        /*
         const monthsWrapper = document.createElement('div');
         monthsWrapper.classList.add('month-wrapper');
         monthsWrapper.dataset.year = year;
@@ -1946,8 +2053,9 @@ function buildQuarterCal(years) {
             <div class="month" data-num="10"><div class="label">Oct Q4</div></div>
             <div class="month" data-num="11"><div class="label">Nov Q4</div></div>
         `;
-        yearWrapper.appendChild(calendarHeader);
-        yearWrapper.appendChild(monthsWrapper);
+        */
+        //yearWrapper.appendChild(calendarHeader);
+        //yearWrapper.appendChild(monthsWrapper);
         backgroundEl.appendChild(yearWrapper);
     });
     calendarEl.appendChild(backgroundEl);
