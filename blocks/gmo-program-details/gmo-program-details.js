@@ -107,7 +107,6 @@ export default async function decorate(block) {
                     div({ class: 'use-case-tag'}, 'Text to Image'),
                     div({ class: 'use-case-tag'}, 'Use Case 2'),
                 )
-
             ),
             div(
                 { id: 'deliverable-type', class: 'channel-scope-wrapper'},
@@ -283,11 +282,13 @@ async function addProgramStats(block) {
     } else {
         //programName and campaignName is null
         const noDataBlock = div(
-            div({ class: 'back-button' },
+            div(
+                { class: 'back-button' },
                 span({ class: 'icon icon-back' }),
                 span({ class: 'back-label' }, 'Back')
             ),
-            div({ class: 'main-body-wrapper' }, 
+            div(
+                { class: 'main-body-wrapper' }, 
                 header,
                 div({ class: 'no-data-msg' }, 'No program data available.'),
             ),
@@ -556,68 +557,44 @@ function buildHeader(program, queryVars) {
     const programName = program ? program.programName : queryVars.programName;
     
     const dateDiv = program?.launchDate
-        ? div({ class: 'header-row3'},
+        ? div(
+            { class: 'header-row3'},
             span({ class: 'icon icon-calendar' }),
             span({ class: 'date-tooltip' }, 'Proposed Launch Date'),
             span({ class: 'campaign-date' }, formatDate(program.launchDate)),
         ) 
         : "";
     const campaignNameDiv = program?.campaignName 
-        ? div({ class: 'header-row2' },
+        ? div(
+            { class: 'header-row2' },
             span({ class: 'subtitle' },
             program.campaignName))
         : "";
-    const releaseTierDiv = div({ class: 'header-row3' },
+    const releaseTierDiv = div(
+        { class: 'header-row3' },
         span({ class: 'icon-release-tier' }),
         span({ class: 'release-tier' }, `Release Tier: ${program.releaseTier ? program.releaseTier : 'Not Available'}`),
     );
-    const productGroupDiv = div({ class: 'header-row3' },
+    const productGroupDiv = div(
+        { class: 'header-row3' },
         span({ class: 'icon-productGroup' }),
         span({ class: 'productGroup' }, `${program.productGroup && program.productGroup.length > 0 ? program.productGroup.join(', ') : "Not Available"}`)
     );
     const driverDiv = program 
         ? span({ class: 'driver-text' }, `Project Owner: ${program.driver ? program.driver : "Not Available"}`)
         : "";
-
-    /*
-        const driverSpan = document.createElement('span');
-    driverSpan.classList.add('driver-text');
-    driverSpan.innerHTML = `Project Owner: ${driverName}`;
-    return driverSpan;
-    
-
-    const date = program && program.launchDate ? `<div class="header-row3"><span class="icon icon-calendar">` +
-        `</span><span class="date-tooltip">Proposed Launch Date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
-    const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
-
-    const driver = program && program.driver ? program.driver : "Not Available";
-    let driverField = '';
-
-    if (program){
-      driverField=buildDriverField(driver).outerHTML;
-    }
-    
-
-    const releaseTier = `
-        <div class="header-row3">
-            <span class="icon-release-tier"></span>
-            <span class="release-tier">Release Tier: ${program.releaseTier ? program.releaseTier : "Not Available"}</span>
-        </div>`;
-
-    const productGroup = `
-        <div class="header-row3">
-            <span class="icon-productGroup"></span>
-            <span class="productGroup">${program.productGroup && program.productGroup.length > 0 ? program.productGroup.join(', ') : "Not Available"}</span>
-        </div>`;
-    */
-    const header = div({ class: 'details-header-wrapper' },
+    const header = div(
+        { class: 'details-header-wrapper' },
         div({ class: 'campaign-img' }),
-        div({ class: 'header-title' },
-            div({ class: 'header-row1' },
+        div(
+            { class: 'header-title' },
+            div(
+                { class: 'header-row1' },
                 span({ class: 'h1' }, programName)
             ),
             campaignNameDiv,
-            div({ class: 'header-row3' },
+            div(
+                { class: 'header-row3' },
                 dateDiv,
                 driverDiv,
                 releaseTierDiv,
@@ -625,25 +602,6 @@ function buildHeader(program, queryVars) {
             ),
         )
     );
-    /*
-    headerWrapper.innerHTML = `
-        <div class="campaign-img">
-        </div>
-        <div class="header-title">
-            <div class="header-row1">
-                <span class="h1">${programName}</span>
-            </div>
-            ${campaignName}
-            <div class="header-row3">
-              ${date}
-              ${driverField}
-              ${releaseTier}
-              ${productGroup}
-            </div>
-        </div>
-    `
-    */
-    //return headerWrapper;
     return header;
 }
 
@@ -759,7 +717,6 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     tag.textContent = `${await lookupType(scope, scopeTypeId)}`;
                     tag.style.display = 'inline-block';
 
-                    // selectedTextContent = await lookupType(scope, scopeTypeId);
                     let totalAssociatedAssetCount = 0;
             
                     // Show the associated buttons
@@ -850,12 +807,11 @@ function createLI(li) {
 
 async function buildProductCard(program) {
     const productMapping = await getProductMapping(program.productOffering);
-    const productList = document.createElement('div');
-    productList.classList.add('product', 'card-content');
-    productList.innerHTML = `
-        <img class="icon" src=${productMapping.icon}></img>
-        ${checkBlankString(productMapping.label)}
-    `
+    const productList = div(
+        { class: 'product card-content' },
+        img({ class: 'icon', src: productMapping.icon }),
+        checkBlankString(productMapping.label),
+    );
     document.querySelector('.card.products').appendChild(productList);
 }
 
@@ -874,46 +830,52 @@ function buildAudienceList(program) {
 }
 
 function buildArtifactLinks(program) {
-   const artifactLinks = document.createElement('div');
-   artifactLinks.classList.add('links-wrapper');
-   artifactLinks.innerHTML = `
-   <span class="h3">Links to Important Artifacts</span>
-   <div class="links">
-       ${program.creativeArchitectureLink ? '<a href="' + program.creativeArchitectureLink + '" target="_blank" class="campaign-link">Creative Architecture</a> ': ""}
-       ${program.e2eJourney ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">E2E Journeys</a> ': ""}
-       ${program.gtmSLink ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">GTM-S</a> ': ""}
-       ${program.gtmPLink ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">GTM-P</a> ': ""}
-       ${program.marketingBrief ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">Marketing Brief</a> ': ""}
-       ${program.marketingDoc ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">Marketing Doc</a> ': ""}
-       ${program.pager ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">2-Pager</a> ': ""}
-       ${program.adr ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">ADR</a> ': ""}
-   </div>
-   `;
-   // see how many 'links' were made. if none, hide the section
-   const numLinks = artifactLinks.querySelectorAll('.campaign-link')?.length;
-   if (numLinks == 0) artifactLinks.classList.add('inactive');
-   return artifactLinks;
+    const artifactLinks = div(
+        { class: 'links-wrapper' },
+        span({ class: 'h3' }, 'Links to Important Artifacts'),
+        div(
+            { class: 'links' },
+            program.creativeArchitectureLink ? a({ class: 'campaign-link', target: '_blank', href: program.creativeArchitectureLink }) : "",
+            program.e2eJourney ? a({ class: 'campaign-link', target: '_blank', href: program.e2eJourney }) : "",
+            program.gtmSLink ? a({ class: 'campaign-link', target: '_blank', href: program.gtmSLink }) : "",
+            program.gtmPLink ? a({ class: 'campaign-link', target: '_blank', href: program.gtmPLink }) : "",
+            program.marketingBrief ? a({ class: 'campaign-link', target: '_blank', href: program.marketingBrief }) : "",
+            program.marketingDoc ? a({ class: 'campaign-link', target: '_blank', href: program.marketingDoc }) : "",
+            program.pager ? a({ class: 'campaign-link', target: '_blank', href: program.pager }) : "",
+            program.adr ? a({ class: 'campaign-link', target: '_blank', href: program.adr }) : "",
+        )
+    )
+    // see how many 'links' were made. if none, hide the section
+    const numLinks = artifactLinks.querySelectorAll('.campaign-link')?.length;
+    if (numLinks == 0) artifactLinks.classList.add('inactive');
+    return artifactLinks;
 }
 
 async function buildStatus(status) {
-    const statusDiv = document.createElement('div');
-    statusDiv.classList.add('campaign-status');
+    //const statusDiv = document.createElement('div');
+    //statusDiv.classList.add('campaign-status');
     const statusMatch = filterArray(await statusMapping, 'value', status);
     const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
-    statusDiv.textContent = statusText;
-    statusDiv.style.backgroundColor = "#" + statusHex;
+    const statusDiv = div({ class: 'campaign-status', style: `background-color: #${statusHex}`}, statusText);
+    //statusDiv.textContent = statusText;
+    //statusDiv.style.backgroundColor = "#" + statusHex;
     document.querySelector('.header-row1').appendChild(statusDiv);
 }
 
 function createAudience(audience) {
     const text = parseString(audience);
-    const audienceDiv = document.createElement('div');
-    audienceDiv.classList.add('audience', 'card-content');
-    audienceDiv.innerHTML = `
-        <img class="icon icon-gear" src="/icons/gear.svg"></img>
-        ${text}
-    `;
+    //const audienceDiv = document.createElement('div');
+    //audienceDiv.classList.add('audience', 'card-content');
+    //audienceDiv.innerHTML = `
+    //    <img class="icon icon-gear" src="/icons/gear.svg"></img>
+    //    ${text}
+    //`;
+    const audienceDiv = div(
+        { class: 'audience card-content'},
+        img({ class: 'icon icon-gear', src: '/icons/gear.svg' }),
+        text,
+    );
     return audienceDiv;
 }
 
@@ -1020,7 +982,8 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     //look up friendly name for deliverable type
     const typeLabel = await lookupType(category, 'deliverable-type');
     const headerRowDiv = div({ class: 'row collapsible header' });
-    const divOpen = div({ class: 'heading-wrapper' },
+    const divOpen = div(
+        { class: 'heading-wrapper' },
         img({ class: 'icon-next', src: '/icons/next.svg' }),
         img({ class: 'icon-collapse inactive', src: '/icons/collapse.svg' }),
         div({ class: 'headertext' }, `${typeLabel} (${matchCount})`),
@@ -1030,27 +993,7 @@ async function buildHeaderRow(category, headerType, isInactive, matchCount) {
         divOpen.classList.add('subheading');
     }
     headerRowDiv.appendChild(divOpen);
-    /*
-    const headerRow = document.createElement('div');
-    headerRow.classList.add('row', 'collapsible', 'header');
-    //let divopen;
-    
-    if (headerType === 'subcategory') {
-        headerRow.classList.add('subheader');
-        divopen = '<div class="heading-wrapper subheading">';
-    } else {
-        divopen = '<div class="heading-wrapper">';
-    }
-    */
     if (isInactive) headerRowDiv.classList.add('inactive');
-    /*
-    headerRow.innerHTML = `
-        ${divOpen}
-            <img class="icon-next" src="/icons/next.svg"></img>
-            <img class="icon-collapse inactive" src="/icons/collapse.svg"></img>
-            <div class="headertext">${typeLabel} (${matchCount})</div>
-        </div>`;
-        */
     return headerRowDiv;
 }
 
@@ -1061,23 +1004,29 @@ async function buildTableRow(deliverable, createHidden) {
     const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
     const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
 
-    const dataRowDiv = div({ class: 'row datarow' },
+    const dataRowDiv = div(
+        { class: 'row datarow' },
         div({ class: 'property table-column column1 deliverable-name' }, checkBlankString(deliverable.deliverableName)),
         div({ class: 'property table-column column2 deliverable-type' }, checkBlankString(typeLabel)),
         div({ class: 'property table-column column3 platforms' }),
-        div({ class: 'property table-column column4 qa-files' },
+        div(
+            { class: 'property table-column column4 qa-files' },
             deliverable.reviewLink 
             ? a({ class: 'campaign-link', target: '_blank', href: deliverable.reviewLink }, 'QA Files')
             : 'Not Available'
         ),
         div({ class: 'property table-column column5' }, assetLinks),
-        div({ class: 'property table-column column7 justify-center' },
-            div({ class: 'status-wrapper '},
-                div({ class: 'status-heading' },
+        div(
+            { class: 'property table-column column7 justify-center' },
+            div(
+                { class: 'status-wrapper '},
+                div(
+                    { class: 'status-heading' },
                     div({ class: 'status-label' }, 'Progress'),
                     div({ class: 'status-percent' }, status),
                 ),
-                div({ class: 'status-bar-wrapper' },
+                div(
+                    { class: 'status-bar-wrapper' },
                     div({ class: 'status-bar-underlay' }),
                     div({ class: 'status-bar', style: `width: ${statusPct}` }),
                 ),
@@ -1092,42 +1041,6 @@ async function buildTableRow(deliverable, createHidden) {
         div({ class: 'property table-column column9' }, checkBlankString(deliverable.driver)),
     );
     if (createHidden) dataRowDiv.classList.add('inactive');
-
-/*
-    const dataRow = document.createElement('div');
-    dataRow.classList.add('row', 'datarow');
-    if (createHidden) dataRow.classList.add('inactive');
-    
-    
-    dataRow.innerHTML = `
-        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverable.deliverableName)}</div>
-        <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
-        <div class='property table-column column3 platforms'></div>
-        <div class='property table-column column4 qa-files'>
-            ${deliverable.reviewLink ? '<a href="' + deliverable.reviewLink + '"target="_blank" class="campaign-link">QA Files</a> ': "Not Available"}
-        </div>
-        <div class='property table-column column5'>
-            ${assetLinks.outerHTML}
-        </div>
-        <div class='property table-column column7 justify-center'>
-            <div class='status-wrapper'>
-                <div class='status-heading'>
-                    <div class='status-label'>Progress</div>
-                    <div class='status-percent'>${status}</div>
-                </div>
-                <div class='status-bar-wrapper'>
-                    <div class='status-bar-underlay'></div>
-                    <div class='status-bar' style='width: ${statusPct}'></div>
-                </div>
-            </div>
-        </div>
-        <div class='property table-column column8 date-wrapper'>
-            <div class='completion-date'>${dateFormat(deliverable.taskCompletionDate)}</div>
-            ${deliverable.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverable.previousTaskCompletionDate + '</div> ': ""}
-        </div>
-        <div class='property table-column column9'>${checkBlankString(deliverable.driver)}</div>
-    `;
-    */
     createPlatformString(deliverable.platforms, dataRowDiv);
     return dataRowDiv;
 }
@@ -1197,12 +1110,10 @@ function parseProgramCollectionLink(collectionString) {
         'name': collectionName,
         'link': collectionLink,
     }
-
     return parsedCollection;
 }
 
 function parseCollectionLink(collectionString) {
-    // example: FY2582_And it also snowed;https://experience.adobe.com/?repoId=delivery-p108396-e1046543.adobeaemcloud.com#/@wfadoberm/assets/contenthub/collections/urn:cid:aem:4ff35fe0-88c9-48f7-92cd-6400d8001791
     let collectionName, collectionPlatform, collectionCategory, collectionLink;
     const fullNameSplit = collectionString.split(';');
     const splitString = collectionString.split(' | ');
@@ -1226,7 +1137,6 @@ function parseCollectionLink(collectionString) {
         'link': collectionLink,
         'fullName': fullName
     }
-
     return parsedCollection;
 }
 
@@ -1423,11 +1333,6 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         const widthOfGroup = (endPosition - startPosition); // width of group = start position + (day duration)
         // calculate the duration of the group as that helps set the width of its members
         const groupDuration = Math.floor((latestEndDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
-
-        //const itemWrapper = document.createElement('div');
-        //itemWrapper.classList.add('group-content');
-
-        //
         const itemWrapperDiv = div({ class: 'group-content' });
 
         for (const item of matchedItems) {
@@ -1440,23 +1345,20 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
 
             let daysDifference = Math.floor((itemStartDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const startPctDiff = ((daysDifference / groupDuration) * 100).toFixed(2);
-            /*
-            let itemEl = document.createElement('div');
-            itemEl.classList.add('item');
-            itemEl.style.marginLeft = startPctDiff + '%';
-            */
-
-            
 
             // Find the corresponding color code from the taskStatusMappings array
             const itemStatusMapping = await getTaskStatusMapping(item.taskStatus);
             const { text: statusText = 'Unknown Status', 'color-code': colorCode = 'green' } = itemStatusMapping;
 
+            // Create a placeholder for the thumbnail
             const itemElDiv = div({ class: 'item', style: `margin-left: ${startPctDiff}%;width: ${itemDurationPct}%`},
                 div({ class: 'color-tab'}),
-                div({ class: 'item-content' },
-                    div({ class: 'content-row' },
-                        div({ class: 'info' },
+                div(
+                    { class: 'item-content' },
+                    div(
+                        { class: 'content-row' },
+                        div(
+                            { class: 'info' },
                             div({ class: 'thumbnail' }),
                             div({ class: 'name', title: item.deliverableName}, item.deliverableName),
                             div({ class: 'item-status', 'data-status': checkBlankString(item.taskStatus),
@@ -1464,55 +1366,23 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
                             }),
                         ),
                     ),
-                    div({ class: 'content-row bottom' },
+                    div(
+                        { class: 'content-row bottom' },
                         itemEndDateStr 
                             ? div({ class: 'start-date', title: `Task Planned End Date: ${itemEndDateStr}`}, `End Date: ${itemEndDateStr}`)
                             : '',
-                        div({ class: 'link' },
+                        div(
+                            { class: 'link' },
                             a({ href: item.reviewLink, target: '_blank' }, 'QA Files'),
                         )
                     )
                 )
             );
 
-            // Create a placeholder for the thumbnail
-            /*
-            itemEl.innerHTML = `
-                <div class="color-tab"></div>
-                <div class="item-content">
-                    <div class="content-row">
-                        <div class="info">
-                            <div class="thumbnail"></div>
-                            <div class="name" title="${item.deliverableName}">${item.deliverableName}</div>
-                            <div class="item-status"
-                                 data-status="${checkBlankString(item.taskStatus)}"
-                                 style="background-color: #${colorCode};"
-                                 title="${statusText}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="content-row bottom">
-                        ${itemEndDateStr ? '<div class="start-date" title="Task Planned End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
-                        <div class="link">
-                            <a href="${item.reviewLink}" target="_blank">QA Files</a>
-                        </div>
-                    </div>
-                </div>
-            `;
-            itemEl.style.width = itemDurationPct + '%';
-            */
-
             // Call the new function to fetch and add the thumbnail, ensuring sequential execution
-            /*await addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
-            itemWrapper.appendChild(itemEl);
-            */
             await addThumbnailToItem(itemElDiv, item.programName, item.campaignName,item.deliverableType);
-            //itemWrapper.appendChild(itemElDiv);
             itemWrapperDiv.appendChild(itemElDiv);
-
         };
-
-        //await lookupType(category, 'deliverable-type');
 
         const groupElDiv = div({ class: `calendar-group color${groupIndex}`,
             style: `margin-left: ${startPosition}%;width: ${widthOfGroup}%`},
@@ -1526,25 +1396,7 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
                     div({ class: 'right-block' }),
                 ),
         );
-        /*
-        const groupEl = document.createElement('div');
-        groupEl.classList.add('calendar-group', `color${groupIndex}`);
-        groupEl.style.marginLeft = startPosition + '%';
-        groupEl.style.width = widthOfGroup + '%';
-        groupEl.innerHTML = `
-            <div class="group-header">
-                <div class="left-block">
-                    <img src="/icons/chevron-right.svg" class="group-expand group-controls inactive"></img>
-                    <img src="/icons/chevron-right.svg" class="group-collapse group-controls"></img>
-                    <div class="group-heading" title="${groupType}">${groupType}</div>
-                    <div class="group-count">${matchedItems.length}</div>
-                </div>
-                <div class="right-block">
-                </div>
-            </div>
-        `;
-        */
-        //groupElDiv.appendChild(itemWrapper);
+
         groupElDiv.appendChild(itemWrapperDiv);
         groupElDiv.querySelectorAll('.group-controls').forEach((arrow) => {
             arrow.addEventListener('click', showHideGroup);
@@ -1558,22 +1410,13 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     block.querySelector('.calendar.tab').appendChild(calendarEl);
 
     // populate "filter" dropdown
-    //const filterDropdown = document.createElement('div');
-    //filterDropdown.classList.add('filter-dropdown-content');
     const filterDropdown = div({ class: 'filter-dropdown-content'});
     const uniqueYears = getUniqueYears(calendarDeliverables);
-    //const yearOptionLabel = document.createElement('div');
-    //yearOptionLabel.classList.add('filter-label');
-    //yearOptionLabel.textContent = 'Year';
     const yearOptionLabel = div({ class: 'filter-label' }, 'Year');
-    //const quarterOptionLabel = document.createElement('div');
-    //quarterOptionLabel.classList.add('filter-label');
-    //quarterOptionLabel.textContent = 'Quarter';
     const quarterOptionLabel = div({ class: 'filter-label' }, 'Quarter');
     filterDropdown.appendChild(yearOptionLabel);
 
     // when choosing 'Quarter' the top left controls change to control the quarter in focus
-    // its kind of a zoomed in view.
     uniqueYears.forEach((year) => {
         const yearOption = document.createElement('div');
         yearOption.classList.add('filter-option');
@@ -1586,10 +1429,6 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     const quarters = [ 1, 2, 3, 4 ];
     quarters.forEach((quarter) => {
         const quarterOption = div({ class: 'filter-option', 'data-period': quarter }, quarter);
-        //const quarterOption = document.createElement('div');
-        //quarterOption.classList.add('filter-option');
-        //quarterOption.dataset.period = quarter;
-        //quarterOption.textContent = quarter;
         quarterOption.addEventListener('click', (event) => filterDropdownSelection(event, viewStartYear, years.length));
         filterDropdown.appendChild(quarterOption);
     })
@@ -1609,18 +1448,15 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
     const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
     const monthEl = block.querySelector(`.month-wrapper[data-year='${currentYear}'] .month[data-num='${currentMonth}']`);
+
     // account for view not including current date
     if (monthEl) {
         monthEl.classList.add('current');
         // use direct style for line offset
         const lineEl = div({ class: 'calendar-indicator', style: `margin-right: ${((-2 * percentOfMonth) + 100)}%` })
-        //const lineEl = document.createElement('div');
-        //lineEl.classList.add('calendar-indicator');
-        //lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
         monthEl.appendChild(lineEl);
     }
 
-    
     // close dropdown listener for clicks outside open dropdown
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
     block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
@@ -1644,8 +1480,6 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         scrollToPosition(calendarWrapper, totalScroll);
     });
 }
-
-// calendar view supporting functions
 
 // Helper function to get task status mapping
 async function getTaskStatusMapping(taskStatus) {
@@ -1675,11 +1509,6 @@ async function addThumbnailToItem(itemEl, programName, campaignName, deliverable
     if (imageObject && imageObject.imageUrl) {
         const thumbnailDiv = itemEl.querySelector('.thumbnail');
         const imgEl = img({ src: imageObject.imageUrl, alt: imageObject.imageAltText, loading: 'lazy' });
-        //const imgElement = document.createElement('img');
-        //imgElement.src = imageObject.imageUrl;
-        //imgElement.alt = imageObject.imageAltText;
-        //imgElement.loading = 'lazy';
-        //thumbnailDiv.appendChild(imgElement);
         thumbnailDiv.appendChild(imgEl);
     } else {
         console.error("Image Object does not have a valid imageUrl");
@@ -1857,30 +1686,25 @@ function calendarYears(startYear, endYear) {
 }
 
 function buildYearCal(years) {
-    //const calendarEl = document.createElement('div');
-    //calendarEl.classList.add('calendar-wrapper');
     const calendarEl = div({ class: 'calendar-wrapper' });
     if (years.length > 1) calendarEl.classList.add('multiyear');
-    //const backgroundEl = document.createElement('div');
-    //backgroundEl.classList.add('calendar-background');
-    //backgroundEl.style.width = (years.length * 100) + '%';
     const backgroundEl = div({ class: 'calendar-background', style: `width: ${(years.length * 100)}%` });
 
     years.forEach((year) => {
-        //const yearWrapper = document.createElement('div');
-        //yearWrapper.dataset.year = year;
-        //yearWrapper.classList.add('year-wrapper');
-        //yearWrapper.style.width = (100 / years.length) + '%';
-        const yearWrapper = div({ class: 'year-wrapper', style: `width: ${(100 / years.length)}%`, 'data-year': year },
-            div({ class: 'header-wrapper' },
-                div({ class: 'quarter-header' },
+        const yearWrapper = div(
+            { class: 'year-wrapper', style: `width: ${(100 / years.length)}%`, 'data-year': year },
+            div(
+                { class: 'header-wrapper' },
+                div(
+                    { class: 'quarter-header' },
                     div({ class: 'quarter' }, `Q1 ${year}`),
                     div({ class: 'quarter' }, `Q2 ${year}`),
                     div({ class: 'quarter' }, `Q3 ${year}`),
                     div({ class: 'quarter' }, `Q4 ${year}`),
                 ),
             ),
-            div({ class: 'month-wrapper', 'data-year': year },
+            div(
+                { class: 'month-wrapper', 'data-year': year },
                 div({ class: 'month', 'data-num': '1'},
                     div({ class: 'label' }, 'Jan'),
                 ),
@@ -1919,39 +1743,6 @@ function buildYearCal(years) {
                 ),
             )
         );
-        //const calendarHeader = document.createElement('div');
-        //calendarHeader.classList.add('header-wrapper');
-        //const calendarHeader = div({ class: 'header-wrapper' });
-        //const quartersHeader = document.createElement('div');
-        //quartersHeader.classList.add('quarter-header');
-        /*quartersHeader.innerHTML = `
-            <div class="quarter">Q1 ${year}</div>
-            <div class="quarter">Q2 ${year}</div>
-            <div class="quarter">Q3 ${year}</div>
-            <div class="quarter">Q4 ${year}</div>
-        `;
-        calendarHeader.appendChild(quartersHeader);
-
-        const monthsWrapper = document.createElement('div');
-        monthsWrapper.classList.add('month-wrapper');
-        monthsWrapper.dataset.year = year;
-        monthsWrapper.innerHTML = `
-            <div class="month" data-num="1"><div class="label">Jan</div></div>
-            <div class="month" data-num="2"><div class="label">Feb</div></div>
-            <div class="month" data-num="3"><div class="label">Mar</div></div>
-            <div class="month" data-num="4"><div class="label">Apr</div></div>
-            <div class="month" data-num="5"><div class="label">May</div></div>
-            <div class="month" data-num="6"><div class="label">Jun</div></div>
-            <div class="month" data-num="7"><div class="label">Jul</div></div>
-            <div class="month" data-num="8"><div class="label">Aug</div></div>
-            <div class="month" data-num="9"><div class="label">Sep</div></div>
-            <div class="month" data-num="10"><div class="label">Oct</div></div>
-            <div class="month" data-num="11"><div class="label">Nov</div></div>
-            <div class="month" data-num="12"><div class="label">Dec</div></div>
-        `;
-        yearWrapper.appendChild(calendarHeader);
-        yearWrapper.appendChild(monthsWrapper);
-        */
         backgroundEl.appendChild(yearWrapper);
     });
     calendarEl.appendChild(backgroundEl);
@@ -1960,20 +1751,19 @@ function buildYearCal(years) {
 
 
 function buildQuarterCal(years) {
-    //const calendarEl = document.createElement('div');
-    //calendarEl.classList.add('calendar-wrapper', 'quarter-view');
     const calendarEl = div({ class: 'calendar-wrapper quarter-view' });
     if (years.length > 1) calendarEl.classList.add('multiyear');
-    //const backgroundEl = document.createElement('div');
-    //backgroundEl.classList.add('calendar-background');
+
     // this is wider for 'quarter' view- see equivalent in 'year' view.
-    //backgroundEl.style.width = (years.length * 300) + '%';
     const backgroundEl = div({ class: 'calendar-background', style: `width: ${(years.length * 300)}%`});
 
     years.forEach((year) => {
-        const yearWrapper = div({ class: 'year-wrapper', style: `width: ${(100 / years.length)}%`, 'data-year': year },
-            div({ class: 'header-wrapper' },
-                div({ class: 'quarter-header' },
+        const yearWrapper = div(
+            { class: 'year-wrapper', style: `width: ${(100 / years.length)}%`, 'data-year': year },
+            div(
+                { class: 'header-wrapper' },
+                div(
+                    { class: 'quarter-header' },
                     div({ class: 'quarter' }, `Fiscal Q1 ${year}`),
                     div({ class: 'quarter' }, `Fiscal Q2 ${year}`),
                     div({ class: 'quarter' }, `Fiscal Q3 ${year}`),
@@ -2019,43 +1809,6 @@ function buildQuarterCal(years) {
                 ),
             )
         );
-        //const yearWrapper = document.createElement('div');
-        //yearWrapper.dataset.year = year;
-        //yearWrapper.classList.add('year-wrapper');
-        //yearWrapper.style.width = (100 / years.length) + '%';
-        //const calendarHeader = document.createElement('div');
-        //calendarHeader.classList.add('header-wrapper');
-        //const quartersHeader = document.createElement('div');
-        //quartersHeader.classList.add('quarter-header');
-        //quartersHeader.innerHTML = `
-        //    <div class="quarter">Fiscal Q1 ${year}</div>
-        //    <div class="quarter">Fiscal Q2 ${year}</div>
-        //    <div class="quarter">Fiscal Q3 ${year}</div>
-        //    <div class="quarter">Fiscal Q4 ${year}</div>
-        //`;
-        //calendarHeader.appendChild(quartersHeader);
-
-        /*
-        const monthsWrapper = document.createElement('div');
-        monthsWrapper.classList.add('month-wrapper');
-        monthsWrapper.dataset.year = year;
-        monthsWrapper.innerHTML = `
-            <div class="month" data-num="12"><div class="label">Dec Q1</div></div>
-            <div class="month" data-num="1"><div class="label">Jan Q1</div></div>
-            <div class="month" data-num="2"><div class="label">Feb Q1</div></div>
-            <div class="month" data-num="3"><div class="label">Mar Q2</div></div>
-            <div class="month" data-num="4"><div class="label">Apr Q2</div></div>
-            <div class="month" data-num="5"><div class="label">May Q2</div></div>
-            <div class="month" data-num="6"><div class="label">Jun Q3</div></div>
-            <div class="month" data-num="7"><div class="label">Jul Q3</div></div>
-            <div class="month" data-num="8"><div class="label">Aug Q3</div></div>
-            <div class="month" data-num="9"><div class="label">Sep Q4</div></div>
-            <div class="month" data-num="10"><div class="label">Oct Q4</div></div>
-            <div class="month" data-num="11"><div class="label">Nov Q4</div></div>
-        `;
-        */
-        //yearWrapper.appendChild(calendarHeader);
-        //yearWrapper.appendChild(monthsWrapper);
         backgroundEl.appendChild(yearWrapper);
     });
     calendarEl.appendChild(backgroundEl);
