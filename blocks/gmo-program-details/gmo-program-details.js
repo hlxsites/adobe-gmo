@@ -529,7 +529,6 @@ function buildProgramCollections(program) {
         const collectionsLinksWrapper = div({ class: 'collections' });
     
         programCollections.forEach((collection) => {
-            //const collectionData = parseCollectionLink(collection);
             const collectionData = parseProgramCollectionLink(collection);
             const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank' }, collectionData.name);
             collectionsLinksWrapper.appendChild(collectionLink);
@@ -541,19 +540,7 @@ function buildProgramCollections(program) {
     }
 }
 
-/*
-function buildDriverField(driverName) {
-    const driverSpan = document.createElement('span');
-    driverSpan.classList.add('driver-text');
-    driverSpan.innerHTML = `Project Owner: ${driverName}`;
-    return driverSpan;
-}
-*/
 function buildHeader(program, queryVars) {
-    /*
-    const headerWrapper = document.createElement('div');
-    headerWrapper.classList.add('details-header-wrapper');
-    */
     const programName = program ? program.programName : queryVars.programName;
     
     const dateDiv = program?.launchDate
@@ -852,25 +839,15 @@ function buildArtifactLinks(program) {
 }
 
 async function buildStatus(status) {
-    //const statusDiv = document.createElement('div');
-    //statusDiv.classList.add('campaign-status');
     const statusMatch = filterArray(await statusMapping, 'value', status);
     const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
     const statusDiv = div({ class: 'campaign-status', style: `background-color: #${statusHex}`}, statusText);
-    //statusDiv.textContent = statusText;
-    //statusDiv.style.backgroundColor = "#" + statusHex;
     document.querySelector('.header-row1').appendChild(statusDiv);
 }
 
 function createAudience(audience) {
     const text = parseString(audience);
-    //const audienceDiv = document.createElement('div');
-    //audienceDiv.classList.add('audience', 'card-content');
-    //audienceDiv.innerHTML = `
-    //    <img class="icon icon-gear" src="/icons/gear.svg"></img>
-    //    ${text}
-    //`;
     const audienceDiv = div(
         { class: 'audience card-content'},
         img({ class: 'icon icon-gear', src: '/icons/gear.svg' }),
@@ -1283,7 +1260,6 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         contentWrapper.dataset.view = "year";
     }
 
-    // start new
     const contentWrapperDiv = div({ class: 'calendar-content-wrapper' });
     if (type === 'quater') {
         contentWrapperDiv.classList.add('quarter-view');
