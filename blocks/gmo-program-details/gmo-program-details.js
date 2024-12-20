@@ -524,7 +524,7 @@ function buildProgramCollections(program) {
     if (programCollections) {
         const collectionsElem = div(
             { id: 'collections-wrapper', class: 'collections-wrapper' },
-            div({ class: 'h3' }, 'Collection(s)'),
+            div({ class: 'h3' }, 'Program Collection(s)'),
         );
         const collectionsLinksWrapper = div({ class: 'collections' });
     
