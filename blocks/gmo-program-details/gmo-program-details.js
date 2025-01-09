@@ -107,7 +107,6 @@ export default async function decorate(block) {
                     div({ class: 'use-case-tag'}, 'Text to Image'),
                     div({ class: 'use-case-tag'}, 'Use Case 2'),
                 )
-
             ),
             div(
                 { id: 'deliverable-type', class: 'channel-scope-wrapper'},
@@ -282,17 +281,21 @@ async function addProgramStats(block) {
         }
     } else {
         //programName and campaignName is null
+        const noDataBlock = div(
+            div(
+                { class: 'back-button' },
+                span({ class: 'icon icon-back' }),
+                span({ class: 'back-label' }, 'Back')
+            ),
+            div(
+                { class: 'main-body-wrapper' }, 
+                header,
+                div({ class: 'no-data-msg' }, 'No program data available.'),
+            ),
+        );
         header.textContent = 'Unable to retrieve program information.';
-        block.innerHTML = `
-        <div class="back-button">
-            <span class="icon icon-back"></span>
-            <span class="back-label">Back</span>
-        </div>
-        <div class="main-body-wrapper">
-            ${header.outerHTML}
-            <div class="no-data-msg">No program data available.</div>
-        </div>
-        `;
+        block.innerHTML = noDataBlock.innerHTML;
+
         try {
             //programName and campaignName is null display under development icon
             imageObject = await searchAsset(null, null);
@@ -329,9 +332,6 @@ async function addProgramStats(block) {
     document.querySelector('.product-overview-wrapper > .paragraph').textContent = marketingGoal;
     const productValue = checkBlankString(program.productValue.plaintext);
     document.querySelector('.product-value-wrapper > .paragraph').textContent = productValue;
-    
-    // additional dom updates
-    //buildProductCard(program);
 
     // deliverables tab
     const deliverables = executeQuery(deliverableQueryString);
@@ -524,12 +524,12 @@ function buildProgramCollections(program) {
     if (programCollections) {
         const collectionsElem = div(
             { id: 'collections-wrapper', class: 'collections-wrapper' },
-            div({ class: 'h3' }, 'Program Collection'),
+            div({ class: 'h3' }, 'Program Collection(s)'),
         );
         const collectionsLinksWrapper = div({ class: 'collections' });
     
         programCollections.forEach((collection) => {
-            const collectionData = parseCollectionLink(collection);
+            const collectionData = parseProgramCollectionLink(collection);
             const collectionLink = a({ class: 'collection-link', href: collectionData.link, target: '_blank' }, collectionData.name);
             collectionsLinksWrapper.appendChild(collectionLink);
         });
@@ -540,57 +540,56 @@ function buildProgramCollections(program) {
     }
 }
 
-function buildDriverField(driverName) {
-    const driverSpan = document.createElement('span');
-    driverSpan.classList.add('driver-text');
-    driverSpan.innerHTML = `Project Owner: ${driverName}`;
-    return driverSpan;
-}
-
 function buildHeader(program, queryVars) {
-    const headerWrapper = document.createElement('div');
-    headerWrapper.classList.add('details-header-wrapper');
-    const date = program && program.launchDate ? `<div class="header-row3"><span class="icon icon-calendar">` +
-        `</span><span class="date-tooltip">Proposed Launch Date</span><span class="campaign-date">${formatDate(program.launchDate)}</span></div>` : "";
     const programName = program ? program.programName : queryVars.programName;
-    const campaignName = program && program.campaignName ? '<div class="header-row2"><span class="subtitle">' + program.campaignName + '</span></div> ': "";
-
-    const driver = program && program.driver ? program.driver : "Not Available";
-    let driverField = '';
-
-    if (program){
-      driverField=buildDriverField(driver).outerHTML;
-    }
-
-    const releaseTier = `
-        <div class="header-row3">
-            <span class="icon-release-tier"></span>
-            <span class="release-tier">Release Tier: ${program.releaseTier ? program.releaseTier : "Not Available"}</span>
-        </div>`;
-
-    const productGroup = `
-        <div class="header-row3">
-            <span class="icon-productGroup"></span>
-            <span class="productGroup">${program.productGroup && program.productGroup.length > 0 ? program.productGroup.join(', ') : "Not Available"}</span>
-        </div>`;
-
-    headerWrapper.innerHTML = `
-        <div class="campaign-img">
-        </div>
-        <div class="header-title">
-            <div class="header-row1">
-                <span class="h1">${programName}</span>
-            </div>
-            ${campaignName}
-            <div class="header-row3">
-              ${date}
-              ${driverField}
-              ${releaseTier}
-              ${productGroup}
-            </div>
-        </div>
-    `
-    return headerWrapper;
+    
+    const dateDiv = program?.launchDate
+        ? div(
+            { class: 'header-row3'},
+            span({ class: 'icon icon-calendar' }),
+            span({ class: 'date-tooltip' }, 'Proposed Launch Date'),
+            span({ class: 'campaign-date' }, formatDate(program.launchDate)),
+        ) 
+        : "";
+    const campaignNameDiv = program?.campaignName 
+        ? div(
+            { class: 'header-row2' },
+            span({ class: 'subtitle' },
+            program.campaignName))
+        : "";
+    const releaseTierDiv = div(
+        { class: 'header-row3' },
+        span({ class: 'icon-release-tier' }),
+        span({ class: 'release-tier' }, `Release Tier: ${program.releaseTier ? program.releaseTier : 'Not Available'}`),
+    );
+    const productGroupDiv = div(
+        { class: 'header-row3' },
+        span({ class: 'icon-productGroup' }),
+        span({ class: 'productGroup' }, `${program.productGroup && program.productGroup.length > 0 ? program.productGroup.join(', ') : "Not Available"}`)
+    );
+    const driverDiv = program 
+        ? span({ class: 'driver-text' }, `Project Owner: ${program.driver ? program.driver : "Not Available"}`)
+        : "";
+    const header = div(
+        { class: 'details-header-wrapper' },
+        div({ class: 'campaign-img' }),
+        div(
+            { class: 'header-title' },
+            div(
+                { class: 'header-row1' },
+                span({ class: 'h1' }, programName)
+            ),
+            campaignNameDiv,
+            div(
+                { class: 'header-row3' },
+                dateDiv,
+                driverDiv,
+                releaseTierDiv,
+                productGroupDiv
+            ),
+        )
+    );
+    return header;
 }
 
 /**
@@ -705,7 +704,6 @@ async function buildFieldScopes(scopeTypeId, scopes, block, associationMap) {
                     tag.textContent = `${await lookupType(scope, scopeTypeId)}`;
                     tag.style.display = 'inline-block';
 
-                    // selectedTextContent = await lookupType(scope, scopeTypeId);
                     let totalAssociatedAssetCount = 0;
             
                     // Show the associated buttons
@@ -796,12 +794,11 @@ function createLI(li) {
 
 async function buildProductCard(program) {
     const productMapping = await getProductMapping(program.productOffering);
-    const productList = document.createElement('div');
-    productList.classList.add('product', 'card-content');
-    productList.innerHTML = `
-        <img class="icon" src=${productMapping.icon}></img>
-        ${checkBlankString(productMapping.label)}
-    `
+    const productList = div(
+        { class: 'product card-content' },
+        img({ class: 'icon', src: productMapping.icon }),
+        checkBlankString(productMapping.label),
+    );
     document.querySelector('.card.products').appendChild(productList);
 }
 
@@ -820,46 +817,42 @@ function buildAudienceList(program) {
 }
 
 function buildArtifactLinks(program) {
-   const artifactLinks = document.createElement('div');
-   artifactLinks.classList.add('links-wrapper');
-   artifactLinks.innerHTML = `
-   <span class="h3">Links to Important Artifacts</span>
-   <div class="links">
-       ${program.creativeArchitectureLink ? '<a href="' + program.creativeArchitectureLink + '" target="_blank" class="campaign-link">Creative Architecture</a> ': ""}
-       ${program.e2eJourney ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">E2E Journeys</a> ': ""}
-       ${program.gtmSLink ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">GTM-S</a> ': ""}
-       ${program.gtmPLink ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">GTM-P</a> ': ""}
-       ${program.marketingBrief ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">Marketing Brief</a> ': ""}
-       ${program.marketingDoc ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">Marketing Doc</a> ': ""}
-       ${program.pager ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">2-Pager</a> ': ""}
-       ${program.adr ? '<a href="' + program.e2eJourney + '" target="_blank" class="campaign-link">ADR</a> ': ""}
-   </div>
-   `;
-   // see how many 'links' were made. if none, hide the section
-   const numLinks = artifactLinks.querySelectorAll('.campaign-link')?.length;
-   if (numLinks == 0) artifactLinks.classList.add('inactive');
-   return artifactLinks;
+    const artifactLinks = div(
+        { class: 'links-wrapper' },
+        span({ class: 'h3' }, 'Links to Important Artifacts'),
+        div(
+            { class: 'links' },
+            program.creativeArchitectureLink ? a({ class: 'campaign-link', target: '_blank', href: program.creativeArchitectureLink }) : "",
+            program.e2eJourney ? a({ class: 'campaign-link', target: '_blank', href: program.e2eJourney }) : "",
+            program.gtmSLink ? a({ class: 'campaign-link', target: '_blank', href: program.gtmSLink }) : "",
+            program.gtmPLink ? a({ class: 'campaign-link', target: '_blank', href: program.gtmPLink }) : "",
+            program.marketingBrief ? a({ class: 'campaign-link', target: '_blank', href: program.marketingBrief }) : "",
+            program.marketingDoc ? a({ class: 'campaign-link', target: '_blank', href: program.marketingDoc }) : "",
+            program.pager ? a({ class: 'campaign-link', target: '_blank', href: program.pager }) : "",
+            program.adr ? a({ class: 'campaign-link', target: '_blank', href: program.adr }) : "",
+        )
+    )
+    // see how many 'links' were made. if none, hide the section
+    const numLinks = artifactLinks.querySelectorAll('.campaign-link')?.length;
+    if (numLinks == 0) artifactLinks.classList.add('inactive');
+    return artifactLinks;
 }
 
 async function buildStatus(status) {
-    const statusDiv = document.createElement('div');
-    statusDiv.classList.add('campaign-status');
     const statusMatch = filterArray(await statusMapping, 'value', status);
     const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
-    statusDiv.textContent = statusText;
-    statusDiv.style.backgroundColor = "#" + statusHex;
+    const statusDiv = div({ class: 'campaign-status', style: `background-color: #${statusHex}`}, statusText);
     document.querySelector('.header-row1').appendChild(statusDiv);
 }
 
 function createAudience(audience) {
     const text = parseString(audience);
-    const audienceDiv = document.createElement('div');
-    audienceDiv.classList.add('audience', 'card-content');
-    audienceDiv.innerHTML = `
-        <img class="icon icon-gear" src="/icons/gear.svg"></img>
-        ${text}
-    `;
+    const audienceDiv = div(
+        { class: 'audience card-content'},
+        img({ class: 'icon icon-gear', src: '/icons/gear.svg' }),
+        text,
+    );
     return audienceDiv;
 }
 
@@ -906,7 +899,7 @@ async function buildTable(jsonResponse) {
             rows.appendChild(headerRow);
         }
         matchingCampaigns.forEach(async (campaign) => {
-            const tableRow = await buildTableRow(campaign, programKpi, !emptyCategory);
+            const tableRow = await buildTableRow(campaign, !emptyCategory);
             headerRow.appendChild(tableRow);
         })
         // sort grouped rows by date
@@ -965,64 +958,68 @@ async function lookupType(rawText, mappingType) {
 async function buildHeaderRow(category, headerType, isInactive, matchCount) {
     //look up friendly name for deliverable type
     const typeLabel = await lookupType(category, 'deliverable-type');
-    const headerRow = document.createElement('div');
-    headerRow.classList.add('row', 'collapsible', 'header');
-    let divopen;
+    const headerRowDiv = div({ class: 'row collapsible header' });
+    const divOpen = div(
+        { class: 'heading-wrapper' },
+        img({ class: 'icon-next', src: '/icons/next.svg' }),
+        img({ class: 'icon-collapse inactive', src: '/icons/collapse.svg' }),
+        div({ class: 'headertext' }, `${typeLabel} (${matchCount})`),
+    );
     if (headerType === 'subcategory') {
-        headerRow.classList.add('subheader');
-        divopen = '<div class="heading-wrapper subheading">';
-    } else {
-        divopen = '<div class="heading-wrapper">';
+        headerRowDiv.classList.add('subheader');
+        divOpen.classList.add('subheading');
     }
-    if (isInactive) headerRow.classList.add('inactive');
-    headerRow.innerHTML = `
-        ${divopen}
-            <img class="icon-next" src="/icons/next.svg"></img>
-            <img class="icon-collapse inactive" src="/icons/collapse.svg"></img>
-            <div class="headertext">${typeLabel} (${matchCount})</div>
-        </div>`;
-    return headerRow;
+    headerRowDiv.appendChild(divOpen);
+    if (isInactive) headerRowDiv.classList.add('inactive');
+    return headerRowDiv;
 }
 
-async function buildTableRow(deliverable, kpi, createHidden) {
+async function buildTableRow(deliverable, createHidden) {
     //look up friendly name for deliverable type
     const typeLabel = await lookupType(deliverable.deliverableType, 'deliverable-type');
-    const dataRow = document.createElement('div');
-    dataRow.classList.add('row', 'datarow');
-    if (createHidden) dataRow.classList.add('inactive');
+    const assetLinks = createAssetLink(deliverable);
     const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
     const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
-    const assetLinks = createAssetLink(deliverable);
-    dataRow.innerHTML = `
-        <div class='property table-column column1 deliverable-name'>${checkBlankString(deliverable.deliverableName)}</div>
-        <div class='property table-column column2 deliverable-type'>${checkBlankString(typeLabel)}</div>
-        <div class='property table-column column3 platforms'></div>
-        <div class='property table-column column4 qa-files'>
-            ${deliverable.reviewLink ? '<a href="' + deliverable.reviewLink + '"target="_blank" class="campaign-link">QA Files</a> ': "Not Available"}
-        </div>
-        <div class='property table-column column5'>
-            ${assetLinks.outerHTML}
-        </div>
-        <div class='property table-column column7 justify-center'>
-            <div class='status-wrapper'>
-                <div class='status-heading'>
-                    <div class='status-label'>Progress</div>
-                    <div class='status-percent'>${status}</div>
-                </div>
-                <div class='status-bar-wrapper'>
-                    <div class='status-bar-underlay'></div>
-                    <div class='status-bar' style='width: ${statusPct}'></div>
-                </div>
-            </div>
-        </div>
-        <div class='property table-column column8 date-wrapper'>
-            <div class='completion-date'>${dateFormat(deliverable.taskCompletionDate)}</div>
-            ${deliverable.previousTaskCompletionDate ? '<div class="revised-date">Revised from ' + deliverable.previousTaskCompletionDate + '</div> ': ""}
-        </div>
-        <div class='property table-column column9'>${checkBlankString(deliverable.driver)}</div>
-    `;
-    createPlatformString(deliverable.platforms, dataRow);
-    return dataRow;
+
+    const dataRowDiv = div(
+        { class: 'row datarow' },
+        div({ class: 'property table-column column1 deliverable-name' }, checkBlankString(deliverable.deliverableName)),
+        div({ class: 'property table-column column2 deliverable-type' }, checkBlankString(typeLabel)),
+        div({ class: 'property table-column column3 platforms' }),
+        div(
+            { class: 'property table-column column4 qa-files' },
+            deliverable.reviewLink 
+            ? a({ class: 'campaign-link', target: '_blank', href: deliverable.reviewLink }, 'QA Files')
+            : 'Not Available'
+        ),
+        div({ class: 'property table-column column5' }, assetLinks),
+        div(
+            { class: 'property table-column column7 justify-center' },
+            div(
+                { class: 'status-wrapper '},
+                div(
+                    { class: 'status-heading' },
+                    div({ class: 'status-label' }, 'Progress'),
+                    div({ class: 'status-percent' }, status),
+                ),
+                div(
+                    { class: 'status-bar-wrapper' },
+                    div({ class: 'status-bar-underlay' }),
+                    div({ class: 'status-bar', style: `width: ${statusPct}` }),
+                ),
+            )
+        ),
+        div({ class: 'property table-column column8 date-wrapper' },
+            div({ class: 'completion-date' }, dateFormat(deliverable.taskCompletionDate)),
+            deliverable.previousTaskCompletionDate
+                ? div({ class: 'revised-date' }, `Revised from ${deliverable.previousTaskCompletionDate}`)
+                : ''
+        ),
+        div({ class: 'property table-column column9' }, checkBlankString(deliverable.driver)),
+    );
+    if (createHidden) dataRowDiv.classList.add('inactive');
+    createPlatformString(deliverable.platforms, dataRowDiv);
+    return dataRowDiv;
 }
 
 async function createPlatformString(platforms, htmlElem) {
@@ -1075,6 +1072,24 @@ function parseCollectionName(rawString) {
     }
 }
 
+function parseProgramCollectionLink(collectionString) {
+    let collectionName, collectionLink;
+    const splitString = collectionString.split(';');
+    if (splitString.length > 1) {
+        collectionName = splitString[0];
+        collectionLink = splitString[1];
+    } else {
+        collectionName = 'Collection';
+        collectionLink = splitString[0];
+    }
+
+    const parsedCollection = {
+        'name': collectionName,
+        'link': collectionLink,
+    }
+    return parsedCollection;
+}
+
 function parseCollectionLink(collectionString) {
     let collectionName, collectionPlatform, collectionCategory, collectionLink;
     const fullNameSplit = collectionString.split(';');
@@ -1099,7 +1114,6 @@ function parseCollectionLink(collectionString) {
         'link': collectionLink,
         'fullName': fullName
     }
-
     return parsedCollection;
 }
 
@@ -1206,7 +1220,9 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
 
     // get end of the view
     viewEnd = getTimeBounds(calendarDeliverables, "end", endDateProp);
-    if (!(isValidDate(viewEnd)) || viewEnd <= 0) {
+
+    // update- if viewEnd is before viewStart, ignore and set arbitrary viewStart+1 month end date
+    if (!(isValidDate(viewEnd)) || viewEnd <= 0 || viewEnd < viewStart) {
         viewEnd = new Date(viewStart);
         viewEnd.setMonth(viewStart.getMonth() + 1);
     }
@@ -1242,6 +1258,14 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         contentWrapper.dataset.view = "quarter";
     } else {
         contentWrapper.dataset.view = "year";
+    }
+
+    const contentWrapperDiv = div({ class: 'calendar-content-wrapper' });
+    if (type === 'quater') {
+        contentWrapperDiv.classList.add('quarter-view');
+        contentWrapperDiv.dataset.view = 'quarter';
+    } else {
+        contentWrapperDiv.dataset.vew = 'year';
     }
 
     var groupIndex = 1;
@@ -1285,9 +1309,7 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         const widthOfGroup = (endPosition - startPosition); // width of group = start position + (day duration)
         // calculate the duration of the group as that helps set the width of its members
         const groupDuration = Math.floor((latestEndDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
-
-        const itemWrapper = document.createElement('div');
-        itemWrapper.classList.add('group-content');
+        const itemWrapperDiv = div({ class: 'group-content' });
 
         for (const item of matchedItems) {
             const itemStartDate = (item[startDateProp]) ? new Date(item[startDateProp]) : viewStart;
@@ -1299,68 +1321,64 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
 
             let daysDifference = Math.floor((itemStartDate.getTime() - earliestStartDate.getTime()) / (1000 * 60 * 60 * 24));
             const startPctDiff = ((daysDifference / groupDuration) * 100).toFixed(2);
-            let itemEl = document.createElement('div');
-            itemEl.classList.add('item');
-            itemEl.style.marginLeft = startPctDiff + '%';
 
             // Find the corresponding color code from the taskStatusMappings array
             const itemStatusMapping = await getTaskStatusMapping(item.taskStatus);
             const { text: statusText = 'Unknown Status', 'color-code': colorCode = 'green' } = itemStatusMapping;
 
             // Create a placeholder for the thumbnail
-            itemEl.innerHTML = `
-                <div class="color-tab"></div>
-                <div class="item-content">
-                    <div class="content-row">
-                        <div class="info">
-                            <div class="thumbnail"></div>
-                            <div class="name" title="${item.deliverableName}">${item.deliverableName}</div>
-                            <div class="item-status"
-                                 data-status="${checkBlankString(item.taskStatus)}"
-                                 style="background-color: #${colorCode};"
-                                 title="${statusText}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="content-row bottom">
-                        ${itemEndDateStr ? '<div class="start-date" title="Task Planned End Date: ' + itemEndDateStr + '">End Date: ' + itemEndDateStr + '</div>' : ''}
-                        <div class="link">
-                            <a href="${item.reviewLink}" target="_blank">QA Files</a>
-                        </div>
-                    </div>
-                </div>
-            `;
-            itemEl.style.width = itemDurationPct + '%';
+            const itemElDiv = div({ class: 'item', style: `margin-left: ${startPctDiff}%;width: ${itemDurationPct}%`},
+                div({ class: 'color-tab'}),
+                div(
+                    { class: 'item-content' },
+                    div(
+                        { class: 'content-row' },
+                        div(
+                            { class: 'info' },
+                            div({ class: 'thumbnail' }),
+                            div({ class: 'name', title: item.deliverableName}, item.deliverableName),
+                            div({ class: 'item-status', 'data-status': checkBlankString(item.taskStatus),
+                                style: `background-color: #${colorCode}`, title: statusText,
+                            }),
+                        ),
+                    ),
+                    div(
+                        { class: 'content-row bottom' },
+                        itemEndDateStr 
+                            ? div({ class: 'start-date', title: `Task Planned End Date: ${itemEndDateStr}`}, `End Date: ${itemEndDateStr}`)
+                            : '',
+                        div(
+                            { class: 'link' },
+                            a({ href: item.reviewLink, target: '_blank' }, 'QA Files'),
+                        )
+                    )
+                )
+            );
 
             // Call the new function to fetch and add the thumbnail, ensuring sequential execution
-            await addThumbnailToItem(itemEl, item.programName, item.campaignName,item.deliverableType);
-            itemWrapper.appendChild(itemEl);
-
+            await addThumbnailToItem(itemElDiv, item.programName, item.campaignName,item.deliverableType);
+            itemWrapperDiv.appendChild(itemElDiv);
         };
 
-        //await lookupType(category, 'deliverable-type');
-        const groupEl = document.createElement('div');
-        groupEl.classList.add('calendar-group', `color${groupIndex}`);
-        groupEl.style.marginLeft = startPosition + '%';
-        groupEl.style.width = widthOfGroup + '%';
-        groupEl.innerHTML = `
-            <div class="group-header">
-                <div class="left-block">
-                    <img src="/icons/chevron-right.svg" class="group-expand group-controls inactive"></img>
-                    <img src="/icons/chevron-right.svg" class="group-collapse group-controls"></img>
-                    <div class="group-heading" title="${groupType}">${groupType}</div>
-                    <div class="group-count">${matchedItems.length}</div>
-                </div>
-                <div class="right-block">
-                </div>
-            </div>
-        `;
-        groupEl.appendChild(itemWrapper);
-        groupEl.querySelectorAll('.group-controls').forEach((arrow) => {
+        const groupElDiv = div({ class: `calendar-group color${groupIndex}`,
+            style: `margin-left: ${startPosition}%;width: ${widthOfGroup}%`},
+                div({ class: 'group-header'},
+                    div({ class: 'left-block' },
+                        img({ src: '/icons/chevron-right.svg', class: 'group-expand group-controls inactive'}),
+                        img({ src: '/icons/chevron-right.svg', class: 'group-collapse group-controls'}),
+                        div({ class: 'group-heading', title: `${groupType}`}, groupType),
+                        div({ class: 'group-count'}, matchedItems.length)
+                    ),
+                    div({ class: 'right-block' }),
+                ),
+        );
+
+        groupElDiv.appendChild(itemWrapperDiv);
+        groupElDiv.querySelectorAll('.group-controls').forEach((arrow) => {
             arrow.addEventListener('click', showHideGroup);
         });
 
-        contentWrapper.appendChild(groupEl);
+        contentWrapper.appendChild(groupElDiv);
         groupIndex = (groupIndex === 5) ? 1 : groupIndex + 1;
     };
 
@@ -1368,19 +1386,13 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     block.querySelector('.calendar.tab').appendChild(calendarEl);
 
     // populate "filter" dropdown
-    const filterDropdown = document.createElement('div');
-    filterDropdown.classList.add('filter-dropdown-content');
+    const filterDropdown = div({ class: 'filter-dropdown-content'});
     const uniqueYears = getUniqueYears(calendarDeliverables);
-    const yearOptionLabel = document.createElement('div');
-    yearOptionLabel.classList.add('filter-label');
-    yearOptionLabel.textContent = 'Year';
-    const quarterOptionLabel = document.createElement('div');
-    quarterOptionLabel.classList.add('filter-label');
-    quarterOptionLabel.textContent = 'Quarter';
+    const yearOptionLabel = div({ class: 'filter-label' }, 'Year');
+    const quarterOptionLabel = div({ class: 'filter-label' }, 'Quarter');
     filterDropdown.appendChild(yearOptionLabel);
 
     // when choosing 'Quarter' the top left controls change to control the quarter in focus
-    // its kind of a zoomed in view.
     uniqueYears.forEach((year) => {
         const yearOption = document.createElement('div');
         yearOption.classList.add('filter-option');
@@ -1392,11 +1404,7 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     filterDropdown.appendChild(quarterOptionLabel);
     const quarters = [ 1, 2, 3, 4 ];
     quarters.forEach((quarter) => {
-        const quarterOption = document.createElement('div');
-        quarterOption.classList.add('filter-option');
-        quarterOption.dataset.period = quarter;
-        quarterOption.textContent = quarter;
-        //quarterOption.addEventListener('click', filterDropdownSelection);
+        const quarterOption = div({ class: 'filter-option', 'data-period': quarter }, quarter);
         quarterOption.addEventListener('click', (event) => filterDropdownSelection(event, viewStartYear, years.length));
         filterDropdown.appendChild(quarterOption);
     })
@@ -1416,13 +1424,15 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
     const totalDaysInMonth = new Date((new Date(currentYear, currentMonth, 1)) - 1).getDate();
     const percentOfMonth = (currentDate.getUTCDate() / totalDaysInMonth).toFixed(2) * 100;
     const monthEl = block.querySelector(`.month-wrapper[data-year='${currentYear}'] .month[data-num='${currentMonth}']`);
-    monthEl.classList.add('current');
-    const lineEl = document.createElement('div');
-    lineEl.classList.add('calendar-indicator');
-    // use direct style for offset
-    lineEl.style.marginRight = ((-2 * percentOfMonth) + 100) + '%';
-    monthEl.appendChild(lineEl);
-    
+
+    // account for view not including current date
+    if (monthEl) {
+        monthEl.classList.add('current');
+        // use direct style for line offset
+        const lineEl = div({ class: 'calendar-indicator', style: `margin-right: ${((-2 * percentOfMonth) + 100)}%` })
+        monthEl.appendChild(lineEl);
+    }
+
     // close dropdown listener for clicks outside open dropdown
     document.querySelector('.gmo-program-details.block').addEventListener('click', dismissDropdown);
     block.querySelectorAll('.year-switch > .year-toggle').forEach((control) => {
@@ -1446,8 +1456,6 @@ async function buildCalendar(dataObj, block, type, mappingArray, period) {
         scrollToPosition(calendarWrapper, totalScroll);
     });
 }
-
-// calendar view supporting functions
 
 // Helper function to get task status mapping
 async function getTaskStatusMapping(taskStatus) {
@@ -1476,11 +1484,8 @@ async function addThumbnailToItem(itemEl, programName, campaignName, deliverable
     // Use the cached or newly fetched imageObject
     if (imageObject && imageObject.imageUrl) {
         const thumbnailDiv = itemEl.querySelector('.thumbnail');
-        const imgElement = document.createElement('img');
-        imgElement.src = imageObject.imageUrl;
-        imgElement.alt = imageObject.imageAltText;
-        imgElement.loading = 'lazy';
-        thumbnailDiv.appendChild(imgElement);
+        const imgEl = img({ src: imageObject.imageUrl, alt: imageObject.imageAltText, loading: 'lazy' });
+        thumbnailDiv.appendChild(imgEl);
     } else {
         console.error("Image Object does not have a valid imageUrl");
     }
@@ -1657,49 +1662,63 @@ function calendarYears(startYear, endYear) {
 }
 
 function buildYearCal(years) {
-    const calendarEl = document.createElement('div');
-    calendarEl.classList.add('calendar-wrapper');
+    const calendarEl = div({ class: 'calendar-wrapper' });
     if (years.length > 1) calendarEl.classList.add('multiyear');
-    const backgroundEl = document.createElement('div');
-    backgroundEl.classList.add('calendar-background');
-    backgroundEl.style.width = (years.length * 100) + '%';
+    const backgroundEl = div({ class: 'calendar-background', style: `width: ${(years.length * 100)}%` });
 
     years.forEach((year) => {
-        const yearWrapper = document.createElement('div');
-        yearWrapper.dataset.year = year;
-        yearWrapper.classList.add('year-wrapper');
-        yearWrapper.style.width = (100 / years.length) + '%';
-        const calendarHeader = document.createElement('div');
-        calendarHeader.classList.add('header-wrapper');
-        const quartersHeader = document.createElement('div');
-        quartersHeader.classList.add('quarter-header');
-        quartersHeader.innerHTML = `
-            <div class="quarter">Q1 ${year}</div>
-            <div class="quarter">Q2 ${year}</div>
-            <div class="quarter">Q3 ${year}</div>
-            <div class="quarter">Q4 ${year}</div>
-        `;
-        calendarHeader.appendChild(quartersHeader);
-
-        const monthsWrapper = document.createElement('div');
-        monthsWrapper.classList.add('month-wrapper');
-        monthsWrapper.dataset.year = year;
-        monthsWrapper.innerHTML = `
-            <div class="month" data-num="1"><div class="label">Jan</div></div>
-            <div class="month" data-num="2"><div class="label">Feb</div></div>
-            <div class="month" data-num="3"><div class="label">Mar</div></div>
-            <div class="month" data-num="4"><div class="label">Apr</div></div>
-            <div class="month" data-num="5"><div class="label">May</div></div>
-            <div class="month" data-num="6"><div class="label">Jun</div></div>
-            <div class="month" data-num="7"><div class="label">Jul</div></div>
-            <div class="month" data-num="8"><div class="label">Aug</div></div>
-            <div class="month" data-num="9"><div class="label">Sep</div></div>
-            <div class="month" data-num="10"><div class="label">Oct</div></div>
-            <div class="month" data-num="11"><div class="label">Nov</div></div>
-            <div class="month" data-num="12"><div class="label">Dec</div></div>
-        `;
-        yearWrapper.appendChild(calendarHeader);
-        yearWrapper.appendChild(monthsWrapper);
+        const yearWrapper = div(
+            { class: 'year-wrapper', style: `width: ${(100 / years.length)}%`, 'data-year': year },
+            div(
+                { class: 'header-wrapper' },
+                div(
+                    { class: 'quarter-header' },
+                    div({ class: 'quarter' }, `Q1 ${year}`),
+                    div({ class: 'quarter' }, `Q2 ${year}`),
+                    div({ class: 'quarter' }, `Q3 ${year}`),
+                    div({ class: 'quarter' }, `Q4 ${year}`),
+                ),
+            ),
+            div(
+                { class: 'month-wrapper', 'data-year': year },
+                div({ class: 'month', 'data-num': '1'},
+                    div({ class: 'label' }, 'Jan'),
+                ),
+                div({ class: 'month', 'data-num': '2'},
+                    div({ class: 'label' }, 'Feb'),
+                ),
+                div({ class: 'month', 'data-num': '3'},
+                    div({ class: 'label' }, 'Mar'),
+                ),
+                div({ class: 'month', 'data-num': '4'},
+                    div({ class: 'label' }, 'Apr'),
+                ),
+                div({ class: 'month', 'data-num': '5'},
+                    div({ class: 'label' }, 'May'),
+                ),
+                div({ class: 'month', 'data-num': '6'},
+                    div({ class: 'label' }, 'Jun'),
+                ),
+                div({ class: 'month', 'data-num': '7'},
+                    div({ class: 'label' }, 'Jul'),
+                ),
+                div({ class: 'month', 'data-num': '8'},
+                    div({ class: 'label' }, 'Aug'),
+                ),
+                div({ class: 'month', 'data-num': '9'},
+                    div({ class: 'label' }, 'Sep'),
+                ),
+                div({ class: 'month', 'data-num': '10'},
+                    div({ class: 'label' }, 'Oct'),
+                ),
+                div({ class: 'month', 'data-num': '11'},
+                    div({ class: 'label' }, 'Nov'),
+                ),
+                div({ class: 'month', 'data-num': '12'},
+                    div({ class: 'label' }, 'Dec'),
+                ),
+            )
+        );
         backgroundEl.appendChild(yearWrapper);
     });
     calendarEl.appendChild(backgroundEl);
@@ -1708,50 +1727,64 @@ function buildYearCal(years) {
 
 
 function buildQuarterCal(years) {
-    const calendarEl = document.createElement('div');
-    calendarEl.classList.add('calendar-wrapper', 'quarter-view');
+    const calendarEl = div({ class: 'calendar-wrapper quarter-view' });
     if (years.length > 1) calendarEl.classList.add('multiyear');
-    const backgroundEl = document.createElement('div');
-    backgroundEl.classList.add('calendar-background');
+
     // this is wider for 'quarter' view- see equivalent in 'year' view.
-    backgroundEl.style.width = (years.length * 300) + '%';
+    const backgroundEl = div({ class: 'calendar-background', style: `width: ${(years.length * 300)}%`});
 
     years.forEach((year) => {
-        const yearWrapper = document.createElement('div');
-        yearWrapper.dataset.year = year;
-        yearWrapper.classList.add('year-wrapper');
-        yearWrapper.style.width = (100 / years.length) + '%';
-        const calendarHeader = document.createElement('div');
-        calendarHeader.classList.add('header-wrapper');
-        const quartersHeader = document.createElement('div');
-        quartersHeader.classList.add('quarter-header');
-        quartersHeader.innerHTML = `
-            <div class="quarter">Fiscal Q1 ${year}</div>
-            <div class="quarter">Fiscal Q2 ${year}</div>
-            <div class="quarter">Fiscal Q3 ${year}</div>
-            <div class="quarter">Fiscal Q4 ${year}</div>
-        `;
-        calendarHeader.appendChild(quartersHeader);
-
-        const monthsWrapper = document.createElement('div');
-        monthsWrapper.classList.add('month-wrapper');
-        monthsWrapper.dataset.year = year;
-        monthsWrapper.innerHTML = `
-            <div class="month" data-num="12"><div class="label">Dec Q1</div></div>
-            <div class="month" data-num="1"><div class="label">Jan Q1</div></div>
-            <div class="month" data-num="2"><div class="label">Feb Q1</div></div>
-            <div class="month" data-num="3"><div class="label">Mar Q2</div></div>
-            <div class="month" data-num="4"><div class="label">Apr Q2</div></div>
-            <div class="month" data-num="5"><div class="label">May Q2</div></div>
-            <div class="month" data-num="6"><div class="label">Jun Q3</div></div>
-            <div class="month" data-num="7"><div class="label">Jul Q3</div></div>
-            <div class="month" data-num="8"><div class="label">Aug Q3</div></div>
-            <div class="month" data-num="9"><div class="label">Sep Q4</div></div>
-            <div class="month" data-num="10"><div class="label">Oct Q4</div></div>
-            <div class="month" data-num="11"><div class="label">Nov Q4</div></div>
-        `;
-        yearWrapper.appendChild(calendarHeader);
-        yearWrapper.appendChild(monthsWrapper);
+        const yearWrapper = div(
+            { class: 'year-wrapper', style: `width: ${(100 / years.length)}%`, 'data-year': year },
+            div(
+                { class: 'header-wrapper' },
+                div(
+                    { class: 'quarter-header' },
+                    div({ class: 'quarter' }, `Fiscal Q1 ${year}`),
+                    div({ class: 'quarter' }, `Fiscal Q2 ${year}`),
+                    div({ class: 'quarter' }, `Fiscal Q3 ${year}`),
+                    div({ class: 'quarter' }, `Fiscal Q4 ${year}`),
+                ),
+            ),
+            div({ class: 'month-wrapper', 'data-year': year },
+                div({ class: 'month', 'data-num': '12'},
+                    div({ class: 'label' }, 'Dec Q1'),
+                ),
+                div({ class: 'month', 'data-num': '1'},
+                    div({ class: 'label' }, 'Jan Q1'),
+                ),
+                div({ class: 'month', 'data-num': '2'},
+                    div({ class: 'label' }, 'Feb Q1'),
+                ),
+                div({ class: 'month', 'data-num': '3'},
+                    div({ class: 'label' }, 'Mar Q2'),
+                ),
+                div({ class: 'month', 'data-num': '4'},
+                    div({ class: 'label' }, 'Apr Q2'),
+                ),
+                div({ class: 'month', 'data-num': '5'},
+                    div({ class: 'label' }, 'May Q2'),
+                ),
+                div({ class: 'month', 'data-num': '6'},
+                    div({ class: 'label' }, 'Jun Q3'),
+                ),
+                div({ class: 'month', 'data-num': '7'},
+                    div({ class: 'label' }, 'Jul Q3'),
+                ),
+                div({ class: 'month', 'data-num': '8'},
+                    div({ class: 'label' }, 'Aug Q3'),
+                ),
+                div({ class: 'month', 'data-num': '9'},
+                    div({ class: 'label' }, 'Sep Q4'),
+                ),
+                div({ class: 'month', 'data-num': '10'},
+                    div({ class: 'label' }, 'Oct Q4'),
+                ),
+                div({ class: 'month', 'data-num': '11'},
+                    div({ class: 'label' }, 'Nov Q4'),
+                ),
+            )
+        );
         backgroundEl.appendChild(yearWrapper);
     });
     calendarEl.appendChild(backgroundEl);
