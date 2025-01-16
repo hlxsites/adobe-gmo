@@ -39,7 +39,6 @@ const headerConfig = [
 ]
 
 const DEFAULT_ITEMS_PER_PAGE = 8;
-//const programStatusMapping = statusMapping;
 //Global variables used by helper functions
 let currentPageInfo = {};
 let cursorArray = [];
@@ -61,6 +60,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     }
 
     currentGraphqlFilter= generateFilterJSON(graphQLFilterArray);
+    console.log(currentGraphqlFilter);
     const block = document.querySelector('.gmo-program-list.block');
     //Get Campaign Count for pagination
     campaignCount = graphqlCampaignCount(currentGraphqlFilter);
@@ -70,6 +70,10 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     cursorArray = [];
     currentPage = 1;
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
+
+    // save the filter in a cookie
+    createSearchCookie(currentGraphqlFilter);
+
     //Trigger loading the gmo-campaign-block
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
 });
@@ -77,6 +81,20 @@ document.addEventListener('gmoCampaignListBlock', async function() {
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
     showLoadingOverlay(block);
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
+
+    // check if this was a 'back' from details. if so, retrieve search params from cookie
+    const params = new URLSearchParams(window.location.search);
+    const isBack = params.get('isBack');
+    console.log(`Back? ${isBack}`);
+    // clear the params from the url
+    clearURLParams();
+    // retrieve previous search from cookie
+    if (isBack) { 
+        const filterValue = getFilterFromCookie();
+        if (filterValue) graphQLFilter = JSON.parse(filterValue);
+    }
+    console.log(graphQLFilter);
+
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
@@ -550,4 +568,24 @@ function sortColumn(dir, property) {
     sortArray.forEach(({ row }, index) => {
         container.appendChild(row);
     });
+}
+
+function createSearchCookie(graphQLFilter) {
+    const date = new Date();
+    date.setTime(date.getTime() + (24 * 60 * 60 * 1000));
+    const expires = `expires=${date.toUTCString()}`;
+    const searchParams = JSON.stringify(graphQLFilter);
+    document.cookie = `MH_PROGRAM_FILTER=${encodeURIComponent(searchParams)}; ${expires}; path=/`;
+}
+
+function getFilterFromCookie() {
+    const cookieName = 'MH_PROGRAM_FILTER';
+    const cookie = document.cookie.match(new RegExp(`(?:^|; )${cookieName}=([^;]*)`));
+    return cookie ? decodeURIComponent(cookie[1]) : null; // Return null if the cookie is not found 
+}
+
+function clearURLParams() {
+    const currentUrl = window.location.href;
+    const baseUrl = currentUrl.split('?')[0];
+    history.replaceState(null, '', baseUrl);
 }
