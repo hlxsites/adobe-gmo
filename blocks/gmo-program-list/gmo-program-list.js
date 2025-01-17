@@ -600,6 +600,6 @@ function displayFilterSelections(filterObj) {
         if (filterObj[key]._expressions && Array.isArray(filterObj[key]._expressions)) {
             const value = filterObj[key]._expressions[0].value;
             toggleOption(value, key);
-       }
+        }
     }
 }
