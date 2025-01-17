@@ -249,7 +249,7 @@ function toggleDropdown(element) {
     dropdown.classList.toggle('active');
 }
 
-function toggleOption(optionValue, optionType) {
+export function toggleOption(optionValue, optionType) {
     const currentlySelected = document.querySelector(`.dropoption.selected[data-type='${optionType}']`);
     if (currentlySelected && currentlySelected.dataset.value !== optionValue) {
         currentlySelected.classList.remove('selected'); // Remove the 'selected' class from the previously selected option
@@ -356,6 +356,8 @@ function dropdownButtonClickHandler(event) {
 }
 
 function dropOptionClickHandler(event) {
+    console.log(event.target.dataset.value);
+    console.log(event.target.dataset.type);
     toggleOption(event.target.dataset.value, event.target.dataset.type);
     toggleDropdown(event.target); // Closes the dropdown list
 }

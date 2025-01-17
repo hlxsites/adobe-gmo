@@ -1,9 +1,14 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
-import { getProductMapping, checkBlankString, statusMapping, dateFormat, showLoadingOverlay, hideLoadingOverlay } from '../../scripts/shared-program.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
+import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
+import { 
+    getProductMapping, checkBlankString, statusMapping,
+    dateFormat, showLoadingOverlay, hideLoadingOverlay,
+    div, span
+} from '../../scripts/shared-program.js'
 
 const headerConfig = [
     {
@@ -60,7 +65,6 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     }
 
     currentGraphqlFilter= generateFilterJSON(graphQLFilterArray);
-    console.log(currentGraphqlFilter);
     const block = document.querySelector('.gmo-program-list.block');
     //Get Campaign Count for pagination
     campaignCount = graphqlCampaignCount(currentGraphqlFilter);
@@ -85,15 +89,15 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     // check if this was a 'back' from details. if so, retrieve search params from cookie
     const params = new URLSearchParams(window.location.search);
     const isBack = params.get('isBack');
-    console.log(`Back? ${isBack}`);
     // clear the params from the url
     clearURLParams();
     // retrieve previous search from cookie
     if (isBack) { 
         const filterValue = getFilterFromCookie();
         if (filterValue) graphQLFilter = JSON.parse(filterValue);
+        // add filter values to filter list
+        displayFilterSelections(graphQLFilter);
     }
-    console.log(graphQLFilter);
 
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
@@ -588,4 +592,14 @@ function clearURLParams() {
     const currentUrl = window.location.href;
     const baseUrl = currentUrl.split('?')[0];
     history.replaceState(null, '', baseUrl);
+}
+
+function displayFilterSelections(filterObj) {
+    
+    for (const key in filterObj) {
+        if (filterObj[key]._expressions && Array.isArray(filterObj[key]._expressions)) {
+            const value = filterObj[key]._expressions[0].value;
+            toggleOption(value, key);
+       }
+    }
 }
