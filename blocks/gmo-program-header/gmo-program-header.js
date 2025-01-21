@@ -356,8 +356,6 @@ function dropdownButtonClickHandler(event) {
 }
 
 function dropOptionClickHandler(event) {
-    console.log(event.target.dataset.value);
-    console.log(event.target.dataset.type);
     toggleOption(event.target.dataset.value, event.target.dataset.type);
     toggleDropdown(event.target); // Closes the dropdown list
 }
