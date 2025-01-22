@@ -76,7 +76,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 
     // save the filter in a cookie
-    createSearchCookie(currentGraphqlFilter);
+    createSearchFilterCookie(currentGraphqlFilter);
 
     //Trigger loading the gmo-campaign-block
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
@@ -574,7 +574,7 @@ function sortColumn(dir, property) {
     });
 }
 
-function createSearchCookie(graphQLFilter) {
+function createSearchFilterCookie(graphQLFilter) {
     const date = new Date();
     date.setTime(date.getTime() + (24 * 60 * 60 * 1000));
     const expires = `expires=${date.toUTCString()}`;
