@@ -7,7 +7,7 @@ import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
 import { 
     getProductMapping, checkBlankString, statusMapping,
     dateFormat, showLoadingOverlay, hideLoadingOverlay,
-    div, span
+    getFilterCookie, div, span
 } from '../../scripts/shared-program.js'
 
 const headerConfig = [
@@ -89,13 +89,18 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     // check if this was a 'back' from details. if so, retrieve search params from cookie
     const params = new URLSearchParams(window.location.search);
     const isBack = params.get('isBack');
+    const isShared = params.get('isShare');
+
     // clear the params from the url
     clearURLParams();
-    // retrieve previous search from cookie
-    if (isBack) { 
-        const filterValue = getFilterFromCookie();
-        if (filterValue) graphQLFilter = JSON.parse(filterValue);
-        // add filter values to filter list
+
+    // handle saved/shared search params
+    if (isBack || isShared) {
+        const filterSource = isBack ? getFilterCookie()?.[1] : params.get('searchFilter');
+        if (filterSource) {
+            const filterValue = decodeURIComponent(filterSource);
+            graphQLFilter = JSON.parse(filterValue);
+        }
         displayFilterSelections(graphQLFilter);
     }
 
@@ -580,12 +585,6 @@ function createSearchFilterCookie(graphQLFilter) {
     const expires = `expires=${date.toUTCString()}`;
     const searchParams = JSON.stringify(graphQLFilter);
     document.cookie = `MH_PROGRAM_FILTER=${encodeURIComponent(searchParams)}; ${expires}; path=/`;
-}
-
-function getFilterFromCookie() {
-    const cookieName = 'MH_PROGRAM_FILTER';
-    const cookie = document.cookie.match(new RegExp(`(?:^|; )${cookieName}=([^;]*)`));
-    return cookie ? decodeURIComponent(cookie[1]) : null; // Return null if the cookie is not found 
 }
 
 function clearURLParams() {

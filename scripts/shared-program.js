@@ -150,6 +150,13 @@ export function domEl(tag, ...items) {
     return element;
   }
 
+export function getFilterCookie() {
+    const cookieName = 'MH_PROGRAM_FILTER';
+    const cookie = document.cookie.match(new RegExp(`(?:^|; )${cookieName}=([^;]*)`));
+    return cookie ? cookie : null; // Return null if the cookie is not found 
+}
+
+
 /*
   More short hand functions can be added for very common DOM elements below.
   domEl function from above can be used for one off DOM element occurrences.
