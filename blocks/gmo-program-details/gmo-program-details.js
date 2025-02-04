@@ -24,7 +24,6 @@ const thumbnailCache = {};
 
 export default async function decorate(block) {
     blockConfig = readBlockConfig(block);
-    console.log(blockConfig)
     block.innerHTML = ` `;
 
     const currentYear = new Date().getFullYear();
