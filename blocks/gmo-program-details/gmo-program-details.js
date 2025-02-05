@@ -66,12 +66,13 @@ export default async function decorate(block) {
     );
 
     // tab wrapper
+    const hideCalendar = blockConfig.hidecalendar;
     const tabWrapper = div(
         { class: 'tab-wrapper'},
         div({ id: 'tab1toggle', class: 'tabBtn active', 'data-target': 'tab1'}, 'Overview'),
         div({ id: 'tab2toggle', class: 'tabBtn', 'data-target': 'tab2'}, 'Deliverables'),
-        div({ id: 'tab3toggle', class: 'tabBtn', 'data-target': 'tab3'}, 'Calendar'),
-        );
+        div({ id: 'tab3toggle', class: `tabBtn ${hideCalendar == 'true' ? 'inactive' : ''}`, 'data-target': 'tab3'}, 'Calendar'),
+    );
 
     // overview tab
     const overviewTab = div(
