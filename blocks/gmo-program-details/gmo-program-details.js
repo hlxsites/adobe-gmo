@@ -516,7 +516,7 @@ function enableBackBtn(block, blockConfig) {
     block.querySelector('.back-button').addEventListener('click', () => {
         const host = location.origin + getBaseConfigPath();
         const listPage = blockConfig.listpage;
-        document.location.href = host + `/${listPage}`;
+        document.location.href = host + `/${listPage}?isBack=true`;
     })
 }
 
