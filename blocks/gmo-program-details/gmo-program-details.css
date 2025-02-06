@@ -211,9 +211,9 @@ body {
             color: #323232;
             border-bottom: 2px solid #323232;
         }
-        & > div:not(:first-child) {
-            margin-left: 25px;
-        }
+    }
+    & > div:not(:first-child) {
+        margin-left: 25px;
     }
 }
 
