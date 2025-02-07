@@ -168,6 +168,7 @@ export default async function decorate(block) {
                 div({ class: 'header table-column column4' }, 'QA Files'),
                 div({ class: 'header table-column column5' }, 'Approved Collection Link(s)'),
                 div({ class: 'header table-column column7' }, 'Status Update'),
+                div({ class: 'header table-column column10' }, 'Task Status'),
                 div({ class: 'header table-column column8' }, 'Completion Date'),
                 div({ class: 'header table-column column9' }, 'Task Owner'),               
             ),
@@ -1010,6 +1011,7 @@ async function buildTableRow(deliverable, createHidden) {
                 ),
             )
         ),
+        div({ class: 'property table-column column10' }, checkBlankString(deliverable.taskStatus)),
         div({ class: 'property table-column column8 date-wrapper' },
             div({ class: 'completion-date' }, dateFormat(deliverable.taskCompletionDate)),
             deliverable.previousTaskCompletionDate
