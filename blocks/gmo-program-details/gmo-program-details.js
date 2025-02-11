@@ -1064,8 +1064,8 @@ function createAssetLink(deliverable) {
 
 function parseCollectionName(rawString) {
     const collectionName = rawString;
-    const maxLength = 73;
-    const charsToShow = 34;
+    const maxLength = 67;
+    const charsToShow = 28;
     
     if (collectionName.length > maxLength) {
         const truncatedString = collectionName.slice(0, charsToShow) + "[...]" + collectionName.slice(-charsToShow);
