@@ -1158,7 +1158,7 @@ function attachListener(htmlElement) {
 
 function extractQueryVars() {
     const urlStr = window.location.href;
-    const pnRegex = /[?&]programName=([^&]+)&programID=([^&]+)(&path=([^&]+))?/;
+    const pnRegex = /[?&]programName=([^&]+)&programID=([^&]+)(&path=([^&#]+))?/;
     const match = urlStr.match(pnRegex);
     if (match && match[1] && match[2]) {
         const pName = decodeURIComponent(match[1]); // Removed the replace method
