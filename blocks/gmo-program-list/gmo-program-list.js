@@ -7,7 +7,7 @@ import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
 import { 
     getProductMapping, checkBlankString, statusMapping,
     dateFormat, showLoadingOverlay, hideLoadingOverlay,
-    div, span
+    getFilterCookie, div, span
 } from '../../scripts/shared-program.js'
 
 const headerConfig = [
