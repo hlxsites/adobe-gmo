@@ -169,18 +169,42 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
 }
 
 function togglePaginationButtons() {
+    waitForElements('.footer-pagination-button', (footerPrev, footerNext) => {
+        if (!footerPrev || !footerNext) return;
+
+        if (currentPage > 1) {
+            footerPrev.classList.add('active');
+        } else {
+            footerPrev.classList.remove('active');
+        }
+
+        if (currentPage < totalPages) {
+            footerNext.classList.add('active');
+        } else {
+            footerNext.classList.remove('active');
+        }
+    });
+}
+
+function waitForElements(selector, callback) {
+    const observer = new MutationObserver(() => {
+        const footerPrev = document.querySelector('.footer-pagination-button.prev');
+        const footerNext = document.querySelector('.footer-pagination-button.next');
+
+        if (footerPrev && footerNext) {
+            observer.disconnect(); // Stop observing once elements are found
+            callback(footerPrev, footerNext);
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Also check immediately in case elements already exist
     const footerPrev = document.querySelector('.footer-pagination-button.prev');
     const footerNext = document.querySelector('.footer-pagination-button.next');
-    if (currentPage > 1) {
-        footerPrev.classList.add('active');
-    } else {
-        footerPrev.classList.remove('active');
-    }
-
-    if (currentPage < totalPages) {
-        footerNext.classList.add('active');
-    } else {
-        footerNext.classList.remove('active');
+    if (footerPrev && footerNext) {
+        observer.disconnect();
+        callback(footerPrev, footerNext);
     }
 }
 
