@@ -402,6 +402,10 @@ function closeShareSearchClickHandler(event) {
     closeShareSearch();
 }
 
+function copyToClipboardHandler(event, text) {
+    copyToClipboard(text);
+}
+
 function shareSearch() {
     const cookie = getFilterCookie();
     const filterValue = cookie[1];
@@ -418,14 +422,28 @@ function shareSearch() {
             ),
             div({ class: 'share-modal-message' }, shareMessage),
             div({ class: 'share-modal-url' }, shareUrl),
+            div({ class: 'share-modal-copy', 'data-share': shareUrl}, 'Copy to Clipboard'),
         ),
     );
-    modalElements.querySelector('.share-modal-close').addEventListener('click', closeShareSearchClickHandler);
+    modalElements.querySelector('.share-modal-close').addEventListener('click', function(event) { closeShareSearchClickHandler(event) });
+    modalElements.querySelector('.share-modal-copy').addEventListener('click', function(event) { copyToClipboard(event) });
     document.body.appendChild(modalElements);
 }
 
 function closeShareSearch() {
     document.querySelector('.share-modal-overlay').remove();
+}
+
+function copyToClipboard(event) {
+    if (event.target.classList.contains('share-modal-copy')) {
+        const shareUrl = event.target.dataset.share;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            console.debug('Copied to clipboard:', shareUrl);
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+        });
+    }
+
 }
 
 function sendGmoCampaignListBlockEvent() {
