@@ -425,7 +425,7 @@ function shareSearch() {
             div({ class: 'share-modal-copy', 'data-share': shareUrl}, 'Copy to Clipboard'),
         ),
     );
-    modalElements.querySelector('.share-modal-close').addEventListener('click', function(event) { closeShareSearchClickHandler });
+    modalElements.querySelector('.share-modal-close').addEventListener('click', function(event) { closeShareSearchClickHandler(event) });
     modalElements.querySelector('.share-modal-copy').addEventListener('click', function(event) { copyToClipboard(event) });
     document.body.appendChild(modalElements);
 }

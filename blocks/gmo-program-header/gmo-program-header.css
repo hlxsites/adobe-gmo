@@ -246,10 +246,11 @@
 .share-modal-copy {
     margin:auto;
     font-size: 14px;
+    font-weight: bold;
     background-color: rgb(20, 115, 230);
     color: white;
     width: fit-content;
-    border-radius: 8px;
+    border-radius: 9px;
     padding: 4px 14px;
 
     &:hover {
