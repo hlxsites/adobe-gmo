@@ -403,7 +403,6 @@ function closeShareSearchClickHandler(event) {
 }
 
 function copyToClipboardHandler(event, text) {
-    console.log(event)
     copyToClipboard(text);
 }
 
@@ -439,7 +438,7 @@ function copyToClipboard(event) {
     if (event.target.classList.contains('share-modal-copy')) {
         const shareUrl = event.target.dataset.share;
         navigator.clipboard.writeText(shareUrl).then(() => {
-            console.log('Copied to clipboard:', shareUrl);
+            console.debug('Copied to clipboard:', shareUrl);
         }).catch(err => {
             console.error('Failed to copy:', err);
         });
