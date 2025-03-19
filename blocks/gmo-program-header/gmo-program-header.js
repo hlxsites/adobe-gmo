@@ -418,14 +418,24 @@ function shareSearch() {
             ),
             div({ class: 'share-modal-message' }, shareMessage),
             div({ class: 'share-modal-url' }, shareUrl),
+            div({ class: 'share-modal-copy'}, 'Copy to Clipboard'),
         ),
     );
     modalElements.querySelector('.share-modal-close').addEventListener('click', closeShareSearchClickHandler);
     document.body.appendChild(modalElements);
+    copyToClipboard(shareUrl);
 }
 
 function closeShareSearch() {
     document.querySelector('.share-modal-overlay').remove();
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        console.log('Copied to clipboard:', text);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+    });
 }
 
 function sendGmoCampaignListBlockEvent() {
