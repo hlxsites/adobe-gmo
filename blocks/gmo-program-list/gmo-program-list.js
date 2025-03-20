@@ -101,7 +101,6 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
             const filterValue = decodeURIComponent(filterSource);
             graphQLFilter = JSON.parse(filterValue);
         }
-        displayFilterSelections(graphQLFilter);
     }
 
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
@@ -146,6 +145,9 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     togglePaginationButtons();
 
     decorateIcons(block);
+
+    // defer filters processing until nearly everything else is done
+    if (isBack || isShared) displayFilterSelections(graphQLFilter);
 
     hideLoadingOverlay(block);
 
