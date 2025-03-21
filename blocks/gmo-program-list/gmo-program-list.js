@@ -7,7 +7,7 @@ import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
 import { 
     getProductMapping, checkBlankString, statusMapping,
     dateFormat, showLoadingOverlay, hideLoadingOverlay,
-    getFilterCookie, div, span
+    retrieveSearchFilters, div, span,
 } from '../../scripts/shared-program.js'
 
 const headerConfig = [
@@ -75,8 +75,8 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentPage = 1;
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 
-    // save the filter in a cookie
-    createSearchFilterCookie(currentGraphqlFilter);
+    // save the filter in session storage
+    recordSearchFilters(currentGraphqlFilter);
 
     //Trigger loading the gmo-campaign-block
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
@@ -94,13 +94,20 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     // clear the params from the url
     clearURLParams();
 
-    // handle saved/shared search params
+    // Handle saved or shared search params
     if (isBack || isShared) {
-        const filterSource = isBack ? getFilterCookie()?.[1] : params.get('searchFilter');
+        const filterParams = retrieveSearchFilters();
+        let filterSource = isBack ? filterParams : params.get('searchFilter');
+
         if (filterSource) {
-            const filterValue = decodeURIComponent(filterSource);
-            graphQLFilter = JSON.parse(filterValue);
+            try {
+                graphQLFilter = JSON.parse(decodeURIComponent(filterSource));
+            } catch (error) {
+                console.error("Failed to parse search filter:", error);
+            }
         }
+
+        clearStoredSearch(); // Clear stored search after processing
     }
 
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
@@ -605,12 +612,15 @@ function sortColumn(dir, property) {
     });
 }
 
-function createSearchFilterCookie(graphQLFilter) {
-    const date = new Date();
-    date.setTime(date.getTime() + (24 * 60 * 60 * 1000));
-    const expires = `expires=${date.toUTCString()}`;
-    const searchParams = JSON.stringify(graphQLFilter);
-    document.cookie = `MH_PROGRAM_FILTER=${encodeURIComponent(searchParams)}; ${expires}; path=/`;
+function recordSearchFilters(graphQLFilter) {
+    const filterKey = "MH_PROGRAM_FILTER";
+    const filterParams = JSON.stringify(graphQLFilter);
+    sessionStorage.setItem(filterKey, filterParams);
+}
+
+function clearStoredSearch() {
+    const filterKey = "MH_PROGRAM_FILTER";
+    sessionStorage.removeItem(filterKey);
 }
 
 function clearURLParams() {
