@@ -3,7 +3,7 @@ import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlProgramByName } from '../../scripts/graphql.js';
 import { 
     statusMapping, productList, getMappingArray, 
-    getFilterCookie, div, img 
+    retrieveSearchFilters, div, img 
 } from '../../scripts/shared-program.js';
 
 export default async function decorate(block) {
@@ -407,8 +407,7 @@ function copyToClipboardHandler(event, text) {
 }
 
 function shareSearch() {
-    const cookie = getFilterCookie();
-    const filterValue = cookie[1];
+    const filterValue = encodeURIComponent(retrieveSearchFilters());
     const url = window.location.href.replace(/#$/, '');
     const shareUrl = url + '?isShare=true&searchFilter=' + filterValue;
     const shareMessage = `Your share URL is:`;

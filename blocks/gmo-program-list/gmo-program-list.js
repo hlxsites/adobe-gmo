@@ -7,7 +7,7 @@ import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
 import { 
     getProductMapping, checkBlankString, statusMapping,
     dateFormat, showLoadingOverlay, hideLoadingOverlay,
-    div, span,
+    retrieveSearchFilters, div, span,
 } from '../../scripts/shared-program.js'
 
 const headerConfig = [
@@ -616,12 +616,6 @@ function recordSearchFilters(graphQLFilter) {
     const filterKey = "MH_PROGRAM_FILTER";
     const filterParams = JSON.stringify(graphQLFilter);
     sessionStorage.setItem(filterKey, filterParams);
-}
-
-function retrieveSearchFilters() {
-    const filterKey = "MH_PROGRAM_FILTER";
-    const filterParams = sessionStorage.getItem(filterKey);
-    return filterParams ? filterParams : null;
 }
 
 function clearStoredSearch() {
