@@ -75,8 +75,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentPage = 1;
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 
-    // save the filter in a cookie
-    //createSearchFilterCookie(currentGraphqlFilter);
+    // save the filter in session storage
     recordSearchFilters(currentGraphqlFilter);
 
     //Trigger loading the gmo-campaign-block
@@ -95,21 +94,21 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     // clear the params from the url
     clearURLParams();
 
-// Handle saved or shared search params
-if (isBack || isShared) {
-    const filterParams = retrieveSearchFilters();
-    let filterSource = isBack ? filterParams : params.get('searchFilter');
+    // Handle saved or shared search params
+    if (isBack || isShared) {
+        const filterParams = retrieveSearchFilters();
+        let filterSource = isBack ? filterParams : params.get('searchFilter');
 
-    if (filterSource) {
-        try {
-            graphQLFilter = JSON.parse(decodeURIComponent(filterSource));
-        } catch (error) {
-            console.error("Failed to parse search filter:", error);
+        if (filterSource) {
+            try {
+                graphQLFilter = JSON.parse(decodeURIComponent(filterSource));
+            } catch (error) {
+                console.error("Failed to parse search filter:", error);
+            }
         }
-    }
 
-    clearStoredSearch(); // Clear stored search after processing
-}
+        clearStoredSearch(); // Clear stored search after processing
+    }
 
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
