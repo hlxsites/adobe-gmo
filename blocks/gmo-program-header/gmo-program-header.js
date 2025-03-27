@@ -1,7 +1,10 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 //import { graphqlCampaignByName } from '../../scripts/graphql.js';
 import { graphqlProgramByName } from '../../scripts/graphql.js';
-import { statusMapping, productList, getMappingArray } from '../../scripts/shared-program.js';
+import { 
+    statusMapping, productList, getMappingArray, 
+    retrieveSearchFilters, div, img 
+} from '../../scripts/shared-program.js';
 
 export default async function decorate(block) {
     block.innerHTML = `
@@ -68,7 +71,11 @@ export default async function decorate(block) {
     <div class="selections-wrapper">
         <div class="selected-filters-list">
         </div>
-        <div class="reset-filters inactive">Reset filters</div>
+        <div class="right-controls-wrapper">
+            <div class="share-search inactive">Share search</div>
+            <div class="reset-filters inactive">Reset filters</div>
+        </div>
+
     </div>
     <span class="icon icon-close inactive"></span>
     `;
@@ -170,6 +177,10 @@ function attachEventListeners() {
     if (resetFiltersBtn) {
         resetFiltersBtn.addEventListener('click', resetFiltersClickHandler);
     }
+    const shareSearchBtn = document.querySelector('.share-search');
+    if (shareSearchBtn) {
+        shareSearchBtn.addEventListener('click', shareSearchClickHandler);
+    }
 }
 
 function populateDropdown(response, dropdownId, type) {
@@ -249,7 +260,7 @@ function toggleDropdown(element) {
     dropdown.classList.toggle('active');
 }
 
-function toggleOption(optionValue, optionType) {
+export function toggleOption(optionValue, optionType) {
     const currentlySelected = document.querySelector(`.dropoption.selected[data-type='${optionType}']`);
     if (currentlySelected && currentlySelected.dataset.value !== optionValue) {
         currentlySelected.classList.remove('selected'); // Remove the 'selected' class from the previously selected option
@@ -343,10 +354,13 @@ function resetProductsDropDown(){
 function checkResetBtn() {
     const selectedOptions = document.querySelectorAll('.dropoption.selected');
     const resetFiltersBtn = document.querySelector('.reset-filters');
+    const shareSearchBtn = document.querySelector('.share-search');
     if (selectedOptions.length > 0) {
         if (resetFiltersBtn.classList.contains('inactive')) resetFiltersBtn.classList.remove('inactive');
+        if (shareSearchBtn.classList.contains('inactive')) shareSearchBtn.classList.remove('inactive');
     } else {
         resetFiltersBtn.classList.add('inactive');
+        shareSearchBtn.classList.add('inactive');
     }
 }
 
@@ -378,6 +392,57 @@ function removeEventListeners() {
 
 function resetFiltersClickHandler() {
     resetAllFilters();
+}
+
+function shareSearchClickHandler() {
+    shareSearch();
+}
+
+function closeShareSearchClickHandler(event) {
+    closeShareSearch();
+}
+
+function copyToClipboardHandler(event, text) {
+    copyToClipboard(text);
+}
+
+function shareSearch() {
+    const filterValue = encodeURIComponent(retrieveSearchFilters());
+    const url = window.location.href.replace(/#$/, '');
+    const shareUrl = url + '?isShare=true&searchFilter=' + filterValue;
+    const shareMessage = `Your share URL is:`;
+
+    const modalElements = div(
+        { class: 'share-modal-overlay' },
+        div({ class: 'share-modal' },
+            div(
+                { class: 'share-modal-close' },
+                img({ src: '../icons/close.svg'})
+            ),
+            div({ class: 'share-modal-message' }, shareMessage),
+            div({ class: 'share-modal-url' }, shareUrl),
+            div({ class: 'share-modal-copy', 'data-share': shareUrl}, 'Copy to Clipboard'),
+        ),
+    );
+    modalElements.querySelector('.share-modal-close').addEventListener('click', function(event) { closeShareSearchClickHandler(event) });
+    modalElements.querySelector('.share-modal-copy').addEventListener('click', function(event) { copyToClipboard(event) });
+    document.body.appendChild(modalElements);
+}
+
+function closeShareSearch() {
+    document.querySelector('.share-modal-overlay').remove();
+}
+
+function copyToClipboard(event) {
+    if (event.target.classList.contains('share-modal-copy')) {
+        const shareUrl = event.target.dataset.share;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            console.debug('Copied to clipboard:', shareUrl);
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+        });
+    }
+
 }
 
 function sendGmoCampaignListBlockEvent() {

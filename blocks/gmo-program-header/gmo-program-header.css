@@ -154,11 +154,20 @@
             }
         }
     }
-    & > .reset-filters {
-        font: normal normal normal 14px/17px Adobe Clean;
-        &.inactive {
-            display: none;
-            visibility: hidden;
+    & > .right-controls-wrapper {
+        display: flex;
+        & > .reset-filters, .share-search {
+            font: normal normal normal 12px/15px Adobe Clean;
+            background: #FFFFFF;
+            border: 1px solid #959595;
+            border-radius: 4px;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 7px 0 7px;
+            &.inactive {
+                display: none;
+                visibility: hidden;
+            }
         }
     }
 }
@@ -196,4 +205,56 @@
 
 .autocomplete-items div:last-child {
     border-bottom: none;
+}
+
+.share-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgb(247, 246, 246);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    max-width: 600px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 14px;
+    overflow-wrap: anywhere;
+}
+.share-modal-close {
+    position: absolute;
+    top: 4%;
+    right: 1.25%;
+    cursor: pointer;
+}
+
+.share-modal-message {
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 4px;
+}
+
+.share-modal-url {
+    font-size: 12px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid black;
+    margin-bottom: 20px;
+}
+
+.share-modal-copy {
+    margin:auto;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: rgb(20, 115, 230);
+    color: white;
+    width: fit-content;
+    border-radius: 9px;
+    padding: 4px 14px;
+
+    &:hover {
+        background-color: rgb(13, 102, 208);
+        cursor: pointer;
+    }
 }

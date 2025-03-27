@@ -845,7 +845,6 @@ body {
         flex-direction: column;
         .collection-link {
             display: block;
-            white-space: nowrap;
         }
     }
 }
@@ -908,6 +907,7 @@ body {
         top: 0;
         & > .showhide-deliverables {
             margin-left: 10px;
+            margin-right: 5px;
         }
     }
 }
@@ -1066,7 +1066,11 @@ body {
 }
 
 .header.column1 {
-    margin-left: 16px;
+    margin-left: 12px;
+}
+
+.header.column5 {
+    margin-right: 42px;
 }
 
 .column3 {
@@ -1074,7 +1078,7 @@ body {
 }
 
 .column4 {
-    width: 110px;
+    width: 90px;
     margin-right: 40px;
 }
 
@@ -1106,9 +1110,13 @@ body {
     line-height: 1.2;
 }
 
+.column10 {
+    width: 120px;
+}
+
 .table-column {
     &:not(:last-child) {
-        margin-right: 45px;
+        margin-right: 30px;
     }
 }
 

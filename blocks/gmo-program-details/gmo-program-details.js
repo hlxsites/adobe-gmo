@@ -168,6 +168,7 @@ export default async function decorate(block) {
                 div({ class: 'header table-column column4' }, 'QA Files'),
                 div({ class: 'header table-column column5' }, 'Approved Collection Link(s)'),
                 div({ class: 'header table-column column7' }, 'Status Update'),
+                div({ class: 'header table-column column10' }, 'Task Status'),
                 div({ class: 'header table-column column8' }, 'Completion Date'),
                 div({ class: 'header table-column column9' }, 'Task Owner'),               
             ),
@@ -516,7 +517,7 @@ function enableBackBtn(block, blockConfig) {
     block.querySelector('.back-button').addEventListener('click', () => {
         const host = location.origin + getBaseConfigPath();
         const listPage = blockConfig.listpage;
-        document.location.href = host + `/${listPage}`;
+        document.location.href = host + `/${listPage}?isBack=true`;
     })
 }
 
@@ -1010,6 +1011,7 @@ async function buildTableRow(deliverable, createHidden) {
                 ),
             )
         ),
+        div({ class: 'property table-column column10' }, checkBlankString(deliverable.taskStatus)),
         div({ class: 'property table-column column8 date-wrapper' },
             div({ class: 'completion-date' }, dateFormat(deliverable.taskCompletionDate)),
             deliverable.previousTaskCompletionDate
@@ -1062,8 +1064,8 @@ function createAssetLink(deliverable) {
 
 function parseCollectionName(rawString) {
     const collectionName = rawString;
-    const maxLength = 73;
-    const charsToShow = 34;
+    const maxLength = 67;
+    const charsToShow = 28;
     
     if (collectionName.length > maxLength) {
         const truncatedString = collectionName.slice(0, charsToShow) + "[...]" + collectionName.slice(-charsToShow);
@@ -1158,7 +1160,7 @@ function attachListener(htmlElement) {
 
 function extractQueryVars() {
     const urlStr = window.location.href;
-    const pnRegex = /[?&]programName=([^&]+)&programID=([^&]+)(&path=([^&]+))?/;
+    const pnRegex = /[?&]programName=([^&]+)&programID=([^&]+)(&path=([^&#]+))?/;
     const match = urlStr.match(pnRegex);
     if (match && match[1] && match[2]) {
         const pName = decodeURIComponent(match[1]); // Removed the replace method

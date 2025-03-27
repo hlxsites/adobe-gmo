@@ -1,9 +1,14 @@
 import { readBlockConfig } from '../../scripts/lib-franklin.js';
 import { decorateIcons } from '../../scripts/lib-franklin.js';
 import { graphqlAllCampaignsFilter, graphqlCampaignCount, generateFilterJSON } from '../../scripts/graphql.js';
-import { getProductMapping, checkBlankString, statusMapping, dateFormat, showLoadingOverlay, hideLoadingOverlay } from '../../scripts/shared-program.js'
 import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
+import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
+import { 
+    getProductMapping, checkBlankString, statusMapping,
+    dateFormat, showLoadingOverlay, hideLoadingOverlay,
+    retrieveSearchFilters, div, span,
+} from '../../scripts/shared-program.js'
 
 const headerConfig = [
     {
@@ -39,7 +44,6 @@ const headerConfig = [
 ]
 
 const DEFAULT_ITEMS_PER_PAGE = 8;
-//const programStatusMapping = statusMapping;
 //Global variables used by helper functions
 let currentPageInfo = {};
 let cursorArray = [];
@@ -70,6 +74,10 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     cursorArray = [];
     currentPage = 1;
     currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
+
+    // save the filter in session storage
+    recordSearchFilters(currentGraphqlFilter);
+
     //Trigger loading the gmo-campaign-block
     decorate( block, currentNumberPerPage, '', false, false, currentGraphqlFilter);
 });
@@ -77,6 +85,31 @@ document.addEventListener('gmoCampaignListBlock', async function() {
 export default async function decorate(block, numPerPage = currentNumberPerPage, cursor = '', previousPage = false, nextPage = false, graphQLFilter = {}) {
     showLoadingOverlay(block);
     if (blockConfig == undefined) blockConfig = readBlockConfig(block);
+
+    // check if this was a 'back' from details. if so, retrieve search params from cookie
+    const params = new URLSearchParams(window.location.search);
+    const isBack = params.get('isBack');
+    const isShared = params.get('isShare');
+
+    // clear the params from the url
+    clearURLParams();
+
+    // Handle saved or shared search params
+    if (isBack || isShared) {
+        const filterParams = retrieveSearchFilters();
+        let filterSource = isBack ? filterParams : params.get('searchFilter');
+
+        if (filterSource) {
+            try {
+                graphQLFilter = JSON.parse(decodeURIComponent(filterSource));
+            } catch (error) {
+                console.error("Failed to parse search filter:", error);
+            }
+        }
+
+        clearStoredSearch(); // Clear stored search after processing
+    }
+
     const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
@@ -120,6 +153,9 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
 
     decorateIcons(block);
 
+    // defer filters processing until nearly everything else is done
+    if (isBack || isShared) displayFilterSelections(graphQLFilter);
+
     hideLoadingOverlay(block);
 
     // Lazy loading for images
@@ -142,18 +178,42 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
 }
 
 function togglePaginationButtons() {
+    waitForElements('.footer-pagination-button', (footerPrev, footerNext) => {
+        if (!footerPrev || !footerNext) return;
+
+        if (currentPage > 1) {
+            footerPrev.classList.add('active');
+        } else {
+            footerPrev.classList.remove('active');
+        }
+
+        if (currentPage < totalPages) {
+            footerNext.classList.add('active');
+        } else {
+            footerNext.classList.remove('active');
+        }
+    });
+}
+
+function waitForElements(selector, callback) {
+    const observer = new MutationObserver(() => {
+        const footerPrev = document.querySelector('.footer-pagination-button.prev');
+        const footerNext = document.querySelector('.footer-pagination-button.next');
+
+        if (footerPrev && footerNext) {
+            observer.disconnect(); // Stop observing once elements are found
+            callback(footerPrev, footerNext);
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Also check immediately in case elements already exist
     const footerPrev = document.querySelector('.footer-pagination-button.prev');
     const footerNext = document.querySelector('.footer-pagination-button.next');
-    if (currentPage > 1) {
-        footerPrev.classList.add('active');
-    } else {
-        footerPrev.classList.remove('active');
-    }
-
-    if (currentPage < totalPages) {
-        footerNext.classList.add('active');
-    } else {
-        footerNext.classList.remove('active');
+    if (footerPrev && footerNext) {
+        observer.disconnect();
+        callback(footerPrev, footerNext);
     }
 }
 
@@ -550,4 +610,30 @@ function sortColumn(dir, property) {
     sortArray.forEach(({ row }, index) => {
         container.appendChild(row);
     });
+}
+
+function recordSearchFilters(graphQLFilter) {
+    const filterKey = "MH_PROGRAM_FILTER";
+    const filterParams = JSON.stringify(graphQLFilter);
+    sessionStorage.setItem(filterKey, filterParams);
+}
+
+function clearStoredSearch() {
+    const filterKey = "MH_PROGRAM_FILTER";
+    sessionStorage.removeItem(filterKey);
+}
+
+function clearURLParams() {
+    const currentUrl = window.location.href;
+    const baseUrl = currentUrl.split('?')[0];
+    history.replaceState(null, '', baseUrl);
+}
+
+function displayFilterSelections(filterObj) {
+    for (const key in filterObj) {
+        if (filterObj[key]._expressions && Array.isArray(filterObj[key]._expressions)) {
+            const value = filterObj[key]._expressions[0].value;
+            toggleOption(value, key);
+        }
+    }
 }
