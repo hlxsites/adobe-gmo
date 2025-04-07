@@ -1112,6 +1112,13 @@ body {
 
 .column10 {
     width: 120px;
+    text-align: center;
+}
+
+.column10.property {
+    filter: saturate(0.5);
+    border-radius: 4px;
+    font-weight: bold;
 }
 
 .table-column {

@@ -4,14 +4,13 @@ import { getBaseConfigPath } from '../../scripts/site-config.js';
 import { searchAsset } from '../../scripts/assets.js';
 import { 
     filterArray, getProductMapping, checkBlankString,
-    dateFormat, statusMapping, getMappingArray,
-    showLoadingOverlay, hideLoadingOverlay, div,
-    span, img, a
+    dateFormat, getMappingArray, showLoadingOverlay,
+    hideLoadingOverlay, div, span, img, a
 } from '../../scripts/shared-program.js';
 
 
 let blockConfig;
-let deliverableMappings, platformMappings, taskStatusMappings;
+let deliverableMappings, platformMappings, taskStatusMappings, statusMappings;
 const queryVars = extractQueryVars();
 const programName = queryVars.programName;
 const programID = queryVars.programID;
@@ -241,6 +240,7 @@ async function addProgramStats(block) {
     deliverableMappings = getMappingArray('deliverableType');
     platformMappings = getMappingArray('platforms');
     taskStatusMappings = getMappingArray('taskStatus');
+    statusMappings = getMappingArray('status');
 
     // main program data
     const encodedSemi = encodeURIComponent(';');
@@ -841,7 +841,8 @@ function buildArtifactLinks(program) {
 }
 
 async function buildStatus(status) {
-    const statusMatch = filterArray(await statusMapping, 'value', status);
+    const statusMatch = filterArray(await statusMappings, 'value', status);
+    console.log(statusMatch);
     const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
     const statusDiv = div({ class: 'campaign-status', style: `background-color: #${statusHex}`}, statusText);
@@ -982,6 +983,8 @@ async function buildTableRow(deliverable, createHidden) {
     const assetLinks = createAssetLink(deliverable);
     const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
     const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
+    const taskStatusInfo = (deliverable.taskStatus == null) ? null : filterArray(await statusMappings, 'value', deliverable.taskStatus);
+    const taskStatus = taskStatusInfo ? taskStatusInfo[0].text : checkBlankString(deliverable.taskStatus);
 
     const dataRowDiv = div(
         { class: 'row datarow' },
@@ -1011,7 +1014,8 @@ async function buildTableRow(deliverable, createHidden) {
                 ),
             )
         ),
-        div({ class: 'property table-column column10' }, checkBlankString(deliverable.taskStatus)),
+        div({ class: 'property table-column column10', style: `${taskStatusInfo ? 'background-color: #' +
+            taskStatusInfo[0]['color-code'] : ''}` }, taskStatus),
         div({ class: 'property table-column column8 date-wrapper' },
             div({ class: 'completion-date' }, dateFormat(deliverable.taskCompletionDate)),
             deliverable.previousTaskCompletionDate
