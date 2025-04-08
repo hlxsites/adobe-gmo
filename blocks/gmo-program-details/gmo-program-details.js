@@ -842,7 +842,6 @@ function buildArtifactLinks(program) {
 
 async function buildStatus(status) {
     const statusMatch = filterArray(await statusMappings, 'value', status);
-    console.log(statusMatch);
     const statusText = statusMatch ? statusMatch[0].text : status;
     const statusHex = statusMatch[0]["color-code"];
     const statusDiv = div({ class: 'campaign-status', style: `background-color: #${statusHex}`}, statusText);
