@@ -982,8 +982,8 @@ async function buildTableRow(deliverable, createHidden) {
     const assetLinks = createAssetLink(deliverable);
     const status = (deliverable.deliverableStatusUpdate == null) ? "Not Available" : deliverable.deliverableStatusUpdate + "%";
     const statusPct = (deliverable.deliverableStatusUpdate == null) ? "0%" : deliverable.deliverableStatusUpdate + "%";
-    const taskStatusInfo = (deliverable.taskStatus == null) ? null : filterArray(await statusMappings, 'value', deliverable.taskStatus);
-    const taskStatus = taskStatusInfo ? taskStatusInfo[0].text : checkBlankString(deliverable.taskStatus);
+    const taskStatusInfo = await getTaskStatusMapping(deliverable.taskStatus);
+    const taskStatus = taskStatusInfo ? taskStatusInfo.text : checkBlankString(deliverable.taskStatus);
 
     const dataRowDiv = div(
         { class: 'row datarow' },
@@ -1013,8 +1013,8 @@ async function buildTableRow(deliverable, createHidden) {
                 ),
             )
         ),
-        div({ class: 'property table-column column10', style: `${taskStatusInfo ? 'background-color: #' +
-            taskStatusInfo[0]['color-code'] : ''}` }, taskStatus),
+        div({ class: 'property table-column column10', style: `${taskStatusInfo ? 'border-color: #' +
+            taskStatusInfo['color-code'] : ''}` }, taskStatus),
         div({ class: 'property table-column column8 date-wrapper' },
             div({ class: 'completion-date' }, dateFormat(deliverable.taskCompletionDate)),
             deliverable.previousTaskCompletionDate
