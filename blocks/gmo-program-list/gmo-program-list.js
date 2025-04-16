@@ -64,7 +64,12 @@ document.addEventListener('gmoCampaignListBlock', async function() {
       graphQLFilterArray.push({type:'programName', value:searchInputValue, operator:'='})
     }
 
+    // add param to filter out test projects
+    graphQLFilterArray.push({ type: 'projectUse', value: 'Test', operator : 'EQUALS_NOT' });
+    graphQLFilterArray.push({ type: 'projectUse', value: 'Demo', operator : 'EQUALS_NOT' });
+
     currentGraphqlFilter= generateFilterJSON(graphQLFilterArray);
+    //console.log(currentGraphqlFilter);
     const block = document.querySelector('.gmo-program-list.block');
     //Get Campaign Count for pagination
     campaignCount = graphqlCampaignCount(currentGraphqlFilter);
@@ -108,9 +113,24 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
         }
 
         clearStoredSearch(); // Clear stored search after processing
+    } else {
+        console.log('Not shared/back')
+        console.log(graphQLFilter);
+        console.log(Object.keys(graphQLFilter).length === 0);
+        if (Object.keys(graphQLFilter).length === 0) {
+            //graphQLFilterArray.push({ type: 'projectUse', value: 'Test', operator : 'EQUALS_NOT' });
+            //graphQLFilterArray.push({ type: 'projectUse', value: 'Demo', operator : 'EQUALS_NOT' });
+            graphQLFilter['projectUse'] = { _expressions: [] }
+            graphQLFilter['projectUse']._expressions.push({ value: 'Test', _operator: 'EQUALS_NOT', _ignoreCase: true });
+            graphQLFilter['projectUse']._expressions.push({ value: 'Demo', _operator: 'EQUALS_NOT', _ignoreCase: true });
+            //const expression = { value: 'Test', _operator: 'EQUALS_NOT', _ignoreCase: true }
+        }
+        // add 'projectUse' param to filter test projects
+        //graphQLFilter.push({ type: 'projectUse', value: 'Prod', operator : '=' });
+        //graphQLFilter.push({ type: 'projectUse', value: 'Test', operator : 'EQUALS_NOT' });
     }
 
-    const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
+    const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor, graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
     //Current cursor used in previous page logic

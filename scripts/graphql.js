@@ -40,11 +40,13 @@ export function graphqlCampaignCount(filter = {}) {
 }
 
 export async function graphqlAllCampaignsFilter(first,cursor,filter) {
+  if (filter) console.log(filter);
   const queryName = 'getAllCampaigns';
   const encodedFirst = encodeURIComponent(first);
   const encodedSemiColon = encodeURIComponent(';');
   const encodedCursor = encodeURIComponent(cursor);
   const encodedFilter = encodeURIComponent(JSON.stringify(filter));
+  console.log(encodedFilter);
   const graphqlEndpoint = `${baseApiUrl}/${projectId}/${queryName}${encodedSemiColon}first=${encodedFirst}${encodedSemiColon}cursor=${encodedCursor}${encodedSemiColon}filter=${encodedFilter}`;
   //Performance logging
   const startTime = performance.now();
@@ -159,6 +161,11 @@ export function generateFilterJSON(filterParams) {
       if (param.operator === "CONTAINS") {
           expression._operator = "CONTAINS";
           expression._ignoreCase = true;
+      }
+      // handle not-equal operator (!==)
+      if (param.operator === "EQUALS_NOT") {
+        expression._operator = "EQUALS_NOT";
+        expression._ignoreCase = true;
       }
 
       // Add the expression object to the _expressions array for the corresponding parameter name
