@@ -52,10 +52,7 @@ let currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 let currentGraphqlFilter = {};
 let totalPages = 0;
 //Get Campaign Count for pagination
-let baseFilterArray = {}; 
-baseFilterArray['projectUse'] = { _logOp: 'OR', _expressions: [] }
-baseFilterArray['projectUse']._expressions.push({ value: null, _operator: 'EQUALS', _ignoreCase: true });
-baseFilterArray['projectUse']._expressions.push({ value: 'Prod', _operator: 'EQUALS', _ignoreCase: true });
+let baseFilterArray = addProjectUseFilter({}); 
 let campaignCount = graphqlCampaignCount(baseFilterArray);
 let blockConfig;
 
@@ -71,9 +68,7 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     currentGraphqlFilter= generateFilterJSON(graphQLFilterArray);
 
     // add projectUse filter to filter non-prod projects
-    currentGraphqlFilter['projectUse'] = { _logOp: 'OR', _expressions: [] }
-    currentGraphqlFilter['projectUse']._expressions.push({ value: null, _operator: 'EQUALS', _ignoreCase: true });
-    currentGraphqlFilter['projectUse']._expressions.push({ value: 'Prod', _operator: 'EQUALS', _ignoreCase: true });
+    currentGraphqlFilter = addProjectUseFilter(currentGraphqlFilter);
 
     const block = document.querySelector('.gmo-program-list.block');
     //Get Campaign Count for pagination
@@ -653,4 +648,11 @@ function displayFilterSelections(filterObj) {
             toggleOption(value, key);
         }
     }
+}
+
+function addProjectUseFilter(filterArray = {}) {
+    filterArray['projectUse'] = { _logOp: 'OR', _expressions: [] }
+    filterArray['projectUse']._expressions.push({ value: null, _operator: 'EQUALS', _ignoreCase: true });
+    filterArray['projectUse']._expressions.push({ value: 'Prod', _operator: 'EQUALS', _ignoreCase: true });
+    return filterArray;
 }
