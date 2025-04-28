@@ -160,6 +160,11 @@ export function generateFilterJSON(filterParams) {
           expression._operator = "CONTAINS";
           expression._ignoreCase = true;
       }
+      // handle not-equal operator (!==)
+      if (param.operator === "EQUALS_NOT") {
+        expression._operator = "EQUALS_NOT";
+        expression._ignoreCase = true;
+      }
 
       // Add the expression object to the _expressions array for the corresponding parameter name
       result[param.type]._expressions.push(expression);

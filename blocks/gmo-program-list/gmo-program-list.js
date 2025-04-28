@@ -52,7 +52,8 @@ let currentNumberPerPage = DEFAULT_ITEMS_PER_PAGE;
 let currentGraphqlFilter = {};
 let totalPages = 0;
 //Get Campaign Count for pagination
-let campaignCount = graphqlCampaignCount();
+let baseFilterArray = addProjectUseFilter({}); 
+let campaignCount = graphqlCampaignCount(baseFilterArray);
 let blockConfig;
 
 document.addEventListener('gmoCampaignListBlock', async function() {
@@ -65,6 +66,10 @@ document.addEventListener('gmoCampaignListBlock', async function() {
     }
 
     currentGraphqlFilter= generateFilterJSON(graphQLFilterArray);
+
+    // add projectUse filter to filter non-prod projects
+    currentGraphqlFilter = addProjectUseFilter(currentGraphqlFilter);
+
     const block = document.querySelector('.gmo-program-list.block');
     //Get Campaign Count for pagination
     campaignCount = graphqlCampaignCount(currentGraphqlFilter);
@@ -108,9 +113,16 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
         }
 
         clearStoredSearch(); // Clear stored search after processing
+    } else {
+        if (Object.keys(graphQLFilter).length === 0) {
+            // add 'projectUse' param to filter test projects
+            graphQLFilter['projectUse'] = { _logOp: 'OR', _expressions: [] }
+            graphQLFilter['projectUse']._expressions.push({ value: null, _operator: 'EQUALS', _ignoreCase: true });
+            graphQLFilter['projectUse']._expressions.push({ value: 'Prod', _operator: 'EQUALS', _ignoreCase: true });
+        }
     }
 
-    const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor,graphQLFilter);
+    const campaignPaginatedResponse = await graphqlAllCampaignsFilter(numPerPage, cursor, graphQLFilter);
     const campaigns = campaignPaginatedResponse.data.programPaginated.edges;
     currentPageInfo = campaignPaginatedResponse.data.programPaginated.pageInfo;
     //Current cursor used in previous page logic
@@ -636,4 +648,11 @@ function displayFilterSelections(filterObj) {
             toggleOption(value, key);
         }
     }
+}
+
+function addProjectUseFilter(filterArray = {}) {
+    filterArray['projectUse'] = { _logOp: 'OR', _expressions: [] }
+    filterArray['projectUse']._expressions.push({ value: null, _operator: 'EQUALS', _ignoreCase: true });
+    filterArray['projectUse']._expressions.push({ value: 'Prod', _operator: 'EQUALS', _ignoreCase: true });
+    return filterArray;
 }
