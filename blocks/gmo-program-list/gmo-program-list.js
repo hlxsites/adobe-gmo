@@ -7,7 +7,7 @@ import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
 import { 
     getProductMapping, checkBlankString, statusMapping,
     dateFormat, showLoadingOverlay, hideLoadingOverlay,
-    retrieveSearchFilters, div, span,
+    retrieveSearchFilters, div, span, img,
 } from '../../scripts/shared-program.js'
 
 const headerConfig = [
@@ -148,14 +148,18 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     // Calculate total number of pages
     totalPages = Math.ceil(await campaignCount / currentNumberPerPage);
 
+    // refactor
     const listHeaders = buildListHeaders(headerConfig);
+    // refactor
     const listItems = buildCampaignList(campaigns, numPerPage);
+    // refactor
     const listFooter = buildListFooter(await campaignCount, numPerPage);
 
-    block.innerHTML = `
-        <div class="refresh-notification"></div>
-        <div class="list-container">
-        </div>`;
+    const blockHTML = div(
+        div({ class: 'refresh-notification' }),
+        div({ class: 'list-container' }),
+    );
+    block.innerHTML = blockHTML.innerHTML;
     const listContainer = block.querySelector('.list-container');
     listContainer.appendChild(listHeaders);
     listContainer.appendChild(await listItems);
@@ -380,56 +384,40 @@ async function addThumbnail(parentElement, programName, campaignName) {
 }
 
 async function buildProduct(product) {
-    const productParent = document.createElement('div');
     const productMapping = await getProductMapping(product);
-    const productEl = document.createElement('div');
-    productEl.classList.add('product-entry');
-    productEl.innerHTML = `
-        <img class='icon' src=${productMapping.icon}></img>
-        <span class='product-label'>${productMapping.label}</span>
-    `;
-    productParent.appendChild(productEl);
-    return productParent;
+    const productEl = div(
+        div( 
+            { class: 'product-entry' },
+            img( { class: 'icon', src: productMapping.icon }),
+            span( { class: 'product-label'}, productMapping.label ),
+        )
+    );
+    return productEl;
 }
 
 function buildListHeaders(headerConfig) {
     const config = headerConfig;
-    const listHeaders = document.createElement('div');
-    listHeaders.classList.add('list-header');
+    const listHeaders = div({ class: 'list-header'});
     let columnCounter = 1;
+
     config.forEach((column)  => {
-        const columnWrapper = document.createElement('div');
-        columnWrapper.classList.add('column-header-wrapper');
-        columnWrapper.classList.add(`column-${columnCounter}`);
-        const columnEl = document.createElement('div');
-        columnEl.classList.add('column-label');
-        columnEl.dataset.sortable = column.sortable;
-        columnEl.dataset.attribute = column.attribute;
-        columnEl.dataset.name = column.name;
-        columnEl.textContent = column.name;
+        const columnWrapper = div(
+            { class: `column-header-wrapper column-${columnCounter}`},
+            div( { class: 'column-label', 'data-sortable': column.sortable, 'data-attribute': column.attribute,
+                    'data-name': column.name }, column.name
+            ),
+        );
 
         columnCounter++;
-        columnWrapper.appendChild(columnEl);
         //sorting
         if (column.sortable) {
-            const columnSort = document.createElement('div');
-            columnSort.classList.add('column-sort-wrapper');
-            const columnSortAsc = document.createElement('img');
-            columnSortAsc.classList.add('column-sort-asc', 'icon');
-            columnSortAsc.src = '/icons/chevronUp.svg';
-            columnSortAsc.title = 'Sort (Ascending)'
-            columnSortAsc.addEventListener('click', () => {
-                sortColumn('asc', column.attribute);
-            })
-            const columnSortDesc = document.createElement('img');
-            columnSortDesc.classList.add('column-sort-desc', 'icon');
-            columnSortDesc.src = '/icons/chevronDown.svg';
-            columnSortDesc.title = 'Sort (Descending)';
-            columnSortDesc.addEventListener('click', () => {
-                sortColumn('desc', column.attribute);
-            })
-            columnSort.appendChild(columnSortAsc);
-            columnSort.appendChild(columnSortDesc);
+            const columnSort = div(
+                { class: 'column-sort-wrapper'},
+                img({ class: 'column-sort-asc icon', src: '/icons/chevronUp.svg', title: 'Sort (Ascending)', 
+                    onclick: () => { sortColumn('asc', column.attribute) } }),
+                img({ class: 'column-sort-desc icon', src: '/icons/chevronDown.svg', title: 'Sort (Descending)', 
+                    onclick: () => { sortColumn('desc', column.attribute) } }),
+            );
             columnWrapper.appendChild(columnSort);
         }
         //end sorting
