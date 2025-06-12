@@ -7,7 +7,7 @@ import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
 import { 
     getProductMapping, checkBlankString, statusMapping,
     dateFormat, showLoadingOverlay, hideLoadingOverlay,
-    retrieveSearchFilters, div, span, img,
+    retrieveSearchFilters, div, span, img, select, option
 } from '../../scripts/shared-program.js'
 
 const headerConfig = [
@@ -429,98 +429,61 @@ function buildListHeaders(headerConfig) {
 function buildListFooter(rows, rowsPerPage) {
     const pages = Math.ceil(rows / rowsPerPage);
     totalPages = pages;
-    const footerWrapper = document.createElement('div');
-    footerWrapper.classList.add('list-footer', 'footer-wrapper');
-    footerWrapper.dataset.pages = pages;
-    const footerTotal = document.createElement('div');
+    const footerWrapper = div(
+        { class: 'list-footer footer-wrapper', 'data-pages': pages },
+        div({ class: 'footer-total' }, `Page ${currentPage} of ${pages} -- ${rows} total results`),
+        div(
+            { class: 'footer-pagination' },
+            div({ class: 'footer-pagination-button prev' }, 'Prev'),
+            div(
+                { class: 'footer-pages-wrapper' },
+                div({ class: 'footer-pagination-pages currentpage', id: 'current-page', 'data-pagenumber': currentPage},  currentPage)
+            ),
+            div({ class: 'footer-pagination-button next' }, 'Next')
+        ),
+        div({ class: 'footer-perPage' },
+            div({ class: 'footer-perPage-label' }, 'Per Page'),
+            div(
+                { class: 'footer-perPage-dropdown' },
+                select(
+                    { id: 'per-page' },
+                    option({ value: 8 }, '8'),
+                    option({ value: 16 }, '16'),
+                    option({ value: 32 }, '32'),
+                    option({ value: 48 }, '48'),
+                    option({ value: 64 }, '64'),
+                    option({ value: 80 }, '80'),
+                )
+            )
+        ),
+    );
 
-    footerTotal.textContent = `Page ${currentPage} of ${pages} -- ${rows} total results`;
-    footerTotal.classList.add('footer-total');
-
-    // pagination
-    const footerPagination = document.createElement('div');
-    footerPagination.classList.add('footer-pagination');
-    const footerPrev = document.createElement('div');
-    footerPrev.classList.add('footer-pagination-button', 'prev');
-    footerPrev.textContent = 'Prev';
-
-    footerPrev.addEventListener('click', (event) => {
+    // add event listeners
+    footerWrapper.querySelector('.footer-pagination-button.prev').addEventListener('click', (event) => {
         // Disable the button
         footerPrev.classList.remove('active');
         footerPrev.classList.add('disabled');
         prevPage(event.target);
     });
-
-    const footerPageBtnsWrapper = document.createElement('div');
-    footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
-    const footerNext = document.createElement('div');
-    footerNext.classList.add('footer-pagination-button', 'next');
-    //Show current page
-    buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
-
-    footerNext.addEventListener('click', (event) => {
+    footerWrapper.querySelector('.footer-pagination-button.next').addEventListener('click', (event) => {
         // Disable the button
         footerNext.classList.remove('active');
         footerNext.classList.add('disabled');
         nextPage(event.target);
     });
 
-    footerNext.textContent = 'Next';
-    footerPagination.appendChild(footerPrev);
-    footerPagination.appendChild(footerPageBtnsWrapper);
-    footerPagination.appendChild(footerNext);
-    // end pagination
+    footerWrapper.querySelector('.footer-perPage-dropdown').addEventListener('change', (event) => {
+        repaginate(event.target);
+    });
 
-    // per-page controls
-    const footerPerPage = document.createElement('div');
-    footerPerPage.classList.add('footer-perPage');
-    const footerPerPageLabel = document.createElement('div');
-    footerPerPageLabel.textContent = 'Per Page';
-    footerPerPageLabel.classList.add('footer-perPage-label');
-    const footerPerPageDropdownWrapper = document.createElement('div');
-    const footerPerPageDropdown = document.createElement('select');
-    footerPerPageDropdown.id = 'per-page';
-    footerPerPageDropdown.innerHTML = `
-        <option value="8">8</option>
-        <option value="16">16</option>
-        <option value="32">32</option>
-        <option value="48">48</option>
-        <option value="64">64</option>
-        <option value="80">80</option>
-    `;
-
-    // Selecting the item based on the value of currentNumberPerPage
-    var options = footerPerPageDropdown.querySelectorAll('option');
+    // display currently selected option
+    var options = footerWrapper.querySelectorAll('option');
     options.forEach(option => {
         if (option.value === currentNumberPerPage.toString()) {
             option.selected = true;
         }
     });
-
-    footerPerPageDropdown.addEventListener('change', (event) => {
-        repaginate(event.target);
-    });
-    footerPerPageDropdownWrapper.appendChild(footerPerPageDropdown);
-    footerPerPageDropdownWrapper.classList.add('footer-perPage-dropdown');
-    footerPerPage.appendChild(footerPerPageLabel);
-    footerPerPage.appendChild(footerPerPageDropdownWrapper);
-    // end per-page controls
-
-    footerWrapper.appendChild(footerTotal);
-    footerWrapper.appendChild(footerPagination);
-    footerWrapper.appendChild(footerPerPage);
     return footerWrapper;
-}
-
-//Show current page
-function buildCurrentPageDivElement(pageNumber,footerPageBtnsWrapper)
-{
-     const footerPageBtn = document.createElement('div');
-     footerPageBtn.classList.add('footer-pagination-pages', 'currentpage');
-     footerPageBtn.id = "current-page";
-     footerPageBtn.textContent = pageNumber;
-     footerPageBtn.dataset.pagenumber = pageNumber;
-     footerPageBtnsWrapper.appendChild(footerPageBtn);
 }
 
 function repaginate(dropdown) {

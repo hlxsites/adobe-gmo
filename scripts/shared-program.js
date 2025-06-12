@@ -165,3 +165,5 @@ export function div(...items) { return domEl('div', ...items); }
 export function span(...items) { return domEl('span', ...items); }
 export function img(...items) { return domEl('img', ...items); }
 export function a(...items) { return domEl('a', ...items); }
+export function select(...items) { return domEl('select', ...items); }
+export function option(...items) { return domEl('option', ...items); }
