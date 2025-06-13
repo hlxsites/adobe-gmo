@@ -7,40 +7,17 @@ import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
 import { 
     getProductMapping, checkBlankString, statusMapping,
     dateFormat, showLoadingOverlay, hideLoadingOverlay,
-    retrieveSearchFilters, div, span, img, select, option
+    retrieveSearchFilters, div, span, img, select,
+    option, a
 } from '../../scripts/shared-program.js'
 
 const headerConfig = [
-    {
-        'name': 'Marketing Moments',
-        'attribute': 'campaign',
-        'sortable': true
-    },
-    {
-        'name': 'Overview',
-        'attribute': 'description',
-        'sortable': false
-    },
-    {
-        'name': 'Proposed Launch Date',
-        'attribute': 'launch',
-        'sortable': true,
-        'type': 'date'
-    },
-    {
-        'name': 'Products',
-        'attribute': 'products'
-    },
-    {
-        'name': 'Status',
-        'attribute': 'status',
-        'sortable': false
-    },
-    {
-        'name': 'Geo',
-        'attribute': 'geo',
-        'sortable': false
-    }
+    { 'name': 'Marketing Moments', 'attribute': 'campaign', 'sortable': true },
+    { 'name': 'Overview', 'attribute': 'description', 'sortable': false },
+    { 'name': 'Proposed Launch Date', 'attribute': 'launch', 'sortable': true, 'type': 'date' },
+    { 'name': 'Products', 'attribute': 'products' },
+    { 'name': 'Status', 'attribute': 'status', 'sortable': false },
+    { 'name': 'Geo', 'attribute': 'geo', 'sortable': false }
 ]
 
 const DEFAULT_ITEMS_PER_PAGE = 8;
@@ -249,98 +226,57 @@ function getFilterValues(){
 }
 
 async function buildCampaignList(campaigns, numPerPage) {
-    const listWrapper = document.createElement('div');
-    listWrapper.classList.add('list-items');
-    listWrapper.dataset.totalresults = campaigns.length;
+    const listWrapper = div({ class: 'list-items', 'data-totalresults': campaigns.length });
     const host = location.origin + getBaseConfigPath();
     const detailsPage = blockConfig.detailspage;
 
     for (const campaign of campaigns) {
         const index = campaigns.indexOf(campaign);
-        const campaignRow = document.createElement('div');
         const programName = campaign.node.programName;
         const campaignName = campaign.node.campaignName;
         const programID = campaign.node.programID ? campaign.node.programID : "";
         const path = campaign.node._path;
+        const campaignDetailsLink = `${host}/${detailsPage}?programName=${programName}&programID=${programID}&path=${path}`
 
-        campaignRow.classList.add('campaign-row');
-        if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
+        const campaignRow = div(
+            { class: `campaign-row ${(index + 1) > numPerPage ? 'hidden' : '' }` },
+            div(
+                { class: 'campaign-info-wrapper column-1'},
+                a(
+                    { href: campaignDetailsLink },
+                    div(
+                        { class: 'campaign-icon', 'data-programname': programName, 'data-campaignname': campaignName, 'data-programid': programID },
+                    )
+                ),
+                div(
+                    { class: 'campaign-name-wrapper vertical-center'},
+                    div(
+                        { class: 'campaign-name-label', 'data-property': 'campaign', onclick: () => { window.location.href = campaignDetailsLink } },
+                        checkBlankString(programName),
+                        span({ class: 'tooltip' }, 'Program Name'),
+                    ),
+                    div(
+                        { class: 'campaign-name', onclick: () => { window.location.href = campaignDetailsLink } },
+                        checkBlankString(campaignName, 'Marketing Moment Not Available'),
+                        span({ class: 'tooltip' }, 'Marketing Moment'),
+                    ),
+                ),
+            ),
+            div(
+                { class: 'column-2 campaign-description-wrapper vertical-center' },
+                div(
+                    { class: 'campaign-description', 'data-property': 'description' },
+                    checkBlankString(campaign.node.marketingGoal.plaintext)
+                ),
+            ),
+            div({ class: 'column-3 campaign-launch-date vertical-center', 'data-property': 'launch' }, dateFormat(campaign.node.launchDate)),
+            await buildProduct(checkBlankString(campaign.node.productOffering)),
+            await buildStatus(campaign),
+            div({ class: 'column-7 vertical-center', 'data-property': 'geo' }, formatGeos(campaign.node.p0TargetGeo)),
+        )
 
-        const campaignInfoWrapper = document.createElement('div');
-        campaignInfoWrapper.classList.add('campaign-info-wrapper', 'column-1');
-
-        const campaignIconLink = document.createElement('a');
-        let campaignDetailsLink = host + `/${detailsPage}?programName=${programName}&`;
-        campaignDetailsLink += `programID=${programID}`;
-        campaignDetailsLink += `&path=${path}`;
-        campaignIconLink.href = campaignDetailsLink;
-        const campaignIcon = document.createElement('div');
-        campaignIcon.classList.add('campaign-icon');
-        campaignIcon.dataset.programname = programName;
-        campaignIcon.dataset.campaignname = campaignName;
-        campaignIcon.dataset.programid = programID;
-        addThumbnail(campaignIcon, programName, campaignName);
-        campaignIconLink.appendChild(campaignIcon);
-        const campaignNameWrapper = document.createElement('div');
-        campaignNameWrapper.classList.add('campaign-name-wrapper', 'vertical-center');
-
-        campaignNameWrapper.innerHTML = `
-            <div class='campaign-name-label' data-property='campaign'>
-                ${checkBlankString(programName)}
-                <span class="tooltip">Program Name</span>
-            </div>
-            <div class='campaign-name'>
-                ${checkBlankString(campaignName,'Marketing Moment Not Available')}
-                <span class="tooltip">Marketing Moment</span>
-            </div>
-        `;
-
-        // Add click event to the campaign name label and text
-        const campaignNameLabel = campaignNameWrapper.querySelector('.campaign-name-label');
-        const campaignNameText = campaignNameWrapper.querySelector('.campaign-name');
-        campaignNameLabel.addEventListener('click', () => {
-            window.location.href = campaignDetailsLink;
-        });
-        campaignNameText.addEventListener('click', () => {
-            window.location.href = campaignDetailsLink;
-        });
-
-        campaignInfoWrapper.appendChild(campaignIconLink);
-        campaignInfoWrapper.appendChild(campaignNameWrapper);
-
-        const campaignOverviewWrapper = document.createElement('div');
-        campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper', 'vertical-center');
-
-        const campaignOverview = document.createElement('div');
-        campaignOverview.textContent = checkBlankString(campaign.node.marketingGoal.plaintext);
-        campaignOverview.classList.add('campaign-description');
-        campaignOverview.dataset.property = 'description';
-        campaignOverviewWrapper.appendChild(campaignOverview);
-
-        const campaignLaunch = document.createElement('div');
-        campaignLaunch.textContent = dateFormat(campaign.node.launchDate);
-        campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
-        campaignLaunch.dataset.property = 'launch';
-
-        const campaignProducts = await buildProduct(checkBlankString(campaign.node.productOffering));
-        campaignProducts.classList.add('column-4', 'vertical-center');
-
-        var campaignStatusWrapper = document.createElement('div');
-        campaignStatusWrapper.classList.add('status-wrapper', 'column-6', 'vertical-center');
-        campaignStatusWrapper = await buildStatus(campaignStatusWrapper, campaign);
-
-        const campaignGeo = document.createElement('div');
-        campaignGeo.textContent = formatGeos(campaign.node.p0TargetGeo);
-        campaignGeo.classList.add('column-7', 'vertical-center');
-        campaignGeo.dataset.property = 'geo';
-
-        campaignRow.appendChild(campaignInfoWrapper);
-        campaignRow.appendChild(campaignOverviewWrapper);
-        campaignRow.appendChild(campaignLaunch);
-        campaignRow.appendChild(campaignProducts);
-        campaignRow.appendChild(campaignStatusWrapper);
-        campaignRow.appendChild(campaignGeo);
-
+        // add thumbnail
+        addThumbnail(campaignRow.querySelector('.campaign-icon'), programName, campaignName);
         listWrapper.appendChild(campaignRow);
     }
     return listWrapper;
@@ -350,8 +286,7 @@ function formatGeos(geoArray) {
     return geoArray.map(geo => geo.toUpperCase()).join(', ');
 }
 
-async function buildStatus(statusWrapper, campaign) {
-    const campaignStatus = document.createElement('div');
+async function buildStatus(campaign) {
     const statusStr = checkBlankString(campaign.node.status);
     const programStatusMapping = await statusMapping;
     const statusMatch = programStatusMapping.filter(item => item.value === statusStr);
@@ -364,13 +299,12 @@ async function buildStatus(statusWrapper, campaign) {
         statusText = statusStr;
         statusColor = "BABABA";
     }
+    const statusEl = div(
+        { class: 'status-wrapper column-6 vertical-center'},
+        div({ class: 'status', 'data-property': 'status', style: `background-color: #${statusColor}` }, statusText)
+    )
 
-    campaignStatus.textContent = statusText;
-    campaignStatus.style.backgroundColor = "#" + statusColor;
-    campaignStatus.classList.add('status');
-    campaignStatus.dataset.property = 'status';
-    statusWrapper.appendChild(campaignStatus);
-    return statusWrapper;
+    return statusEl;
 }
 
 async function addThumbnail(parentElement, programName, campaignName) {
@@ -386,6 +320,7 @@ async function addThumbnail(parentElement, programName, campaignName) {
 async function buildProduct(product) {
     const productMapping = await getProductMapping(product);
     const productEl = div(
+        { class: 'column-4 vertical-center'},
         div( 
             { class: 'product-entry' },
             img( { class: 'icon', src: productMapping.icon }),
@@ -461,12 +396,15 @@ function buildListFooter(rows, rowsPerPage) {
     // add event listeners
     footerWrapper.querySelector('.footer-pagination-button.prev').addEventListener('click', (event) => {
         // Disable the button
+        const footerPrev = document.querySelector('.footer-pagination-button.prev');
         footerPrev.classList.remove('active');
         footerPrev.classList.add('disabled');
         prevPage(event.target);
     });
+
     footerWrapper.querySelector('.footer-pagination-button.next').addEventListener('click', (event) => {
         // Disable the button
+        const footerNext = document.querySelector('.footer-pagination-button.next');
         footerNext.classList.remove('active');
         footerNext.classList.add('disabled');
         nextPage(event.target);
