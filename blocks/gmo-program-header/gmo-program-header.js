@@ -1,84 +1,90 @@
 import { decorateIcons } from '../../scripts/lib-franklin.js';
-//import { graphqlCampaignByName } from '../../scripts/graphql.js';
 import { graphqlProgramByName } from '../../scripts/graphql.js';
 import { 
     statusMapping, productList, getMappingArray, 
-    retrieveSearchFilters, div, img 
+    retrieveSearchFilters, div, img, span, input,
+    a
 } from '../../scripts/shared-program.js';
 
 export default async function decorate(block) {
-    block.innerHTML = `
-    <div class="inputs-wrapper">
-        <div class="search-wrapper">
-            <span class="icon icon-search"></span>
-            <input id="campaign-search" maxlength="512" type="search" class="campaign-search" placeholder="Search by Program Name...">
-            <!-- autocomplete feature-->
-            <div id="autocomplete-list" class="autocomplete-items"></div>
-        </div>
-        <div class="filter-wrapper">
-            <div class="label">Business Line</div>
-            <div class="filter-dropdown" id="campaign-business-line">
-                <div class="dropdown-button">
-                    <div class="dropdown-label">All Business Lines</div>
-                    <span class="icon icon-chevronDown"></span>
-                    <span class="icon icon-chevronUp inactive"></span>
-                </div>
-                <div class="dropdown-content" id="dropdownBusinessOptions">
-                </div>
-            </div>
-        </div>
-        <div class="filter-wrapper">
-            <div class="label">Status</div>
-            <div class="filter-dropdown" id="campaign-status">
-                <div class="dropdown-button">
-                    <div class="dropdown-label">All Statuses</div>
-                    <span class="icon icon-chevronDown"></span>
-                    <span class="icon icon-chevronUp inactive"></span>
-                </div>
-                <div class="dropdown-content" id="dropdownStatusOptions">
-                </div>
-            </div>
-        </div>
-
-        <div class="filter-wrapper">
-            <div class="label">Products</div>
-            <div class="filter-dropdown" id="campaign-products">
-                <div class="dropdown-button">
-                    <div class="dropdown-label">All Products</div>
-                    <span class="icon icon-chevronDown"></span>
-                    <span class="icon icon-chevronUp inactive"></span>
-                </div>
-                <div class="dropdown-content" id="dropdownProductOptions">
-                </div>
-            </div>
-        </div>
-
-        <div class="filter-wrapper">
-            <div class="label">Geo</div>
-            <div class="filter-dropdown" id="campaign-products">
-                <div class="dropdown-button">
-                    <div class="dropdown-label">All Geo</div>
-                    <span class="icon icon-chevronDown"></span>
-                    <span class="icon icon-chevronUp inactive"></span>
-                </div>
-                <div class="dropdown-content" id="dropdownGeoOptions">
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="selections-wrapper">
-        <div class="selected-filters-list">
-        </div>
-        <div class="right-controls-wrapper">
-            <div class="share-search inactive">Share search</div>
-            <div class="reset-filters inactive">Reset filters</div>
-        </div>
-
-    </div>
-    <span class="icon icon-close inactive"></span>
-    `;
+    const replaceBlock = div(
+        div(
+            { class: 'inputs-wrapper'},
+            div(
+                { class: 'search-wrapper '},
+                span({ class: 'icon icon-search' }),
+                input(
+                    { id: 'campaign-search', maxlength: 512, type: 'search', 
+                      class: 'campaign-search', placeholder: 'Search by Program Name...' 
+                    }),
+                div({ id: 'autocomplete-list', class: 'autocomplete-items' }),
+            ),
+            div(
+                { class: 'filter-wrapper' },
+                div({ class: 'label'}, 'Business Line'),
+                div(
+                    { class: 'filter-dropdown', id: 'campaign-business-line'},
+                    div(
+                        { class: 'dropdown-button' },
+                        div({ class: 'dropdown-label' }, 'All Business Lines'),
+                        span({ class: 'icon icon-chevronDown' }),
+                        span({ class: 'icon icon-chevronUp inactive' })
+                    ),
+                    div({ class: 'dropdown-content', id: 'dropdownBusinessOptions' }),
+                ),
+            ),
+            div(
+                { class: 'filter-wrapper' },
+                div({ class: 'label' }, 'Status'),
+                div({ class: 'filter-dropdown', id: 'campaign-status' },
+                    div(
+                        { class: 'dropdown-button' },
+                        div({ class: 'dropdown-label' }, 'All Statuses'),
+                        span({ class: 'icon icon-chevronDown' }),
+                        span({ class: 'icon icon-chevronUp inactive' }),
+                    ),
+                    div({ class: 'dropdown-content', id: 'dropdownStatusOptions' }),
+                ),
+            ),
+            div(
+                { class: 'filter-wrapper' },
+                div({ class: 'label' }, 'Products'),
+                div({ class: 'filter-dropdown', id: 'campaign-products' },
+                    div(
+                        { class: 'dropdown-button' },
+                        div({ class: 'dropdown-label' }, 'All Products'),
+                        span({ class: 'icon icon-chevronDown' }),
+                        span({ class: 'icon icon-chevronUp inactive' }),
+                    ),
+                    div({ class: 'dropdown-content', id: 'dropdownProductOptions' }),
+                ),
+            ),
+            div(
+                { class: 'filter-wrapper' },
+                div({ class: 'label' }, 'Geo'),
+                div({ class: 'filter-dropdown', id: 'campaign-geo' },
+                    div(
+                        { class: 'dropdown-button' },
+                        div({ class: 'dropdown-label' }, 'All Geo'),
+                        span({ class: 'icon icon-chevronDown' }),
+                        span({ class: 'icon icon-chevronUp inactive' }),
+                    ),
+                    div({ class: 'dropdown-content', id: 'dropdownGeoOptions' }),
+                ),
+            ),
+        ),
+        div(
+            { class: 'selections-wrapper' },
+            div({ class: 'selected-filters-list' }),
+            div(
+                { class: 'right-controls-wrapper' },
+                div({ class: 'share-search inactive' }, 'Share search'),
+                div({ class: 'reset-filters inactive' }, 'Reset filters'),
+            )
+        ),
+        span({ class: 'icon icon-close inactive'}),
+    );
+    block.innerHTML = replaceBlock.innerHTML;
 
     // autocomplete feature
     const autocompleteList = document.getElementById('autocomplete-list');
@@ -199,14 +205,11 @@ function populateDropdown(response, dropdownId, type) {
     let dropdownContent = document.getElementById(dropdownId);
     dropdownContent.innerHTML = '';
     options.forEach((option, index) => {
-        let anchor = document.createElement('a');
-        anchor.href = "#";
-        anchor.id = `option${index + 1}`;
-        anchor.dataset.value = option.value;
-        anchor.dataset.type = type;
-        anchor.className = "dropoption";
-        anchor.textContent = option.text;
-        anchor.addEventListener('click', dropOptionClickHandler);
+        let anchor = a(
+            { class: 'dropoption', 'data-type': type, 'data-value': option.value,
+              id: `option${index + 1}`, href: '#', onclick: dropOptionClickHandler },
+              option.text
+        );
         dropdownContent.appendChild(anchor);
     });
     // add event listener to button
@@ -295,14 +298,13 @@ function handleSelectedFilter(option) {
     const filterValue = option.dataset.value;
     const filterType = option.dataset.type;
     if (option.classList.contains('selected')) {
-        const filterName = option.textContent;
-        const filterTag = document.createElement('div');
-        filterTag.classList.add('selected-filter');
-        const filterLabel = document.createElement('span');
-        filterLabel.textContent = filterName;
-        filterLabel.classList.add('label');
         const closeOrig = document.querySelector('.icon.icon-close.inactive');
-        const closeIcon = closeOrig.cloneNode(true);
+        const filterTag = div(
+            { class: 'selected-filter', 'data-type': filterType, 'data-value': filterValue },
+            span({ class: 'label' }, option.textContent),
+            closeOrig.cloneNode(true),
+        )
+        const closeIcon = filterTag.querySelector('.icon.icon-close.inactive');
         closeIcon.classList.toggle('inactive');
         closeIcon.addEventListener('click', (event) => {
             const filterTag = event.target.closest('.selected-filter');
@@ -310,10 +312,6 @@ function handleSelectedFilter(option) {
             const optionType = filterTag.dataset.type;
             toggleOption(optionValue, optionType);
         })
-        filterTag.appendChild(filterLabel);
-        filterTag.appendChild(closeIcon);
-        filterTag.dataset.type = filterType;
-        filterTag.dataset.value = filterValue;
         filterTagRoot.appendChild(filterTag);
     } else {
         filterTagRoot.removeChild(document.querySelector(`.selected-filter[data-value='${filterValue}'][data-type='${filterType}']`));
@@ -400,10 +398,6 @@ function shareSearchClickHandler() {
 
 function closeShareSearchClickHandler(event) {
     closeShareSearch();
-}
-
-function copyToClipboardHandler(event, text) {
-    copyToClipboard(text);
 }
 
 function shareSearch() {

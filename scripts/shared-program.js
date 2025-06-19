@@ -167,3 +167,4 @@ export function img(...items) { return domEl('img', ...items); }
 export function a(...items) { return domEl('a', ...items); }
 export function select(...items) { return domEl('select', ...items); }
 export function option(...items) { return domEl('option', ...items); }
+export function input(...items) { return domEl('input', ...items); }
