@@ -125,11 +125,8 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     // Calculate total number of pages
     totalPages = Math.ceil(await campaignCount / currentNumberPerPage);
 
-    // refactor
     const listHeaders = buildListHeaders(headerConfig);
-    // refactor
     const listItems = buildCampaignList(campaigns, numPerPage);
-    // refactor
     const listFooter = buildListFooter(await campaignCount, numPerPage);
 
     const blockHTML = div(
