@@ -7,40 +7,17 @@ import { toggleOption } from '../gmo-program-header/gmo-program-header.js';
 import { 
     getProductMapping, checkBlankString, statusMapping,
     dateFormat, showLoadingOverlay, hideLoadingOverlay,
-    retrieveSearchFilters, div, span,
+    retrieveSearchFilters, div, span, img, select,
+    option, a
 } from '../../scripts/shared-program.js'
 
 const headerConfig = [
-    {
-        'name': 'Marketing Moments',
-        'attribute': 'campaign',
-        'sortable': true
-    },
-    {
-        'name': 'Overview',
-        'attribute': 'description',
-        'sortable': false
-    },
-    {
-        'name': 'Proposed Launch Date',
-        'attribute': 'launch',
-        'sortable': true,
-        'type': 'date'
-    },
-    {
-        'name': 'Products',
-        'attribute': 'products'
-    },
-    {
-        'name': 'Status',
-        'attribute': 'status',
-        'sortable': false
-    },
-    {
-        'name': 'Geo',
-        'attribute': 'geo',
-        'sortable': false
-    }
+    { 'name': 'Marketing Moments', 'attribute': 'campaign', 'sortable': true },
+    { 'name': 'Overview', 'attribute': 'description', 'sortable': false },
+    { 'name': 'Proposed Launch Date', 'attribute': 'launch', 'sortable': true, 'type': 'date' },
+    { 'name': 'Products', 'attribute': 'products' },
+    { 'name': 'Status', 'attribute': 'status', 'sortable': false },
+    { 'name': 'Geo', 'attribute': 'geo', 'sortable': false }
 ]
 
 const DEFAULT_ITEMS_PER_PAGE = 8;
@@ -152,10 +129,11 @@ export default async function decorate(block, numPerPage = currentNumberPerPage,
     const listItems = buildCampaignList(campaigns, numPerPage);
     const listFooter = buildListFooter(await campaignCount, numPerPage);
 
-    block.innerHTML = `
-        <div class="refresh-notification"></div>
-        <div class="list-container">
-        </div>`;
+    const blockHTML = div(
+        div({ class: 'refresh-notification' }),
+        div({ class: 'list-container' }),
+    );
+    block.innerHTML = blockHTML.innerHTML;
     const listContainer = block.querySelector('.list-container');
     listContainer.appendChild(listHeaders);
     listContainer.appendChild(await listItems);
@@ -245,98 +223,57 @@ function getFilterValues(){
 }
 
 async function buildCampaignList(campaigns, numPerPage) {
-    const listWrapper = document.createElement('div');
-    listWrapper.classList.add('list-items');
-    listWrapper.dataset.totalresults = campaigns.length;
+    const listWrapper = div({ class: 'list-items', 'data-totalresults': campaigns.length });
     const host = location.origin + getBaseConfigPath();
     const detailsPage = blockConfig.detailspage;
 
     for (const campaign of campaigns) {
         const index = campaigns.indexOf(campaign);
-        const campaignRow = document.createElement('div');
         const programName = campaign.node.programName;
         const campaignName = campaign.node.campaignName;
         const programID = campaign.node.programID ? campaign.node.programID : "";
         const path = campaign.node._path;
+        const campaignDetailsLink = `${host}/${detailsPage}?programName=${programName}&programID=${programID}&path=${path}`
 
-        campaignRow.classList.add('campaign-row');
-        if ((index + 1) > numPerPage) campaignRow.classList.add('hidden');
+        const campaignRow = div(
+            { class: `campaign-row ${(index + 1) > numPerPage ? 'hidden' : '' }` },
+            div(
+                { class: 'campaign-info-wrapper column-1'},
+                a(
+                    { href: campaignDetailsLink },
+                    div(
+                        { class: 'campaign-icon', 'data-programname': programName, 'data-campaignname': campaignName, 'data-programid': programID },
+                    )
+                ),
+                div(
+                    { class: 'campaign-name-wrapper vertical-center'},
+                    div(
+                        { class: 'campaign-name-label', 'data-property': 'campaign', onclick: () => { window.location.href = campaignDetailsLink } },
+                        checkBlankString(programName),
+                        span({ class: 'tooltip' }, 'Program Name'),
+                    ),
+                    div(
+                        { class: 'campaign-name', onclick: () => { window.location.href = campaignDetailsLink } },
+                        checkBlankString(campaignName, 'Marketing Moment Not Available'),
+                        span({ class: 'tooltip' }, 'Marketing Moment'),
+                    ),
+                ),
+            ),
+            div(
+                { class: 'column-2 campaign-description-wrapper vertical-center' },
+                div(
+                    { class: 'campaign-description', 'data-property': 'description' },
+                    checkBlankString(campaign.node.marketingGoal.plaintext)
+                ),
+            ),
+            div({ class: 'column-3 campaign-launch-date vertical-center', 'data-property': 'launch' }, dateFormat(campaign.node.launchDate)),
+            await buildProduct(checkBlankString(campaign.node.productOffering)),
+            await buildStatus(campaign),
+            div({ class: 'column-7 vertical-center', 'data-property': 'geo' }, formatGeos(campaign.node.p0TargetGeo)),
+        )
 
-        const campaignInfoWrapper = document.createElement('div');
-        campaignInfoWrapper.classList.add('campaign-info-wrapper', 'column-1');
-
-        const campaignIconLink = document.createElement('a');
-        let campaignDetailsLink = host + `/${detailsPage}?programName=${programName}&`;
-        campaignDetailsLink += `programID=${programID}`;
-        campaignDetailsLink += `&path=${path}`;
-        campaignIconLink.href = campaignDetailsLink;
-        const campaignIcon = document.createElement('div');
-        campaignIcon.classList.add('campaign-icon');
-        campaignIcon.dataset.programname = programName;
-        campaignIcon.dataset.campaignname = campaignName;
-        campaignIcon.dataset.programid = programID;
-        addThumbnail(campaignIcon, programName, campaignName);
-        campaignIconLink.appendChild(campaignIcon);
-        const campaignNameWrapper = document.createElement('div');
-        campaignNameWrapper.classList.add('campaign-name-wrapper', 'vertical-center');
-
-        campaignNameWrapper.innerHTML = `
-            <div class='campaign-name-label' data-property='campaign'>
-                ${checkBlankString(programName)}
-                <span class="tooltip">Program Name</span>
-            </div>
-            <div class='campaign-name'>
-                ${checkBlankString(campaignName,'Marketing Moment Not Available')}
-                <span class="tooltip">Marketing Moment</span>
-            </div>
-        `;
-
-        // Add click event to the campaign name label and text
-        const campaignNameLabel = campaignNameWrapper.querySelector('.campaign-name-label');
-        const campaignNameText = campaignNameWrapper.querySelector('.campaign-name');
-        campaignNameLabel.addEventListener('click', () => {
-            window.location.href = campaignDetailsLink;
-        });
-        campaignNameText.addEventListener('click', () => {
-            window.location.href = campaignDetailsLink;
-        });
-
-        campaignInfoWrapper.appendChild(campaignIconLink);
-        campaignInfoWrapper.appendChild(campaignNameWrapper);
-
-        const campaignOverviewWrapper = document.createElement('div');
-        campaignOverviewWrapper.classList.add('column-2', 'campaign-description-wrapper', 'vertical-center');
-
-        const campaignOverview = document.createElement('div');
-        campaignOverview.textContent = checkBlankString(campaign.node.marketingGoal.plaintext);
-        campaignOverview.classList.add('campaign-description');
-        campaignOverview.dataset.property = 'description';
-        campaignOverviewWrapper.appendChild(campaignOverview);
-
-        const campaignLaunch = document.createElement('div');
-        campaignLaunch.textContent = dateFormat(campaign.node.launchDate);
-        campaignLaunch.classList.add('column-3', 'campaign-launch-date', 'vertical-center');
-        campaignLaunch.dataset.property = 'launch';
-
-        const campaignProducts = await buildProduct(checkBlankString(campaign.node.productOffering));
-        campaignProducts.classList.add('column-4', 'vertical-center');
-
-        var campaignStatusWrapper = document.createElement('div');
-        campaignStatusWrapper.classList.add('status-wrapper', 'column-6', 'vertical-center');
-        campaignStatusWrapper = await buildStatus(campaignStatusWrapper, campaign);
-
-        const campaignGeo = document.createElement('div');
-        campaignGeo.textContent = formatGeos(campaign.node.p0TargetGeo);
-        campaignGeo.classList.add('column-7', 'vertical-center');
-        campaignGeo.dataset.property = 'geo';
-
-        campaignRow.appendChild(campaignInfoWrapper);
-        campaignRow.appendChild(campaignOverviewWrapper);
-        campaignRow.appendChild(campaignLaunch);
-        campaignRow.appendChild(campaignProducts);
-        campaignRow.appendChild(campaignStatusWrapper);
-        campaignRow.appendChild(campaignGeo);
-
+        // add thumbnail
+        addThumbnail(campaignRow.querySelector('.campaign-icon'), programName, campaignName);
         listWrapper.appendChild(campaignRow);
     }
     return listWrapper;
@@ -346,8 +283,7 @@ function formatGeos(geoArray) {
     return geoArray.map(geo => geo.toUpperCase()).join(', ');
 }
 
-async function buildStatus(statusWrapper, campaign) {
-    const campaignStatus = document.createElement('div');
+async function buildStatus(campaign) {
     const statusStr = checkBlankString(campaign.node.status);
     const programStatusMapping = await statusMapping;
     const statusMatch = programStatusMapping.filter(item => item.value === statusStr);
@@ -360,13 +296,12 @@ async function buildStatus(statusWrapper, campaign) {
         statusText = statusStr;
         statusColor = "BABABA";
     }
+    const statusEl = div(
+        { class: 'status-wrapper column-6 vertical-center'},
+        div({ class: 'status', 'data-property': 'status', style: `background-color: #${statusColor}` }, statusText)
+    )
 
-    campaignStatus.textContent = statusText;
-    campaignStatus.style.backgroundColor = "#" + statusColor;
-    campaignStatus.classList.add('status');
-    campaignStatus.dataset.property = 'status';
-    statusWrapper.appendChild(campaignStatus);
-    return statusWrapper;
+    return statusEl;
 }
 
 async function addThumbnail(parentElement, programName, campaignName) {
@@ -380,56 +315,41 @@ async function addThumbnail(parentElement, programName, campaignName) {
 }
 
 async function buildProduct(product) {
-    const productParent = document.createElement('div');
     const productMapping = await getProductMapping(product);
-    const productEl = document.createElement('div');
-    productEl.classList.add('product-entry');
-    productEl.innerHTML = `
-        <img class='icon' src=${productMapping.icon}></img>
-        <span class='product-label'>${productMapping.label}</span>
-    `;
-    productParent.appendChild(productEl);
-    return productParent;
+    const productEl = div(
+        { class: 'column-4 vertical-center'},
+        div( 
+            { class: 'product-entry' },
+            img( { class: 'icon', src: productMapping.icon }),
+            span( { class: 'product-label'}, productMapping.label ),
+        )
+    );
+    return productEl;
 }
 
 function buildListHeaders(headerConfig) {
     const config = headerConfig;
-    const listHeaders = document.createElement('div');
-    listHeaders.classList.add('list-header');
+    const listHeaders = div({ class: 'list-header'});
     let columnCounter = 1;
+
     config.forEach((column)  => {
-        const columnWrapper = document.createElement('div');
-        columnWrapper.classList.add('column-header-wrapper');
-        columnWrapper.classList.add(`column-${columnCounter}`);
-        const columnEl = document.createElement('div');
-        columnEl.classList.add('column-label');
-        columnEl.dataset.sortable = column.sortable;
-        columnEl.dataset.attribute = column.attribute;
-        columnEl.dataset.name = column.name;
-        columnEl.textContent = column.name;
+        const columnWrapper = div(
+            { class: `column-header-wrapper column-${columnCounter}`},
+            div( { class: 'column-label', 'data-sortable': column.sortable, 'data-attribute': column.attribute,
+                    'data-name': column.name }, column.name
+            ),
+        );
 
         columnCounter++;
-        columnWrapper.appendChild(columnEl);
         //sorting
         if (column.sortable) {
-            const columnSort = document.createElement('div');
-            columnSort.classList.add('column-sort-wrapper');
-            const columnSortAsc = document.createElement('img');
-            columnSortAsc.classList.add('column-sort-asc', 'icon');
-            columnSortAsc.src = '/icons/chevronUp.svg';
-            columnSortAsc.title = 'Sort (Ascending)'
-            columnSortAsc.addEventListener('click', () => {
-                sortColumn('asc', column.attribute);
-            })
-            const columnSortDesc = document.createElement('img');
-            columnSortDesc.classList.add('column-sort-desc', 'icon');
-            columnSortDesc.src = '/icons/chevronDown.svg';
-            columnSortDesc.title = 'Sort (Descending)';
-            columnSortDesc.addEventListener('click', () => {
-                sortColumn('desc', column.attribute);
-            })
-            columnSort.appendChild(columnSortAsc);
-            columnSort.appendChild(columnSortDesc);
+            const columnSort = div(
+                { class: 'column-sort-wrapper'},
+                img({ class: 'column-sort-asc icon', src: '/icons/chevronUp.svg', title: 'Sort (Ascending)', 
+                    onclick: () => { sortColumn('asc', column.attribute) } }),
+                img({ class: 'column-sort-desc icon', src: '/icons/chevronDown.svg', title: 'Sort (Descending)', 
+                    onclick: () => { sortColumn('desc', column.attribute) } }),
+            );
             columnWrapper.appendChild(columnSort);
         }
         //end sorting
@@ -441,98 +361,64 @@ function buildListHeaders(headerConfig) {
 function buildListFooter(rows, rowsPerPage) {
     const pages = Math.ceil(rows / rowsPerPage);
     totalPages = pages;
-    const footerWrapper = document.createElement('div');
-    footerWrapper.classList.add('list-footer', 'footer-wrapper');
-    footerWrapper.dataset.pages = pages;
-    const footerTotal = document.createElement('div');
+    const footerWrapper = div(
+        { class: 'list-footer footer-wrapper', 'data-pages': pages },
+        div({ class: 'footer-total' }, `Page ${currentPage} of ${pages} -- ${rows} total results`),
+        div(
+            { class: 'footer-pagination' },
+            div({ class: 'footer-pagination-button prev' }, 'Prev'),
+            div(
+                { class: 'footer-pages-wrapper' },
+                div({ class: 'footer-pagination-pages currentpage', id: 'current-page', 'data-pagenumber': currentPage},  currentPage)
+            ),
+            div({ class: 'footer-pagination-button next' }, 'Next')
+        ),
+        div({ class: 'footer-perPage' },
+            div({ class: 'footer-perPage-label' }, 'Per Page'),
+            div(
+                { class: 'footer-perPage-dropdown' },
+                select(
+                    { id: 'per-page' },
+                    option({ value: 8 }, '8'),
+                    option({ value: 16 }, '16'),
+                    option({ value: 32 }, '32'),
+                    option({ value: 48 }, '48'),
+                    option({ value: 64 }, '64'),
+                    option({ value: 80 }, '80'),
+                )
+            )
+        ),
+    );
 
-    footerTotal.textContent = `Page ${currentPage} of ${pages} -- ${rows} total results`;
-    footerTotal.classList.add('footer-total');
-
-    // pagination
-    const footerPagination = document.createElement('div');
-    footerPagination.classList.add('footer-pagination');
-    const footerPrev = document.createElement('div');
-    footerPrev.classList.add('footer-pagination-button', 'prev');
-    footerPrev.textContent = 'Prev';
-
-    footerPrev.addEventListener('click', (event) => {
+    // add event listeners
+    footerWrapper.querySelector('.footer-pagination-button.prev').addEventListener('click', (event) => {
         // Disable the button
+        const footerPrev = document.querySelector('.footer-pagination-button.prev');
         footerPrev.classList.remove('active');
         footerPrev.classList.add('disabled');
         prevPage(event.target);
     });
 
-    const footerPageBtnsWrapper = document.createElement('div');
-    footerPageBtnsWrapper.classList.add('footer-pages-wrapper');
-    const footerNext = document.createElement('div');
-    footerNext.classList.add('footer-pagination-button', 'next');
-    //Show current page
-    buildCurrentPageDivElement(currentPage, footerPageBtnsWrapper);
-
-    footerNext.addEventListener('click', (event) => {
+    footerWrapper.querySelector('.footer-pagination-button.next').addEventListener('click', (event) => {
         // Disable the button
+        const footerNext = document.querySelector('.footer-pagination-button.next');
         footerNext.classList.remove('active');
         footerNext.classList.add('disabled');
         nextPage(event.target);
     });
 
-    footerNext.textContent = 'Next';
-    footerPagination.appendChild(footerPrev);
-    footerPagination.appendChild(footerPageBtnsWrapper);
-    footerPagination.appendChild(footerNext);
-    // end pagination
+    footerWrapper.querySelector('.footer-perPage-dropdown').addEventListener('change', (event) => {
+        repaginate(event.target);
+    });
 
-    // per-page controls
-    const footerPerPage = document.createElement('div');
-    footerPerPage.classList.add('footer-perPage');
-    const footerPerPageLabel = document.createElement('div');
-    footerPerPageLabel.textContent = 'Per Page';
-    footerPerPageLabel.classList.add('footer-perPage-label');
-    const footerPerPageDropdownWrapper = document.createElement('div');
-    const footerPerPageDropdown = document.createElement('select');
-    footerPerPageDropdown.id = 'per-page';
-    footerPerPageDropdown.innerHTML = `
-        <option value="8">8</option>
-        <option value="16">16</option>
-        <option value="32">32</option>
-        <option value="48">48</option>
-        <option value="64">64</option>
-        <option value="80">80</option>
-    `;
-
-    // Selecting the item based on the value of currentNumberPerPage
-    var options = footerPerPageDropdown.querySelectorAll('option');
+    // display currently selected option
+    var options = footerWrapper.querySelectorAll('option');
     options.forEach(option => {
         if (option.value === currentNumberPerPage.toString()) {
             option.selected = true;
         }
     });
-
-    footerPerPageDropdown.addEventListener('change', (event) => {
-        repaginate(event.target);
-    });
-    footerPerPageDropdownWrapper.appendChild(footerPerPageDropdown);
-    footerPerPageDropdownWrapper.classList.add('footer-perPage-dropdown');
-    footerPerPage.appendChild(footerPerPageLabel);
-    footerPerPage.appendChild(footerPerPageDropdownWrapper);
-    // end per-page controls
-
-    footerWrapper.appendChild(footerTotal);
-    footerWrapper.appendChild(footerPagination);
-    footerWrapper.appendChild(footerPerPage);
     return footerWrapper;
-}
-
-//Show current page
-function buildCurrentPageDivElement(pageNumber,footerPageBtnsWrapper)
-{
-     const footerPageBtn = document.createElement('div');
-     footerPageBtn.classList.add('footer-pagination-pages', 'currentpage');
-     footerPageBtn.id = "current-page";
-     footerPageBtn.textContent = pageNumber;
-     footerPageBtn.dataset.pagenumber = pageNumber;
-     footerPageBtnsWrapper.appendChild(footerPageBtn);
 }
 
 function repaginate(dropdown) {
